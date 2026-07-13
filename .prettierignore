@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Angular build output & cache
+dist/
+.angular/
+out-tsc/
+
+# Test / tooling output
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
+# Capacitor native projects (managed by Xcode / Gradle & Capacitor CLI)
+ios/
+android/
+
+# Generated / lockfiles
+pnpm-lock.yaml
+
+# Assets
+logo.png
+public/

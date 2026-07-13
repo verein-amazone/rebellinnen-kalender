@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Rebell*innen Kalender</string>
+    <string name="title_activity_main">Rebell*innen Kalender</string>
+    <string name="package_name">at.or.amazone.rebellinnenkalender</string>
+    <string name="custom_url_scheme">at.or.amazone.rebellinnenkalender</string>
+</resources>

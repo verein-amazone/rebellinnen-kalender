@@ -77,3 +77,80 @@ Workshop-Ideen, die bereits im Repo sichtbar sind:
 
 Mehr Informationen dazu, wie du mitdiskutieren oder beitragen kannst, findest du
 in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Entwicklung
+
+Die App ist eine [Angular](https://angular.dev) 22 Anwendung, die mit
+[Capacitor](https://capacitorjs.com) 8 als native iOS- und Android-App gebaut wird.
+
+### Voraussetzungen
+
+- **Node.js 24+** (gepinnt in `.nvmrc` / `.node-version` auf 24.18.0)
+- **pnpm 11+** (exakt gepinnt über das `packageManager`-Feld in `package.json`)
+- Für native Builds: **Xcode** (iOS) bzw. **Android Studio / JDK** (Android)
+
+### Installation
+
+```bash
+pnpm install
+```
+
+### Angular-Entwicklungsserver
+
+```bash
+pnpm start        # http://localhost:4200
+```
+
+### Tests, Linting und Formatierung
+
+```bash
+pnpm test         # Unit-Tests (Vitest, Watch-Modus)
+pnpm test:ci      # Unit-Tests einmalig (nicht-interaktiv)
+pnpm lint         # Angular ESLint
+pnpm format       # Prettier anwenden
+pnpm format:check # Formatierung prüfen
+pnpm e2e          # Playwright-Smoke-Test inkl. Axe-Accessibility-Scan
+```
+
+### Build und Capacitor-Synchronisierung
+
+```bash
+pnpm build        # Produktions-Build nach dist/rebellinnen-kalender/browser
+pnpm cap:sync     # Build + Synchronisierung beider nativer Projekte
+```
+
+### Native Projekte öffnen
+
+```bash
+pnpm cap:ios      # Öffnet das iOS-Projekt in Xcode
+pnpm cap:android  # Öffnet das Android-Projekt in Android Studio
+```
+
+### Plattform-Eckdaten
+
+| Eigenschaft           | Wert                                |
+| --------------------- | ----------------------------------- |
+| App-ID (Bundle-ID)    | `at.or.amazone.rebellinnenkalender` |
+| Anzeigename           | `Rebell*innen Kalender`             |
+| Minimale iOS-Version  | 16.4                                |
+| Minimales Android-API | 24 (Android 7.0)                    |
+
+### Angular CLI MCP
+
+Für versionsgenaue Angular-Unterstützung kann der offizielle
+[Angular CLI MCP Server](https://angular.dev/ai/mcp) verwendet werden. Er läuft
+projektlokal über die installierte Angular CLI:
+
+```bash
+pnpm exec ng mcp
+```
+
+Die Einrichtung erfolgt host-/editorseitig und wird bewusst **nicht** im Repository
+eingecheckt.
+
+### Hinweise
+
+- Das visuelle Design (Farben, Typografie, Komponenten) wird später aus dem
+  freigegebenen Figma-Mockup abgeleitet. Aktuell existiert bewusst kein Design-System.
+- Es gibt derzeit **kein** Browser-/PWA-Release-Ziel; die App wird ausschließlich als
+  native iOS- und Android-App ausgeliefert.

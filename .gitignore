@@ -681,3 +681,39 @@ gradle-app.setting
 hs_err_pid*
 replay_pid*
 
+
+### Angular / Capacitor project setup ###
+# Angular build & cache
+/.angular/cache
+.angular/
+/out-tsc
+/bazel-out
+/dist
+
+# Vitest / test output
+/coverage
+__screenshots__/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+
+# Capacitor / native build artifacts (native projects themselves ARE committed)
+/ios/App/Pods/
+/ios/App/build/
+/ios/DerivedData/
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/captures/
+/android/local.properties
+
+# macOS
+.DS_Store
+
+# Playwright
+/playwright/.auth/
+
+tmp
