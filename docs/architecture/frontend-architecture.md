@@ -153,6 +153,60 @@ Only create cross-cutting code when it is actually shared.
   Prefer local component state for page-specific concerns.
 - `helpers/`, `pipes/`, `directives/`, `validators/` — reusable technical utilities. They must not
   conceal data-layer access or upward dependencies.
+- `markdown/` — the internal Markdown renderer that wraps the `marked` library. See
+  [Markdown rendering](#markdown-rendering).
+
+## Markdown rendering
+
+Curated content may be authored in Markdown. Rendering is intentionally small and safe.
+
+- **`cross-cutting/markdown/markdown-renderer.ts`** (`MarkdownRenderer`) is the only place the
+  `marked` library is used. `marked` converts the Markdown to HTML, and then
+  [DOMPurify](https://github.com/cure53/DOMPurify) reduces that HTML to a strict allow-list. We never
+  build HTML strings or escape by hand.
+- **`view/components/markdown-content/markdown-content.ts`** (`MarkdownContentComponent`) is the
+  reusable primitive. It takes a required `markdown` signal input and binds the rendered string with
+  `[innerHTML]`, so Angular's sanitizer runs as a second layer. It never uses
+  `bypassSecurityTrustHtml` and never manipulates the DOM directly.
+
+### Why `marked` directly, and no Angular wrapper
+
+We use the original `marked` package instead of an Angular wrapper such as `ngx-markdown`. The
+integration we need is tiny (one renderer plus one component), and wrapping `marked` ourselves keeps
+full control over the allowed Markdown subset and the sanitization pipeline. `marked`'s types and
+APIs stay inside `MarkdownRenderer` and must not leak into components or feature code.
+
+### Why DOMPurify for sanitization
+
+Sanitization is delegated to DOMPurify — a widely used, audited HTML sanitizer — rather than to
+hand-written escaping or ad-hoc URL checks, which are error-prone. DOMPurify expresses the allowed
+subset declaratively (`ALLOWED_TAGS`, `ALLOWED_ATTR`, `ALLOWED_URI_REGEXP`), so the restriction lives
+in data, not in bespoke string manipulation. Angular's own sanitizer still runs at the `[innerHTML]`
+binding as a second, independent layer.
+
+### Supported Markdown subset
+
+Allowed and rendered as semantic HTML: paragraphs, emphasis (`em`) and strong emphasis (`strong`),
+ordered and unordered lists, block quotes, links, and **level-two and level-three headings only**.
+
+Rejected: raw/embedded HTML, images, tables, code blocks and inline code, and any other element
+outside the allow-list. Their disallowed tags are stripped while their text content is kept, so
+level-one and level-four-plus headings, for example, survive as plain text rather than headings.
+
+### Sanitization and URL safety
+
+- The rendered HTML always passes through DOMPurify's allow-list in the renderer, and again through
+  Angular's `[innerHTML]` binding in the component. `bypassSecurityTrustHtml` is never used.
+- Links keep their `href` only for the allow-listed schemes `https:` and `http:` (relative and
+  anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
+  `ALLOWED_URI_REGEXP`. Any other scheme — for example `javascript:`, `data:` or `mailto:` — has its
+  `href` removed, leaving only the link text.
+
+### Rule for feature code
+
+Feature code (pages, blocks, interactors, etc.) must render Markdown through
+`MarkdownContentComponent`, or through `MarkdownRenderer` when it only needs the string. **Never
+import `marked` outside `cross-cutting/markdown/`.**
 
 ## Allowed / forbidden examples
 
@@ -168,6 +222,8 @@ Forbidden:
 - An interactor imports `@app/view/pages/today-page/...` (interactor → view).
 - A DAO imports an interactor or a page (data → interactors/view).
 - A Capacitor plugin type appears in an interactor or template instead of behind a gateway.
+- Feature code imports `marked` directly instead of using `MarkdownRenderer` /
+  `MarkdownContentComponent`.
 
 ## Why this architecture
 
