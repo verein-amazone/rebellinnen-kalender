@@ -1,62 +1,95 @@
-# Mitmachen beim Rebell*innen Kalender
+# Contributing to the Rebell\*innen Kalender
 
-Danke, dass du dich einbringen möchtest.
+Thanks for getting involved.
 
-Dieses Repository ist ein offener Planungs- und Entwicklungsraum für die erste Version des Rebell\*innen Kalenders.
-Nicht alles ist schon entschieden. Genau dafür
-sind [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues), Kommentare und Rückmeldungen da.
+This repository is an open planning and development space for the first version of the Rebell\*innen
+Kalender. Not everything is decided yet — that is exactly what the
+[Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues), comments and feedback are
+for.
 
-## So kannst du mitmachen
+## Ways to participate
 
-- Lies die aktuellen [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues)
-  und [Milestones](https://github.com/verein-amazone/rebellinnen-kalender/milestones), um den Stand der Planung zu
-  sehen.
-- Kommentiere direkt in den passenden GitHub Issues, wenn du Ideen, Fragen oder Bedenken hast.
-- Wenn du aus einem Workshop kommst und lieber über die WhatsApp-Gruppe rückmeldest, ist das auch möglich. Das
-  Projektteam überträgt die Rückmeldung dann in das passende GitHub Issue.
-- Nutze Issues gern auch für Varianten, Skizzen, Beispiele und Rückfragen.
+- Read the current [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues) and
+  [Milestones](https://github.com/verein-amazone/rebellinnen-kalender/milestones) to see the state
+  of the planning.
+- Comment directly in the relevant GitHub issues when you have ideas, questions or concerns.
+- Workshop participants may also give feedback via the WhatsApp group; the project team transfers it
+  into the matching issue.
+- Use issues for variants, sketches, examples and follow-up questions.
 
-## Wobei Feedback besonders hilfreich ist
+Feedback is especially helpful on: what is genuinely useful in everyday life, what is understandable
+(or not), what is missing, what should be simpler, and which variant feels right.
 
-- Was ist im Alltag wirklich nützlich?
-- Was wirkt verständlich, was eher nicht?
-- Was fehlt noch?
-- Was sollte einfacher werden?
-- Welche Variante fühlt sich für dich richtig an?
+## Development workflow
 
-## So arbeiten wir mit Issues
+### Branches and pull requests
 
-Die Issues im Repository sind nicht nur für fertige Entscheidungen da. Viele davon sind als Arbeits- und
-Diskussionsräume angelegt.
+- `main` is the integration branch; `dev` is the working branch.
+- Create focused feature branches off `dev` and open a pull request back into it.
+- Keep pull requests small and reviewable, with a clear description of the change.
 
-Wenn du etwas kommentierst, hilft es, wenn du:
+### Package manager
 
-- dich auf ein konkretes Issue beziehst
-- kurz beschreibst, was du meinst
-- bei Bedarf ein Beispiel dazuschreibst
-- zwischen Idee, Frage und konkretem Vorschlag unterscheidest
+**pnpm only.** Do not use `npm` or `yarn`, and do not commit `package-lock.json` or `yarn.lock`.
+Enable [Corepack](https://nodejs.org/api/corepack.html) so the pinned pnpm version is used.
 
-## Woran wir uns orientieren
+### CLI-first generation
 
-Wir möchten den Einstieg niedrigschwellig halten:
+Use official CLIs and schematics instead of hand-writing boilerplate:
 
-- klare Sprache
-- nachvollziehbare Entscheidungen
-- möglichst wenig Hürden für Rückmeldungen
-- ein transparenter Planungsstand statt einer "fertigen" Darstellung
+- Angular CLI (`pnpm exec ng generate …`) for Angular artifacts.
+- Capacitor CLI (`pnpm exec cap …`) for platform and plugin operations.
+- Consult the [Angular CLI MCP Server](https://angular.dev/ai/mcp) for current Angular 22 practices
+  before writing Angular configuration by hand.
 
-Wenn etwas erst für eine spätere Version sinnvoll erscheint, halten wir es sichtbar und prüfen es als späteren
-Ausbaupfad.
+### Quality gates
 
-## Wenn du selbst beitragen möchtest
+Before opening a pull request, run:
 
-Hilfreich sind zum Beispiel:
+```bash
+pnpm format:check
+pnpm lint
+pnpm test:ci
+pnpm build
+```
 
-- ein Kommentar in einem Issue
-- ein Hinweis auf etwas Unklares
-- ein Vorschlag für eine bessere Formulierung
-- ein Feedback zu Wireframes oder Abläufen
-- ein Testen von frühen Entwürfen oder Zwischenständen
+The lint step enforces the architecture layer boundaries (see below). Fix any violations rather
+than disabling the rule.
 
-Wenn du eine konkretere technische Mitarbeit planst, beschreibe sie am besten direkt im passenden Issue. Dann kann das
-Projektteam einordnen, was offen ist und wie sinnvoll weitergearbeitet werden kann.
+### Language
+
+All technical documentation and code comments must be written in **English**. (Community-facing
+issue discussion may use German.)
+
+## Architecture rules
+
+Read [docs/architecture/frontend-architecture.md](./docs/architecture/frontend-architecture.md) and
+[docs/architecture/data-persistence.md](./docs/architecture/data-persistence.md) before changing
+application code. Key rules:
+
+- The dependency direction is **View/Presenters → Interactors → Data**.
+- Views (pages, dialogs, scaffolds, blocks, components) **must not** access the data layer, inject
+  DAOs, run SQL, or call native plugins directly.
+- Business logic lives in interactors; interactors are stateless and UI-agnostic.
+- Persistence and external data-source access live in the data layer; plugin-specific types stay
+  behind data gateways.
+- **Update the architecture documentation when you change a boundary or introduce a new layer
+  concept.**
+
+## Definition of done
+
+- [ ] Change follows the architecture rules and dependency direction.
+- [ ] Official CLIs/schematics were used where applicable.
+- [ ] Technical docs and code comments are in English.
+- [ ] `pnpm format:check`, `pnpm lint`, `pnpm test:ci` and `pnpm build` pass.
+- [ ] Architecture docs updated if a boundary changed.
+- [ ] No unnecessary dependencies, abstractions, or speculative product code were added.
+
+## Working with issues
+
+Many issues are working and discussion spaces, not just finished decisions. When commenting, it
+helps to reference a specific issue, briefly describe your point, add an example if useful, and
+distinguish between an idea, a question and a concrete proposal.
+
+We want to keep the entry threshold low: clear language, traceable decisions, as few barriers to
+feedback as possible, and a transparent planning state rather than a "finished" presentation.

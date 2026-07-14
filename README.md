@@ -1,156 +1,166 @@
 <p align="center">
-  <img src="./logo.png" alt="Rebell*innen Kalender Logo" width="240">
+  <img src="./logo.png" alt="Rebell*innen Kalender logo" width="240">
 </p>
 
 # Rebell\*innen Kalender
 
-Der Rebell\*innen Kalender wird gemeinsam mit [Verein Amazone](https://www.amazone.or.at/), Workshop-Teilnehmer\*innen
-und
-[Independo](https://independo.app/) als digitale Version des
-bisherigen [Rebell\*innen Kalenders](https://www.amazone.or.at/projekte/rebell-innen-kalender) entwickelt.
+The Rebell\*innen Kalender is developed together with [Verein Amazone](https://www.amazone.or.at/),
+workshop participants and [Independo](https://independo.app/) as a digital version of the existing
+[Rebell\*innen Kalender](https://www.amazone.or.at/projekte/rebell-innen-kalender).
 
-Dieses Repository dient als zentraler Ort für Planung, Diskussion und Entwicklung der ersten Version.
+This repository is the central place for planning, discussion and development of the first version.
 
-## Worum geht es?
+## Status
 
-Die erste Version soll eine einfache, alltagstaugliche Kalender-App werden, die ohne Login und ohne eigene
-Server-Infrastruktur funktioniert.
+Early development. The technical foundation (Angular 22 + Capacitor 8, tooling, and the application
+architecture skeleton) is in place. No product screens, database schema, or visual design system
+exist yet — those are tracked in the milestones below.
 
-Im Fokus stehen zunächst:
+## What is it about?
 
-- eine Heute-Ansicht / ein Startscreen
-- eigene Termine und einfache Kalenderfunktionen
-- kuratierte Inhalte aus dem Rebell*innen-/Amazone-Kontext
-- eine einfache Checkliste
-- Customization und Accessibility
-- das Teilen einzelner Termine oder Inhalte über bestehende Kanäle
+The first version is meant to be a simple, everyday calendar app that works **without login and
+without its own server infrastructure**. The initial focus is on:
 
-Einige Ideen aus den Workshops bleiben wichtig, sind aber wahrscheinlich spätere Ausbaupfade, zum Beispiel
-Freund\*innen-Listen, echte gemeinsame Kalender, Chat, automatische Standortsuche oder automatische Newsfeeds.
+- A today view / start screen
+- Personal appointments and basic calendar features
+- Curated content from the Rebell\*innen / Amazone context
+- A simple checklist
+- Customization and accessibility
+- Sharing individual appointments or content through existing channels
 
-## Wie wird geplant?
+Some ideas from the workshops remain important but are likely later expansion paths, for example
+friend lists, real shared calendars, chat, automatic location search, or automatic news feeds.
 
-Die Planung passiert über GitHub Issues und Milestones.
+## Supported products
 
-Die ersten Issues sind als Diskussions- und Entscheidungsräume gedacht. Dort können Varianten, Wireframes, Fragen und
-Feedback gesammelt werden.
+iOS and Android only. There is deliberately **no** browser/PWA release target, no SSR, no Angular
+service worker, and no backend or cloud synchronization.
 
-[Aktuelle Milestones](https://github.com/verein-amazone/rebellinnen-kalender/milestones):
+| Property           | Value                               |
+| ------------------ | ----------------------------------- |
+| App ID (bundle ID) | `at.or.amazone.rebellinnenkalender` |
+| Display name       | `Rebell*innen Kalender`             |
+| Minimum iOS        | 16.4                                |
+| Minimum Android    | API 24 (Android 7.0)                |
 
-1. V1 Produktbild & Wireframes
-2. MVP-Basis: lokale Kalender-App
-3. Kuratierte Inhalte & Organisations-Termine
-4. Teilen & gemeinsames Nutzen
-5. Testversion, Release & Open-Source-Grundlage
+## Architecture
 
-## Wie kann ich Feedback geben?
+The application follows a layered architecture with the dependency direction
+**View/Presenters → Interactors → Data**. Before changing application code, read:
 
-Feedback ist direkt in den GitHub Issues willkommen.
+- [Frontend architecture](./docs/architecture/frontend-architecture.md)
+- [Data & persistence](./docs/architecture/data-persistence.md)
+- [Agent instructions](./AGENTS.md)
 
-Wenn du aus dem Workshop kommst und lieber über die WhatsApp-Gruppe Rückmeldung gibst, ist das auch möglich. Das
-Projektteam überträgt relevantes Feedback dann in das passende GitHub Issue, damit Entscheidungen nachvollziehbar
-bleiben.
+## Tech stack
 
-Hilfreich ist Feedback zum Beispiel so:
+- [Angular](https://angular.dev) 22 — standalone, zoneless, strict, signals-first
+- [Capacitor](https://capacitorjs.com) 8 — native iOS and Android
+- [Tailwind CSS](https://tailwindcss.com) 4
+- Angular CDK, Angular Aria, [Lucide](https://lucide.dev) icons
+- [`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite) for local persistence
+- [`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) for the device calendar
+- Vitest (unit) + Playwright and Axe (e2e / accessibility)
+- ESLint (flat config) + Prettier
 
-- Was gefällt dir an einer Idee oder Variante?
-- Was ist unklar?
-- Was fehlt?
-- Was wäre im Alltag besonders nützlich?
-- Was sollte einfacher werden?
+## Development
 
-## Wichtige Issues zum Einstieg
+### Prerequisites
 
-- #4 V1-Scope und App-Struktur festlegen
-- #5 Startscreen / Heute-Ansicht & Navigation gestalten
-- #6 Kalender & eigene Termine gestalten
-- #7 Checkliste & wichtige Dinge des Tages gestalten
-- #8 Customization & Accessibility gestalten
+- **Node.js 24+** (pinned in `.nvmrc` / `.node-version` to 24.18.0)
+- **pnpm 11+** (exact version pinned via the `packageManager` field in `package.json`)
+- For native builds: **Xcode** (iOS) and **Android Studio / JDK** (Android)
 
-Workshop-Ideen, die bereits im Repo sichtbar sind:
+pnpm is the only supported package manager. Enable [Corepack](https://nodejs.org/api/corepack.html)
+so the pinned pnpm version is used automatically:
 
-- #1 Positive / kuratierte Inhalte des Tages
-- #2 Events und Termine von Organisationen anzeigen
-- #3 Termine mit anderen teilen
+```bash
+corepack enable
+```
 
-## Mitmachen
-
-Mehr Informationen dazu, wie du mitdiskutieren oder beitragen kannst, findest du
-in [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-## Entwicklung
-
-Die App ist eine [Angular](https://angular.dev) 22 Anwendung, die mit
-[Capacitor](https://capacitorjs.com) 8 als native iOS- und Android-App gebaut wird.
-
-### Voraussetzungen
-
-- **Node.js 24+** (gepinnt in `.nvmrc` / `.node-version` auf 24.18.0)
-- **pnpm 11+** (exakt gepinnt über das `packageManager`-Feld in `package.json`)
-- Für native Builds: **Xcode** (iOS) bzw. **Android Studio / JDK** (Android)
-
-### Installation
+### Install
 
 ```bash
 pnpm install
 ```
 
-### Angular-Entwicklungsserver
+### Angular development server
 
 ```bash
 pnpm start        # http://localhost:4200
 ```
 
-### Tests, Linting und Formatierung
+### Tests, linting and formatting
 
 ```bash
-pnpm test         # Unit-Tests (Vitest, Watch-Modus)
-pnpm test:ci      # Unit-Tests einmalig (nicht-interaktiv)
-pnpm lint         # Angular ESLint
-pnpm format       # Prettier anwenden
-pnpm format:check # Formatierung prüfen
-pnpm e2e          # Playwright-Smoke-Test inkl. Axe-Accessibility-Scan
+pnpm test         # Unit tests (Vitest, watch mode)
+pnpm test:ci      # Unit tests once (non-interactive)
+pnpm lint         # Angular ESLint (includes architecture layer-boundary rules)
+pnpm format       # Apply Prettier
+pnpm format:check # Check formatting
+pnpm e2e          # Playwright smoke test incl. Axe accessibility scan
 ```
 
-### Build und Capacitor-Synchronisierung
+### Build and Capacitor synchronization
 
 ```bash
-pnpm build        # Produktions-Build nach dist/rebellinnen-kalender/browser
-pnpm cap:sync     # Build + Synchronisierung beider nativer Projekte
+pnpm build        # Production build to dist/rebellinnen-kalender/browser
+pnpm cap:sync     # Build + sync both native projects
 ```
 
-### Native Projekte öffnen
+### Open the native projects
 
 ```bash
-pnpm cap:ios      # Öffnet das iOS-Projekt in Xcode
-pnpm cap:android  # Öffnet das Android-Projekt in Android Studio
+pnpm cap:open:ios      # Opens the iOS project in Xcode
+pnpm cap:open:android  # Opens the Android project in Android Studio
 ```
-
-### Plattform-Eckdaten
-
-| Eigenschaft           | Wert                                |
-| --------------------- | ----------------------------------- |
-| App-ID (Bundle-ID)    | `at.or.amazone.rebellinnenkalender` |
-| Anzeigename           | `Rebell*innen Kalender`             |
-| Minimale iOS-Version  | 16.4                                |
-| Minimales Android-API | 24 (Android 7.0)                    |
 
 ### Angular CLI MCP
 
-Für versionsgenaue Angular-Unterstützung kann der offizielle
-[Angular CLI MCP Server](https://angular.dev/ai/mcp) verwendet werden. Er läuft
-projektlokal über die installierte Angular CLI:
+For version-accurate Angular support, the official
+[Angular CLI MCP Server](https://angular.dev/ai/mcp) can be used. It runs project-locally through
+the installed Angular CLI:
 
 ```bash
 pnpm exec ng mcp
 ```
 
-Die Einrichtung erfolgt host-/editorseitig und wird bewusst **nicht** im Repository
-eingecheckt.
+Setup is host/editor-side and deliberately **not** committed to the repository.
 
-### Hinweise
+## Planning
 
-- Das visuelle Design (Farben, Typografie, Komponenten) wird später aus dem
-  freigegebenen Figma-Mockup abgeleitet. Aktuell existiert bewusst kein Design-System.
-- Es gibt derzeit **kein** Browser-/PWA-Release-Ziel; die App wird ausschließlich als
-  native iOS- und Android-App ausgeliefert.
+Planning happens through GitHub Issues and Milestones. The early issues are meant as discussion and
+decision spaces where variants, wireframes, questions and feedback are collected.
+
+[Current milestones](https://github.com/verein-amazone/rebellinnen-kalender/milestones):
+
+1. V1 product picture & wireframes
+2. MVP base: local calendar app
+3. Curated content & organization events
+4. Sharing & shared use
+5. Test version, release & open-source foundation
+
+### Good entry points
+
+- #4 Define V1 scope and app structure
+- #5 Design the start screen / today view & navigation
+- #6 Design the calendar & personal appointments
+- #7 Design the checklist & important things of the day
+- #8 Design customization & accessibility
+
+Workshop ideas already visible in the repo:
+
+- #1 Positive / curated content of the day
+- #2 Show events and appointments from organizations
+- #3 Share appointments with others
+
+### How to give feedback
+
+Feedback is welcome directly in the GitHub Issues. Workshop participants may also give feedback via
+the WhatsApp group; the project team transfers relevant feedback into the matching issue so that
+decisions stay traceable. See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+
+## Note on design
+
+The visual design (colors, typography, components) will be derived later from the approved Figma
+mockup. There is deliberately no design system yet.
