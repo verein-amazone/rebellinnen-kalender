@@ -33,6 +33,59 @@ module.exports = defineConfig([
       ],
     },
   },
+  // Architecture layer boundaries. Enforces the dependency direction
+  // View/Presenters -> Interactors -> Data. See docs/architecture/frontend-architecture.md.
+  {
+    files: ['src/app/view/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@app/data', '@app/data/*'],
+              message:
+                'view/** must not import from data/**. Go through an interactor. See docs/architecture/frontend-architecture.md.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/interactors/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@app/view', '@app/view/*'],
+              message:
+                'interactors/** must not import from view/**. Interactors are UI-agnostic. See docs/architecture/frontend-architecture.md.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/app/data/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@app/view', '@app/view/*', '@app/interactors', '@app/interactors/*'],
+              message:
+                'data/** must not import from view/** or interactors/**. The data layer sits at the bottom. See docs/architecture/frontend-architecture.md.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
