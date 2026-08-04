@@ -63,6 +63,14 @@ test.describe('application shell', () => {
 
     await expect(page).toHaveURL(/\/calendar$/);
     await expect(calendarLink).toBeFocused();
+
+    // The announcer must stay off-screen. Without @angular/cdk/a11y-prebuilt.css the
+    // .cdk-visually-hidden class has no rules and the element renders as visible page content.
+    const announcer = page.locator('.cdk-live-announcer-element');
+    await expect(announcer).toHaveText('Kalender');
+    const box = await announcer.boundingBox();
+    expect(box?.width).toBeLessThanOrEqual(1);
+    expect(box?.height).toBeLessThanOrEqual(1);
   });
 
   test('keeps the selected colour theme after a reload', async ({ page }) => {

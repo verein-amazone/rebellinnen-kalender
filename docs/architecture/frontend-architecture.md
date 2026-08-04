@@ -139,6 +139,19 @@ Provided by the router's `withViewTransitions()`. The animation is a short cross
 relationship that does not exist. View transition pseudo-elements sit outside the document tree, so
 the reduced-motion rules have to disable them explicitly; see the same file.
 
+**The feature is not registered on iOS.** WKWebView repaints the whole page while snapshotting it,
+which shows up as a brief dim or flicker instead of an animation. Skipping only the animation via
+`onViewTransitionCreated` does not help, because the snapshot is what causes the artefact — so
+`app.config.ts` leaves the feature out entirely there, using `supportsViewTransitions()` from
+`cross-cutting/infrastructure/device-platform.ts`, and navigation cuts straight to the new screen.
+
+### Angular CDK stylesheets
+
+CDK behaviour that needs CSS does not bring it along. `@angular/cdk/a11y-prebuilt.css` is imported
+in `src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
+element — without it the announcements are rendered as visible page content. Import the matching
+prebuilt stylesheet whenever a new CDK feature is adopted.
+
 ### Dialogs (`view/dialogs/`)
 
 Modal interaction flows. Their presenters follow the same rules as pages.
