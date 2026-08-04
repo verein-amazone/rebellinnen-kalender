@@ -1,3 +1,6 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global stylesheet. Keep this file an import barrel — put actual rules in ./styles/*.css. */
 
 @import 'tailwindcss';
+@import './styles/fonts.css';
+@import './styles/theme.css';
+@import './styles/base.css';

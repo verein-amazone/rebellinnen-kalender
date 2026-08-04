@@ -54,14 +54,40 @@ infrastructure.
 Pages **must not**: inject DAOs, execute SQL, access the SQLite plugin, access native calendar APIs
 directly, or contain substantial business rules.
 
-Naming:
+Pages are organised in **route groups**. A group owns one area of the app, declares its own routes
+next to its pages, and is lazy-loaded from `app.routes.ts` via `loadChildren`. This keeps a growing
+route tree readable and keeps each area's routing decisions local to it.
 
 ```
-view/pages/today-page/
-  today.page.ts
-  today.page.html
-  today.page.css
+view/pages/calendar/
+  calendar.routes.ts          exports CALENDAR_ROUTES
+  overview/
+    overview.page.ts
+    overview.page.html
+  new-event/
+    new-event.page.ts
+    new-event.page.html
 ```
+
+Add a `.page.css` file only when a page actually needs styles that Tailwind utilities cannot
+express; do not create empty ones.
+
+Because several groups have an `overview` page, class names and selectors are qualified by their
+group (`CalendarOverviewPage` / `app-calendar-overview`) while file and folder names stay short.
+
+#### Primary destinations and focused screens
+
+A route declares `data: { tab: 'today' | 'calendar' | 'content' }` when it is one of the three
+primary destinations. Every other route is a **focused screen** — a detail, creation or settings
+screen that owns the whole viewport.
+
+`MainNavigationScaffold` reads the deepest activated route's `data.tab` and uses it for both
+decisions it has to make: which destination is marked active, and whether the bottom navigation is
+rendered at all. Adding a focused screen therefore requires nothing beyond leaving `tab` off its
+route.
+
+Focused screens use `FocusedScreenScaffold`, which provides the shared header, the single back
+action and the focus move to the screen title.
 
 ### Dialogs (`view/dialogs/`)
 
@@ -83,8 +109,12 @@ or data access.
 view/scaffolds/main-navigation/
   main-navigation.scaffold.ts
   main-navigation.scaffold.html
-  main-navigation.scaffold.css
 ```
+
+Two scaffolds exist:
+
+- `main-navigation` — the app shell: the routed page plus the bottom navigation.
+- `focused-screen` — the header, back action and focus handling shared by all focused screens.
 
 ### Blocks (`view/blocks/`)
 
@@ -155,6 +185,41 @@ Only create cross-cutting code when it is actually shared.
   conceal data-layer access or upward dependencies.
 - `markdown/` — the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
+
+## Theming and appearance
+
+Colours, fonts and radii are **design tokens in CSS**, never values in TypeScript.
+
+### Token layer
+
+`src/styles/theme.css` defines the tokens in two levels:
+
+1. `--rk-*` holds the raw values. Each colour theme is one static block selected by the `data-theme`
+   attribute on `<html>`; the default theme is additionally bound to `:root`.
+2. `@theme inline { … }` maps them into Tailwind's namespaces, so `bg-background`, `text-foreground`,
+   `border-border`, `font-display` and `rounded-lg` all resolve through the custom properties.
+   `inline` is required — it keeps the `var()` references in the generated utilities, which is what
+   makes changing `data-theme` at runtime recolour the whole app without rebuilding anything.
+
+Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
+absence of the attribute means "follow the device setting", which is the default.
+
+Adding a theme means adding one block to `theme.css` plus its id in `AppearanceInteractor`. Theme
+previews are rendered by putting `data-theme` on the preview element itself, so no screen ever
+needs a colour literal.
+
+### Applying the selection
+
+The selection follows the normal layer direction:
+
+- `data/stores/appearance.store.ts` persists the three values and exposes them as signals.
+- `interactors/settings/appearance.interactor.ts` validates the ids, owns the labelled option lists
+  and exposes the current selection.
+- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes onto
+  `<html>`. It is the only code that touches them.
+- The root `App` component runs the single `effect()` that connects the two.
+
+No context is involved: the interactor's readonly signals are what components consume.
 
 ## Markdown rendering
 

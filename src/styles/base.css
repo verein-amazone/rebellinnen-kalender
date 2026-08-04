@@ -1,0 +1,63 @@
+/* Element defaults and the few shared utilities. Anything themeable belongs in ./theme.css. */
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold;
+  }
+
+  /* Make the focus ring visible on every theme instead of relying on the UA default, which
+     disappears on the dark themes. */
+  :focus-visible {
+    @apply outline-ring rounded-sm outline-2 outline-offset-2;
+  }
+}
+
+@layer utilities {
+  /* Dotted notebook grid from the Rebell*innen Kalender print design. */
+  .dotted-bg {
+    background-image: radial-gradient(circle, var(--rk-dot-color) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Reduced motion. `[data-motion='reduced']` is the in-app override; the media query covers the
+ * device setting, which is the default when the user has not chosen anything.
+ * `[data-motion='standard']` deliberately has no rule — choosing it means opting out of the
+ * device preference, so the media query below must not apply.
+ */
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='standard']) *,
+  html:not([data-motion='standard']) *::before,
+  html:not([data-motion='standard']) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

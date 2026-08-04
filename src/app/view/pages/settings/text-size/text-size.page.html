@@ -1,0 +1,26 @@
+<app-focused-screen heading="Textgröße" fallbackLink="/settings">
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Textgröße wählen</legend>
+
+    @for (option of appearance.textSizeOptions; track option.id) {
+      <label
+        class="bg-card text-card-foreground flex min-h-14 items-center gap-3 rounded-lg px-4 py-3"
+      >
+        <input
+          type="radio"
+          name="text-size"
+          class="size-5 shrink-0"
+          [value]="option.id"
+          [checked]="appearance.textSize() === option.id"
+          (change)="select(option.id)"
+        />
+        <span class="flex-1">
+          {{ option.label }}
+          @if (option.description) {
+            <span class="text-muted-foreground block text-sm">{{ option.description }}</span>
+          }
+        </span>
+      </label>
+    }
+  </fieldset>
+</app-focused-screen>

@@ -1,0 +1,172 @@
+/*
+ * Design tokens.
+ *
+ * Two levels:
+ *   1. `--rk-*` raw palette values, defined once per colour theme and selected via the
+ *      `data-theme` attribute on <html>.
+ *   2. `@theme inline` maps them to Tailwind's theme namespaces, so `bg-background`,
+ *      `text-foreground`, `border-border`, `font-display`, `rounded-lg`, … resolve through the
+ *      custom properties. `inline` is required: it keeps the `var()` references in the generated
+ *      utilities instead of resolving them at build time, which is what makes switching
+ *      `data-theme` at runtime recolour everything.
+ *
+ * No colour value may live in TypeScript. Adding a theme means adding one block here plus its id
+ * in `interactors/settings/appearance.interactor.ts`.
+ *
+ * The four themes are the ones approved in the settings rework handover: amazone, warm
+ * (Sonnenuntergang), nacht (Mitternacht), lila (Lavendel).
+ */
+
+@theme inline {
+  --color-background: var(--rk-background);
+  --color-foreground: var(--rk-foreground);
+  --color-card: var(--rk-card);
+  --color-card-foreground: var(--rk-card-foreground);
+  --color-primary: var(--rk-primary);
+  --color-primary-foreground: var(--rk-primary-foreground);
+  --color-secondary: var(--rk-secondary);
+  --color-secondary-foreground: var(--rk-secondary-foreground);
+  --color-muted: var(--rk-muted);
+  --color-muted-foreground: var(--rk-muted-foreground);
+  --color-accent: var(--rk-accent);
+  --color-accent-foreground: var(--rk-accent-foreground);
+  --color-border: var(--rk-border);
+  --color-input-background: var(--rk-input-background);
+  --color-switch-background: var(--rk-switch-background);
+  --color-ring: var(--rk-ring);
+  --color-nav-bg: var(--rk-nav-bg);
+  --color-rebel-bg: var(--rk-rebel-bg);
+  --color-rebel-text: var(--rk-rebel-text);
+  --color-rebel-text-muted: var(--rk-rebel-text-muted);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Fredoka', 'Inter', system-ui, sans-serif;
+
+  --radius-lg: var(--rk-radius);
+  --radius-md: calc(var(--rk-radius) - 2px);
+  --radius-sm: calc(var(--rk-radius) - 4px);
+  --radius-xl: calc(var(--rk-radius) + 4px);
+}
+
+/* Theme-independent tokens. */
+:root {
+  --rk-radius: 0.625rem;
+}
+
+/* Amazone — the default. Also bound to :root so the app renders correctly before the stored
+   preference has been applied to <html>. */
+:root,
+[data-theme='amazone'] {
+  --rk-background: #7dbdbb;
+  --rk-foreground: #15195f;
+  --rk-card: #fffdf6;
+  --rk-card-foreground: #15195f;
+  --rk-primary: #de2c27;
+  --rk-primary-foreground: #fffdf6;
+  --rk-secondary: #168ca0;
+  --rk-secondary-foreground: #fffdf6;
+  --rk-muted: #f7f0e2;
+  --rk-muted-foreground: #3e4260;
+  --rk-accent: #f28a2e;
+  --rk-accent-foreground: #15195f;
+  --rk-border: rgb(21 25 95 / 0.15);
+  --rk-input-background: #edf5f5;
+  --rk-switch-background: #a8c8c7;
+  --rk-ring: #e92f2a;
+  --rk-nav-bg: #15195f;
+  --rk-rebel-bg: #15195f;
+  --rk-rebel-text: #fffdf6;
+  --rk-rebel-text-muted: #a8d4d3;
+  --rk-dot-color: rgb(21 25 95 / 0.12);
+}
+
+/* Warm — "Sonnenuntergang". */
+[data-theme='warm'] {
+  --rk-background: #f7f3ee;
+  --rk-foreground: #2a1f14;
+  --rk-card: #fffdf9;
+  --rk-card-foreground: #2a1f14;
+  --rk-primary: #b85536;
+  --rk-primary-foreground: #fffdf9;
+  --rk-secondary: #7b9e87;
+  --rk-secondary-foreground: #fffdf9;
+  --rk-muted: #ede7dc;
+  --rk-muted-foreground: #756a5d;
+  --rk-accent: #bfa8d4;
+  --rk-accent-foreground: #2a1f14;
+  --rk-border: rgb(90 65 40 / 0.12);
+  --rk-input-background: #ede7dc;
+  --rk-switch-background: #c4b9aa;
+  --rk-ring: #c85d3b;
+  --rk-nav-bg: #2a1f14;
+  --rk-rebel-bg: #c85d3b;
+  --rk-rebel-text: #fffdf9;
+  --rk-rebel-text-muted: #f0d8c8;
+  --rk-dot-color: rgb(90 65 40 / 0.1);
+}
+
+/* Nacht — "Mitternacht". */
+[data-theme='nacht'] {
+  --rk-background: #0e1240;
+  --rk-foreground: #d8e8ec;
+  --rk-card: #1a2265;
+  --rk-card-foreground: #d8e8ec;
+  --rk-primary: #7dbdbb;
+  --rk-primary-foreground: #0e1240;
+  --rk-secondary: #f28a2e;
+  --rk-secondary-foreground: #0e1240;
+  --rk-muted: #151a55;
+  --rk-muted-foreground: #7dbdbb;
+  --rk-accent: #e92f2a;
+  --rk-accent-foreground: #d8e8ec;
+  --rk-border: rgb(125 189 187 / 0.2);
+  --rk-input-background: #1a2265;
+  --rk-switch-background: #2a3580;
+  --rk-ring: #7dbdbb;
+  --rk-nav-bg: #080b30;
+  --rk-rebel-bg: #080b30;
+  --rk-rebel-text: #d8e8ec;
+  --rk-rebel-text-muted: #7dbdbb;
+  --rk-dot-color: rgb(125 189 187 / 0.15);
+}
+
+/* Lila — "Lavendel". */
+[data-theme='lila'] {
+  --rk-background: #ede0f8;
+  --rk-foreground: #2d1b69;
+  --rk-card: #fffdf6;
+  --rk-card-foreground: #2d1b69;
+  --rk-primary: #7b3fa8;
+  --rk-primary-foreground: #fffdf6;
+  --rk-secondary: #c084d4;
+  --rk-secondary-foreground: #fffdf6;
+  --rk-muted: #f3eaf9;
+  --rk-muted-foreground: #6b5b86;
+  --rk-accent: #f28a2e;
+  --rk-accent-foreground: #2d1b69;
+  --rk-border: rgb(45 27 105 / 0.15);
+  --rk-input-background: #ede3f8;
+  --rk-switch-background: #c8b0e0;
+  --rk-ring: #7b3fa8;
+  --rk-nav-bg: #2d1b69;
+  --rk-rebel-bg: #2d1b69;
+  --rk-rebel-text: #fffdf6;
+  --rk-rebel-text-muted: #d4b8e8;
+  --rk-dot-color: rgb(45 27 105 / 0.12);
+}
+
+/*
+ * Text size. No attribute means "use the device setting" — the root font size then stays at the
+ * browser/WebView default, which is what the OS text-size preference scales.
+ */
+[data-text-size='small'] {
+  font-size: 87.5%;
+}
+
+[data-text-size='medium'] {
+  font-size: 100%;
+}
+
+[data-text-size='large'] {
+  font-size: 112.5%;
+}
