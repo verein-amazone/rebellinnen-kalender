@@ -54,14 +54,103 @@ infrastructure.
 Pages **must not**: inject DAOs, execute SQL, access the SQLite plugin, access native calendar APIs
 directly, or contain substantial business rules.
 
-Naming:
+Pages are organised in **route groups**. A group owns one area of the app, declares its own routes
+next to its pages, and is lazy-loaded from `app.routes.ts` via `loadChildren`. This keeps a growing
+route tree readable and keeps each area's routing decisions local to it.
 
 ```
-view/pages/today-page/
-  today.page.ts
-  today.page.html
-  today.page.css
+view/pages/calendar/
+  calendar.routes.ts          exports CALENDAR_ROUTES
+  overview/
+    overview.page.ts
+    overview.page.html
+  new-event/
+    new-event.page.ts
+    new-event.page.html
 ```
+
+Add a `.page.css` file only when a page actually needs styles that Tailwind utilities cannot
+express; do not create empty ones.
+
+Because several groups have an `overview` page, class names and selectors are qualified by their
+group (`CalendarOverviewPage` / `app-calendar-overview`) while file and folder names stay short.
+
+#### Primary destinations and focused screens
+
+A route declares `data: { tab: 'today' | 'calendar' | 'content' }` when it is one of the three
+primary destinations. Every other route is a **focused screen** — a detail, creation or settings
+screen that owns the whole viewport.
+
+`MainNavigationScaffold` reads the deepest activated route's `data.tab` and uses it for both
+decisions it has to make: which destination is marked active, and whether the bottom navigation is
+rendered at all. Adding a focused screen therefore requires nothing beyond leaving `tab` off its
+route.
+
+Focused screens use `FocusedScreenScaffold`, which provides the shared header and a single dismiss
+action. Its `dismissal` input picks the semantics: `back` (an arrow — the user returns the way they
+came) for details and settings subpages, `close` (a cross) for creation and editing screens, where a
+back arrow would suggest that entered data is kept.
+
+#### Page state and navigation
+
+**State that must survive navigation goes in the URL** — as a route parameter or a query parameter,
+never in a component field that a re-created page would lose. The selected calendar day, an active
+filter or a chosen view mode are route state, not component state.
+
+This keeps the back button, deep links and app restarts correct for free, and it means the app does
+not need a custom `RouteReuseStrategy`. Pages read such values through `withComponentInputBinding()`,
+which binds route parameters to signal inputs.
+
+#### Focus and announcements
+
+`cross-cutting/infrastructure/page-focus.ts` handles this centrally; individual pages do not manage
+focus. Every screen renders exactly one `<h1>` inside the shell's `<main>` landmark, which is what it
+targets.
+
+- Opening or closing a focused screen, and the initial load, **move focus** to the new screen's
+  title: the context has changed completely.
+- Switching between primary destinations only **announces** the new page through the CDK
+  `LiveAnnouncer`. Moving focus there would throw a keyboard user out of the bottom navigation they
+  are operating.
+
+#### Safe areas
+
+The app draws edge to edge: `index.html` sets `viewport-fit=cover`, which is also what makes
+`env(safe-area-inset-*)` return real values on iOS — without it they are all `0px` and every inset
+silently does nothing.
+
+Use the `.safe-top` / `.safe-bottom` / `.safe-x` utilities from `src/styles/base.css`. Put them on
+the element that carries the background, not on the one that carries the layout padding, for two
+reasons: the background then extends into the inset while the content stays clear of it, and the
+utility does not compete with a `p*-` utility for the same property (both live in Tailwind's
+utilities layer, where source order rather than specificity decides).
+
+Who applies what:
+
+- The bottom navigation applies its own bottom inset, so its background fills the home indicator
+  area.
+- Focused screens apply the top inset to their sticky header.
+- For primary destinations, which have no header, the shell applies the top inset to `<main>`.
+
+#### Page transitions
+
+Provided by the router's `withViewTransitions()`. The animation is a short cross-fade defined in
+`src/styles/base.css` — the screens are unrelated, so a directional slide would imply a spatial
+relationship that does not exist. View transition pseudo-elements sit outside the document tree, so
+the reduced-motion rules have to disable them explicitly; see the same file.
+
+**The feature is not registered on iOS.** WKWebView repaints the whole page while snapshotting it,
+which shows up as a brief dim or flicker instead of an animation. Skipping only the animation via
+`onViewTransitionCreated` does not help, because the snapshot is what causes the artefact — so
+`app.config.ts` leaves the feature out entirely there, using `supportsViewTransitions()` from
+`cross-cutting/infrastructure/device-platform.ts`, and navigation cuts straight to the new screen.
+
+### Angular CDK stylesheets
+
+CDK behaviour that needs CSS does not bring it along. `@angular/cdk/a11y-prebuilt.css` is imported
+in `src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
+element — without it the announcements are rendered as visible page content. Import the matching
+prebuilt stylesheet whenever a new CDK feature is adopted.
 
 ### Dialogs (`view/dialogs/`)
 
@@ -83,8 +172,12 @@ or data access.
 view/scaffolds/main-navigation/
   main-navigation.scaffold.ts
   main-navigation.scaffold.html
-  main-navigation.scaffold.css
 ```
+
+Two scaffolds exist:
+
+- `main-navigation` — the app shell: the routed page plus the bottom navigation.
+- `focused-screen` — the header, back action and focus handling shared by all focused screens.
 
 ### Blocks (`view/blocks/`)
 
@@ -155,6 +248,41 @@ Only create cross-cutting code when it is actually shared.
   conceal data-layer access or upward dependencies.
 - `markdown/` — the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
+
+## Theming and appearance
+
+Colours, fonts and radii are **design tokens in CSS**, never values in TypeScript.
+
+### Token layer
+
+`src/styles/theme.css` defines the tokens in two levels:
+
+1. `--rk-*` holds the raw values. Each colour theme is one static block selected by the `data-theme`
+   attribute on `<html>`; the default theme is additionally bound to `:root`.
+2. `@theme inline { … }` maps them into Tailwind's namespaces, so `bg-background`, `text-foreground`,
+   `border-border`, `font-display` and `rounded-lg` all resolve through the custom properties.
+   `inline` is required — it keeps the `var()` references in the generated utilities, which is what
+   makes changing `data-theme` at runtime recolour the whole app without rebuilding anything.
+
+Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
+absence of the attribute means "follow the device setting", which is the default.
+
+Adding a theme means adding one block to `theme.css` plus its id in `AppearanceInteractor`. Theme
+previews are rendered by putting `data-theme` on the preview element itself, so no screen ever
+needs a colour literal.
+
+### Applying the selection
+
+The selection follows the normal layer direction:
+
+- `data/stores/appearance.store.ts` persists the three values and exposes them as signals.
+- `interactors/settings/appearance.interactor.ts` validates the ids, owns the labelled option lists
+  and exposes the current selection.
+- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes onto
+  `<html>`. It is the only code that touches them.
+- The root `App` component runs the single `effect()` that connects the two.
+
+No context is involved: the interactor's readonly signals are what components consume.
 
 ## Markdown rendering
 

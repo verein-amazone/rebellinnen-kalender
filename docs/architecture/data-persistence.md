@@ -3,7 +3,8 @@
 This document describes how the app stores data and the conventions the data layer must follow. It
 complements [frontend-architecture.md](./frontend-architecture.md).
 
-> Status: conventions only. No schema, DAOs, migrations, or gateways are implemented yet.
+> Status: no schema, DAOs, migrations, or gateways are implemented yet. The only implemented data
+> code is `data/stores/appearance.store.ts` (see [Stores](#stores)).
 
 ## Local-only persistence
 
@@ -83,6 +84,20 @@ Not stored:
 
 - Device calendar events are **not** copied into SQLite. They are queried through the native
   calendar gateway on demand.
+
+## Stores
+
+`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table —
+currently only the appearance preferences (`appearance.store.ts`). They persist to `localStorage`,
+which is available in both the iOS and Android WebViews, survives restarts, and avoids paying the
+SQLite connection cost for three scalars read on every startup.
+
+Stores expose their state as signals and **validate on read**: a stored value may come from an older
+app version or from a manually edited storage entry, so an unrecognised value falls back to the
+documented default instead of reaching the rest of the app.
+
+`localStorage` access throws in some privacy modes, so it is never touched directly — reads and
+writes are guarded, and a lost preference is preferable to a broken app.
 
 ## Future synchronization
 

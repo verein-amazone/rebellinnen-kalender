@@ -1,3 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global stylesheet. Keep this file an import barrel — put actual rules in ./styles/*.css. */
 
 @import 'tailwindcss';
+/* Defines .cdk-visually-hidden, which the CDK LiveAnnouncer relies on. Without it the announcer's
+   element is rendered visibly at the bottom of the page. */
+@import '@angular/cdk/a11y-prebuilt.css';
+@import './styles/fonts.css';
+@import './styles/theme.css';
+@import './styles/base.css';

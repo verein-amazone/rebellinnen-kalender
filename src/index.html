@@ -4,7 +4,12 @@
     <meta charset="utf-8" />
     <title>Rebell*innen Kalender</title>
     <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      `viewport-fit=cover` lets the app use the full screen on devices with a notch or a home
+      indicator. It is also what makes the `env(safe-area-inset-*)` values non-zero on iOS; without
+      it the `.safe-*` utilities in src/styles/base.css silently do nothing.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
   </head>
   <body>

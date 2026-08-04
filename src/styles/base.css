@@ -1,0 +1,105 @@
+/* Element defaults and the few shared utilities. Anything themeable belongs in ./theme.css. */
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold;
+  }
+
+  /* Make the focus ring visible on every theme instead of relying on the UA default, which
+     disappears on the dark themes. */
+  :focus-visible {
+    @apply outline-ring rounded-sm outline-2 outline-offset-2;
+  }
+}
+
+@layer utilities {
+  /*
+   * Safe areas. The app draws edge to edge (`viewport-fit=cover` in index.html), so anything that
+   * must stay clear of the notch, the camera cutout, the home indicator or a rounded corner needs
+   * one of these. Applying them to a background-bearing element is intentional: the background then
+   * extends into the inset while the content does not.
+   */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Dotted notebook grid from the Rebell*innen Kalender print design. */
+  .dotted-bg {
+    background-image: radial-gradient(circle, var(--rk-dot-color) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Page transitions, driven by the router's view transitions. A short cross-fade only: the screens
+ * differ completely, so a directional slide would imply a spatial relationship that does not exist.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+
+/*
+ * Reduced motion. `[data-motion='reduced']` is the in-app override; the media query covers the
+ * device setting, which is the default when the user has not chosen anything.
+ *
+ * View transition pseudo-elements live outside the document tree, so the `*` rules below do not
+ * reach them and they need their own rule in each case.
+ * `[data-motion='standard']` deliberately has no rule — choosing it means opting out of the
+ * device preference, so the media query below must not apply.
+ */
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion='reduced']::view-transition-old(root),
+html[data-motion='reduced']::view-transition-new(root) {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='standard'])::view-transition-old(root),
+  html:not([data-motion='standard'])::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  html:not([data-motion='standard']) *,
+  html:not([data-motion='standard']) *::before,
+  html:not([data-motion='standard']) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

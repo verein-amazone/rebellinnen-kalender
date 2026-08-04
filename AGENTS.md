@@ -20,6 +20,9 @@ before changing application code:
 - Standalone components, strict TypeScript, strict templates, zoneless change detection.
 - Signals are the default for view-facing state. No NgModules for application architecture.
 - The `@app/*` path alias maps to `src/app/*`.
+- Use `private` by default. Use `#private` only where hard runtime privacy is intentional and the
+  member will never need template access, subclass access, overriding, spying, or direct test
+  access. Members used from a template are `protected`.
 
 ## Architecture (dependency direction: View/Presenters → Interactors → Data)
 

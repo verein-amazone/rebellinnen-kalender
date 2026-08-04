@@ -1,0 +1,59 @@
+<app-focused-screen heading="Einstellungen" fallbackLink="/today">
+  <div class="space-y-6">
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Persönlich</h2>
+      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+        <li>
+          <a routerLink="/settings/profile" class="flex min-h-14 items-center gap-3 px-4 py-3">
+            <span class="flex-1">Profil</span>
+            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Darstellung &amp; Bedienung</h2>
+      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+        <li>
+          <a routerLink="/settings/theme" class="flex min-h-14 items-center gap-3 px-4 py-3">
+            <span class="flex-1">Farbthema</span>
+            <span class="text-muted-foreground">{{ appearance.themeLabel() }}</span>
+            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/settings/text-size" class="flex min-h-14 items-center gap-3 px-4 py-3">
+            <span class="flex-1">Textgröße</span>
+            <span class="text-muted-foreground">{{ appearance.textSizeLabel() }}</span>
+            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/settings/motion" class="flex min-h-14 items-center gap-3 px-4 py-3">
+            <span class="flex-1">Bewegung &amp; Animationen</span>
+            <span class="text-muted-foreground">{{ appearance.motionLabel() }}</span>
+            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Kalender</h2>
+      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+        <li>
+          <a routerLink="/settings/calendars" class="flex min-h-14 items-center gap-3 px-4 py-3">
+            <span class="flex-1">Kalender verwalten</span>
+            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <p class="text-muted-foreground text-sm">
+      Die Bereiche „App &amp; Rechtliches“ (Datenschutz, Impressum, Über die App) folgen mit den
+      Rechtstexten in Issue #11.
+    </p>
+  </div>
+</app-focused-screen>
