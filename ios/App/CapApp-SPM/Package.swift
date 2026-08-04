@@ -11,9 +11,9 @@ let package = Package(
             targets: ["CapApp-SPM"])
     ],
     dependencies: [
-        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.4.1"),
-        .package(name: "CapacitorCommunitySqlite", path: "../../../node_modules/.pnpm/@capacitor-community+sqlite@8.1.0_@capacitor+core@8.4.1/node_modules/@capacitor-community/sqlite"),
-        .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.2.0_@capacitor+core@8.4.1/node_modules/@ebarooni/capacitor-calendar")
+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.5.0"),
+        .package(name: "CapacitorCommunitySqlite", path: "../../../node_modules/.pnpm/@capacitor-community+sqlite@8.1.0_@capacitor+core@8.5.0/node_modules/@capacitor-community/sqlite"),
+        .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.2.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar")
     ],
     targets: [
         .target(
