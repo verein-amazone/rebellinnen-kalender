@@ -1,19 +1,31 @@
 <div class="flex min-h-dvh flex-col">
-  <header
-    class="bg-background border-border sticky top-0 z-10 flex items-center gap-2 border-b px-2 py-2"
-  >
-    <button
-      type="button"
-      class="flex size-11 shrink-0 items-center justify-center rounded-lg"
-      (click)="goBack()"
-    >
-      <svg lucideArrowLeft class="size-6" aria-hidden="true"></svg>
-      <span class="sr-only">{{ backLabel() }}</span>
-    </button>
-    <h1 #headingElement tabindex="-1" class="min-w-0 text-xl">{{ heading() }}</h1>
+  <!--
+    The safe-area inset sits on the <header> itself and the layout on the inner element, so the
+    inset adds to the padding instead of competing with it for `padding-top`. The header background
+    therefore fills the notch area while its content stays below it.
+  -->
+  <header class="bg-background border-border safe-top sticky top-0 z-10 border-b">
+    <div class="flex items-center gap-2 px-2 py-2">
+      <button
+        type="button"
+        class="flex size-11 shrink-0 items-center justify-center rounded-lg"
+        (click)="dismiss()"
+      >
+        @if (dismissal() === 'close') {
+          <svg lucideX class="size-6" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideArrowLeft class="size-6" aria-hidden="true"></svg>
+        }
+        <span class="sr-only">{{ resolvedDismissLabel() }}</span>
+      </button>
+      <h1 class="min-w-0 text-xl">{{ heading() }}</h1>
+    </div>
   </header>
 
-  <div class="flex-1 px-4 py-4">
-    <ng-content />
+  <!-- Focused screens have no bottom navigation, so they clear the home indicator themselves. -->
+  <div class="safe-bottom flex-1">
+    <div class="px-4 py-4">
+      <ng-content />
+    </div>
   </div>
 </div>

@@ -1,13 +1,16 @@
 <div class="flex min-h-dvh flex-col">
-  <div class="min-h-0 flex-1">
+  <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
+  <!--
+    Primary destinations have no header of their own, so the shell keeps their content clear of the
+    notch. Focused screens do have one and apply the top inset to it instead, so that its background
+    fills the notch area when the content scrolls underneath.
+  -->
+  <main class="safe-x min-h-0 flex-1" [class.safe-top]="activeTab() !== null">
     <router-outlet />
-  </div>
+  </main>
 
   @if (activeTab(); as active) {
-    <nav
-      class="bg-nav-bg text-rebel-text shrink-0 pb-[env(safe-area-inset-bottom)]"
-      aria-label="Hauptbereiche"
-    >
+    <nav class="bg-nav-bg text-rebel-text safe-bottom safe-x shrink-0" aria-label="Hauptbereiche">
       <ul class="flex">
         @for (destination of destinations; track destination.tab) {
           <li class="flex-1">

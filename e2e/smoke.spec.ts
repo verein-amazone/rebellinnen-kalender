@@ -42,11 +42,27 @@ test.describe('application shell', () => {
 
     await expect(page).toHaveURL(/\/calendar\/event\/new$/);
     await expect(page.getByRole('navigation', { name: 'Hauptbereiche' })).toBeHidden();
+    // Creation screens dismiss with "Schließen", not "Zurück".
+    await expect(page.getByRole('heading', { name: 'Neuer Termin', level: 1 })).toBeFocused();
 
-    await page.getByRole('button', { name: 'Zurück' }).click();
+    await page.getByRole('button', { name: 'Schließen' }).click();
 
     await expect(page).toHaveURL(/\/calendar$/);
     await expect(page.getByRole('navigation', { name: 'Hauptbereiche' })).toBeVisible();
+    // Closing must not drop focus to the body.
+    await expect(page.getByRole('heading', { name: 'Kalender', level: 1 })).toBeFocused();
+  });
+
+  test('does not move focus when switching primary destinations', async ({ page }) => {
+    await page.goto('/');
+
+    const calendarLink = page
+      .getByRole('navigation', { name: 'Hauptbereiche' })
+      .getByRole('link', { name: 'Kalender' });
+    await calendarLink.click();
+
+    await expect(page).toHaveURL(/\/calendar$/);
+    await expect(calendarLink).toBeFocused();
   });
 
   test('keeps the selected colour theme after a reload', async ({ page }) => {

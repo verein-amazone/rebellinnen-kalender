@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Injector,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideBookOpen, LucideCalendarDays, LucideSun } from '@lucide/angular';
+import { PageFocus } from '@app/cross-cutting/infrastructure/page-focus';
 import {
   ActivatedRouteSnapshot,
   NavigationEnd,
@@ -37,6 +44,11 @@ type Tab = (typeof DESTINATIONS)[number]['tab'];
 })
 export class MainNavigationScaffold {
   private readonly router = inject(Router);
+  private readonly pageFocus = inject(PageFocus);
+  private readonly injector = inject(Injector);
+
+  /** The tab of the previous navigation, used to tell a tab switch from any other navigation. */
+  private previousTab: Tab | null = null;
 
   protected readonly destinations = DESTINATIONS;
 
@@ -48,6 +60,42 @@ export class MainNavigationScaffold {
     ),
     { initialValue: null },
   );
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.handleNavigation());
+  }
+
+  /**
+   * Decide what happens to focus once the new screen has rendered.
+   *
+   * Moving between two primary destinations means the user is operating the bottom navigation, so
+   * focus stays where it is and the new page is only announced. Every other navigation — opening a
+   * focused screen, closing one, or the initial load — replaces the context entirely, so focus
+   * moves to the new screen's title.
+   */
+  private handleNavigation(): void {
+    const previousTab = this.previousTab;
+    const currentTab = this.currentTab();
+    this.previousTab = currentTab;
+
+    const isTabSwitch = previousTab !== null && currentTab !== null;
+
+    afterNextRender(
+      () => {
+        if (isTabSwitch) {
+          this.pageFocus.announcePageHeading();
+        } else {
+          this.pageFocus.focusPageHeading();
+        }
+      },
+      { injector: this.injector },
+    );
+  }
 
   private currentTab(): Tab | null {
     // Read the router's own snapshot rather than the injected ActivatedRoute: this component is

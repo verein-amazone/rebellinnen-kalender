@@ -86,8 +86,58 @@ decisions it has to make: which destination is marked active, and whether the bo
 rendered at all. Adding a focused screen therefore requires nothing beyond leaving `tab` off its
 route.
 
-Focused screens use `FocusedScreenScaffold`, which provides the shared header, the single back
-action and the focus move to the screen title.
+Focused screens use `FocusedScreenScaffold`, which provides the shared header and a single dismiss
+action. Its `dismissal` input picks the semantics: `back` (an arrow — the user returns the way they
+came) for details and settings subpages, `close` (a cross) for creation and editing screens, where a
+back arrow would suggest that entered data is kept.
+
+#### Page state and navigation
+
+**State that must survive navigation goes in the URL** — as a route parameter or a query parameter,
+never in a component field that a re-created page would lose. The selected calendar day, an active
+filter or a chosen view mode are route state, not component state.
+
+This keeps the back button, deep links and app restarts correct for free, and it means the app does
+not need a custom `RouteReuseStrategy`. Pages read such values through `withComponentInputBinding()`,
+which binds route parameters to signal inputs.
+
+#### Focus and announcements
+
+`cross-cutting/infrastructure/page-focus.ts` handles this centrally; individual pages do not manage
+focus. Every screen renders exactly one `<h1>` inside the shell's `<main>` landmark, which is what it
+targets.
+
+- Opening or closing a focused screen, and the initial load, **move focus** to the new screen's
+  title: the context has changed completely.
+- Switching between primary destinations only **announces** the new page through the CDK
+  `LiveAnnouncer`. Moving focus there would throw a keyboard user out of the bottom navigation they
+  are operating.
+
+#### Safe areas
+
+The app draws edge to edge: `index.html` sets `viewport-fit=cover`, which is also what makes
+`env(safe-area-inset-*)` return real values on iOS — without it they are all `0px` and every inset
+silently does nothing.
+
+Use the `.safe-top` / `.safe-bottom` / `.safe-x` utilities from `src/styles/base.css`. Put them on
+the element that carries the background, not on the one that carries the layout padding, for two
+reasons: the background then extends into the inset while the content stays clear of it, and the
+utility does not compete with a `p*-` utility for the same property (both live in Tailwind's
+utilities layer, where source order rather than specificity decides).
+
+Who applies what:
+
+- The bottom navigation applies its own bottom inset, so its background fills the home indicator
+  area.
+- Focused screens apply the top inset to their sticky header.
+- For primary destinations, which have no header, the shell applies the top inset to `<main>`.
+
+#### Page transitions
+
+Provided by the router's `withViewTransitions()`. The animation is a short cross-fade defined in
+`src/styles/base.css` — the screens are unrelated, so a directional slide would imply a spatial
+relationship that does not exist. View transition pseudo-elements sit outside the document tree, so
+the reduced-motion rules have to disable them explicitly; see the same file.
 
 ### Dialogs (`view/dialogs/`)
 
