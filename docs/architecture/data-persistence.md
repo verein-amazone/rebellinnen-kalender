@@ -3,8 +3,9 @@
 This document describes how the app stores data and the conventions the data layer must follow. It
 complements [frontend-architecture.md](./frontend-architecture.md).
 
-> Status: no schema, DAOs, migrations, or gateways are implemented yet. The only implemented data
-> code is `data/stores/appearance.store.ts` (see [Stores](#stores)).
+> Status: the SQLite foundation exists (gateway, migration registry, first migration, first DAO), and
+> the first table is `reminders` for the „Nicht vergessen“ list. The native calendar gateway is still
+> outstanding.
 
 ## Local-only persistence
 
@@ -17,6 +18,40 @@ authentication.
 Relational, application-owned data is persisted in SQLite through
 [`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite), accessed behind DAOs
 and versioned migrations.
+
+### The database gateway
+
+`data/gateways/sqlite.gateway.ts` is the only file that imports the plugin. Everything above it
+depends on the `SqliteDatabase` contract in `sqlite-database.ts` — `query()` and `run()`, plus a
+`SqliteUnavailableError` and the `SQLITE_DATABASE` token DAOs inject. Two consequences worth knowing:
+
+- **The connection opens lazily on first use, not from an app initializer.** Nothing in the first
+  paint needs the database, and a database that cannot open has to surface as an error inside the
+  screen that wanted it rather than aborting the bootstrap. The open promise is memoised so
+  concurrent callers share one open sequence, and it is dropped on failure so a retry really retries.
+- **The open sequence starts with `checkConnectionsConsistency()`.** The plugin keeps a connection
+  dictionary that survives a dev-server reload; without this reconciliation `createConnection` fails
+  after every HMR update.
+
+There is deliberately **no `transaction()` method yet**: `SQLiteDBConnection.run()` already wraps a
+statement in its own transaction, and no use case so far spans more than one statement. It gets added
+with the first one that does.
+
+### SQLite in the browser
+
+The app ships to iOS and Android only. The browser is used for `ng serve` and the Playwright suite,
+and it gets **real** SQLite there: `data/gateways/web-sqlite-store.ts` lazily loads the `jeep-sqlite`
+custom element (`sql.js` compiled to WebAssembly, persisted in IndexedDB) and calls `initWebStore()`,
+and every successful write is followed by `saveToStore()`. That way the handwritten SQL and the
+migrations that run on a phone are the same ones a developer clicks through.
+
+Two things to keep in mind:
+
+- `sql.js` is pinned to an **exact** version in `package.json`. `jeep-sqlite` bundles the Emscripten
+  glue of the release it was built against, and a newer `sql-wasm.wasm` next to that older glue fails
+  to instantiate with a `LinkError`. Upgrade both together and check the Today page in a browser.
+- `sql-wasm.wasm` is copied by the **development** build only (see `angular.json`). A production web
+  build therefore cannot open a database — intentionally, because there is no web product.
 
 ### No ORM
 
@@ -44,9 +79,17 @@ SQLite/table access.
 
 ## Migrations
 
-All schema changes are **versioned migrations** under `data/migrations/`. The initial schema is not
-created yet; when it is, it is introduced as the first migration rather than as ad-hoc table
-creation. Never mutate an existing shipped migration — add a new one.
+All schema changes are **versioned migrations** under `data/migrations/`: one file per version
+(`001-create-reminders.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
+the highest `toVersion`. Never mutate an existing shipped migration — a device that already applied
+it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
+Add a new migration instead.
+
+Applying them is the plugin's job, not ours: the gateway hands the registry to
+`addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is
+supported on every platform, applies each upgrade in a transaction (with a backup on native), and
+reports the same number through `getVersion()` — a hand-rolled `user_version` loop would duplicate
+that bookkeeping and could disagree with it.
 
 ## Transaction boundaries
 
@@ -66,6 +109,12 @@ records:
 - Persist **`createdAt`** and **`updatedAt`** for mutable application-owned records.
 - Keep **external calendar identifiers separate** from application-owned identifiers.
 
+`reminders`, the first table, follows these and adds one decision worth repeating: the completion
+state is the `completed_at` timestamp alone (`NULL` means open). A second boolean column could
+disagree with the timestamp, so there is none. The list is read in exactly one order —
+`ORDER BY (completed_at IS NULL) DESC, created_at ASC`, i.e. open entries in entry order, then
+completed ones — and the table's only index mirrors that.
+
 ## Native calendar gateway boundary
 
 The device calendar is read through a gateway (e.g. `data/gateways/native-calendar.gateway.ts`)
@@ -77,6 +126,7 @@ not implemented yet, and no calendar permissions are requested on startup.
 
 Stored locally:
 
+- The „Nicht vergessen“ list (`reminders`).
 - App-owned events and content.
 - Calendar selections and the minimal mappings needed to relate app data to device calendar entries.
 
@@ -98,6 +148,12 @@ documented default instead of reaching the rest of the app.
 
 `localStorage` access throws in some privacy modes, so it is never touched directly — reads and
 writes are guarded, and a lost preference is preferable to a broken app.
+
+A store is **not** where a table-backed list belongs. The screen that shows one holds it in a
+`resource()` and reloads after each write (see
+[frontend-architecture.md](./frontend-architecture.md)); interactors stay stateless. When a second
+consumer of the same list appears, that cache can be promoted into the data layer — and this
+document amended.
 
 ## Future synchronization
 

@@ -71,6 +71,20 @@
   input[type='checkbox'] {
     accent-color: var(--color-primary);
   }
+
+  /*
+   * Text entry never renders below 16px. Below that, iOS zooms the page in when the field takes focus
+   * — and it does not zoom back out afterwards, so the app is left magnified and scrolling in both
+   * directions. 16px is the threshold WKWebView uses, and it is reachable from two directions here:
+   * the "Klein" text size is 14px, and the OS scale in `--rk-os-scale` can be below 1 as well.
+   *
+   * `max()` rather than a fixed 16px, so every size above the threshold still scales normally.
+   */
+  input,
+  textarea,
+  select {
+    font-size: max(1rem, 16px);
+  }
 }
 
 @layer utilities {

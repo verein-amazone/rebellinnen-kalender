@@ -154,6 +154,188 @@ test.describe('application shell', () => {
 });
 
 /**
+ * The „Nicht vergessen“ list is the first feature with a database behind it, so this is also where
+ * the SQLite setup is verified end to end: on the web it runs through `jeep-sqlite` and IndexedDB,
+ * which a unit test cannot reach. Every test starts with an empty database, because Playwright gives
+ * each one its own browser context — so entries are always created through the UI.
+ */
+test.describe('the „Nicht vergessen“ list', () => {
+  /**
+   * Locators are scoped to the row rather than to the whole page: the entry's text also appears in
+   * the accessible names of its own controls, so a page-wide text match is ambiguous by design.
+   */
+  function row(page: Page, text: string) {
+    return page.getByRole('listitem').filter({ hasText: text });
+  }
+
+  async function addReminder(page: Page, text: string) {
+    const field = page.getByLabel('Neue Erinnerung');
+    if (!(await field.isVisible())) {
+      await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+    }
+
+    await field.fill(text);
+    await page.getByRole('button', { name: 'Hinzufügen' }).click();
+    await expect(row(page, text)).toBeVisible();
+  }
+
+  /** Opens a row's menu and picks one of its two actions. */
+  async function chooseAction(page: Page, text: string, action: 'Bearbeiten' | 'Löschen') {
+    await row(page, text)
+      .getByRole('button', { name: `Optionen für „${text}“` })
+      .click();
+    await row(page, text).getByRole('menuitem', { name: action }).click();
+  }
+
+  test('invites the first entry while the list is empty', async ({ page }) => {
+    await page.goto('/today');
+
+    await expect(page.getByText('Hier ist noch nichts.')).toBeVisible();
+  });
+
+  test('keeps an entry and its completion state after a reload', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    const toggle = row(page, 'Blumen gießen').getByRole('checkbox');
+    await expect(toggle).toHaveAttribute('aria-label', '„Blumen gießen“ als erledigt markieren');
+    await toggle.check();
+
+    // The label now offers the opposite action, which is how the state is readable without colour.
+    await expect(toggle).toHaveAttribute(
+      'aria-label',
+      '„Blumen gießen“ wieder als offen markieren',
+    );
+
+    await page.reload();
+
+    const afterReload = row(page, 'Blumen gießen').getByRole('checkbox');
+    await expect(afterReload).toBeChecked();
+    await expect(afterReload).toHaveAttribute(
+      'aria-label',
+      '„Blumen gießen“ wieder als offen markieren',
+    );
+  });
+
+  test('reopens a completed entry', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Post holen');
+
+    const toggle = row(page, 'Post holen').getByRole('checkbox');
+    await toggle.check();
+    await toggle.uncheck();
+
+    await expect(toggle).not.toBeChecked();
+    await expect(toggle).toHaveAttribute('aria-label', '„Post holen“ als erledigt markieren');
+  });
+
+  test('applies an edit and discards a cancelled one', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    await chooseAction(page, 'Blumen gießen', 'Bearbeiten');
+    await page.getByLabel('Text der Erinnerung').fill('Blumen gießen und lüften');
+    await page.getByRole('button', { name: 'Speichern' }).click();
+
+    await expect(row(page, 'Blumen gießen und lüften')).toBeVisible();
+
+    await chooseAction(page, 'Blumen gießen und lüften', 'Bearbeiten');
+    await page.getByLabel('Text der Erinnerung').fill('Etwas anderes');
+    // Scoped to the sheet: the add row's cancel control is also named "… abbrechen".
+    await page
+      .getByRole('dialog', { name: 'Erinnerung bearbeiten' })
+      .getByRole('button', { name: 'Abbrechen', exact: true })
+      .click();
+
+    await expect(row(page, 'Blumen gießen und lüften')).toBeVisible();
+    await expect(row(page, 'Etwas anderes')).toHaveCount(0);
+  });
+
+  test('deletes an entry only after the confirmation is accepted', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    await chooseAction(page, 'Blumen gießen', 'Löschen');
+    const confirmation = page.getByRole('dialog', { name: 'Erinnerung löschen?' });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Abbrechen' }).click();
+
+    await expect(row(page, 'Blumen gießen')).toBeVisible();
+
+    await chooseAction(page, 'Blumen gießen', 'Löschen');
+    await page.getByRole('dialog').getByRole('button', { name: 'Löschen' }).click();
+
+    await expect(page.getByText('Hier ist noch nichts.')).toBeVisible();
+  });
+
+  /**
+   * Below 16px, iOS zooms the page in when a field takes focus and never zooms back out, leaving the
+   * app magnified and scrolling in both directions. The smallest in-app text size is 14px, so this is
+   * the case that would regress first. Chromium does not zoom, but the threshold is a number.
+   */
+  test('never renders a text field below the size that makes iOS zoom', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('rk.appearance', JSON.stringify({ textSize: 'small' }));
+    });
+    await page.goto('/today');
+    await expect(page.locator('html')).toHaveAttribute('data-text-size', 'small');
+
+    await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+
+    const fontSize = await page
+      .getByLabel('Neue Erinnerung')
+      .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    expect(fontSize).toBeGreaterThanOrEqual(16);
+  });
+
+  test('reaches both row actions from the keyboard', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    const trigger = row(page, 'Blumen gießen').getByRole('button', {
+      name: 'Optionen für „Blumen gießen“',
+    });
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+
+    // Opening the menu moves focus to its first item; the arrow key then walks the two items.
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.getByRole('menuitem', { name: 'Bearbeiten' })).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeFocused();
+
+    await page.keyboard.press('Escape');
+
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeHidden();
+  });
+
+  test('has no serious or critical accessibility violations with entries or an open sheet', async ({
+    page,
+  }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+    await row(page, 'Blumen gießen').getByRole('checkbox').check();
+
+    await expectNoBlockingViolations(page);
+
+    await row(page, 'Blumen gießen')
+      .getByRole('button', { name: 'Optionen für „Blumen gießen“' })
+      .click();
+    await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeVisible();
+
+    await expectNoBlockingViolations(page);
+
+    await page.getByRole('menuitem', { name: 'Bearbeiten' }).click();
+    await expect(page.getByRole('dialog', { name: 'Erinnerung bearbeiten' })).toBeVisible();
+
+    await expectNoBlockingViolations(page);
+  });
+});
+
+/**
  * Every theme is a separate palette, so contrast has to be checked per theme rather than once. The
  * status colours added with the design system multiply the number of pairs, and this is what keeps
  * that from drifting silently.
@@ -171,6 +353,31 @@ test.describe('colour contrast per theme', () => {
         expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
       });
     }
+
+    /**
+     * The loop above walks paths, and neither a menu nor a sheet has one — so those two are the screen
+     * states it cannot reach. Together they cover the danger colour on a card and the sheet's field,
+     * label and action buttons.
+     */
+    test(`${theme} has sufficient contrast with an open menu and sheet`, async ({ page }) => {
+      await selectTheme(page, theme);
+      await page.goto('/today');
+      await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+      await page.getByLabel('Neue Erinnerung').fill('Blumen gießen');
+      await page.getByRole('button', { name: 'Hinzufügen' }).click();
+      await page.getByRole('button', { name: 'Optionen für „Blumen gießen“' }).click();
+      await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeVisible();
+
+      const menuResults = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
+      expect(menuResults.violations, JSON.stringify(menuResults.violations, null, 2)).toEqual([]);
+
+      await page.getByRole('menuitem', { name: 'Bearbeiten' }).click();
+      await expect(page.getByRole('dialog', { name: 'Erinnerung bearbeiten' })).toBeVisible();
+
+      const results = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
+
+      expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    });
   }
 });
 
@@ -229,6 +436,40 @@ test.describe('large text', () => {
       }
     });
   }
+
+  /**
+   * The loop above renders Today with an empty list, so the row layout itself is never under test —
+   * and a row is where user-entered text meets two icon buttons. The narrowest viewport plus a German
+   * compound nobody would type but everybody has seen is exactly the case the row has to survive.
+   */
+  test.describe('320x568 with an entry', () => {
+    test.use({ viewport: { width: 320, height: 568 } });
+
+    test('a long entry does not make Today scroll sideways at large text', async ({ page }) => {
+      await page.goto('/today');
+      await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+      await page.getByLabel('Neue Erinnerung').fill('Donaudampfschifffahrtsgesellschaftskapitän');
+      await page.getByRole('button', { name: 'Hinzufügen' }).click();
+      await expect(page.locator('ul.rk-list > li')).toHaveCount(1);
+
+      for (const size of ['200%', '300%']) {
+        await page.evaluate((value) => {
+          document.documentElement.style.fontSize = value;
+        }, size);
+
+        const overflow = await page.evaluate(() => {
+          const document_ = document.scrollingElement ?? document.documentElement;
+          const region = document.querySelector('main');
+          return Math.max(
+            document_.scrollWidth - document_.clientWidth,
+            region === null ? 0 : region.scrollWidth - region.clientWidth,
+          );
+        });
+
+        expect(overflow, `a long entry at ${size}`).toBeLessThanOrEqual(1);
+      }
+    });
+  });
 
   /**
    * Vertical scrolling at these sizes is expected — the content genuinely is several viewports tall.

@@ -164,7 +164,14 @@ Modal interaction flows. Their presenters follow the same rules as pages.
 view/dialogs/confirmation/
   confirmation.dialog.ts
   confirmation.dialog.html
+view/dialogs/reminder-edit/
+  reminder-edit.dialog.ts
+  reminder-edit.dialog.html
 ```
+
+`confirmation` is the generic one: a message, a verb for the confirming action, and a `destructive`
+flag that adds the danger colour plus an icon. It closes with `true`/`false`, and a dismissal (Escape
+or the backdrop) yields `undefined`, which callers treat as declined.
 
 The modal _chrome_ is not here: it is the `app-sheet` primitive in `view/components/sheet/`, opened
 through `SheetService`. What lives in `view/dialogs/` is the content a sheet renders — a presenter
@@ -199,16 +206,20 @@ what lets padding and chrome react to the root font size. See
 
 ### Blocks (`view/blocks/`)
 
-Reusable feature-level compositions of UI elements. Create a block only when the same composition is
-used in the same way in more than one page, scaffold or dialog. Blocks use signal inputs/outputs and
-remain free of data access.
+Reusable feature-level compositions of UI elements. Create a block when the same composition is used
+in the same way in more than one page, scaffold or dialog — or when one page would otherwise carry
+several unrelated features' state at once, which is why `reminder-list` is a block: the Today page
+composes it next to a greeting, an impulse and the day's appointments.
 
 ```
-view/blocks/content-preview/
-  content-preview.block.ts
-  content-preview.block.html
-  content-preview.block.css
+view/blocks/reminder-list/
+  reminder-list.block.ts
+  reminder-list.block.html
 ```
+
+A block is a presenter, so it follows the page rules: it may inject **interactors** and hold
+view-facing signals, and it must not reach into the data layer. Add a `.block.css` file only when
+Tailwind utilities cannot express what it needs.
 
 ### Components (`view/components/`)
 
@@ -242,6 +253,24 @@ A separate view model is not required for every record — use a `*.vm.ts` type 
 exposed by an interactor meaningfully differs from the persisted record or combines multiple sources.
 Persisted records must not be imported directly into templates when that exposes persistence details.
 
+### Getting interactor data into a screen
+
+Interactors return promises; the presenter holds the result. Use `resource()` for that and call
+`reload()` after every write, as `view/blocks/reminder-list/` does:
+
+```ts
+protected readonly items = resource({ loader: () => this.reminders.list() });
+// after a mutation
+await this.reminders.add(text);
+this.items.reload();
+```
+
+`reload()` keeps the previous value while the new one loads, so a list does not blink through its
+empty state. The cache stays in the view on purpose: interactors are stateless, and `data/stores/` is
+for small scalars rather than a signal cache over a table. Promote it into the data layer when a
+second screen needs the same list — and amend
+[data-persistence.md](./data-persistence.md) when you do.
+
 ## Data layer (`data/`)
 
 Owns persistence and external data-source access. See
@@ -251,8 +280,9 @@ Owns persistence and external data-source access. See
 - `data/daos/` — thin, table-oriented SQLite access (`*.dao.ts`), no business rules.
 - `data/migrations/` — versioned schema changes.
 - `data/stores/` — small persisted values that do not belong in relational tables.
-- `data/gateways/` — wrappers around external data sources (e.g. the native calendar). Plugin types
-  stay inside the gateway.
+- `data/gateways/` — wrappers around external data sources. `sqlite.gateway.ts` owns the database
+  connection and the migration run; `native-calendar.gateway.ts` will own the device calendar. Plugin
+  types stay inside the gateway, and callers depend on the `SqliteDatabase` contract instead.
 
 Repositories (`*Repository`) are **not** introduced automatically; reserve them for a meaningful
 abstraction that combines or selects between multiple data sources.

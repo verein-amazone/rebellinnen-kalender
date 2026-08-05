@@ -4,7 +4,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["vitest/globals"]
+    // `node` is here for `node:sqlite`, which backs the in-memory database the DAO specs run
+    // against. The app project deliberately keeps `types: []`.
+    "types": ["vitest/globals", "node"]
   },
-  "include": ["src/**/*.d.ts", "src/**/*.spec.ts", "src/test-setup.ts"]
+  "include": ["src/**/*.d.ts", "src/**/*.spec.ts", "src/**/*.testing.ts", "src/test-setup.ts"]
 }

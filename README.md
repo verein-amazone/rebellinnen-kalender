@@ -12,9 +12,10 @@ This repository is the central place for planning, discussion and development of
 
 ## Status
 
-Early development. The technical foundation (Angular 22 + Capacitor 8, tooling, and the application
-architecture skeleton) is in place. No product screens, database schema, or visual design system
-exist yet — those are tracked in the milestones below.
+Early development. The technical foundation (Angular 22 + Capacitor 8, tooling, the application
+architecture skeleton and the design system) is in place, as is the SQLite foundation with its first
+table: the „Nicht vergessen“ list on the Today page. The remaining product screens are tracked in the
+milestones below.
 
 ## What is it about?
 

@@ -1,11 +1,11 @@
 /*
  * Form fields.
  *
- * CSS only, deliberately: no screen has a form yet (#14, #19), and the `touched`/`invalid` API of a
- * field component should be designed against a real form rather than an imagined one. These
- * classes are inert until something uses them.
+ * Classes only, deliberately: the first users are the „Nicht vergessen“ add row and its edit sheet,
+ * and the `touched`/`invalid` API of a field component should be designed against a screen with a real
+ * multi-field form (#14, #19) rather than around one trimmed line of text.
  *
- * The accessibility contract the first form has to honour:
+ * The accessibility contract every form honours:
  *   - every `.rk-input` has its own `<label for>`; a placeholder is not a label
  *   - the `.rk-error` sits inside a wrapper that carries `aria-live="polite" aria-atomic="true"`
  *     and is *always* in the DOM — an element that appears at the same moment as its text is

@@ -37,6 +37,7 @@ src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
 src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
 src/styles/components/choice.css     .rk-choice*
 src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
+src/styles/components/menu.css       .rk-menu, .rk-menu-item*
 src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
 src/styles/components/screen.css     .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
@@ -185,8 +186,13 @@ threshold would have stacked rows on a 375px device out of the box.
 ### Buttons — `button.css`
 
 `.rk-button` plus `.rk-button-primary` / `-secondary` / `-ghost` / `-danger`, and `.rk-icon-button`
-for square label-less actions. `rk-control-base` is the shared `@utility` they build on and is not
+for square label-less actions, with `.rk-icon-button-primary` as its filled variant for the one action
+a compact row exists to perform. `rk-control-base` is the shared `@utility` they build on and is not
 for direct use.
+
+`.rk-button-secondary` currently fails AA contrast in amazone, warm and lila (its foreground on the
+secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
+secondary action; the Playwright contrast loop will catch a regression either way.
 
 Accessibility contract: an icon button needs an `aria-label` or an `.sr-only` span, and its icon is
 always `aria-hidden`. The focus ring comes from the global `:focus-visible` rule in `base.css` —
@@ -199,7 +205,12 @@ genuinely inert; an `<a>` has no disabled state, so render a `<button>` instead.
 `.rk-row` is one row, with `.rk-row-label` and `.rk-row-value` inside it.
 
 These are presentational only. Semantics stay in the template: a grouped list is a `<ul>` of `<li>`,
-and `.rk-row` goes on the `<a>` or `<button>` _inside_ the `<li>` so the whole row is one target.
+and `.rk-row` goes on the `<a>` or `<button>` _inside_ the `<li>` so the whole row is one target. A row
+that holds several controls instead of being one — as in `reminder-list`, where a checkbox and a menu
+trigger share it — puts `.rk-row` on the `<li>` and says so in a comment.
+
+`.rk-list` clips to its corner radius, which also clips anything hanging out of a row. Add
+`overflow-visible` at the call site where a row opens a menu.
 
 ### Choice row — `choice.css` + `app-choice-row`
 
@@ -214,15 +225,34 @@ trailing content such as the theme page's colour swatch. Put the options in a `<
 `<legend>` and give them all the same `name`. The description sits inside the same `<label>`, so it
 becomes part of the accessible name — which reads correctly and avoids generating ids.
 
+### Menu — `menu.css` + `ngMenu` (Angular Aria)
+
+`.rk-menu` is the panel, `.rk-menu-item` a full-width item, `.rk-menu-item-danger` its destructive
+variant. Behaviour comes from `@angular/aria/menu` — roles, arrow keys, typeahead, Escape, and the
+`data-visible` attribute these rules hide the closed panel with. Positioning is the call site's job
+(`absolute` plus an anchor), so a row decides where its menu opens.
+
+Two things a call site has to get right, both learned the hard way in `reminder-list`:
+
+- Put the items in an `<ng-template ngMenuContent>`. A `display: none` panel cannot receive focus, so
+  without the deferred content the directive's "focus the first item" never lands.
+- On a `<button>` trigger, `preventDefault()` Enter and Space. The directive already opens on those
+  keys, and the browser's synthesised click would immediately close the menu again.
+
 ### Field, input and error — `field.css`
 
-CSS only for now: no screen has a form yet, and a `touched`/`invalid` component API should be
-designed against a real form rather than an imagined one.
+First used by the „Nicht vergessen“ list: the inline add row and the edit sheet. There is still no
+field _component_ — a `touched`/`invalid` API should be designed once a screen has a real multi-field
+form rather than one trimmed line of text.
 
 `.rk-field` grows its border from 2px to 4px on `:focus-within` while shrinking the padding by
 exactly the same amount, so the box keeps its size and nothing reflows.
 
-The contract the first form has to honour:
+`base.css` floors every `input`/`textarea`/`select` at `max(1rem, 16px)`. Below 16px iOS zooms the page
+in when a field takes focus and never zooms back out, and the „Klein“ text size (14px) as well as an
+OS scale below 1 both reach under that threshold.
+
+The contract every form honours:
 
 - every `.rk-input` has its own `<label for>`; a placeholder is not a label
 - the `.rk-error` sits inside a wrapper carrying `aria-live="polite" aria-atomic="true"` that is
@@ -249,7 +279,16 @@ by colour alone.
 ### Sheet — `sheet.css` + `app-sheet` + `SheetService`
 
 A modal sheet in two modes: `bottom` (content height, the Material bottom-sheet shape) and `full`
-(near full height, for forms).
+(near full height, for forms). The panel always spans the full width — the CDK overlay pane is a flex
+container, so `app-sheet` carries `w-full` to stretch in it.
+
+Its header and body own their horizontal inset as `max(1rem, env(safe-area-inset-*))` rather than
+using `.safe-x`: that utility sets `padding-left`/`-right` outright, so on an element that also needs
+`px-4` it would replace the padding with a 0 inset in portrait.
+
+Sheet actions are stacked and full width — one action per line, in `.rk-sheet-footer flex-col`. Both
+real dialogs (`confirmation`, `reminder-edit`) do this; a side-by-side pair reads as two equal choices
+and squeezes the verbs at large text sizes.
 
 ```ts
 private readonly sheets = inject(SheetService);
@@ -302,4 +341,10 @@ knowing, because both look like bugs and are not:
   Scroll blocking is therefore verified in Playwright, not in a unit test.
 
 Playwright covers what jsdom cannot: colour contrast per theme, and a horizontal-overflow canary at
-200% text on every route. Add a route to both loops when you add a screen.
+200% text on every route. Add a route to both loops when you add a screen. Two states have no URL and
+therefore need their own case rather than a loop entry: an open menu and an open sheet (contrast), and
+a list that actually has content (overflow — an empty list never exercises its rows).
+
+DAO specs run the handwritten SQL against Node's built-in `node:sqlite` through
+`data/gateways/sqlite-database.testing.ts`, so the SQL is tested without the Capacitor plugin, which
+has no implementation under jsdom.

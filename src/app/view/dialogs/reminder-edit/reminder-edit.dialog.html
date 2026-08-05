@@ -1,0 +1,36 @@
+<form (submit)="$event.preventDefault(); save()">
+  <label class="rk-label" for="reminder-edit-text">Text der Erinnerung</label>
+
+  <div class="rk-field">
+    <input
+      id="reminder-edit-text"
+      class="rk-input"
+      type="text"
+      autocomplete="off"
+      placeholder="Zum Beispiel: Blumen gießen"
+      [attr.maxlength]="maxLength"
+      [value]="draft()"
+      [attr.aria-invalid]="error() === '' ? null : 'true'"
+      [attr.aria-describedby]="error() === '' ? null : 'reminder-edit-error'"
+      (input)="updateDraft($any($event.target).value)"
+    />
+  </div>
+
+  <!--
+    Always in the DOM: a live region that appears together with its text is frequently not announced
+    at all. See the contract in src/styles/components/field.css.
+  -->
+  <div aria-live="polite" aria-atomic="true">
+    @if (error() !== '') {
+      <p id="reminder-edit-error" class="rk-error">{{ error() }}</p>
+    }
+  </div>
+
+  <!-- Stacked and full width, like every other sheet: one action per line, easy to hit. -->
+  <div class="rk-sheet-footer flex-col">
+    <button type="submit" class="rk-button rk-button-primary w-full">Speichern</button>
+    <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
+      Abbrechen
+    </button>
+  </div>
+</form>
