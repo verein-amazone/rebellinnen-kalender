@@ -51,9 +51,33 @@
       </ul>
     </section>
 
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">App &amp; Rechtliches</h2>
+      <ul class="rk-list">
+        <li>
+          <a routerLink="/settings/privacy" class="rk-row">
+            <span class="rk-row-label">Datenschutz</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/settings/imprint" class="rk-row">
+            <span class="rk-row-label">Impressum</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/settings/about" class="rk-row">
+            <span class="rk-row-label">Über die App</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- The texts behind these entries (privacy, imprint, licences, image credits) arrive with #11. -->
     <p class="text-muted-foreground text-sm">
-      Die Bereiche „App &amp; Rechtliches“ (Datenschutz, Impressum, Über die App) folgen mit den
-      Rechtstexten in Issue #11.
+      Die Rechtstexte, Open-Source-Lizenzen und Bildnachweise folgen in Issue #11.
     </p>
   </div>
 </app-focused-screen>

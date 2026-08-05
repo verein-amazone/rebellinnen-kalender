@@ -98,6 +98,40 @@ test.describe('application shell', () => {
     await expect(page.getByRole('radio', { name: 'Mitternacht' })).toBeChecked();
   });
 
+  test('offers every approved settings entry', async ({ page }) => {
+    await page.goto('/settings');
+
+    for (const [heading, entries] of [
+      ['Persönlich', ['Profil']],
+      ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Bewegung & Animationen']],
+      ['Kalender', ['Kalender verwalten']],
+      ['App & Rechtliches', ['Datenschutz', 'Impressum', 'Über die App']],
+    ] as const) {
+      await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
+      for (const entry of entries) {
+        // Substring match: entries that show their current value carry it in their accessible
+        // name ("Farbthema Amazone").
+        await expect(page.getByRole('link', { name: entry, exact: false })).toBeVisible();
+      }
+    }
+
+    // The entries that carry a value show it, so the current selection is readable without
+    // opening the screen.
+    await expect(page.getByRole('link', { name: 'Farbthema', exact: false })).toContainText(
+      'Amazone',
+    );
+  });
+
+  test('keeps the selected motion preference after a reload', async ({ page }) => {
+    await page.goto('/settings/motion');
+    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+
+    await page.reload();
+
+    await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
+    await expect(page.getByRole('radio', { name: 'Reduziert', exact: false })).toBeChecked();
+  });
+
   test('has no serious or critical accessibility violations on Today', async ({ page }) => {
     await page.goto('/');
 
