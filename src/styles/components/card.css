@@ -29,6 +29,24 @@
     @apply min-h-row flex items-center gap-3 px-4 py-3;
   }
 
+  /*
+   * A row fills its list edge to edge, so the default ring — drawn 2px outside the element — lands
+   * outside `.rk-list` and its `overflow-hidden` clips it away entirely. Draw the ring inside the
+   * row instead, and let the outer rows carry the list's own corner radius so the ring follows the
+   * rounded corners rather than being cut off by them.
+   */
+  .rk-row:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .rk-list > li:first-child .rk-row:focus-visible {
+    @apply rounded-t-lg;
+  }
+
+  .rk-list > li:last-child .rk-row:focus-visible {
+    @apply rounded-b-lg;
+  }
+
   /* The row's primary text. `min-w-0` is what lets it wrap instead of pushing the value and the
      chevron out of the row. */
   .rk-row-label {

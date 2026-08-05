@@ -26,6 +26,15 @@
     @apply min-h-touch flex flex-col items-center justify-center gap-1 px-2 py-2 text-sm;
   }
 
+  /*
+   * A tab reaches the edge of the bar, which itself sits at the edge of the shell's clipped frame,
+   * so the default ring — drawn 2px outside the element — is cut off along the outer edges of the
+   * first and last tab. Draw it inside instead, where the whole ring stays visible.
+   */
+  .rk-tab:focus-visible {
+    outline-offset: -2px;
+  }
+
   .rk-tab-icon {
     @apply size-6;
   }
