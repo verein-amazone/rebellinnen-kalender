@@ -187,6 +187,16 @@ Two scaffolds exist:
 - `main-navigation` — the app shell: the routed page plus the bottom navigation.
 - `focused-screen` — the header, back action and focus handling shared by all focused screens.
 
+The shell is a **fixed `h-dvh` frame with exactly one scroll region**: `<main>` carries
+`.rk-scroll-region` and is the only element that scrolls, so the bottom navigation sits outside it
+and stays reachable. This matters at large text sizes, where the content is several viewports tall —
+with a scrolling document the tab bar ends up hundreds of pixels below the fold. A focused screen's
+header is `sticky` inside that region for the same reason.
+
+`.rk-scroll-region` is also the query container every screen resolves `@container` against, which is
+what lets padding and chrome react to the root font size. See
+[Scaling-safe rules](./design-system.md#scaling-safe-rules).
+
 ### Blocks (`view/blocks/`)
 
 Reusable feature-level compositions of UI elements. Create a block only when the same composition is
@@ -286,6 +296,41 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
 absence of the attribute means "follow the device setting", which is the default.
 
+### OS text scaling
+
+The in-app text size is an **absolute override, never a multiplier**: an explicit choice replaces the
+OS scale instead of stacking on top of it. iOS already reaches 3.12x on its own, so multiplying an
+app step onto it would produce unusable sizes.
+
+The ladder is five steps ending at **2x**, Apple's Larger Text floor and the largest size the layout
+stays genuinely usable at — the original three stopped at 1.125x. It deliberately does not follow the
+OS all the way to 3.12x, so a user at the very largest system size who picks an explicit option gets
+smaller text than they had. Leaving the setting on "Systemeinstellung", which is the default, keeps
+the full OS range, and the layout is verified at 300% for exactly that reason.
+
+The two platforms disagree, so neither can be trusted to scale the app on its own:
+
+- **iOS** WKWebView ignores Dynamic Type completely. The root font size stays at 16px wherever the
+  Larger Text slider is, so without this the app has no OS text scaling at all.
+- **Android** WebView applies the system font scale as `WebSettings.textZoom`, which scales computed
+  font sizes but **not** lengths — text grows while padding, gaps and heights stay put, which is how
+  content ends up overlapping.
+
+`cross-cutting/infrastructure/system-text-scale.ts` is the gateway that resolves both: it resets
+Android's `textZoom` to 1 to take ownership of scaling, and exposes the OS factor as a signal, which
+`DocumentAppearance` writes to `--rk-os-scale` on `<html>`. The root font size is
+`calc(16px * var(--rk-os-scale))`, so the rem-based spacing scale grows along with the text. It wraps
+`@capawesome/capacitor-accessibility-preferences` and `@capacitor/text-zoom`, and is the only place
+those plugin types exist.
+
+Neither platform fires a change event, so the value is re-read on `appStateChange` when the app
+becomes active. It is read once more during bootstrap via `provideAppInitializer`, awaited, because
+applying the scale after the first paint would show the app at the wrong size for a frame — and the
+`textZoom` reset does not survive a restart.
+
+Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
+scaling this is built to support.
+
 Adding a theme means adding one block to `theme.css` plus its id in `AppearanceInteractor`. Theme
 previews are rendered by putting `data-theme` on the preview element itself, so no screen ever
 needs a colour literal.
@@ -297,9 +342,10 @@ The selection follows the normal layer direction:
 - `data/stores/appearance.store.ts` persists the three values and exposes them as signals.
 - `interactors/settings/appearance.interactor.ts` validates the ids, owns the labelled option lists
   and exposes the current selection.
-- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes onto
-  `<html>`. It is the only code that touches them.
-- The root `App` component runs the single `effect()` that connects the two.
+- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
+  `--rk-os-scale` onto `<html>`. It is the only code that touches them.
+- `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).
+- The root `App` component runs the single `effect()` that connects them.
 
 No context is involved: the interactor's readonly signals are what components consume.
 

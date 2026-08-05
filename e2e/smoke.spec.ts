@@ -141,24 +141,106 @@ test.describe('colour contrast per theme', () => {
 });
 
 /**
- * The design system's primitives are built to survive a much larger root font size than the app
- * currently offers, because the OS text-size preference will drive it later. A page that scrolls
- * sideways is the clearest sign that something is pinned to a fixed width or refusing to wrap.
+ * The in-app ladder tops out at 2x, Apple's Larger Text floor — but leaving the setting on
+ * "Systemeinstellung" keeps the full OS range, and iOS reaches 3.12x. So both sizes are checked.
+ *
+ * A page that scrolls sideways is the clearest sign that something is pinned to a fixed width or
+ * that a long German compound refuses to break: "Systemeinstellung" overflowed a 320px column by
+ * 226px at 300% before `hyphens`/`overflow-wrap` were set in src/styles/base.css.
  */
 test.describe('large text', () => {
-  for (const path of ['/today', '/calendar', '/settings', '/settings/theme']) {
-    test(`${path} does not scroll horizontally at 200% text`, async ({ page }) => {
-      await page.goto(path);
-      await page.evaluate(() => {
-        document.documentElement.style.fontSize = '200%';
-      });
+  // Phone widths, not the project's desktop default: at 1280px nothing overflows and the canary
+  // would pass while the app scrolls sideways on every real device.
+  test.use({ viewport: { width: 375, height: 667 } });
 
-      const overflow = await page.evaluate(() => {
-        const root = document.scrollingElement ?? document.documentElement;
-        return root.scrollWidth - root.clientWidth;
-      });
+  // The narrowest phone still in use and a common Android size. The narrow one is what a German
+  // compound overflows first.
+  for (const viewport of [
+    { width: 320, height: 568 },
+    { width: 412, height: 924 },
+  ]) {
+    test.describe(`${viewport.width}x${viewport.height}`, () => {
+      test.use({ viewport });
 
-      expect(overflow).toBeLessThanOrEqual(1);
+      for (const path of [
+        '/today',
+        '/calendar',
+        '/settings',
+        '/settings/theme',
+        '/settings/text-size',
+        '/settings/motion',
+      ]) {
+        test(`${path} does not scroll horizontally at large text`, async ({ page }) => {
+          await page.goto(path);
+
+          for (const size of ['200%', '300%']) {
+            await page.evaluate((value) => {
+              document.documentElement.style.fontSize = value;
+            }, size);
+
+            // Both the document and the shell's scroll region: the content scrolls inside <main>,
+            // so an element that refuses to wrap would widen that rather than the document.
+            const overflow = await page.evaluate(() => {
+              const document_ = document.scrollingElement ?? document.documentElement;
+              const region = document.querySelector('main');
+              return Math.max(
+                document_.scrollWidth - document_.clientWidth,
+                region === null ? 0 : region.scrollWidth - region.clientWidth,
+              );
+            });
+
+            expect(overflow, `${path} at ${size}`).toBeLessThanOrEqual(1);
+          }
+        });
+      }
     });
   }
+
+  /**
+   * Vertical scrolling at these sizes is expected — the content genuinely is several viewports tall.
+   * What must not happen is the chrome scrolling away with it: the shell is a fixed frame with a
+   * single scroll region, so the bottom navigation stays on screen no matter how far the user has
+   * scrolled.
+   */
+  test('keeps the bottom navigation on screen at 200% text', async ({ page }) => {
+    await page.goto('/today');
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '200%';
+    });
+
+    const navigation = page.getByRole('navigation', { name: 'Hauptbereiche' });
+    await expect(navigation).toBeInViewport();
+
+    await page.evaluate(() => {
+      document.querySelector('main')?.scrollBy(0, 10_000);
+    });
+
+    await expect(navigation).toBeInViewport();
+    // The document itself never scrolls; only the region inside the frame does.
+    const documentOverflow = await page.evaluate(() => {
+      const root = document.scrollingElement ?? document.documentElement;
+      return root.scrollHeight - root.clientHeight;
+    });
+    expect(documentOverflow).toBeLessThanOrEqual(1);
+  });
+
+  test('the text size setting changes the root font size', async ({ page }) => {
+    await page.goto('/settings/text-size');
+
+    const rootFontSize = () =>
+      page.evaluate(() => getComputedStyle(document.documentElement).fontSize);
+
+    // No attribute yet: the OS scale applies, which is the neutral 1 on the web.
+    await expect(page.locator('html')).not.toHaveAttribute('data-text-size');
+    expect(await rootFontSize()).toBe('16px');
+
+    await page.getByRole('radio', { name: 'Riesig' }).check();
+
+    await expect(page.locator('html')).toHaveAttribute('data-text-size', 'xxlarge');
+    expect(await rootFontSize()).toBe('32px');
+
+    await page.reload();
+
+    expect(await rootFontSize()).toBe('32px');
+  });
 });

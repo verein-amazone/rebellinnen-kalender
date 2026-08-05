@@ -35,4 +35,18 @@
   .rk-choice-description {
     @apply text-muted-foreground block text-sm;
   }
+
+  /*
+   * Same reasoning as `.rk-row` in ./card.css: past roughly 2x the padding and the minimum height
+   * are what push a list of choices off the screen, and neither of them is text. The query container
+   * here is the shell's scroll region (see ./screen.css). The 13rem literal mirrors
+   * `--container-compact` in ../theme.css.
+   */
+  @container (max-width: 13rem) {
+    .rk-choice {
+      padding-inline: 12px;
+      padding-block: 8px;
+      min-block-size: 48px;
+    }
+  }
 }

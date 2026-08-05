@@ -37,6 +37,8 @@ src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
 src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
 src/styles/components/choice.css     .rk-choice*
 src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
+src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
+src/styles/components/screen.css     .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
 ```
 
@@ -85,7 +87,7 @@ Three groups, all in `src/styles/theme.css`:
    keeps the `var()` in the generated utilities, which is what lets changing `data-theme` recolour
    the app at runtime.
 3. **plain `@theme`** — static scale values that never change at runtime, so there is no reference
-   worth keeping: `--spacing-touch`, `--spacing-row`, `--breakpoint-tablet`, `--container-row`.
+   worth keeping: `--spacing-touch`, `--spacing-row`, `--breakpoint-tablet`, `--container-row`, `--container-compact`.
 
 Colour values never live in TypeScript.
 
@@ -123,9 +125,11 @@ Two custom variants:
 
 ## Scaling-safe rules
 
-Every primitive is built for a root font size far larger than the app currently offers, because the
-OS text-size preference will drive it later (see the text-scaling follow-up work). These rules are
-what make that change additive instead of a rewrite:
+Every primitive is built for a root font size far larger than the default, because the OS text-size
+preference drives it (`--rk-os-scale`, see
+[OS text scaling](./frontend-architecture.md#os-text-scaling)). The in-app ladder stops at 2x, but
+the device setting does not — iOS reaches 3.12x — so the primitives have to hold up past the ladder.
+These rules are what keep the layout usable there:
 
 1. **`min-h-*`, never `h-*`** on anything containing text. A fixed height clips a wrapped label.
 2. **rem for spacing.** Tailwind's default spacing scale is already rem — do not switch it to px.
@@ -138,6 +142,21 @@ what make that change additive instead of a rewrite:
    is rem-based and therefore already scaling-safe.
 6. **Intrinsic sizing over breakpoints.** `grid-cols-[repeat(auto-fit,minmax(18rem,1fr))]` reflows on
    its own; a breakpoint never will.
+7. **Long words must be breakable.** `src/styles/base.css` sets `hyphens: auto` and
+   `overflow-wrap: anywhere` on `body`. German compounds are wider than a phone column once scaled —
+   "Systemeinstellung" overflowed a 320px screen by 226px at 300% — and one unbreakable word makes
+   the whole screen scroll sideways. `anywhere` rather than `break-word`: only `anywhere` shrinks the
+   min-content width, which is what lets a flex or grid child give up the space.
+8. **One scroll region, chrome outside it.** The shell is a fixed `h-dvh` frame and `.rk-scroll-region`
+   is the only element that scrolls. Vertical scrolling at 2x and beyond is expected — the content
+   genuinely is several viewports tall, and reflow asks for exactly that — but the tab bar must not
+   scroll away with it.
+9. **Decoration may be capped in pixels, text never.** Past `--container-compact` the tab bar's icon,
+   its active indicator, the row and choice padding and the focused-screen dismiss button switch to
+   fixed pixel sizes. That is what buys the space back: at 3x the tab bar went from 216px to 107px
+   and the header from 193px to 109px on a 375x667 screen. Capping a **label** the same way would be
+   defeating the setting, and is what Apple screens for — see the `.rk-tab` comment for the line
+   between the two.
 
 ### Media queries cannot react to text size — container queries can
 
@@ -211,6 +230,21 @@ The contract the first form has to honour:
   announced at all
 - `aria-invalid` and `aria-describedby` bind only once the field has been touched
 - the error is always text; the red border is a redundant cue, never the only one
+
+### Shell frame — `screen.css`
+
+`.rk-scroll-region` is the app's single scrolling element and the query container every screen
+resolves `@container` against. `.rk-screen-body` and `.rk-screen-header-bar` carry the padding around
+a focused screen's content and header; both trim past `--container-compact`, and the header's
+dismiss button is capped there too — it is label-less, so its glyph carries no text to scale.
+
+### Tab bar — `navigation.css`
+
+`.rk-tab-bar` (the query container), `.rk-tab-list`, `.rk-tab`, `.rk-tab-icon`, `.rk-tab-indicator`.
+Because the bar sits outside the scroll region, its height is a fixed cost on every screen, so past
+`--container-compact` the icon, indicator and padding go to fixed pixels while the labels keep
+scaling. Active state is signalled three ways — `aria-current`, bold weight and the indicator — never
+by colour alone.
 
 ### Sheet — `sheet.css` + `app-sheet` + `SheetService`
 

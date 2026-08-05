@@ -9,6 +9,7 @@ describe('App', () => {
     document.documentElement.removeAttribute('data-theme');
     document.documentElement.removeAttribute('data-text-size');
     document.documentElement.removeAttribute('data-motion');
+    document.documentElement.style.removeProperty('--rk-os-scale');
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -36,6 +37,8 @@ describe('App', () => {
     // Text size and motion default to the device setting, which means no attribute at all.
     expect(document.documentElement.hasAttribute('data-text-size')).toBe(false);
     expect(document.documentElement.hasAttribute('data-motion')).toBe(false);
+    // The OS scale always reaches the document; on the web it is the neutral 1.
+    expect(document.documentElement.style.getPropertyValue('--rk-os-scale')).toBe('1');
   });
 
   it('should reapply the appearance when the selection changes', async () => {

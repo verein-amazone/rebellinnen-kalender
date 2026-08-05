@@ -5,7 +5,7 @@
     therefore fills the notch area while its content stays below it.
   -->
   <header class="bg-background border-border safe-top sticky top-0 z-10 border-b">
-    <div class="flex items-center gap-2 px-2 py-2">
+    <div class="rk-screen-header-bar">
       <button type="button" class="rk-icon-button" (click)="dismiss()">
         @if (dismissal() === 'close') {
           <svg lucideX class="rk-icon" aria-hidden="true"></svg>
@@ -20,7 +20,7 @@
 
   <!-- Focused screens have no bottom navigation, so they clear the home indicator themselves. -->
   <div class="safe-bottom flex-1">
-    <div class="px-4 py-4">
+    <div class="rk-screen-body">
       <ng-content />
     </div>
   </div>

@@ -3,6 +3,20 @@
 @layer base {
   body {
     @apply bg-background text-foreground font-sans antialiased;
+
+    /*
+     * German compounds — "Systemeinstellung", "Bewegung & Animationen", "Kalenderabonnement" — are
+     * longer than a phone column once the text is scaled up, and a word that cannot break makes the
+     * whole screen scroll sideways.
+     *
+     * `hyphens: auto` breaks them at real syllable boundaries (it needs the `lang` on <html>, which
+     * index.html sets to `de`). `overflow-wrap: anywhere` is the fallback for what the hyphenation
+     * dictionary does not know — URLs, names, abbreviations. `anywhere` rather than `break-word`
+     * on purpose: only `anywhere` also shrinks the element's min-content width, which is what lets a
+     * flex or grid child actually give up the space instead of overflowing its track.
+     */
+    hyphens: auto;
+    overflow-wrap: anywhere;
   }
 
   h1,

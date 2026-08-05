@@ -1,42 +1,46 @@
-<div class="flex min-h-dvh flex-col">
+<!--
+  A fixed viewport frame, not a growing document: only <main> scrolls, so the bottom navigation
+  stays put however tall the content becomes. At large text sizes it is several viewports tall.
+-->
+<div class="flex h-dvh flex-col overflow-hidden">
   <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
   <!--
     Primary destinations have no header of their own, so the shell keeps their content clear of the
     notch. Focused screens do have one and apply the top inset to it instead, so that its background
     fills the notch area when the content scrolls underneath.
   -->
-  <main class="safe-x min-h-0 flex-1" [class.safe-top]="activeTab() !== null">
+  <main class="rk-scroll-region safe-x" [class.safe-top]="activeTab() !== null">
     <router-outlet />
   </main>
 
   @if (activeTab(); as active) {
-    <nav class="bg-nav-bg text-rebel-text safe-bottom safe-x shrink-0" aria-label="Hauptbereiche">
-      <ul class="flex">
+    <nav class="rk-tab-bar safe-bottom safe-x" aria-label="Hauptbereiche">
+      <ul class="rk-tab-list">
         @for (destination of destinations; track destination.tab) {
           <li class="flex-1">
             <a
               [routerLink]="destination.link"
               [attr.aria-current]="destination.tab === active ? 'page' : null"
-              class="flex min-h-14 flex-col items-center justify-center gap-1 px-2 py-2 text-sm"
+              class="rk-tab"
               [class.text-rebel-text]="destination.tab === active"
               [class.font-bold]="destination.tab === active"
               [class.text-rebel-text-muted]="destination.tab !== active"
             >
               @switch (destination.tab) {
                 @case ('today') {
-                  <svg lucideSun class="size-6" aria-hidden="true"></svg>
+                  <svg lucideSun class="rk-tab-icon" aria-hidden="true"></svg>
                 }
                 @case ('calendar') {
-                  <svg lucideCalendarDays class="size-6" aria-hidden="true"></svg>
+                  <svg lucideCalendarDays class="rk-tab-icon" aria-hidden="true"></svg>
                 }
                 @case ('content') {
-                  <svg lucideBookOpen class="size-6" aria-hidden="true"></svg>
+                  <svg lucideBookOpen class="rk-tab-icon" aria-hidden="true"></svg>
                 }
               }
               <span>{{ destination.label }}</span>
               <!-- Second, non-colour indicator so the active destination is not signalled by colour alone. -->
               <span
-                class="bg-accent h-1 w-6 rounded-full"
+                class="rk-tab-indicator"
                 [class.invisible]="destination.tab !== active"
                 aria-hidden="true"
               ></span>

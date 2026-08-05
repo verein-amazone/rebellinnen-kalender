@@ -116,6 +116,18 @@
    * because it is what makes the `@max-row:` variant available at call sites.
    */
   --container-row: 18rem;
+
+  /*
+   * Width below which the chrome around the content switches to its compact form: fixed-pixel
+   * icons, indicators and paddings instead of rem-based ones. Text is never capped — only the
+   * decoration around it.
+   *
+   * 13rem is 208px at the default root size, so it is far below any phone width and only ever
+   * matches because `rem` grows with the root font size. It starts matching at 2x — the top of the
+   * ladder — on both a 375px and a 412px screen, and never below it. Like `--container-row`, the
+   * literal is repeated in ./components — keep them in sync.
+   */
+  --container-compact: 13rem;
 }
 
 /* Theme-independent tokens. */
@@ -261,17 +273,47 @@
  */
 
 /*
- * Text size. No attribute means "use the device setting" — the root font size then stays at the
- * browser/WebView default, which is what the OS text-size preference scales.
+ * Text size.
+ *
+ * The device setting is the default and the in-app setting is an absolute override, never a
+ * multiplier: an explicit choice replaces the OS scale instead of stacking on top of it. iOS reaches
+ * 3.12x on its own, so multiplying a 2x app step onto it would produce ~100px body text.
+ *
+ * Neither WebView scales the root font size by itself in a way we can rely on: iOS WKWebView ignores
+ * Dynamic Type entirely, and Android applies `textZoom`, which grows text but not the boxes around
+ * it. `cross-cutting/infrastructure/system-text-scale.ts` therefore neutralises Android's `textZoom`
+ * and writes the OS factor into `--rk-os-scale`, which is 1 until it is known.
+ *
+ * The ladder stops at 2x, which is Apple's Larger Text floor and the largest size the layout stays
+ * genuinely usable at. It does not reach as high as iOS itself can (3.12x): a user at the very
+ * largest system size who picks an explicit option therefore gets a smaller text than they had.
+ * Leaving the setting on "Systemeinstellung" — the default — keeps the full OS range.
+ *
+ * `[data-text-size='…']` and `:root` have the same specificity, so the override blocks must stay
+ * after `:root` in source order. That is why this block is at the end of the file.
  */
+:root {
+  --rk-os-scale: 1;
+
+  font-size: calc(16px * var(--rk-os-scale));
+}
+
 [data-text-size='small'] {
-  font-size: 87.5%;
+  font-size: calc(16px * 0.875);
 }
 
 [data-text-size='medium'] {
-  font-size: 100%;
+  font-size: calc(16px * 1);
 }
 
 [data-text-size='large'] {
-  font-size: 112.5%;
+  font-size: calc(16px * 1.25);
+}
+
+[data-text-size='xlarge'] {
+  font-size: calc(16px * 1.6);
+}
+
+[data-text-size='xxlarge'] {
+  font-size: calc(16px * 2);
 }

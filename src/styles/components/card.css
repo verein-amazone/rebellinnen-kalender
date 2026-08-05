@@ -53,4 +53,19 @@
       @apply flex-col items-start gap-1;
     }
   }
+
+  /*
+   * Further up the text-size ladder the row padding and the minimum row height stop being breathing
+   * room and start being the reason a list of six entries no longer fits on any screen. Both are
+   * decoration rather than content, so they drop to fixed pixels — the wrapped label is what decides
+   * the row height by then, and 48px is still a valid touch target. The 13rem literal mirrors
+   * `--container-compact` in ../theme.css.
+   */
+  @container (max-width: 13rem) {
+    .rk-row {
+      padding-inline: 12px;
+      padding-block: 8px;
+      min-block-size: 48px;
+    }
+  }
 }
