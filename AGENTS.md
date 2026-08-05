@@ -4,6 +4,7 @@ Concise rules for coding agents working in this repository. Read the architectur
 before changing application code:
 
 - [Frontend architecture](./docs/architecture/frontend-architecture.md)
+- [Design system](./docs/architecture/design-system.md)
 - [Data & persistence](./docs/architecture/data-persistence.md)
 - [Contributing guide](./CONTRIBUTING.md)
 

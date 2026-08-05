@@ -1,0 +1,56 @@
+/*
+ * Surfaces, grouped lists and rows.
+ *
+ * These are presentational only. The semantics stay in the template: a grouped list is still a
+ * <ul> of <li>, and `.rk-row` goes on the <a> or <button> inside the <li> rather than on the <li>
+ * itself, so the whole row is one target rather than a link floating inside a taller box.
+ */
+
+@layer components {
+  /* A raised surface. Content-height by definition — never give it a height. */
+  .rk-card {
+    @apply bg-card text-card-foreground rounded-lg;
+  }
+
+  /*
+   * A grouped list of rows. `overflow-hidden` clips the first and last row backgrounds to the
+   * corner radius. The containment turns this into the query container for the row rule below.
+   *
+   * The surface declarations are repeated rather than `@apply rk-card`, because `@apply` only
+   * accepts utilities and `.rk-card` deliberately is not one — as a utility it would sort into the
+   * utilities layer and start winning against `bg-*` at the call site.
+   */
+  .rk-list {
+    @apply bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg;
+    container-type: inline-size;
+  }
+
+  .rk-row {
+    @apply min-h-row flex items-center gap-3 px-4 py-3;
+  }
+
+  /* The row's primary text. `min-w-0` is what lets it wrap instead of pushing the value and the
+     chevron out of the row. */
+  .rk-row-label {
+    @apply min-w-0 flex-1;
+  }
+
+  .rk-row-value {
+    @apply text-muted-foreground min-w-0;
+  }
+
+  /*
+   * Past a certain text size a label, its value and a chevron cannot share a line. A container
+   * query is the only mechanism that reacts to this: `rem` in a media query resolves against the
+   * browser default and never moves, while `rem` in a container query resolves against the real
+   * root font size.
+   *
+   * The 18rem literal mirrors `--container-row` in ../theme.css — CSS cannot interpolate a custom
+   * property into a query condition, so the two have to be kept in sync by hand.
+   */
+  @container (max-width: 18rem) {
+    .rk-row {
+      @apply flex-col items-start gap-1;
+    }
+  }
+}

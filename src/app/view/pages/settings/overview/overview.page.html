@@ -2,11 +2,11 @@
   <div class="space-y-6">
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Persönlich</h2>
-      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+      <ul class="rk-list">
         <li>
-          <a routerLink="/settings/profile" class="flex min-h-14 items-center gap-3 px-4 py-3">
-            <span class="flex-1">Profil</span>
-            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          <a routerLink="/settings/profile" class="rk-row">
+            <span class="rk-row-label">Profil</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
       </ul>
@@ -14,26 +14,26 @@
 
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Darstellung &amp; Bedienung</h2>
-      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+      <ul class="rk-list">
         <li>
-          <a routerLink="/settings/theme" class="flex min-h-14 items-center gap-3 px-4 py-3">
-            <span class="flex-1">Farbthema</span>
-            <span class="text-muted-foreground">{{ appearance.themeLabel() }}</span>
-            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          <a routerLink="/settings/theme" class="rk-row">
+            <span class="rk-row-label">Farbthema</span>
+            <span class="rk-row-value">{{ appearance.themeLabel() }}</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
         <li>
-          <a routerLink="/settings/text-size" class="flex min-h-14 items-center gap-3 px-4 py-3">
-            <span class="flex-1">Textgröße</span>
-            <span class="text-muted-foreground">{{ appearance.textSizeLabel() }}</span>
-            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          <a routerLink="/settings/text-size" class="rk-row">
+            <span class="rk-row-label">Textgröße</span>
+            <span class="rk-row-value">{{ appearance.textSizeLabel() }}</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
         <li>
-          <a routerLink="/settings/motion" class="flex min-h-14 items-center gap-3 px-4 py-3">
-            <span class="flex-1">Bewegung &amp; Animationen</span>
-            <span class="text-muted-foreground">{{ appearance.motionLabel() }}</span>
-            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          <a routerLink="/settings/motion" class="rk-row">
+            <span class="rk-row-label">Bewegung &amp; Animationen</span>
+            <span class="rk-row-value">{{ appearance.motionLabel() }}</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
       </ul>
@@ -41,11 +41,11 @@
 
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Kalender</h2>
-      <ul class="bg-card text-card-foreground divide-border divide-y overflow-hidden rounded-lg">
+      <ul class="rk-list">
         <li>
-          <a routerLink="/settings/calendars" class="flex min-h-14 items-center gap-3 px-4 py-3">
-            <span class="flex-1">Kalender verwalten</span>
-            <svg lucideChevronRight class="size-5 shrink-0" aria-hidden="true"></svg>
+          <a routerLink="/settings/calendars" class="rk-row">
+            <span class="rk-row-label">Kalender verwalten</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
       </ul>

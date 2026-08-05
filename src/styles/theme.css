@@ -15,7 +15,33 @@
  *
  * The four themes are the ones approved in the settings rework handover: amazone, warm
  * (Sonnenuntergang), nacht (Mitternacht), lila (Lavendel).
+ *
+ * The theme blocks below all have the same specificity, so their source order is what decides
+ * which one wins. Keep `:root, [data-theme='amazone']` first and never append a block that sets
+ * raw values outside a theme block.
  */
+
+/*
+ * Hover only means something with a fine pointer. On touch the hover state sticks after a tap, so
+ * the design system has no bare `hover:` styles — use `hoverable:` and `active:` instead.
+ */
+@custom-variant hoverable (@media (hover: hover) and (pointer: fine));
+
+/*
+ * Mirrors how base.css resolves motion: the in-app override wins, and the device preference only
+ * applies when the user has not explicitly chosen `standard`.
+ */
+@custom-variant motion-reduced {
+  &:where([data-motion='reduced'] *) {
+    @slot;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:where(html:not([data-motion='standard']) *) {
+      @slot;
+    }
+  }
+}
 
 @theme inline {
   --color-background: var(--rk-background);
@@ -39,6 +65,16 @@
   --color-rebel-text: var(--rk-rebel-text);
   --color-rebel-text-muted: var(--rk-rebel-text-muted);
 
+  /* Status. Each is legible as text on both `card` and `background`, and carries its `-foreground`
+     when used as a fill. There are deliberately no `-subtle` variants: `bg-danger/10` covers a
+     tinted surface, because `inline` keeps the `var()` for Tailwind to wrap in `color-mix()`. */
+  --color-danger: var(--rk-danger);
+  --color-danger-foreground: var(--rk-danger-foreground);
+  --color-success: var(--rk-success);
+  --color-success-foreground: var(--rk-success-foreground);
+  --color-warning: var(--rk-warning);
+  --color-warning-foreground: var(--rk-warning-foreground);
+
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: 'Fredoka', 'Inter', system-ui, sans-serif;
 
@@ -46,6 +82,40 @@
   --radius-md: calc(var(--rk-radius) - 2px);
   --radius-sm: calc(var(--rk-radius) - 4px);
   --radius-xl: calc(var(--rk-radius) + 4px);
+}
+
+/*
+ * Static scale values. A plain `@theme`, not `@theme inline`: nothing here changes at runtime, so
+ * there is no `var()` reference worth keeping.
+ *
+ * These are theme values rather than `@utility` definitions on purpose. Tailwind sorts utilities
+ * by its own internal order, so a hand-written `@utility` competing with `min-h-16` on the same
+ * element has no defined winner. As theme values they become ordinary `min-h-touch` / `size-touch`
+ * utilities that sort correctly and can be overridden at the call site.
+ */
+@theme {
+  /* The minimum interactive target: 48px at the default root size. Every size here is in rem, so
+     it grows with the root font size instead of pinning a control to a physical size. */
+  --spacing-touch: 3rem;
+  /* A list row — a touch target plus breathing room. */
+  --spacing-row: 3.5rem;
+
+  /* The only breakpoint. Phone is the unprefixed default; this is the tablet tier. Note that a
+     media query never reacts to the root font size, so breakpoints cannot respond to text
+     scaling — that is what the container queries in ./components/*.css are for. */
+  --breakpoint-tablet: 40rem;
+
+  /*
+   * Width below which a row must stack its label, value and chevron instead of keeping them on one
+   * line. 18rem is 288px at the default root size — narrower than any phone, so a row never stacks
+   * at normal text size, not even on a 375px device. Once the root font size grows past roughly
+   * 1.25x it exceeds the available width and the row stacks, which is the point.
+   *
+   * CSS cannot interpolate a custom property into a container query condition, so ./components
+   * repeats the literal. Changing it here means changing it there too — the value lives here
+   * because it is what makes the `@max-row:` variant available at call sites.
+   */
+  --container-row: 18rem;
 }
 
 /* Theme-independent tokens. */
@@ -78,6 +148,15 @@
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #a8d4d3;
   --rk-dot-color: rgb(21 25 95 / 0.12);
+  /* Amazone's background is a mid teal, so status colours have to be dark to stay legible on it as
+     well as on the near-white card. Danger is also deliberately much darker than
+     `--rk-primary` (#de2c27), which is itself red — see the note on destructive actions below. */
+  --rk-danger: #761512;
+  --rk-danger-foreground: #fffdf6;
+  --rk-success: #0a4434;
+  --rk-success-foreground: #fffdf6;
+  --rk-warning: #563400;
+  --rk-warning-foreground: #fffdf6;
 }
 
 /* Warm — "Sonnenuntergang". */
@@ -103,6 +182,12 @@
   --rk-rebel-text: #fffdf9;
   --rk-rebel-text-muted: #f0d8c8;
   --rk-dot-color: rgb(90 65 40 / 0.1);
+  --rk-danger: #9c2b18;
+  --rk-danger-foreground: #fffdf9;
+  --rk-success: #2f6b4f;
+  --rk-success-foreground: #fffdf9;
+  --rk-warning: #7a4e12;
+  --rk-warning-foreground: #fffdf9;
 }
 
 /* Nacht — "Mitternacht". */
@@ -128,6 +213,14 @@
   --rk-rebel-text: #d8e8ec;
   --rk-rebel-text-muted: #7dbdbb;
   --rk-dot-color: rgb(125 189 187 / 0.15);
+  /* Polarity inverts on the dark theme: the status colour is light and its foreground is dark,
+     the same way `--rk-primary` / `--rk-primary-foreground` already behave here. */
+  --rk-danger: #ff9b96;
+  --rk-danger-foreground: #0e1240;
+  --rk-success: #7fd6b3;
+  --rk-success-foreground: #0e1240;
+  --rk-warning: #f2b25c;
+  --rk-warning-foreground: #0e1240;
 }
 
 /* Lila — "Lavendel". */
@@ -153,7 +246,19 @@
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #d4b8e8;
   --rk-dot-color: rgb(45 27 105 / 0.12);
+  --rk-danger: #a3242b;
+  --rk-danger-foreground: #fffdf6;
+  --rk-success: #2b6850;
+  --rk-success-foreground: #fffdf6;
+  --rk-warning: #7a4a12;
+  --rk-warning-foreground: #fffdf6;
 }
+
+/*
+ * Destructive actions are never signalled by colour alone. On amazone the brand primary is itself
+ * red, and on every theme a colour-only cue is invisible to a large part of the audience. Always
+ * pair `danger` with an explicit verb, an icon, and a confirmation step.
+ */
 
 /*
  * Text size. No attribute means "use the device setting" — the root font size then stays at the

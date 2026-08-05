@@ -6,15 +6,11 @@
   -->
   <header class="bg-background border-border safe-top sticky top-0 z-10 border-b">
     <div class="flex items-center gap-2 px-2 py-2">
-      <button
-        type="button"
-        class="flex size-11 shrink-0 items-center justify-center rounded-lg"
-        (click)="dismiss()"
-      >
+      <button type="button" class="rk-icon-button" (click)="dismiss()">
         @if (dismissal() === 'close') {
-          <svg lucideX class="size-6" aria-hidden="true"></svg>
+          <svg lucideX class="rk-icon" aria-hidden="true"></svg>
         } @else {
-          <svg lucideArrowLeft class="size-6" aria-hidden="true"></svg>
+          <svg lucideArrowLeft class="rk-icon" aria-hidden="true"></svg>
         }
         <span class="sr-only">{{ resolvedDismissLabel() }}</span>
       </button>

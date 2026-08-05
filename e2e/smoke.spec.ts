@@ -1,7 +1,22 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-async function expectNoBlockingViolations(page: import('@playwright/test').Page) {
+type Page = import('@playwright/test').Page;
+
+/** Must match the `[data-theme='…']` blocks in src/styles/theme.css. */
+const THEMES = ['amazone', 'warm', 'nacht', 'lila'] as const;
+
+/**
+ * Seeds the stored preference before the app boots, so the theme is already applied on first paint
+ * and no test has to click through the settings UI to get there.
+ */
+async function selectTheme(page: Page, theme: (typeof THEMES)[number]) {
+  await page.addInitScript((value) => {
+    window.localStorage.setItem('rk.appearance', JSON.stringify({ theme: value }));
+  }, theme);
+}
+
+async function expectNoBlockingViolations(page: Page) {
   const results = await new AxeBuilder({ page }).analyze();
   const blocking = results.violations.filter(
     (violation) => violation.impact === 'serious' || violation.impact === 'critical',
@@ -94,4 +109,56 @@ test.describe('application shell', () => {
 
     await expectNoBlockingViolations(page);
   });
+
+  test('has no serious or critical accessibility violations on the theme screen', async ({
+    page,
+  }) => {
+    await page.goto('/settings/theme');
+
+    await expectNoBlockingViolations(page);
+  });
+});
+
+/**
+ * Every theme is a separate palette, so contrast has to be checked per theme rather than once. The
+ * status colours added with the design system multiply the number of pairs, and this is what keeps
+ * that from drifting silently.
+ */
+test.describe('colour contrast per theme', () => {
+  for (const theme of THEMES) {
+    for (const path of ['/today', '/settings']) {
+      test(`${theme} has sufficient contrast on ${path}`, async ({ page }) => {
+        await selectTheme(page, theme);
+        await page.goto(path);
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+
+        const results = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
+
+        expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      });
+    }
+  }
+});
+
+/**
+ * The design system's primitives are built to survive a much larger root font size than the app
+ * currently offers, because the OS text-size preference will drive it later. A page that scrolls
+ * sideways is the clearest sign that something is pinned to a fixed width or refusing to wrap.
+ */
+test.describe('large text', () => {
+  for (const path of ['/today', '/calendar', '/settings', '/settings/theme']) {
+    test(`${path} does not scroll horizontally at 200% text`, async ({ page }) => {
+      await page.goto(path);
+      await page.evaluate(() => {
+        document.documentElement.style.fontSize = '200%';
+      });
+
+      const overflow = await page.evaluate(() => {
+        const root = document.scrollingElement ?? document.documentElement;
+        return root.scrollWidth - root.clientWidth;
+      });
+
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  }
 });

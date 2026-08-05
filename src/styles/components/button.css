@@ -1,0 +1,89 @@
+/*
+ * Buttons and icon buttons.
+ *
+ * Classes rather than components: the same visual button appears as a <button> and as an
+ * <a routerLink>, and a class works on both without forking into two component APIs or having to
+ * pass routing inputs through a wrapper.
+ *
+ * There are no bare `hover:` styles anywhere. On a touch device the hover state sticks after a tap
+ * and the control stays visibly "lit" until the user taps elsewhere, so hover is gated behind
+ * `hoverable:` (see theme.css) and `active:` carries the feedback that matters on touch.
+ */
+
+/*
+ * The mechanics every control shares. This is an `@utility` rather than a class in
+ * `@layer components` for one reason: `@apply` only accepts utilities, and the classes below need
+ * to build on it. It is not meant to appear in a template on its own.
+ */
+@utility rk-control-base {
+  @apply inline-flex shrink-0 items-center justify-center gap-2;
+  /* `min-h`/`min-w`, never `h`/`w`: at large text sizes a fixed height clips the label. */
+  @apply min-h-touch min-w-touch rounded-lg;
+  @apply transition-colors duration-150;
+  /* `pointer-events-none` rather than only dimming, so a disabled control cannot be activated
+     even where the `disabled` attribute does not apply. */
+  @apply disabled:pointer-events-none disabled:opacity-60;
+}
+
+@layer components {
+  /*
+   * A labelled button. Deliberately has no `whitespace-nowrap`: a long label must wrap rather than
+   * overflow, which is what keeps it usable when the root font size grows.
+   */
+  .rk-button {
+    @apply rk-control-base px-4 py-2 text-center font-semibold;
+
+    /* Without this a flex child refuses to shrink below its content width and the label overflows
+       the button instead of wrapping. */
+    & > * {
+      @apply min-w-0;
+    }
+  }
+
+  .rk-button-primary {
+    @apply bg-primary text-primary-foreground;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
+  .rk-button-secondary {
+    @apply bg-secondary text-secondary-foreground;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
+  .rk-button-ghost {
+    @apply text-foreground;
+    @apply hoverable:bg-muted active:bg-muted;
+  }
+
+  /* Destructive actions. Never the only signal — pair it with an explicit verb, an icon and a
+     confirmation step. See the note in theme.css. */
+  .rk-button-danger {
+    @apply bg-danger text-danger-foreground;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
+  /*
+   * A square, label-less action. The accessible name comes from a visually hidden <span> or an
+   * `aria-label`; the icon inside is always `aria-hidden`.
+   */
+  .rk-icon-button {
+    @apply rk-control-base size-touch p-0;
+    @apply hoverable:bg-muted active:bg-muted;
+  }
+}
+
+/*
+ * Icons are sized in `em` so they scale with the text around them rather than with the root only.
+ * An icon inside a `text-sm` label stays proportionate to that label.
+ */
+@utility rk-icon {
+  inline-size: 1.5em;
+  block-size: 1.5em;
+  flex: none;
+}
+
+@utility rk-icon-sm {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  flex: none;
+}

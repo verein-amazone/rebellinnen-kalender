@@ -1,0 +1,38 @@
+/*
+ * A single radio or checkbox choice presented as a card row.
+ *
+ * The control stays a native <input>. Native radios already give roving tabindex, arrow-key
+ * navigation with wrap-around, Home/End, "option 2 of 4" position announcements and forced-colors
+ * rendering — correctly, on every platform. `accent-color` in ../base.css themes them without
+ * `appearance: none`, which is what makes keeping the native control affordable.
+ */
+
+@layer components {
+  /*
+   * The surface declarations are repeated rather than `@apply rk-card rk-row`, because `@apply`
+   * only accepts utilities and those are deliberately component classes. See ./card.css.
+   *
+   * `flex-wrap` matters at large text sizes: trailing content such as a colour swatch drops to its
+   * own line instead of squeezing the label or overflowing the row.
+   */
+  .rk-choice {
+    @apply bg-card text-card-foreground rounded-lg;
+    @apply min-h-row flex flex-wrap items-center gap-3 px-4 py-3;
+    @apply hoverable:brightness-98 active:brightness-97;
+  }
+
+  /* Sized in em so the control tracks its label rather than staying pinned while the text grows. */
+  .rk-choice-control {
+    inline-size: 1.25em;
+    block-size: 1.25em;
+    @apply shrink-0;
+  }
+
+  .rk-choice-text {
+    @apply min-w-0 flex-1;
+  }
+
+  .rk-choice-description {
+    @apply text-muted-foreground block text-sm;
+  }
+}

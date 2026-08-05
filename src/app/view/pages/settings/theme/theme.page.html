@@ -3,18 +3,13 @@
     <legend class="sr-only">Farbthema wählen</legend>
 
     @for (option of appearance.themeOptions; track option.id) {
-      <label
-        class="bg-card text-card-foreground flex min-h-14 items-center gap-3 rounded-lg px-4 py-3"
+      <app-choice-row
+        name="theme"
+        [value]="option.id"
+        [label]="option.label"
+        [checked]="appearance.theme() === option.id"
+        (selected)="select($event)"
       >
-        <input
-          type="radio"
-          name="theme"
-          class="size-5 shrink-0"
-          [value]="option.id"
-          [checked]="appearance.theme() === option.id"
-          (change)="select(option.id)"
-        />
-        <span class="flex-1">{{ option.label }}</span>
         <!--
           The preview is rendered by switching the token layer on this element, so no colour value
           has to be duplicated in TypeScript.
@@ -28,7 +23,7 @@
           <span class="bg-primary size-5 rounded-full"></span>
           <span class="bg-accent size-5 rounded-full"></span>
         </span>
-      </label>
+      </app-choice-row>
     }
   </fieldset>
 </app-focused-screen>

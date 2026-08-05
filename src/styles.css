@@ -4,6 +4,10 @@
 /* Defines .cdk-visually-hidden, which the CDK LiveAnnouncer relies on. Without it the announcer's
    element is rendered visibly at the bottom of the page. */
 @import '@angular/cdk/a11y-prebuilt.css';
+/* Positions and stacks the overlay container the sheets render into. Without it a sheet renders as
+   ordinary content at the end of <body>. */
+@import '@angular/cdk/overlay-prebuilt.css';
 @import './styles/fonts.css';
 @import './styles/theme.css';
 @import './styles/base.css';
+@import './styles/components.css';
