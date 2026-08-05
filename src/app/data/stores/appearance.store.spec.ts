@@ -46,6 +46,15 @@ describe('AppearanceStore', () => {
     });
   });
 
+  it('should accept every step of the text-size ladder, including the pre-existing ones', () => {
+    for (const textSize of ['small', 'medium', 'large', 'xlarge', 'xxlarge'] as const) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ textSize }));
+      TestBed.resetTestingModule();
+
+      expect(TestBed.inject(AppearanceStore).preferences().textSize).toBe(textSize);
+    }
+  });
+
   it('should fall back to the defaults for unknown or malformed values', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'himmel', textSize: 42 }));
 

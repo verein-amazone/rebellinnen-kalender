@@ -5,5 +5,14 @@ project(':capacitor-android').projectDir = new File('../node_modules/.pnpm/@capa
 include ':capacitor-community-sqlite'
 project(':capacitor-community-sqlite').projectDir = new File('../node_modules/.pnpm/@capacitor-community+sqlite@8.1.0_@capacitor+core@8.5.0/node_modules/@capacitor-community/sqlite/android')
 
+include ':capacitor-app'
+project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacitor+app@8.1.1_@capacitor+core@8.5.0/node_modules/@capacitor/app/android')
+
+include ':capacitor-text-zoom'
+project(':capacitor-text-zoom').projectDir = new File('../node_modules/.pnpm/@capacitor+text-zoom@8.0.1_@capacitor+core@8.5.0/node_modules/@capacitor/text-zoom/android')
+
+include ':capawesome-capacitor-accessibility-preferences'
+project(':capawesome-capacitor-accessibility-preferences').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-accessibility-preferences@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-accessibility-preferences/android')
+
 include ':ebarooni-capacitor-calendar'
 project(':ebarooni-capacitor-calendar').projectDir = new File('../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.2.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar/android')

@@ -163,4 +163,9 @@ decisions stay traceable. See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 ## Note on design
 
 The visual design (colors, typography, components) will be derived later from the approved Figma
-mockup. There is deliberately no design system yet.
+mockup.
+
+The app has a small in-app design system in the meantime: design tokens and visual patterns as CSS
+in `src/styles/`, and the few UI primitives that carry real behaviour as Angular components in
+`src/app/view/components/`. It is deliberately minimal and grows only when a second call site
+appears. See [docs/architecture/design-system.md](./docs/architecture/design-system.md).

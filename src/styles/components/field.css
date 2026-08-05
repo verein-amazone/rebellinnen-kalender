@@ -1,0 +1,69 @@
+/*
+ * Form fields.
+ *
+ * CSS only, deliberately: no screen has a form yet (#14, #19), and the `touched`/`invalid` API of a
+ * field component should be designed against a real form rather than an imagined one. These
+ * classes are inert until something uses them.
+ *
+ * The accessibility contract the first form has to honour:
+ *   - every `.rk-input` has its own `<label for>`; a placeholder is not a label
+ *   - the `.rk-error` sits inside a wrapper that carries `aria-live="polite" aria-atomic="true"`
+ *     and is *always* in the DOM — an element that appears at the same moment as its text is
+ *     frequently not announced at all
+ *   - `aria-invalid` and `aria-describedby` are bound only once the field has been touched, so a
+ *     pristine form is not announced as a wall of errors
+ *   - the error is always text; the red border is a redundant cue, never the only one
+ */
+
+@layer components {
+  /*
+   * The field shell. On focus the border grows from 2px to 4px while the padding shrinks by exactly
+   * the same amount, so the box keeps its size and nothing around it reflows.
+   *
+   * Border widths are the one place a px value is right: they are not text and must not scale with
+   * the root font size, or a focused field at 3x would be ringed by a 12px slab.
+   */
+  .rk-field {
+    @apply border-border bg-input-background flex items-center gap-2 rounded-lg border-2 px-4 py-2;
+
+    &:focus-within {
+      @apply border-ring border-4 px-3.5 py-1.5;
+    }
+
+    /*
+     * A filled field keeps the emphasised outline, so a completed form reads at a glance. This
+     * relies on the input always carrying a `placeholder` attribute — with none,
+     * `:placeholder-shown` never matches and every empty field would look filled.
+     */
+    &:has(.rk-input:not(:placeholder-shown)) {
+      @apply border-ring;
+    }
+
+    &:has(input[aria-invalid='true']) {
+      @apply border-danger;
+    }
+  }
+
+  /* The control itself is bare: the shell above draws the border and the focus state. */
+  .rk-input {
+    @apply w-full min-w-0 appearance-none border-0 bg-transparent outline-none;
+    @apply focus:ring-0 focus:outline-none;
+
+    /* We render our own clear control where one is needed, so the native one would be a duplicate. */
+    &::-webkit-search-cancel-button {
+      @apply hidden;
+    }
+  }
+
+  .rk-label {
+    @apply mb-1 block font-semibold;
+  }
+
+  .rk-hint {
+    @apply text-muted-foreground mt-1 text-sm;
+  }
+
+  .rk-error {
+    @apply text-danger mt-1 text-sm;
+  }
+}

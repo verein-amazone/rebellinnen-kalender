@@ -1,0 +1,57 @@
+/*
+ * The screen frame: one scroll region, and the padding around a screen's content.
+ *
+ * The shell is a fixed viewport-height frame rather than a document that grows. At large text sizes
+ * the content is several times taller than the viewport — that vertical scroll is expected and is
+ * what reflow asks for — but the chrome must not scroll away with it, or the bottom navigation ends
+ * up 700px below the fold. So exactly one element scrolls, and the tab bar and the focused-screen
+ * header sit outside it.
+ */
+
+@layer components {
+  /*
+   * The single scrolling element. `overscroll-contain` keeps a scroll gesture from chaining to the
+   * document behind it, which on iOS would otherwise rubber-band the whole shell.
+   *
+   * It is also the query container for everything a screen renders, which is what lets the rules
+   * below react to the root font size — a media query cannot. See docs/architecture/design-system.md.
+   */
+  .rk-scroll-region {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+    container-type: inline-size;
+  }
+
+  .rk-screen-body {
+    @apply px-4 py-4;
+  }
+
+  .rk-screen-header-bar {
+    @apply flex items-center gap-2 px-2 py-2;
+  }
+
+  /*
+   * The compact form. The 13rem literal mirrors `--container-compact` in ../theme.css.
+   *
+   * Padding is not text, so trimming it is free legibility: it buys lines of content instead of
+   * margin. The header's dismiss button is capped along with it — it is a label-less icon control
+   * whose accessible name is a visually hidden span, so its glyph carries no text to scale, and
+   * 48px keeps it a valid touch target.
+   */
+  @container (max-width: 13rem) {
+    .rk-screen-body {
+      @apply px-2 py-2;
+    }
+
+    .rk-screen-header-bar {
+      @apply gap-1 px-1 py-1;
+    }
+
+    .rk-screen-header-bar .rk-icon-button {
+      font-size: 20px;
+      min-block-size: 48px;
+      min-inline-size: 48px;
+      inline-size: 48px;
+      block-size: 48px;
+    }
+  }
+}

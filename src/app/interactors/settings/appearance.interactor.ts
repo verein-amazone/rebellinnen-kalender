@@ -45,6 +45,8 @@ export class AppearanceInteractor {
     { id: 'small', label: 'Klein', description: null },
     { id: 'medium', label: 'Mittel', description: null },
     { id: 'large', label: 'Groß', description: null },
+    { id: 'xlarge', label: 'Sehr groß', description: null },
+    { id: 'xxlarge', label: 'Riesig', description: null },
   ];
 
   readonly motionOptions: readonly AppearanceOption<MotionId>[] = [

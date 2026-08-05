@@ -1,0 +1,19 @@
+/*
+ * Visual primitives. Keep this file an import barrel — put actual rules in ./components/*.css.
+ *
+ * Everything here is a plain CSS class, not an Angular component. The split is deliberate and is
+ * the rule for the whole design system: a purely visual pattern is an `rk-*` class in this
+ * directory, and anything with real behaviour or ARIA state is an `app-*` component under
+ * src/app/view/components/. See docs/architecture/design-system.md.
+ *
+ * These rules live in `@layer components`, so a Tailwind utility at the call site always wins over
+ * them regardless of import order. Overriding a primitive never needs `!important`.
+ */
+
+@import './components/button.css';
+@import './components/card.css';
+@import './components/choice.css';
+@import './components/field.css';
+@import './components/navigation.css';
+@import './components/screen.css';
+@import './components/sheet.css';

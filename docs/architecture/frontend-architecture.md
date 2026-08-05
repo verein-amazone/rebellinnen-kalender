@@ -70,7 +70,9 @@ view/pages/calendar/
 ```
 
 Add a `.page.css` file only when a page actually needs styles that Tailwind utilities cannot
-express; do not create empty ones.
+express; do not create empty ones. A visual pattern that more than one screen uses is not a page
+style — it belongs in `src/styles/components/` as an `rk-*` class. See
+[Design system](./design-system.md).
 
 Because several groups have an `overview` page, class names and selectors are qualified by their
 group (`CalendarOverviewPage` / `app-calendar-overview`) while file and folder names stay short.
@@ -149,8 +151,10 @@ which shows up as a brief dim or flicker instead of an animation. Skipping only 
 
 CDK behaviour that needs CSS does not bring it along. `@angular/cdk/a11y-prebuilt.css` is imported
 in `src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
-element — without it the announcements are rendered as visible page content. Import the matching
-prebuilt stylesheet whenever a new CDK feature is adopted.
+element — without it the announcements are rendered as visible page content.
+`@angular/cdk/overlay-prebuilt.css` is imported for the same reason: it positions and stacks the
+overlay container that sheets render into, and without it a sheet renders as ordinary content at the
+end of `<body>`. Import the matching prebuilt stylesheet whenever a new CDK feature is adopted.
 
 ### Dialogs (`view/dialogs/`)
 
@@ -160,8 +164,12 @@ Modal interaction flows. Their presenters follow the same rules as pages.
 view/dialogs/confirmation/
   confirmation.dialog.ts
   confirmation.dialog.html
-  confirmation.dialog.css
 ```
+
+The modal _chrome_ is not here: it is the `app-sheet` primitive in `view/components/sheet/`, opened
+through `SheetService`. What lives in `view/dialogs/` is the content a sheet renders — a presenter
+like any other, which injects `SheetRef` to close itself with a result. See
+[Design system](./design-system.md).
 
 ### Scaffolds (`view/scaffolds/`)
 
@@ -178,6 +186,16 @@ Two scaffolds exist:
 
 - `main-navigation` — the app shell: the routed page plus the bottom navigation.
 - `focused-screen` — the header, back action and focus handling shared by all focused screens.
+
+The shell is a **fixed `h-dvh` frame with exactly one scroll region**: `<main>` carries
+`.rk-scroll-region` and is the only element that scrolls, so the bottom navigation sits outside it
+and stays reachable. This matters at large text sizes, where the content is several viewports tall —
+with a scrolling document the tab bar ends up hundreds of pixels below the fold. A focused screen's
+header is `sticky` inside that region for the same reason.
+
+`.rk-scroll-region` is also the query container every screen resolves `@container` against, which is
+what lets padding and chrome react to the root font size. See
+[Scaling-safe rules](./design-system.md#scaling-safe-rules).
 
 ### Blocks (`view/blocks/`)
 
@@ -198,6 +216,12 @@ Small internal UI primitives (buttons, icon buttons, cards, form controls, loadi
 behave like native HTML elements: clear signal inputs/outputs, no feature-specific business logic, no
 interactor or DAO injection, accessible native HTML semantics by default. Use Angular CDK and Angular
 Aria where they add accessible behavior, and Lucide for icons.
+
+Not every primitive is a component. A purely visual pattern is an `rk-*` CSS class in
+`src/styles/components/` instead; only patterns with real behaviour or ARIA state become components
+here. The `rk-` / `app-` prefixes are the visible marker of which is which.
+[Design system](./design-system.md) has the decision rule, the token layers and the rules every
+primitive is built to.
 
 ## Interactors (`interactors/`)
 
@@ -255,17 +279,57 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 
 ### Token layer
 
-`src/styles/theme.css` defines the tokens in two levels:
+`src/styles/theme.css` defines the tokens in three groups:
 
 1. `--rk-*` holds the raw values. Each colour theme is one static block selected by the `data-theme`
-   attribute on `<html>`; the default theme is additionally bound to `:root`.
+   attribute on `<html>`; the default theme is additionally bound to `:root`. The theme blocks all
+   have equal specificity, so their **source order** is what decides which one wins — keep
+   `:root, [data-theme='amazone']` first, and never set raw values outside a theme block.
 2. `@theme inline { … }` maps them into Tailwind's namespaces, so `bg-background`, `text-foreground`,
    `border-border`, `font-display` and `rounded-lg` all resolve through the custom properties.
    `inline` is required — it keeps the `var()` references in the generated utilities, which is what
    makes changing `data-theme` at runtime recolour the whole app without rebuilding anything.
+3. A plain `@theme { … }` holds the static scale values that never change at runtime and therefore
+   need no reference kept: `--spacing-touch`, `--spacing-row`, `--breakpoint-tablet` and
+   `--container-row`.
 
 Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
 absence of the attribute means "follow the device setting", which is the default.
+
+### OS text scaling
+
+The in-app text size is an **absolute override, never a multiplier**: an explicit choice replaces the
+OS scale instead of stacking on top of it. iOS already reaches 3.12x on its own, so multiplying an
+app step onto it would produce unusable sizes.
+
+The ladder is five steps ending at **2x**, Apple's Larger Text floor and the largest size the layout
+stays genuinely usable at — the original three stopped at 1.125x. It deliberately does not follow the
+OS all the way to 3.12x, so a user at the very largest system size who picks an explicit option gets
+smaller text than they had. Leaving the setting on "Systemeinstellung", which is the default, keeps
+the full OS range, and the layout is verified at 300% for exactly that reason.
+
+The two platforms disagree, so neither can be trusted to scale the app on its own:
+
+- **iOS** WKWebView ignores Dynamic Type completely. The root font size stays at 16px wherever the
+  Larger Text slider is, so without this the app has no OS text scaling at all.
+- **Android** WebView applies the system font scale as `WebSettings.textZoom`, which scales computed
+  font sizes but **not** lengths — text grows while padding, gaps and heights stay put, which is how
+  content ends up overlapping.
+
+`cross-cutting/infrastructure/system-text-scale.ts` is the gateway that resolves both: it resets
+Android's `textZoom` to 1 to take ownership of scaling, and exposes the OS factor as a signal, which
+`DocumentAppearance` writes to `--rk-os-scale` on `<html>`. The root font size is
+`calc(16px * var(--rk-os-scale))`, so the rem-based spacing scale grows along with the text. It wraps
+`@capawesome/capacitor-accessibility-preferences` and `@capacitor/text-zoom`, and is the only place
+those plugin types exist.
+
+Neither platform fires a change event, so the value is re-read on `appStateChange` when the app
+becomes active. It is read once more during bootstrap via `provideAppInitializer`, awaited, because
+applying the scale after the first paint would show the app at the wrong size for a frame — and the
+`textZoom` reset does not survive a restart.
+
+Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
+scaling this is built to support.
 
 Adding a theme means adding one block to `theme.css` plus its id in `AppearanceInteractor`. Theme
 previews are rendered by putting `data-theme` on the preview element itself, so no screen ever
@@ -278,9 +342,10 @@ The selection follows the normal layer direction:
 - `data/stores/appearance.store.ts` persists the three values and exposes them as signals.
 - `interactors/settings/appearance.interactor.ts` validates the ids, owns the labelled option lists
   and exposes the current selection.
-- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes onto
-  `<html>`. It is the only code that touches them.
-- The root `App` component runs the single `effect()` that connects the two.
+- `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
+  `--rk-os-scale` onto `<html>`. It is the only code that touches them.
+- `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).
+- The root `App` component runs the single `effect()` that connects them.
 
 No context is involved: the interactor's readonly signals are what components consume.
 

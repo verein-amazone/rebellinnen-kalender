@@ -1,0 +1,107 @@
+/*
+ * Modal sheets. The chrome is `app-sheet`; these are the looks.
+ *
+ * Both modes slide up from the bottom edge and differ only in height, so there is one panel class
+ * plus a height modifier rather than two separate components.
+ */
+
+@layer components {
+  .rk-sheet-backdrop {
+    @apply bg-foreground/40;
+  }
+
+  /*
+   * The panel. This is the one place a height constraint is correct — the sheet must not grow past
+   * the screen — and the body below scrolls instead. The inset keeps it clear of the notch.
+   */
+  .rk-sheet-panel {
+    @apply bg-card text-card-foreground flex w-full flex-col rounded-t-xl;
+    max-block-size: calc(100dvh - env(safe-area-inset-top));
+    animation: rk-sheet-enter 220ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* Content height, anchored to the bottom edge. */
+  .rk-sheet-panel-bottom {
+    max-block-size: min(85dvh, calc(100dvh - env(safe-area-inset-top)));
+  }
+
+  /* Near full height, for content that needs the room. */
+  .rk-sheet-panel-full {
+    block-size: calc(100dvh - 3rem);
+  }
+
+  .rk-sheet-panel-closing {
+    animation: rk-sheet-exit 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  /*
+   * Purely a visual affordance. The sheet is not draggable in v1 — the close button and Escape are
+   * the dismissal paths, and both work with a keyboard and with a screen reader.
+   */
+  .rk-sheet-grabber {
+    @apply bg-border mx-auto mt-2 h-1 w-10 shrink-0 rounded-full;
+  }
+
+  /*
+   * The horizontal safe-area inset is applied with the `safe-x` class in sheet.html rather than
+   * `@apply`-ed here: `safe-x` is a hand-written class in base.css, not an `@utility`, and `@apply`
+   * only accepts utilities. Keeping it a class at the call site also preserves the source-order
+   * interaction with the padding utilities that the architecture doc describes.
+   */
+  .rk-sheet-header {
+    @apply flex shrink-0 items-start gap-2 px-4 py-3;
+  }
+
+  /*
+   * The only scrolling region. `overscroll-contain` stops the scroll from chaining to the page
+   * behind once the body hits its end.
+   */
+  .rk-sheet-body {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4;
+  }
+
+  /*
+   * An action row for sheet content to use. In v1 it lives inside the scrolling body and therefore
+   * scrolls with it; a pinned footer region can be added to the chrome when a sheet actually needs
+   * one. The container query stacks the buttons once they no longer fit side by side.
+   */
+  .rk-sheet-footer {
+    @apply flex flex-wrap gap-2 pt-2;
+    /* Clears the home indicator, with a floor so the row never sits flush against the edge. */
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+    container-type: inline-size;
+  }
+
+  @container (max-width: 18rem) {
+    .rk-sheet-footer > * {
+      @apply w-full;
+    }
+  }
+}
+
+/*
+ * Plain CSS animations on purpose. base.css neutralises motion by forcing `animation-duration` to
+ * 0.01ms on descendants of <html>, and the Web Animations API ignores that entirely — so an
+ * `Element.animate()` sheet would keep sliding for users who asked it not to. The overlay container
+ * is a child of <body>, so those existing rules already reach this panel.
+ *
+ * Because the reduced-motion duration is 0.01ms rather than 0, `animationend` still fires and the
+ * exit path in sheet.ts works unchanged.
+ */
+@keyframes rk-sheet-enter {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes rk-sheet-exit {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}

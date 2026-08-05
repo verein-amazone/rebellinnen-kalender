@@ -3,24 +3,14 @@
     <legend class="sr-only">Bewegung wählen</legend>
 
     @for (option of appearance.motionOptions; track option.id) {
-      <label
-        class="bg-card text-card-foreground flex min-h-14 items-center gap-3 rounded-lg px-4 py-3"
-      >
-        <input
-          type="radio"
-          name="motion"
-          class="size-5 shrink-0"
-          [value]="option.id"
-          [checked]="appearance.motion() === option.id"
-          (change)="select(option.id)"
-        />
-        <span class="flex-1">
-          {{ option.label }}
-          @if (option.description) {
-            <span class="text-muted-foreground block text-sm">{{ option.description }}</span>
-          }
-        </span>
-      </label>
+      <app-choice-row
+        name="motion"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.motion() === option.id"
+        (selected)="select($event)"
+      />
     }
   </fieldset>
 </app-focused-screen>
