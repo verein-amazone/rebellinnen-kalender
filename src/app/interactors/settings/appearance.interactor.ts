@@ -2,16 +2,12 @@ import { computed, inject, Injectable } from '@angular/core';
 
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 import type { MotionId, TextSizeId, ThemeId } from '@app/data/stores/appearance-preferences';
+import type { ChoiceOption } from '@app/interactors/choice-option';
 
 export type { MotionId, TextSizeId, ThemeId };
 
-/** A selectable appearance option, ready to be rendered as a radio-style choice. */
-export interface AppearanceOption<TId extends string> {
-  readonly id: TId;
-  readonly label: string;
-  /** Shown below the label where it helps users understand the option. */
-  readonly description: string | null;
-}
+/** A selectable appearance option. The shape is shared with the other settings screens. */
+export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
 
 /**
  * Reading and changing the appearance preferences: colour theme, text size and motion.

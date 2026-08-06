@@ -32,6 +32,9 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-sheet',
+  // The CDK overlay pane is a flex container, and a flex child does not stretch on the main axis on
+  // its own — without this the panel is only as wide as its widest line instead of the full screen.
+  host: { class: 'block w-full' },
   imports: [NgComponentOutlet, LucideX],
   templateUrl: './sheet.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

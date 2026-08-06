@@ -70,6 +70,15 @@
     @apply rk-control-base size-touch p-0;
     @apply hoverable:bg-muted active:bg-muted;
   }
+
+  /*
+   * The filled variant, for the one action a compact row exists to perform — submitting the text
+   * that was just typed. Same corner radius as every other control; only the fill sets it apart.
+   */
+  .rk-icon-button-primary {
+    @apply bg-primary text-primary-foreground;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
 }
 
 /*

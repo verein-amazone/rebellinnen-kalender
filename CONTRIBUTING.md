@@ -39,8 +39,9 @@ Use official CLIs and schematics instead of hand-writing boilerplate:
 
 - Angular CLI (`pnpm exec ng generate …`) for Angular artifacts.
 - Capacitor CLI (`pnpm exec cap …`) for platform and plugin operations.
-- Consult the [Angular CLI MCP Server](https://angular.dev/ai/mcp) for current Angular 22 practices
-  before writing Angular configuration by hand.
+- The [Angular CLI MCP Server](https://angular.dev/ai/mcp) is configured in `.mcp.json` and runs
+  project-locally. Consult it (`get_best_practices`, `search_documentation`) for current Angular 22
+  practices before writing Angular code or configuration by hand.
 
 ### Quality gates
 
@@ -63,7 +64,8 @@ issue discussion may use German.)
 
 ## Architecture rules
 
-Read [docs/architecture/frontend-architecture.md](./docs/architecture/frontend-architecture.md) and
+Read [docs/architecture/frontend-architecture.md](./docs/architecture/frontend-architecture.md),
+[docs/architecture/accessibility.md](./docs/architecture/accessibility.md) and
 [docs/architecture/data-persistence.md](./docs/architecture/data-persistence.md) before changing
 application code. Key rules:
 
@@ -80,6 +82,9 @@ application code. Key rules:
 
 - [ ] Change follows the architecture rules and dependency direction.
 - [ ] Official CLIs/schematics were used where applicable.
+- [ ] The [accessibility definition of done](./docs/architecture/accessibility.md#definition-of-done)
+      is met: correct native element, accessible name containing the visible label, keyboard and
+      screen-reader operation, focus and announcements, contrast, maximum text size.
 - [ ] Technical docs and code comments are in English.
 - [ ] `pnpm format:check`, `pnpm lint`, `pnpm test:ci` and `pnpm build` pass.
 - [ ] Architecture docs updated if a boundary changed.

@@ -43,13 +43,14 @@
   }
 
   /*
-   * The horizontal safe-area inset is applied with the `safe-x` class in sheet.html rather than
-   * `@apply`-ed here: `safe-x` is a hand-written class in base.css, not an `@utility`, and `@apply`
-   * only accepts utilities. Keeping it a class at the call site also preserves the source-order
-   * interaction with the padding utilities that the architecture doc describes.
+   * The horizontal inset carries the safe area itself, with the ordinary padding as its floor. It
+   * cannot be delegated to the `safe-x` class from base.css: that class sets `padding-left`/`-right`
+   * outright, so on the element that also needs `px-4` it would replace the padding with a 0 inset
+   * in portrait rather than adding to it.
    */
   .rk-sheet-header {
-    @apply flex shrink-0 items-start gap-2 px-4 py-3;
+    @apply flex shrink-0 items-start gap-2 py-3;
+    padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
   }
 
   /*
@@ -57,7 +58,8 @@
    * behind once the body hits its end.
    */
   .rk-sheet-body {
-    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4;
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4;
+    padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
   }
 
   /*

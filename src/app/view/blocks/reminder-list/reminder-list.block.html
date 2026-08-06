@@ -1,0 +1,217 @@
+@if (items.error() !== undefined) {
+  <div class="rk-card space-y-3 px-4 py-6 text-center">
+    <p>Die Liste konnte nicht geladen werden.</p>
+    <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
+      Erneut versuchen
+    </button>
+  </div>
+} @else if (items.isLoading()) {
+  <p class="text-muted-foreground">Wird geladen …</p>
+} @else {
+  <!--
+    One card holds the entries and the row that adds the next one, so the list reads as a single
+    block. `overflow-visible` because a row's menu hangs outside the card, unlike everywhere else.
+  -->
+  <div class="rk-card overflow-visible">
+    @if (isEmpty()) {
+      <p class="text-muted-foreground px-4 py-6 text-center">
+        Hier ist noch nichts. Trage ein, was du nicht vergessen möchtest.
+      </p>
+    } @else {
+      <!--
+        One list, open entries first and completed ones after them. They are still two groups as far
+        as moving goes: `sortPredicate` refuses a position outside the dragged row's own group, so a
+        drag can rearrange but never complete or reopen an entry — ticking the checkbox is the one way
+        across, and it is a plain tap.
+      -->
+      <ul
+        class="rk-list rk-reorder-list overflow-visible rounded-none bg-transparent"
+        cdkDropList
+        cdkDropListLockAxis="y"
+        [cdkDropListData]="entries()"
+        [cdkDropListSortPredicate]="sortPredicate"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (row of rows(); track row.item.id) {
+          <!--
+            `.rk-row` sits on the <li> here rather than on a control inside it, unlike the grouped
+            lists card.css describes: a row carries the checkbox with its label and the menu trigger,
+            so there is no single control that could own the whole row. `relative` anchors the menu.
+
+            No enter or leave animation on purpose — see the header of reorder.css: both fought the
+            drag, which owns this element's `transform` and reads the list by document position.
+          -->
+          <li class="rk-row relative" cdkDrag [cdkDragData]="row.item">
+            <!--
+                Decoration, not a control: it does nothing without a pointer drag, and a focusable
+                element with no keyboard behaviour would be a stop in the tab order that does nothing.
+                „Nach oben“ and „Nach unten“ in the row's menu are the reachable equivalent.
+              -->
+            <span cdkDragHandle class="rk-drag-handle" aria-hidden="true">
+              <svg lucideGripVertical class="rk-icon" aria-hidden="true"></svg>
+            </span>
+
+            <label class="flex min-w-0 flex-1 items-center gap-3">
+              <input
+                type="checkbox"
+                class="rk-check"
+                [checked]="row.item.completed"
+                [attr.aria-label]="toggleLabel(row.item)"
+                (change)="toggle(row.item)"
+              />
+              <!--
+                  Completion is signalled three ways, none of them colour: the checkmark itself, the
+                  strikethrough, and the checkbox's label switching to the opposite action.
+                -->
+              <span
+                class="min-w-0 flex-1"
+                [class.line-through]="row.item.completed"
+                [class.text-muted-foreground]="row.item.completed"
+                >{{ row.item.text }}</span
+              >
+            </label>
+
+            <!--
+                Enter and Space are handled by `ngMenuTrigger` itself. Without `preventDefault` the
+                browser would also synthesise a click on this <button>, which the directive reads as a
+                second activation and closes the menu again in the same keystroke.
+              -->
+            <button
+              type="button"
+              class="rk-icon-button"
+              ngMenuTrigger
+              [menu]="rowMenu"
+              (keydown.enter)="$event.preventDefault()"
+              (keydown.space)="$event.preventDefault()"
+            >
+              <svg lucideEllipsis class="rk-icon" aria-hidden="true"></svg>
+              <span class="sr-only">Optionen für „{{ row.item.text }}“</span>
+            </button>
+
+            <!--
+                `itemSelected` rather than a click handler per item: it also fires for Enter and
+                Space, which is how the menu is used from a keyboard.
+              -->
+            <div
+              ngMenu
+              #rowMenu="ngMenu"
+              class="rk-menu absolute top-full right-3"
+              (itemSelected)="runAction($event, row.item, row.groupIndex)"
+            >
+              <!--
+                  `ngMenuContent` renders the items only once the menu opens, which is also what lets
+                  the directive move focus into them: a hidden panel cannot receive focus. The two
+                  move items are left out where they would do nothing rather than offered as dead
+                  controls.
+                -->
+              <ng-template ngMenuContent>
+                @if (row.groupIndex > 0) {
+                  <button type="button" class="rk-menu-item" ngMenuItem value="move-up">
+                    <svg lucideArrowUp class="rk-icon-sm" aria-hidden="true"></svg>
+                    <span class="min-w-0">Nach oben</span>
+                  </button>
+                }
+
+                @if (row.groupIndex < row.groupSize - 1) {
+                  <button type="button" class="rk-menu-item" ngMenuItem value="move-down">
+                    <svg lucideArrowDown class="rk-icon-sm" aria-hidden="true"></svg>
+                    <span class="min-w-0">Nach unten</span>
+                  </button>
+                }
+
+                <button type="button" class="rk-menu-item" ngMenuItem value="edit">
+                  <svg lucidePencil class="rk-icon-sm" aria-hidden="true"></svg>
+                  <span class="min-w-0">Bearbeiten</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="rk-menu-item rk-menu-item-danger"
+                  ngMenuItem
+                  value="delete"
+                >
+                  <svg lucideTrash2 class="rk-icon-sm" aria-hidden="true"></svg>
+                  <span class="min-w-0">Löschen</span>
+                </button>
+              </ng-template>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    <!-- The last row of the card: an invitation while it is unused, the field once it is. -->
+    <div class="border-border border-t">
+      @if (adding()) {
+        <form (submit)="$event.preventDefault(); add()">
+          <label class="sr-only" for="new-reminder-text">Neue Erinnerung</label>
+
+          <!--
+            `.rk-row` so this line sits on exactly the same padding and minimum height as the closed
+            state and as an entry above it — including the trims its container queries apply at large
+            text sizes.
+
+            Two icon buttons around the field rather than a labelled button: at those sizes a word
+            like „Hinzufügen“ is wider than the row it sits in, while an icon scales with the text and
+            stays a 48px target. Both carry a visually hidden name.
+          -->
+          <div class="rk-row flex-wrap">
+            <div class="rk-field min-w-0 flex-1">
+              <input
+                #newReminderInput
+                id="new-reminder-text"
+                class="rk-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Neuer Punkt …"
+                [attr.maxlength]="maxLength"
+                [value]="draft()"
+                [attr.aria-invalid]="error() === '' ? null : 'true'"
+                [attr.aria-describedby]="error() === '' ? null : 'new-reminder-error'"
+                (input)="updateDraft($any($event.target).value)"
+                (keydown.escape)="cancelAdding()"
+              />
+            </div>
+
+            <button type="button" class="rk-icon-button" (click)="cancelAdding()">
+              <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+              <span class="sr-only">Eingabe abbrechen</span>
+            </button>
+
+            <button type="submit" class="rk-icon-button rk-icon-button-primary">
+              <svg lucideArrowUp class="rk-icon" aria-hidden="true"></svg>
+              <span class="sr-only">Hinzufügen</span>
+            </button>
+          </div>
+
+          <!--
+            Always in the DOM: a live region that appears together with its text is frequently not
+            announced at all. See the contract in src/styles/components/field.css.
+          -->
+          <div class="px-4" aria-live="polite" aria-atomic="true">
+            @if (error() !== '') {
+              <p id="new-reminder-error" class="rk-error pb-3">{{ error() }}</p>
+            }
+          </div>
+        </form>
+      } @else {
+        <!--
+          The label stays visible on the left, and the control is an icon button in the same column as
+          a row's menu trigger, so the card has one line of actions rather than two competing shapes.
+          The visible text is `aria-hidden` because the button already carries it as its name — read
+          twice it would sound like two separate things.
+        -->
+        <div class="rk-row">
+          <span class="text-muted-foreground min-w-0 flex-1" aria-hidden="true">
+            Punkt hinzufügen
+          </span>
+
+          <button type="button" class="rk-icon-button" (click)="startAdding()">
+            <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+            <span class="sr-only">Punkt hinzufügen</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -12,7 +12,7 @@
     <span class="rk-sheet-grabber" aria-hidden="true"></span>
   }
 
-  <div class="rk-sheet-header safe-x">
+  <div class="rk-sheet-header">
     <!--
       Focus lands on the heading rather than the first control, matching what PageFocus does on
       navigation — so opening a sheet and opening a focused screen sound the same to a screen
@@ -30,7 +30,7 @@
     }
   </div>
 
-  <div class="rk-sheet-body safe-x">
+  <div class="rk-sheet-body">
     <ng-container *ngComponentOutlet="content; injector: contentInjector" />
   </div>
 </div>

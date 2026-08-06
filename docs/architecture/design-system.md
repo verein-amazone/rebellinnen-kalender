@@ -3,7 +3,10 @@
 The app's visual primitives: what they are, where they live, and the rules they are built to.
 
 This document covers the _how_. For where the UI layers sit relative to interactors and the data
-layer, see [Frontend architecture](./frontend-architecture.md).
+layer, see [Frontend architecture](./frontend-architecture.md). For the conformance target, the
+order of preference between native HTML, Angular Aria and the CDK, and what a primitive owes beyond
+its appearance, see [Accessibility](./accessibility.md) — the touch-first and scaling-safe rules
+below are the two chapters of it that live here.
 
 ## The hybrid rule
 
@@ -37,7 +40,9 @@ src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
 src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
 src/styles/components/choice.css     .rk-choice*
 src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
+src/styles/components/menu.css       .rk-menu, .rk-menu-item*
 src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
+src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
 src/styles/components/screen.css     .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
 ```
@@ -123,6 +128,42 @@ Two custom variants:
 - **`motion-reduced:`** — mirrors how `base.css` resolves motion: the in-app override wins, and the
   device preference applies only when the user has not explicitly chosen `standard`.
 
+## Touch-first interaction
+
+The app runs in a WebView on a phone. Nothing on the device has a mouse, so an interaction that needs
+one is not a degraded experience — it is unreachable. The rules:
+
+**Hover is an enhancement, never a requirement.** On touch, `:hover` is applied on tap and there is no
+"pointer left" event to clear it, so the element stays lit until the user taps somewhere else. Hence
+the `hoverable:` custom variant in `theme.css`, gated on `(hover: hover) and (pointer: fine)`: a
+finger never receives those styles at all. `(pointer: fine)` is part of the condition on purpose —
+long-press on some Android versions makes `(hover: hover)` match. Use `active:` for the feedback that
+matters on touch; it clears itself on release.
+
+**Every action needs a plain tap path.** No hover-to-reveal controls, no long press, no right click, no
+double tap, no drag as the only way to get something done. The reminder rows put their actions behind a
+visible `⋯` trigger for exactly this reason — a swipe-to-delete would be invisible and undiscoverable,
+and a screen reader user could not perform it at all. The same rows can be dragged into a new order,
+and „Nach oben“ / „Nach unten“ sit in that menu so the drag stays an accelerator rather than the way.
+
+**Targets stay at `min-h-touch`.** 48px, as a minimum rather than a fixed height, so a label that wraps
+at a large text size does not clip. Icon buttons get it from `rk-control-base`.
+
+**Text entry renders at 16px or more.** Below that iOS zooms the page in when the field takes focus and
+never zooms back out, leaving the app magnified and scrolling in both directions. `base.css` floors
+`input`, `textarea` and `select` at `max(1rem, 16px)`.
+
+**Keep the platform's own gestures intact.** No `user-scalable=no` or `maximum-scale` in the viewport —
+pinch-zoom is an accessibility feature. `touch-action: manipulation` on interactive elements drops the
+300ms double-tap-to-zoom wait without taking anything else away. Use `dvh` rather than `vh`, because
+`vh` ignores the dynamic browser chrome and cuts content off.
+
+**Do not lean on pointer-only affordances.** Cursors, tooltips via `title`, custom scrollbars and
+resize handles are invisible on a phone: if something needs explaining, it needs visible text.
+
+Playwright runs desktop Chromium, so it cannot catch a sticky hover. The safeguard is the variant, not
+a test — review any new `hover:` in a diff.
+
 ## Scaling-safe rules
 
 Every primitive is built for a root font size far larger than the default, because the OS text-size
@@ -185,8 +226,13 @@ threshold would have stacked rows on a 375px device out of the box.
 ### Buttons — `button.css`
 
 `.rk-button` plus `.rk-button-primary` / `-secondary` / `-ghost` / `-danger`, and `.rk-icon-button`
-for square label-less actions. `rk-control-base` is the shared `@utility` they build on and is not
+for square label-less actions, with `.rk-icon-button-primary` as its filled variant for the one action
+a compact row exists to perform. `rk-control-base` is the shared `@utility` they build on and is not
 for direct use.
+
+`.rk-button-secondary` currently fails AA contrast in amazone, warm and lila (its foreground on the
+secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
+secondary action; the Playwright contrast loop will catch a regression either way.
 
 Accessibility contract: an icon button needs an `aria-label` or an `.sr-only` span, and its icon is
 always `aria-hidden`. The focus ring comes from the global `:focus-visible` rule in `base.css` —
@@ -199,7 +245,26 @@ genuinely inert; an `<a>` has no disabled state, so render a `<button>` instead.
 `.rk-row` is one row, with `.rk-row-label` and `.rk-row-value` inside it.
 
 These are presentational only. Semantics stay in the template: a grouped list is a `<ul>` of `<li>`,
-and `.rk-row` goes on the `<a>` or `<button>` _inside_ the `<li>` so the whole row is one target.
+and `.rk-row` goes on the `<a>` or `<button>` _inside_ the `<li>` so the whole row is one target. A row
+that holds several controls instead of being one — as in `reminder-list`, where a checkbox and a menu
+trigger share it — puts `.rk-row` on the `<li>` and says so in a comment.
+
+`.rk-list` clips to its corner radius, which also clips anything hanging out of a row. Add
+`overflow-visible` at the call site where a row opens a menu.
+
+### Round checkbox — `check.css`
+
+`.rk-check` is the tick control for a checklist: a drawn circle instead of the platform square, with
+the checkmark built from two rotated borders in `em` so it scales with its label.
+
+This is the one place the design system uses `appearance: none`, because a native checkbox cannot be
+reshaped. What stays native is everything that carries meaning — it is still an
+`<input type="checkbox">`, so the role, the checked state, Space and the label association come from
+the browser. Under `forced-colors: active` the rule hands the rendering back to the platform, so a
+high-contrast user sees their own control rather than our two colours.
+
+The completion state is never carried by this control alone: the row also strikes its text through, and
+the control's accessible name states the action it will perform.
 
 ### Choice row — `choice.css` + `app-choice-row`
 
@@ -214,15 +279,34 @@ trailing content such as the theme page's colour swatch. Put the options in a `<
 `<legend>` and give them all the same `name`. The description sits inside the same `<label>`, so it
 becomes part of the accessible name — which reads correctly and avoids generating ids.
 
+### Menu — `menu.css` + `ngMenu` (Angular Aria)
+
+`.rk-menu` is the panel, `.rk-menu-item` a full-width item, `.rk-menu-item-danger` its destructive
+variant. Behaviour comes from `@angular/aria/menu` — roles, arrow keys, typeahead, Escape, and the
+`data-visible` attribute these rules hide the closed panel with. Positioning is the call site's job
+(`absolute` plus an anchor), so a row decides where its menu opens.
+
+Two things a call site has to get right, both learned the hard way in `reminder-list`:
+
+- Put the items in an `<ng-template ngMenuContent>`. A `display: none` panel cannot receive focus, so
+  without the deferred content the directive's "focus the first item" never lands.
+- On a `<button>` trigger, `preventDefault()` Enter and Space. The directive already opens on those
+  keys, and the browser's synthesised click would immediately close the menu again.
+
 ### Field, input and error — `field.css`
 
-CSS only for now: no screen has a form yet, and a `touched`/`invalid` component API should be
-designed against a real form rather than an imagined one.
+First used by the „Nicht vergessen“ list: the inline add row and the edit sheet. There is still no
+field _component_ — a `touched`/`invalid` API should be designed once a screen has a real multi-field
+form rather than one trimmed line of text.
 
 `.rk-field` grows its border from 2px to 4px on `:focus-within` while shrinking the padding by
 exactly the same amount, so the box keeps its size and nothing reflows.
 
-The contract the first form has to honour:
+`base.css` floors every `input`/`textarea`/`select` at `max(1rem, 16px)`. Below 16px iOS zooms the page
+in when a field takes focus and never zooms back out, and the „Klein“ text size (14px) as well as an
+OS scale below 1 both reach under that threshold.
+
+The contract every form honours:
 
 - every `.rk-input` has its own `<label for>`; a placeholder is not a label
 - the `.rk-error` sits inside a wrapper carrying `aria-live="polite" aria-atomic="true"` that is
@@ -230,6 +314,56 @@ The contract the first form has to honour:
   announced at all
 - `aria-invalid` and `aria-describedby` bind only once the field has been touched
 - the error is always text; the red border is a redundant cue, never the only one
+
+### Reorderable list — `reorder.css` + `@angular/cdk/drag-drop`
+
+`.rk-drag-handle` and `.rk-reorder-list`, plus the styling for the
+CDK's own `.cdk-drag-preview` and `.cdk-drag-animating`.
+
+The handle is a `<span cdkDragHandle aria-hidden="true">`, not a button. A focusable control whose only
+behaviour is a pointer drag is a control with no keyboard behaviour, so the reachable equivalent lives
+in the row's menu instead. `touch-none` sits on the handle alone: on the rest of the row a finger has
+to keep scrolling the page, and a tap on the checkbox has to stay a tap.
+
+A list that holds two kinds of row — the reminder list shows open entries first and completed ones
+after them, in one `<ul>` with no heading between — keeps them apart with `cdkDropListSortPredicate`
+rather than with two drop lists. The predicate refuses a position outside the dragged row's own group,
+so the gap never opens on the wrong side of the boundary and a drag can never do what only the checkbox
+may do. The list is never connected to another one either: no `cdkDropListGroup`, no
+`cdkDropListConnectedTo`.
+
+The preview carries the card surface, because the CDK renders it outside the list where it would
+otherwise be transparent text.
+
+Three structural constraints, all learned the hard way:
+
+- **`cdkDrag` puts a `transform` on every row, so every row is its own stacking context.** A `z-index`
+  inside a row can no longer rise above the row below it, and a menu that opens downwards is painted
+  underneath the next row — which then swallows the taps meant for the menu. `reorder.css` lifts the
+  row holding an open panel with `:has(.rk-menu[data-visible='true'])`.
+- **The rows must be real children of their `<ul>` in the template.** Rendering them through a shared
+  `<ng-template>` and `ngTemplateOutlet` makes Angular re-create a row that only moved, so the row
+  vanishes mid-move, and it puts the row outside the reach of the drop list it belongs to, so dragging
+  does nothing at all. Write the row once, inside the `@for` that is inside the `<ul>`.
+- **Use the CDK's default placeholder, not a `cdkDragPlaceholder` template.** The default is a clone of
+  the row being dragged, so the gap is exactly as tall as the row that left it. A hand-written
+  placeholder has to guess a height and guesses wrong the moment an entry wraps at a large text size —
+  the whole list then jumps as the drag begins. Style the clone by hiding its children with
+  `visibility: hidden` (which keeps their space) and drawing the outline _inside_ the box, since a
+  border would add its own width to a box that has to stay the row's height.
+
+**A reorderable row has no enter or leave animation.** Both were tried and both fought the drag: an
+enter animation on `transform` writes the one property the CDK owns while a row is being dragged, and
+a leave animation (`animate.leave`) keeps a removed row in the DOM, where `CdkDropList` still counts it
+as an item because it sorts by document position. Anything added back here has to be proved against a
+real drag, not just against a screenshot. An enter animation must also not fade: text at partial
+opacity is text below its contrast ratio, and axe catches it mid-flight.
+
+What remains is the drag's own motion — `.cdk-drag-animating` and the shuffle of the rows the dragged
+one passes — and it is CSS for the reason `sheet.css` records: `base.css` neutralises motion by forcing
+`animation-duration` and `transition-duration` to 0.01ms, and the Web Animations API ignores that
+entirely. The CDK writes transforms and leaves the timing to CSS, so it is covered.
+`@angular/animations` is not installed and is not needed for any of this.
 
 ### Shell frame — `screen.css`
 
@@ -249,7 +383,16 @@ by colour alone.
 ### Sheet — `sheet.css` + `app-sheet` + `SheetService`
 
 A modal sheet in two modes: `bottom` (content height, the Material bottom-sheet shape) and `full`
-(near full height, for forms).
+(near full height, for forms). The panel always spans the full width — the CDK overlay pane is a flex
+container, so `app-sheet` carries `w-full` to stretch in it.
+
+Its header and body own their horizontal inset as `max(1rem, env(safe-area-inset-*))` rather than
+using `.safe-x`: that utility sets `padding-left`/`-right` outright, so on an element that also needs
+`px-4` it would replace the padding with a 0 inset in portrait.
+
+Sheet actions are stacked and full width — one action per line, in `.rk-sheet-footer flex-col`. Both
+real dialogs (`confirmation`, `reminder-edit`) do this; a side-by-side pair reads as two equal choices
+and squeezes the verbs at large text sizes.
 
 ```ts
 private readonly sheets = inject(SheetService);
@@ -302,4 +445,10 @@ knowing, because both look like bugs and are not:
   Scroll blocking is therefore verified in Playwright, not in a unit test.
 
 Playwright covers what jsdom cannot: colour contrast per theme, and a horizontal-overflow canary at
-200% text on every route. Add a route to both loops when you add a screen.
+200% text on every route. Add a route to both loops when you add a screen. Two states have no URL and
+therefore need their own case rather than a loop entry: an open menu and an open sheet (contrast), and
+a list that actually has content (overflow — an empty list never exercises its rows).
+
+DAO specs run the handwritten SQL against Node's built-in `node:sqlite` through
+`data/gateways/sqlite-database.testing.ts`, so the SQL is tested without the Capacitor plugin, which
+has no implementation under jsdom.

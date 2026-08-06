@@ -1,0 +1,50 @@
+/*
+ * A dropdown menu attached to a row action.
+ *
+ * Behaviour, roles and keyboard support come from `ngMenu`/`ngMenuItem`/`ngMenuTrigger`
+ * (@angular/aria) — these rules are only the panel and its items. The menu stays in the DOM and is
+ * hidden through the `data-visible` attribute the directive maintains, which is also what lets it be
+ * styled without asking the component for open state.
+ *
+ * The panel is positioned by the call site (`absolute` plus an anchor), so a row can decide whether
+ * the menu opens below or above its trigger. Whatever list it sits in must not clip it: add
+ * `overflow-visible` where a container would otherwise cut the panel off.
+ */
+
+@layer components {
+  .rk-menu {
+    @apply bg-card text-card-foreground border-border z-10 overflow-hidden rounded-lg border shadow-lg;
+    /* Wide enough for the labels, but never wider than the row it hangs off. */
+    @apply w-max max-w-full min-w-40;
+  }
+
+  .rk-menu[data-visible='false'] {
+    @apply hidden;
+  }
+
+  /*
+   * A full-width target rather than a centred label: the whole item row is the button, which is what
+   * makes it comfortable to hit on a phone. `min-h-touch`, never a fixed height, so the label may wrap.
+   */
+  .rk-menu-item {
+    @apply min-h-touch flex w-full items-center gap-3 px-4 py-3 text-left;
+    @apply hoverable:bg-muted active:bg-muted;
+  }
+
+  .rk-menu-item + .rk-menu-item {
+    @apply border-border border-t;
+  }
+
+  /*
+   * A destructive item. The colour is the redundant cue: the label carries the verb, the icon repeats
+   * it, and the action itself asks for confirmation afterwards. See the note in ../theme.css.
+   */
+  .rk-menu-item-danger {
+    @apply text-danger;
+  }
+
+  /* The focus ring is drawn inside, because the panel clips its rows to the corner radius. */
+  .rk-menu-item:focus-visible {
+    outline-offset: -2px;
+  }
+}

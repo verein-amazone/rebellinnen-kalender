@@ -1,0 +1,54 @@
+/*
+ * A round checkbox, for lists where ticking something off is the main gesture.
+ *
+ * This is the one control that leaves the native rendering behind: `appearance: none` plus a drawn
+ * circle, because the platform square cannot be reshaped and the round tick is what makes a checklist
+ * read as a checklist. Everything that matters stays native — it is still an `<input
+ * type="checkbox">`, so the role, the checked state, Space, and the label association are the
+ * browser's, not ours.
+ *
+ * Two things keep that affordable:
+ *   - `forced-colors` hands the rendering back to the platform, so a user on a high-contrast palette
+ *     sees their own checkbox rather than our two custom colours.
+ *   - the checkmark is drawn from borders in `em`, so it scales with the label instead of staying
+ *     pinned while the text around it grows.
+ *
+ * A completed entry is never marked by this control alone: the row also strikes its text through and
+ * the control's accessible name switches to the opposite action.
+ */
+
+@layer components {
+  .rk-check {
+    @apply border-border bg-card grid shrink-0 appearance-none place-content-center rounded-full border-2;
+    /* `em`, so the control tracks its label. The border stays in px: it is decoration, not text. */
+    inline-size: 1.35em;
+    block-size: 1.35em;
+
+    &:checked {
+      @apply bg-primary border-primary;
+    }
+
+    /*
+     * The tick: two borders of an empty box, rotated. Cheaper than an icon component and it inherits
+     * the size of the control, so there is nothing to keep in sync.
+     */
+    &:checked::after {
+      content: '';
+      inline-size: 0.5em;
+      block-size: 0.25em;
+      border-left: 2px solid var(--color-primary-foreground);
+      border-bottom: 2px solid var(--color-primary-foreground);
+      transform: translateY(-0.06em) rotate(-45deg);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .rk-check {
+      appearance: auto;
+    }
+
+    .rk-check:checked::after {
+      content: none;
+    }
+  }
+}
