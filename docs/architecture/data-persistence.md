@@ -35,7 +35,8 @@ depends on the `SqliteDatabase` contract in `sqlite-database.ts` — `query()` a
 
 There is deliberately **no `transaction()` method yet**: `SQLiteDBConnection.run()` already wraps a
 statement in its own transaction, and no use case so far spans more than one statement. It gets added
-with the first one that does.
+with the first one that does. Reordering the „Nicht vergessen“ list is the case that came closest and
+still does not need one — see [Manual order](#manual-order) for how it stays a single statement.
 
 ### SQLite in the browser
 
@@ -137,8 +138,33 @@ records:
 `reminders`, the first table, follows these and adds one decision worth repeating: the completion
 state is the `completed_at` timestamp alone (`NULL` means open). A second boolean column could
 disagree with the timestamp, so there is none. The list is read in exactly one order —
-`ORDER BY (completed_at IS NULL) DESC, created_at ASC`, i.e. open entries in entry order, then
-completed ones — and the table's only index mirrors that.
+`ORDER BY (completed_at IS NULL) DESC, position ASC, created_at ASC`, i.e. open entries first, each
+section in the order the user arranged, with `created_at` only breaking a tie — and the table's only
+index mirrors that.
+
+### Manual order
+
+`position` is a `REAL`, not an integer rank. Moving an entry between two others writes the midpoint of
+their positions, so a reorder is a **single-row `UPDATE`** — and a single statement is already atomic,
+which is why dragging a row does not need transaction support that does not exist. An entry entering a
+section gets one step (1000) beyond the end it enters at.
+
+Fractional positions can only be halved so many times before two doubles round to the same value. When
+the gap between the neighbours falls below `1e-6` the interactor renumbers that section instead —
+still in one statement, built as `SET position = CASE id WHEN ? THEN ? … END` by
+`ReminderDao.reassignPositions`. Reaching that point takes roughly fifty drops into the same shrinking
+gap; writing it as a loop of updates would have been the only part of the feature that could be
+interrupted halfway.
+
+Completing or reopening an entry moves it into the other section and therefore always writes a new
+position with the same statement (`updateCompletion`): a half-applied move would order the entry by a
+position belonging to the section it just left.
+
+**Hiding completed entries at the day change is an interactor rule, not SQL.** `completed_at` is a UTC
+instant while the cutoff is local midnight, and SQLite's `localtime` modifier resolves against the host
+process' zone — which is not the same on the native plugin and in the `jeep-sqlite` build — and cannot
+be bound as a parameter. It is also a product rule driven by a preference, and DAOs hold no business
+rules. Hidden entries are only filtered out of the list; the rows stay in the database.
 
 ## Native calendar gateway boundary
 
@@ -162,10 +188,15 @@ Not stored:
 
 ## Stores
 
-`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table —
-currently only the appearance preferences (`appearance.store.ts`). They persist to `localStorage`,
-which is available in both the iOS and Android WebViews, survives restarts, and avoids paying the
-SQLite connection cost for three scalars read on every startup.
+`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table — the
+appearance preferences (`appearance.store.ts`) and the preferences of the „Nicht vergessen“ list
+(`reminders.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
+on every startup.
+
+`reminders.store.ts` is the one to look at for the boundary: it holds where a new or completed entry
+enters its section and whether completed entries disappear at the day change — three scalars. The
+entries themselves stay in SQLite.
 
 Stores expose their state as signals and **validate on read**: a stored value may come from an older
 app version or from a manually edited storage entry, so an unrecognised value falls back to the

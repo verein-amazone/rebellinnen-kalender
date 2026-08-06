@@ -302,6 +302,10 @@ Only create cross-cutting code when it is actually shared.
   opening system settings, sharing, UI messages, other device APIs initiated by presenters). The
   native calendar is an intentional exception: because it is a queryable data source, its wrapper
   lives in `data/gateways/`, not here.
+  `local-day.ts` belongs here too: it wraps the clock plus the app-lifecycle events that tell it when
+  to look again, and exposes the local day as a `YYYY-MM-DD` signal. A key rather than a `Date`, so it
+  emits once per day change instead of on every check — a screen can make it a `resource` parameter
+  and be reloaded at midnight without watching for it.
 - `contexts/` — readonly, application-wide state exposed to components via signals. Contexts may be
   injected only into components/presenters; interactors and data-layer classes must not inject them.
   Prefer local component state for page-specific concerns.

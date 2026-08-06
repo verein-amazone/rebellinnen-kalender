@@ -1,6 +1,9 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, type Observable } from 'rxjs';
 
+import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -14,9 +17,30 @@ class FakeReminderListInteractor {
   readonly completed: string[] = [];
   readonly reopened: string[] = [];
   readonly removed: string[] = [];
+  readonly moved: { id: string; toIndex: number }[] = [];
+  listCalls = 0;
 
   list(): Promise<Reminder[]> {
+    this.listCalls += 1;
     return Promise.resolve(this.items);
+  }
+
+  /** Rearranges the section the entry is in, the way the real interactor's positions would. */
+  move(id: string, toIndex: number): Promise<void> {
+    this.moved.push({ id, toIndex });
+
+    const entry = this.items.find((item) => item.id === id);
+    if (entry === undefined) {
+      return Promise.resolve();
+    }
+
+    const section = this.items.filter((item) => item.completed === entry.completed);
+    const others = section.filter((item) => item.id !== id);
+    const rearranged = [...others.slice(0, toIndex), entry, ...others.slice(toIndex)];
+    const untouched = this.items.filter((item) => item.completed !== entry.completed);
+
+    this.items = entry.completed ? [...untouched, ...rearranged] : [...rearranged, ...untouched];
+    return Promise.resolve();
   }
 
   add(text: string): Promise<void> {
@@ -58,16 +82,30 @@ class StubSheetService {
   }
 }
 
+/** Records what was announced, so a spec can prove a move is spoken exactly once. */
+class StubLiveAnnouncer {
+  readonly announcements: string[] = [];
+
+  announce(message: string): Promise<void> {
+    this.announcements.push(message);
+    return Promise.resolve();
+  }
+}
+
 async function setup(items: Reminder[] = []) {
   const interactor = new FakeReminderListInteractor();
   interactor.items = items;
   const sheets = new StubSheetService();
+  const announcer = new StubLiveAnnouncer();
+  const day = signal('2026-08-06');
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       { provide: ReminderListInteractor, useValue: interactor },
       { provide: SheetService, useValue: sheets },
+      { provide: LiveAnnouncer, useValue: announcer },
+      { provide: LocalDay, useValue: { day: day.asReadonly() } },
     ],
   });
 
@@ -80,7 +118,34 @@ async function setup(items: Reminder[] = []) {
     element,
     interactor,
     sheets,
+    announcer,
+    day,
     settle: () => fixture.whenStable(),
+    /** The drop output is called directly: jsdom gives every element zero size, so a real CDK
+     *  pointer drag cannot be simulated — and the gesture itself is the CDK's own tested surface. */
+    async dropRow(entries: Reminder[], previousIndex: number, currentIndex: number) {
+      const component = fixture.componentInstance as unknown as {
+        drop(event: {
+          previousIndex: number;
+          currentIndex: number;
+          container: { data: readonly Reminder[] };
+        }): Promise<void>;
+      };
+      await component.drop({ previousIndex, currentIndex, container: { data: entries } });
+      await fixture.whenStable();
+    },
+    /** Whether the CDK may put the entry at that index — the guard that keeps a drag in its group. */
+    mayDropAt(item: Reminder, index: number) {
+      const component = fixture.componentInstance as unknown as {
+        sortPredicate(index: number, drag: { data: Reminder }): boolean;
+      };
+      return component.sortPredicate(index, { data: item });
+    },
+    lists: () => Array.from(element.querySelectorAll('ul')),
+    texts: () =>
+      Array.from(element.querySelectorAll('li label > span')).map((span) =>
+        span.textContent?.trim(),
+      ),
     rows: () => Array.from(element.querySelectorAll('li')),
     input: () => element.querySelector('input[type="text"]') as HTMLInputElement,
     /** The field only exists once the last row has been used, so most tests start here. */
@@ -106,6 +171,11 @@ async function setup(items: Reminder[] = []) {
         candidate.textContent?.includes(text),
       );
       match!.click();
+      await fixture.whenStable();
+    },
+    /** Opens the menu of the given row and leaves it open, so its items can be inspected. */
+    async chooseActionMenu(rowIndex: number) {
+      this.rows()[rowIndex].querySelector<HTMLElement>('[ngMenuTrigger]')!.click();
       await fixture.whenStable();
     },
     /** Opens the menu of the given row and picks one of its items. */
@@ -281,4 +351,143 @@ describe('ReminderListBlock', () => {
       'Erinnerung löschen?',
     ]);
   });
+
+  describe('one list, two groups', () => {
+    it('shows every entry in a single list, in the order it was given', async () => {
+      const block = await setup([open, done]);
+
+      expect(block.lists()).toHaveLength(1);
+      expect(block.texts()).toEqual(['Blumen gießen', 'Post holen']);
+    });
+
+    it('adds no section heading between the two groups', async () => {
+      const block = await setup([open, done]);
+
+      expect(block.element.querySelector('h3')).toBeNull();
+      expect(block.element.textContent).not.toContain('Erledigt ');
+    });
+
+    it('refuses a drop position outside the entry’s own group', async () => {
+      const block = await setup([open, done]);
+
+      // One open entry, so index 0 is the open group and index 1 the completed one.
+      expect(block.mayDropAt(open, 0)).toBe(true);
+      expect(block.mayDropAt(open, 1)).toBe(false);
+      expect(block.mayDropAt(done, 1)).toBe(true);
+      expect(block.mayDropAt(done, 0)).toBe(false);
+    });
+
+    it('never connects the list to another one, so nothing can be dragged out of it', async () => {
+      const block = await setup([open, done]);
+
+      expect(block.lists()[0].hasAttribute('cdkDropListConnectedTo')).toBe(false);
+    });
+  });
+
+  describe('reordering', () => {
+    const second: Reminder = { id: 'c', text: 'Brot kaufen', completed: false };
+
+    it('offers a move in both directions, except where it would do nothing', async () => {
+      const block = await setup([open, second]);
+
+      await block.chooseActionMenu(0);
+      expect(labelsOf(block.rows()[0])).toEqual(['Nach unten', 'Bearbeiten', 'Löschen']);
+
+      await block.chooseActionMenu(1);
+      expect(labelsOf(block.rows()[1])).toEqual(['Nach oben', 'Bearbeiten', 'Löschen']);
+    });
+
+    it('moves an entry up from its menu and shows the new order right away', async () => {
+      const block = await setup([open, second]);
+
+      await block.chooseAction(1, 'Nach oben');
+
+      expect(block.interactor.moved).toEqual([{ id: 'c', toIndex: 0 }]);
+      expect(block.texts()).toEqual(['Brot kaufen', 'Blumen gießen']);
+    });
+
+    it('announces the new position once, and does not also print it on screen', async () => {
+      const block = await setup([open, second]);
+
+      await block.chooseAction(1, 'Nach oben');
+
+      expect(block.announcer.announcements).toEqual([
+        '„Brot kaufen“ ist jetzt an Position 1 von 2',
+      ]);
+      expect(block.element.textContent).not.toContain('Position');
+    });
+
+    it('leaves focus on the menu of the entry that moved', async () => {
+      const block = await setup([open, second]);
+
+      await block.chooseAction(1, 'Nach oben');
+      await block.settle();
+
+      expect(document.activeElement?.textContent).toContain('Brot kaufen');
+    });
+
+    it('turns a drop into a move to the index it was dropped at', async () => {
+      const block = await setup([open, second]);
+
+      await block.dropRow([open, second], 1, 0);
+
+      expect(block.interactor.moved).toEqual([{ id: 'c', toIndex: 0 }]);
+    });
+
+    it('writes nothing when a row is dropped where it already was', async () => {
+      const block = await setup([open, second]);
+
+      await block.dropRow([open, second], 1, 1);
+
+      expect(block.interactor.moved).toEqual([]);
+    });
+
+    it('reorders inside the completed group without touching the open entries', async () => {
+      const alsoDone: Reminder = { id: 'd', text: 'Müll rausbringen', completed: true };
+      const block = await setup([open, done, alsoDone]);
+
+      // Row 2 is the second completed entry, so the index the interactor sees has to be its index
+      // among the completed ones, not its index in the list on screen.
+      await block.chooseAction(2, 'Nach oben');
+
+      expect(block.interactor.moved).toEqual([{ id: 'd', toIndex: 0 }]);
+      expect(block.texts()).toEqual(['Blumen gießen', 'Müll rausbringen', 'Post holen']);
+    });
+
+    it('reads a drop index in the whole list back into the entry’s own group', async () => {
+      const alsoDone: Reminder = { id: 'd', text: 'Müll rausbringen', completed: true };
+      const block = await setup([open, done, alsoDone]);
+
+      // Dropped at the end of the list: the last completed entry, which is index 1 of that group.
+      await block.dropRow([open, done, alsoDone], 1, 2);
+
+      expect(block.interactor.moved).toEqual([{ id: 'b', toIndex: 1 }]);
+    });
+
+    it('keeps the drag handle out of the accessibility tree and out of the tab order', async () => {
+      const block = await setup([open, second]);
+
+      const handle = block.rows()[0].querySelector('[cdkDragHandle]');
+      expect(handle?.getAttribute('aria-hidden')).toBe('true');
+      expect(handle?.tagName).toBe('SPAN');
+      expect(handle?.hasAttribute('tabindex')).toBe(false);
+    });
+  });
+
+  it('loads the list again when the day rolls over', async () => {
+    const block = await setup([open]);
+    const before = block.interactor.listCalls;
+
+    block.day.set('2026-08-07');
+    await block.settle();
+
+    expect(block.interactor.listCalls).toBe(before + 1);
+  });
 });
+
+/** The labels of an open row menu, in the order they are offered. */
+function labelsOf(row: Element): (string | undefined)[] {
+  return Array.from(row.querySelectorAll('[role="menuitem"]')).map((item) =>
+    item.textContent?.trim(),
+  );
+}

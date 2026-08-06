@@ -1,0 +1,57 @@
+<app-focused-screen heading="Nicht vergessen" fallbackLink="/settings">
+  <div class="space-y-6">
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Neue Punkte</h2>
+      <fieldset class="space-y-2">
+        <legend class="sr-only">Wo neue Punkte erscheinen</legend>
+
+        @for (option of preferences.newItemPlacementOptions; track option.id) {
+          <app-choice-row
+            name="reminder-new-placement"
+            [value]="option.id"
+            [label]="option.label"
+            [description]="option.description"
+            [checked]="preferences.newItemPlacement() === option.id"
+            (selected)="selectNewItemPlacement($event)"
+          />
+        }
+      </fieldset>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Erledigte Punkte</h2>
+      <fieldset class="space-y-2">
+        <legend class="sr-only">Wo erledigte Punkte erscheinen</legend>
+
+        @for (option of preferences.completedItemPlacementOptions; track option.id) {
+          <app-choice-row
+            name="reminder-completed-placement"
+            [value]="option.id"
+            [label]="option.label"
+            [description]="option.description"
+            [checked]="preferences.completedItemPlacement() === option.id"
+            (selected)="selectCompletedItemPlacement($event)"
+          />
+        }
+      </fieldset>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Am Tageswechsel</h2>
+      <fieldset class="space-y-2">
+        <legend class="sr-only">Was am nächsten Tag mit erledigten Punkten passiert</legend>
+
+        @for (option of preferences.completedVisibilityOptions; track option.id) {
+          <app-choice-row
+            name="reminder-completed-visibility"
+            [value]="option.id"
+            [label]="option.label"
+            [description]="option.description"
+            [checked]="preferences.completedVisibility() === option.id"
+            (selected)="selectCompletedVisibility($event)"
+          />
+        }
+      </fieldset>
+    </section>
+  </div>
+</app-focused-screen>

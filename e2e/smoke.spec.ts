@@ -103,7 +103,10 @@ test.describe('application shell', () => {
 
     for (const [heading, entries] of [
       ['Persönlich', ['Profil']],
-      ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Bewegung & Animationen']],
+      [
+        'Darstellung & Bedienung',
+        ['Farbthema', 'Textgröße', 'Bewegung & Animationen', 'Nicht vergessen'],
+      ],
       ['Kalender', ['Kalender verwalten']],
       ['App & Rechtliches', ['Datenschutz', 'Impressum', 'Über die App']],
     ] as const) {
@@ -148,6 +151,7 @@ test.describe('application shell', () => {
       ['/settings/theme', 'Farbthema'],
       ['/settings/text-size', 'Textgröße'],
       ['/settings/motion', 'Bewegung & Animationen'],
+      ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/privacy', 'Datenschutz'],
       ['/settings/imprint', 'Impressum'],
@@ -175,6 +179,14 @@ test.describe('application shell', () => {
     page,
   }) => {
     await page.goto('/settings/theme');
+
+    await expectNoBlockingViolations(page);
+  });
+
+  test('has no serious or critical accessibility violations on the reminder settings', async ({
+    page,
+  }) => {
+    await page.goto('/settings/reminders');
 
     await expectNoBlockingViolations(page);
   });
@@ -206,12 +218,45 @@ test.describe('the „Nicht vergessen“ list', () => {
     await expect(row(page, text)).toBeVisible();
   }
 
-  /** Opens a row's menu and picks one of its two actions. */
-  async function chooseAction(page: Page, text: string, action: 'Bearbeiten' | 'Löschen') {
+  /** Opens a row's menu and picks one of its actions. */
+  async function chooseAction(
+    page: Page,
+    text: string,
+    action: 'Nach oben' | 'Nach unten' | 'Bearbeiten' | 'Löschen',
+  ) {
     await row(page, text)
       .getByRole('button', { name: `Optionen für „${text}“` })
       .click();
     await row(page, text).getByRole('menuitem', { name: action }).click();
+  }
+
+  /**
+   * The entry texts in the order they are shown — one list, open entries first. The label span rather
+   * than the row: the entry's text also sits in the accessible names of the row's own controls.
+   */
+  function texts(page: Page) {
+    return page.locator('app-reminder-list li label > span').allInnerTexts();
+  }
+
+  /**
+   * Ticks an entry off and waits until the list has caught up. Completing reloads the list, and a
+   * second tick issued before that lands on a row that is being re-rendered.
+   */
+  async function complete(page: Page, text: string) {
+    await row(page, text).getByRole('checkbox').check();
+    // The label offers the opposite action once the write has come back.
+    await expect(row(page, text).getByRole('checkbox')).toHaveAttribute(
+      'aria-label',
+      `„${text}“ wieder als offen markieren`,
+    );
+  }
+
+  /**
+   * Every write reloads the list from the database, so the new order arrives a tick after the click.
+   * Polling is what makes that a wait rather than a race.
+   */
+  function expectOrder(page: Page, expected: readonly string[]) {
+    return expect.poll(() => texts(page)).toEqual([...expected]);
   }
 
   test('invites the first entry while the list is empty', async ({ page }) => {
@@ -242,6 +287,230 @@ test.describe('the „Nicht vergessen“ list', () => {
       'aria-label',
       '„Blumen gießen“ wieder als offen markieren',
     );
+  });
+
+  test('puts a new entry at the top of the open ones', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Zuerst');
+    await addReminder(page, 'Danach');
+
+    await expectOrder(page, ['Danach', 'Zuerst']);
+  });
+
+  test('moves a completed entry to the top of the completed ones', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Erster');
+    await addReminder(page, 'Zweiter');
+    await addReminder(page, 'Dritter');
+
+    // The oldest entry, so completion order rather than age has to decide where it lands.
+    await complete(page, 'Erster');
+    await complete(page, 'Zweiter');
+
+    await expectOrder(page, ['Dritter', 'Zweiter', 'Erster']);
+  });
+
+  test('keeps a hand-made order after a reload', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Eins');
+    await addReminder(page, 'Zwei');
+    await addReminder(page, 'Drei');
+
+    await expectOrder(page, ['Drei', 'Zwei', 'Eins']);
+
+    await chooseAction(page, 'Eins', 'Nach oben');
+    await expectOrder(page, ['Drei', 'Eins', 'Zwei']);
+
+    // This is what proves the position survives the round trip through jeep-sqlite and IndexedDB.
+    await page.reload();
+
+    await expectOrder(page, ['Drei', 'Eins', 'Zwei']);
+  });
+
+  /**
+   * A regression guard with a specific history: `cdkDrag` puts a `transform` on every row, which makes
+   * the row its own stacking context, and the menu panel ended up painted underneath the row below —
+   * which then swallowed the tap. The failure looked like the entry jumping to the other section.
+   */
+  test('reorders inside the completed section without leaving it', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Eins');
+    await addReminder(page, 'Zwei');
+    await addReminder(page, 'Drei');
+
+    await complete(page, 'Eins');
+    await complete(page, 'Zwei');
+    await expectOrder(page, ['Drei', 'Zwei', 'Eins']);
+
+    await chooseAction(page, 'Zwei', 'Nach unten');
+
+    await expectOrder(page, ['Drei', 'Eins', 'Zwei']);
+    // Moving must not change what the entry is, only where it sits.
+    await expect(row(page, 'Zwei').getByRole('checkbox')).toBeChecked();
+  });
+
+  /**
+   * The other half of that history: rendering the rows through an `ng-template` made Angular treat a
+   * reordered row as removed and re-created, so a leave animation ran on a row that was staying and
+   * left it at `opacity: 0`. The animations are gone now, and the row still has to survive the move
+   * fully visible — which is what would break again if a row stopped being moved and started being
+   * re-created.
+   */
+  test('keeps a reordered row fully visible', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Eins');
+    await addReminder(page, 'Zwei');
+    await addReminder(page, 'Drei');
+    await complete(page, 'Eins');
+
+    await chooseAction(page, 'Drei', 'Nach unten');
+
+    await expectOrder(page, ['Zwei', 'Drei', 'Eins']);
+    for (const text of ['Zwei', 'Drei']) {
+      await expect(row(page, text)).toHaveCSS('opacity', '1');
+    }
+  });
+
+  /**
+   * Desktop Chromium is not a finger, so this proves the wiring rather than the gesture: that the rows
+   * really belong to the drop list above them, and that a drop is written and read back. Everything
+   * about how the drag *feels* is still a manual check on a device.
+   */
+  test('reorders by dragging a row onto another, and keeps it after a reload', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Eins');
+    await addReminder(page, 'Zwei');
+    await addReminder(page, 'Drei');
+    await expectOrder(page, ['Drei', 'Zwei', 'Eins']);
+
+    const handle = row(page, 'Drei').locator('[cdkDragHandle]');
+    const target = row(page, 'Eins');
+    const from = (await handle.boundingBox())!;
+    const to = (await target.boundingBox())!;
+
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    // In steps: the CDK starts a drag from movement, not from the button going down.
+    for (let step = 1; step <= 10; step += 1) {
+      await page.mouse.move(
+        from.x + from.width / 2,
+        from.y + from.height / 2 + ((to.y - from.y) * step) / 10,
+        { steps: 2 },
+      );
+    }
+    await expect(page.locator('.cdk-drag-preview')).toHaveCount(1);
+    await page.mouse.up();
+
+    await expectOrder(page, ['Zwei', 'Eins', 'Drei']);
+
+    await page.reload();
+
+    await expectOrder(page, ['Zwei', 'Eins', 'Drei']);
+  });
+
+  /**
+   * The gap left behind has to be exactly as tall as the row that left it, or the rest of the list
+   * jumps the moment a drag starts. A deliberately long entry wraps onto several lines, which is where
+   * a hand-written placeholder of a fixed height gets it wrong.
+   */
+  test('leaves a gap the size of the row, so nothing shifts while dragging', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/today');
+    await addReminder(
+      page,
+      'Ein sehr langer Punkt, der über mehrere Zeilen läuft und deshalb höher ist als eine normale Zeile',
+    );
+    await addReminder(page, 'Kurz');
+
+    const list = page.locator('app-reminder-list ul');
+    const dragged = row(page, 'Ein sehr langer Punkt');
+    const heightBefore = (await dragged.boundingBox())!.height;
+    const listBefore = (await list.boundingBox())!.height;
+
+    // Guards the test itself: a placeholder of a fixed row height only gets this wrong when the row
+    // it replaces is taller than one line.
+    const shortHeight = (await row(page, 'Kurz').boundingBox())!.height;
+    expect(heightBefore).toBeGreaterThan(shortHeight + 8);
+
+    const handle = dragged.locator('[cdkDragHandle]');
+    const from = (await handle.boundingBox())!;
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    for (let step = 1; step <= 6; step += 1) {
+      await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2 + step * 6, {
+        steps: 2,
+      });
+    }
+
+    const placeholder = page.locator('.cdk-drag-placeholder');
+    await expect(placeholder).toHaveCount(1);
+    const gap = (await placeholder.boundingBox())!.height;
+    const listDuring = (await list.boundingBox())!.height;
+
+    await page.mouse.up();
+
+    expect(gap).toBeCloseTo(heightBefore, 0);
+    expect(listDuring).toBeCloseTo(listBefore, 0);
+  });
+
+  /**
+   * With one list there is no structural barrier between the open and the completed entries, so the
+   * sort predicate is the only thing keeping a drag from doing what only the checkbox may do.
+   */
+  test('cannot drag a completed entry back among the open ones', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Offen A');
+    await addReminder(page, 'Offen B');
+    await addReminder(page, 'Erledigt');
+    await complete(page, 'Erledigt');
+    await expectOrder(page, ['Offen B', 'Offen A', 'Erledigt']);
+
+    const handle = row(page, 'Erledigt').locator('[cdkDragHandle]');
+    const target = row(page, 'Offen B');
+    const from = (await handle.boundingBox())!;
+    const to = (await target.boundingBox())!;
+
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    for (let step = 1; step <= 10; step += 1) {
+      await page.mouse.move(
+        from.x + from.width / 2,
+        from.y + from.height / 2 - ((from.y - to.y) * step) / 10,
+        { steps: 2 },
+      );
+    }
+    await page.mouse.up();
+
+    await expectOrder(page, ['Offen B', 'Offen A', 'Erledigt']);
+    await expect(row(page, 'Erledigt').getByRole('checkbox')).toBeChecked();
+  });
+
+  test('offers no move where it would do nothing', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Oben');
+    await addReminder(page, 'Unten');
+
+    // Wait for the reload the second entry triggered: a click on a row that is about to be replaced
+    // lands on a node that no longer exists by the time the menu would open.
+    await expectOrder(page, ['Unten', 'Oben']);
+
+    const trigger = row(page, 'Unten').getByRole('button', { name: 'Optionen für „Unten“' });
+    await trigger.click();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+    await expect(row(page, 'Unten').getByRole('menuitem', { name: 'Nach unten' })).toBeVisible();
+    await expect(row(page, 'Unten').getByRole('menuitem', { name: 'Nach oben' })).toHaveCount(0);
+  });
+
+  test('adds at the end once the setting says so', async ({ page }) => {
+    await page.goto('/settings/reminders');
+    await page.getByRole('radio', { name: 'Unten' }).first().check();
+
+    await page.goto('/today');
+    await addReminder(page, 'Zuerst');
+    await addReminder(page, 'Danach');
+
+    await expectOrder(page, ['Zuerst', 'Danach']);
   });
 
   test('reopens a completed entry', async ({ page }) => {
@@ -344,8 +613,15 @@ test.describe('the „Nicht vergessen“ list', () => {
 
     // Opening the menu moves focus to its first item; the arrow key then walks the two items.
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.getByRole('menuitem', { name: 'Bearbeiten' })).toBeFocused();
-    await page.keyboard.press('ArrowDown');
+    const first = page.getByRole('menuitem', { name: 'Bearbeiten' });
+    await expect(first).toBeFocused();
+    // `data-active` is the directive's own marker for the item its key manager is on.
+    await expect(first).toHaveAttribute('data-active', 'true');
+
+    // Pressed on the item rather than on the page: `keyboard.press` sends the key wherever focus
+    // happens to be at that instant, and a keystroke that arrives a tick after a re-render lands on
+    // <body> and is simply lost.
+    await first.press('ArrowDown');
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeFocused();
 
     await page.keyboard.press('Escape');
@@ -452,6 +728,7 @@ test.describe('large text', () => {
         '/settings/theme',
         '/settings/text-size',
         '/settings/motion',
+        '/settings/reminders',
       ]) {
         test(`${path} does not scroll horizontally at large text`, async ({ page }) => {
           await page.goto(path);

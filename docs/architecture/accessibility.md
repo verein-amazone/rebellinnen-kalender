@@ -260,4 +260,15 @@ Recorded here so they are not rediscovered as new findings:
   content. In this shell `<main>` is the first element in the DOM and the tab bar comes after it, so
   there is no block to skip. Revisit if a persistent header with navigation is ever added.
 - **Playwright runs desktop Chromium**, so it cannot catch a sticky `:hover`, a real touch target or
-  a screen-reader defect. Those are review and manual-test responsibilities.
+  a screen-reader defect. Those are review and manual-test responsibilities. The reminder list's drag
+  _is_ covered end to end, but only as wiring — that the rows belong to the drop list and that a drop
+  is written and read back. How the gesture feels under a finger stays a device check.
+- **Every drag has a non-drag equivalent.** Reordering the „Nicht vergessen“ list is offered as
+  „Nach oben“ / „Nach unten“ in the row's own menu, and the drag handle is `aria-hidden` and not
+  focusable: a control whose only behaviour is a pointer drag would be a stop in the tab order that
+  does nothing. Reordering is announced once through the `LiveAnnouncer` — after a drop nothing on
+  screen states the new position, and after a menu selection the menu has already closed.
+- **No switch primitive was built.** `role="switch"` on a checkbox is level 5 of the order of
+  preference (custom ARIA) with uneven VoiceOver and TalkBack behaviour, while `app-choice-row` is a
+  native radio group at level 1. Every on/off setting so far is therefore a pair of radios with real
+  labels. Build the switch when a screen genuinely cannot be expressed as a choice — not before.

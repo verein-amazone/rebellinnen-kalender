@@ -7,6 +7,7 @@ import { MotionPage } from './motion/motion.page';
 import { PrivacyPage } from './privacy/privacy.page';
 import { ProfilePage } from './profile/profile.page';
 import { SettingsOverviewPage } from './overview/overview.page';
+import { SettingsRemindersPage } from './reminders/reminders.page';
 import { TextSizePage } from './text-size/text-size.page';
 import { ThemePage } from './theme/theme.page';
 
@@ -18,6 +19,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'theme', component: ThemePage, title: 'Farbthema' },
   { path: 'text-size', component: TextSizePage, title: 'Textgröße' },
   { path: 'motion', component: MotionPage, title: 'Bewegung & Animationen' },
+  { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
   { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },
   { path: 'imprint', component: ImprintPage, title: 'Impressum' },

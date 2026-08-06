@@ -1,4 +1,5 @@
 import { CREATE_REMINDERS } from './001-create-reminders';
+import { ADD_REMINDER_POSITION } from './002-add-reminder-position';
 import type { Migration } from './migration';
 
 /**
@@ -8,7 +9,7 @@ import type { Migration } from './migration';
  * so the edit would only affect fresh installs and the two would drift apart. Add a new migration
  * with the next `toVersion` instead.
  */
-export const MIGRATIONS: readonly Migration[] = [CREATE_REMINDERS];
+export const MIGRATIONS: readonly Migration[] = [CREATE_REMINDERS, ADD_REMINDER_POSITION];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */
 export const DATABASE_VERSION = MIGRATIONS.reduce(

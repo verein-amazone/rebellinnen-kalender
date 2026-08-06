@@ -42,6 +42,7 @@ src/styles/components/choice.css     .rk-choice*
 src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
 src/styles/components/menu.css       .rk-menu, .rk-menu-item*
 src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
+src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
 src/styles/components/screen.css     .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
 ```
@@ -142,7 +143,8 @@ matters on touch; it clears itself on release.
 **Every action needs a plain tap path.** No hover-to-reveal controls, no long press, no right click, no
 double tap, no drag as the only way to get something done. The reminder rows put their actions behind a
 visible `⋯` trigger for exactly this reason — a swipe-to-delete would be invisible and undiscoverable,
-and a screen reader user could not perform it at all.
+and a screen reader user could not perform it at all. The same rows can be dragged into a new order,
+and „Nach oben“ / „Nach unten“ sit in that menu so the drag stays an accelerator rather than the way.
 
 **Targets stay at `min-h-touch`.** 48px, as a minimum rather than a fixed height, so a label that wraps
 at a large text size does not clip. Icon buttons get it from `rk-control-base`.
@@ -312,6 +314,56 @@ The contract every form honours:
   announced at all
 - `aria-invalid` and `aria-describedby` bind only once the field has been touched
 - the error is always text; the red border is a redundant cue, never the only one
+
+### Reorderable list — `reorder.css` + `@angular/cdk/drag-drop`
+
+`.rk-drag-handle` and `.rk-reorder-list`, plus the styling for the
+CDK's own `.cdk-drag-preview` and `.cdk-drag-animating`.
+
+The handle is a `<span cdkDragHandle aria-hidden="true">`, not a button. A focusable control whose only
+behaviour is a pointer drag is a control with no keyboard behaviour, so the reachable equivalent lives
+in the row's menu instead. `touch-none` sits on the handle alone: on the rest of the row a finger has
+to keep scrolling the page, and a tap on the checkbox has to stay a tap.
+
+A list that holds two kinds of row — the reminder list shows open entries first and completed ones
+after them, in one `<ul>` with no heading between — keeps them apart with `cdkDropListSortPredicate`
+rather than with two drop lists. The predicate refuses a position outside the dragged row's own group,
+so the gap never opens on the wrong side of the boundary and a drag can never do what only the checkbox
+may do. The list is never connected to another one either: no `cdkDropListGroup`, no
+`cdkDropListConnectedTo`.
+
+The preview carries the card surface, because the CDK renders it outside the list where it would
+otherwise be transparent text.
+
+Three structural constraints, all learned the hard way:
+
+- **`cdkDrag` puts a `transform` on every row, so every row is its own stacking context.** A `z-index`
+  inside a row can no longer rise above the row below it, and a menu that opens downwards is painted
+  underneath the next row — which then swallows the taps meant for the menu. `reorder.css` lifts the
+  row holding an open panel with `:has(.rk-menu[data-visible='true'])`.
+- **The rows must be real children of their `<ul>` in the template.** Rendering them through a shared
+  `<ng-template>` and `ngTemplateOutlet` makes Angular re-create a row that only moved, so the row
+  vanishes mid-move, and it puts the row outside the reach of the drop list it belongs to, so dragging
+  does nothing at all. Write the row once, inside the `@for` that is inside the `<ul>`.
+- **Use the CDK's default placeholder, not a `cdkDragPlaceholder` template.** The default is a clone of
+  the row being dragged, so the gap is exactly as tall as the row that left it. A hand-written
+  placeholder has to guess a height and guesses wrong the moment an entry wraps at a large text size —
+  the whole list then jumps as the drag begins. Style the clone by hiding its children with
+  `visibility: hidden` (which keeps their space) and drawing the outline _inside_ the box, since a
+  border would add its own width to a box that has to stay the row's height.
+
+**A reorderable row has no enter or leave animation.** Both were tried and both fought the drag: an
+enter animation on `transform` writes the one property the CDK owns while a row is being dragged, and
+a leave animation (`animate.leave`) keeps a removed row in the DOM, where `CdkDropList` still counts it
+as an item because it sorts by document position. Anything added back here has to be proved against a
+real drag, not just against a screenshot. An enter animation must also not fade: text at partial
+opacity is text below its contrast ratio, and axe catches it mid-flight.
+
+What remains is the drag's own motion — `.cdk-drag-animating` and the shuffle of the rows the dragged
+one passes — and it is CSS for the reason `sheet.css` records: `base.css` neutralises motion by forcing
+`animation-duration` and `transition-duration` to 0.01ms, and the Web Animations API ignores that
+entirely. The CDK writes transforms and leaves the timing to CSS, so it is covered.
+`@angular/animations` is not installed and is not needed for any of this.
 
 ### Shell frame — `screen.css`
 

@@ -13,6 +13,7 @@ function record(overrides: Partial<ReminderRecord> = {}): ReminderRecord {
     completedAt: null,
     createdAt: '2026-08-05T10:00:00.000Z',
     updatedAt: '2026-08-05T10:00:00.000Z',
+    position: 1000,
     ...overrides,
   };
 }
@@ -45,25 +46,39 @@ describe('ReminderDao', () => {
     expect(await dao.listAll()).toEqual([entry]);
   });
 
-  it('lists open entries before completed ones, each in creation order', async () => {
-    await dao.insert(record({ id: 'a', createdAt: '2026-08-05T10:00:00.000Z' }));
+  it('lists open entries before completed ones, each in the manual order', async () => {
+    // The creation timestamps deliberately contradict the positions, so only the position can decide.
+    await dao.insert(record({ id: 'a', position: 2000, createdAt: '2026-08-05T09:00:00.000Z' }));
     await dao.insert(
       record({
         id: 'b',
-        createdAt: '2026-08-05T11:00:00.000Z',
+        position: 2000,
+        createdAt: '2026-08-05T08:00:00.000Z',
         completedAt: '2026-08-05T12:00:00.000Z',
       }),
     );
-    await dao.insert(record({ id: 'c', createdAt: '2026-08-05T12:00:00.000Z' }));
+    await dao.insert(record({ id: 'c', position: 1000, createdAt: '2026-08-05T12:00:00.000Z' }));
     await dao.insert(
       record({
         id: 'd',
-        createdAt: '2026-08-05T09:00:00.000Z',
+        position: 1000,
+        createdAt: '2026-08-05T11:00:00.000Z',
         completedAt: '2026-08-05T13:00:00.000Z',
       }),
     );
 
-    expect((await dao.listAll()).map((entry) => entry.id)).toEqual(['a', 'c', 'd', 'b']);
+    expect((await dao.listAll()).map((entry) => entry.id)).toEqual(['c', 'a', 'd', 'b']);
+  });
+
+  it('breaks a tie between two identical positions by creation time', async () => {
+    await dao.insert(
+      record({ id: 'later', position: 1000, createdAt: '2026-08-05T12:00:00.000Z' }),
+    );
+    await dao.insert(
+      record({ id: 'earlier', position: 1000, createdAt: '2026-08-05T09:00:00.000Z' }),
+    );
+
+    expect((await dao.listAll()).map((entry) => entry.id)).toEqual(['earlier', 'later']);
   });
 
   it('updates the text and the update timestamp', async () => {
@@ -77,15 +92,83 @@ describe('ReminderDao', () => {
     expect(entry.createdAt).toBe('2026-08-05T10:00:00.000Z');
   });
 
-  it('completes an entry and reopens it again', async () => {
+  it('completes an entry and reopens it again, each time with a new position', async () => {
     await dao.insert(record());
 
-    await dao.updateCompletedAt('id-1', '2026-08-05T15:00:00.000Z', '2026-08-05T15:00:00.000Z');
-    expect((await dao.listAll())[0].completedAt).toBe('2026-08-05T15:00:00.000Z');
+    await dao.updateCompletion('id-1', '2026-08-05T15:00:00.000Z', 500, '2026-08-05T15:00:00.000Z');
+    const [completed] = await dao.listAll();
+    expect(completed.completedAt).toBe('2026-08-05T15:00:00.000Z');
+    expect(completed.position).toBe(500);
 
-    await dao.updateCompletedAt('id-1', null, '2026-08-05T16:00:00.000Z');
+    await dao.updateCompletion('id-1', null, 3000, '2026-08-05T16:00:00.000Z');
+    const [reopened] = await dao.listAll();
     // Exactly `null`, never `undefined`: the record type promises one of the two.
-    expect((await dao.listAll())[0].completedAt).toBeNull();
+    expect(reopened.completedAt).toBeNull();
+    expect(reopened.position).toBe(3000);
+    expect(reopened.updatedAt).toBe('2026-08-05T16:00:00.000Z');
+  });
+
+  it('moves an entry by writing its position', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+    await dao.insert(record({ id: 'b', position: 2000 }));
+
+    await dao.updatePosition('b', 500, '2026-08-05T17:00:00.000Z');
+
+    const entries = await dao.listAll();
+    expect(entries.map((entry) => entry.id)).toEqual(['b', 'a']);
+    expect(entries[0].updatedAt).toBe('2026-08-05T17:00:00.000Z');
+  });
+
+  it('keeps a fractional position a number', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+    await dao.insert(record({ id: 'b', position: 2000 }));
+
+    await dao.updatePosition('b', 1500.5, '2026-08-05T17:00:00.000Z');
+
+    expect((await dao.listAll())[1].position).toBe(1500.5);
+  });
+
+  it('reassigns several positions at once and leaves the other entries alone', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+    await dao.insert(record({ id: 'b', position: 2000 }));
+    await dao.insert(record({ id: 'untouched', position: 3000 }));
+
+    await dao.reassignPositions(
+      [
+        { id: 'b', position: 1000 },
+        { id: 'a', position: 2000 },
+      ],
+      '2026-08-05T18:00:00.000Z',
+    );
+
+    const entries = await dao.listAll();
+    expect(entries.map((entry) => entry.id)).toEqual(['b', 'a', 'untouched']);
+    expect(entries.find((entry) => entry.id === 'untouched')?.updatedAt).toBe(
+      '2026-08-05T10:00:00.000Z',
+    );
+  });
+
+  it('writes nothing when there is nothing to reassign', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+
+    await dao.reassignPositions([], '2026-08-05T18:00:00.000Z');
+
+    expect((await dao.listAll())[0]).toEqual(record({ id: 'a', position: 1000 }));
+  });
+
+  it('reports the position bounds of each section', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+    await dao.insert(record({ id: 'b', position: 4000 }));
+    await dao.insert(record({ id: 'c', position: 250, completedAt: '2026-08-05T12:00:00.000Z' }));
+
+    expect(await dao.selectPositionRange(false)).toEqual({ min: 1000, max: 4000 });
+    expect(await dao.selectPositionRange(true)).toEqual({ min: 250, max: 250 });
+  });
+
+  it('reports empty bounds for an empty section', async () => {
+    await dao.insert(record({ id: 'a', position: 1000 }));
+
+    expect(await dao.selectPositionRange(true)).toEqual({ min: null, max: null });
   });
 
   it('deletes an entry', async () => {
