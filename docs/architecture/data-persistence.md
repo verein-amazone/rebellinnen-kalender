@@ -64,6 +64,31 @@ We deliberately do not install an ORM or query builder:
 - Handwritten SQL stays contained and testable inside the data layer.
 - Interactors and views remain independent of the persistence implementation.
 
+### The plugin caps the native Capacitor version
+
+On iOS the plugin's own `Package.swift` declares its Capacitor dependency as
+`.package(url: "…/capacitor-swift-pm.git", branch: "8.0.0")`. An unversioned Swift Package Manager
+requirement wins over a versioned one for the **entire** dependency graph, so that branch overrides
+the `exact: "8.5.0"` that `ios/App/CapApp-SPM/Package.swift` asks for. Three things follow:
+
+- **`package.json` does not tell you which Capacitor the app links against.**
+  `ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` does, and it
+  currently reads `branch: "8.0.0"`, revision `5962590`. Check that file, not the npm version.
+- **Native APIs added after Capacitor iOS 8.0 are unavailable at compile time.** The concrete case is
+  `SceneDelegateProxy` from [Capacitor 8.5](https://capacitorjs.com/docs/updating/8-5), which is why
+  `ios/App/App/SceneDelegate.swift` is hand-written and forwards through `ApplicationDelegateProxy`
+  instead. The legacy `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications it posts are
+  the ones plugins observe, so behaviour is equivalent.
+- **Do not delete `Package.resolved` to force a re-resolve.** `refs/heads/8.0.0` no longer exists on
+  `capacitor-swift-pm`; the pinned revision survives only because it is still reachable from `main`.
+  A resolve without that file has no branch to follow and fails.
+
+The way out is upstream, tracked in
+[capacitor-community/sqlite#697](https://github.com/capacitor-community/sqlite/issues/697): when the
+plugin publishes a version without the branch pin, take it, confirm
+`Package.resolved` moves to 8.5.0 or later, and replace `SceneDelegate.swift` with the stock
+implementation from the Capacitor 8.5 guide.
+
 ## DAOs
 
 DAOs (`data/daos/*.dao.ts`) contain thin, table-oriented SQLite access:

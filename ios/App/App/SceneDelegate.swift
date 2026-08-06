@@ -8,6 +8,12 @@ import Capacitor
 /// branch and therefore wins over the app's own `exact: "8.5.0"` requirement). Forwarding to
 /// `ApplicationDelegateProxy` produces the same `capacitorOpenURL` / `capacitorOpenUniversalLink`
 /// notifications that the plugins observe.
+///
+/// Replace this file with the stock implementation from
+/// <https://capacitorjs.com/docs/updating/8-5> once both hold: `@capacitor-community/sqlite` has
+/// dropped the branch pin, and `Package.resolved` actually shows `capacitor-swift-pm` at 8.5.0 or
+/// later. `package.json` is not the thing to check. See
+/// `docs/architecture/data-persistence.md#the-plugin-caps-the-native-capacitor-version`.
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
