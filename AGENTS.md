@@ -39,6 +39,24 @@ before changing application code:
 - The ESLint config enforces these boundaries via `no-restricted-imports`. Fix violations; do not
   disable the rule.
 
+## Touch first
+
+This is a phone app in a WebView. There is no mouse and no keyboard on the device, so:
+
+- **No bare `hover:`.** Hover sticks after a tap on touch and stays lit until the user taps elsewhere.
+  Use the `hoverable:` variant (gated on `(hover: hover) and (pointer: fine)`) plus `active:` for the
+  feedback that actually matters.
+- **Never make hover, long press, right click, double tap or drag the only way to reach something.**
+  Every action needs a plain tap path, and a control that matters is always visible rather than
+  revealed on hover.
+- **Touch targets are at least `min-h-touch`** (48px) and never a fixed `h-*`, so a wrapped label
+  cannot clip.
+- **Text fields render at 16px or more.** Below that iOS zooms the page in on focus and does not zoom
+  back out.
+- Prefer `dvh` over `vh`, and never `user-scalable=no` or `maximum-scale` in the viewport.
+- See [Touch-first interaction](./docs/architecture/design-system.md#touch-first-interaction) for the
+  detail and the reasoning.
+
 ## General
 
 - Do not add dependencies, abstractions, ORMs, or speculative product code without a concrete need.

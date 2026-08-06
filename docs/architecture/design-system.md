@@ -124,6 +124,41 @@ Two custom variants:
 - **`motion-reduced:`** — mirrors how `base.css` resolves motion: the in-app override wins, and the
   device preference applies only when the user has not explicitly chosen `standard`.
 
+## Touch-first interaction
+
+The app runs in a WebView on a phone. Nothing on the device has a mouse, so an interaction that needs
+one is not a degraded experience — it is unreachable. The rules:
+
+**Hover is an enhancement, never a requirement.** On touch, `:hover` is applied on tap and there is no
+"pointer left" event to clear it, so the element stays lit until the user taps somewhere else. Hence
+the `hoverable:` custom variant in `theme.css`, gated on `(hover: hover) and (pointer: fine)`: a
+finger never receives those styles at all. `(pointer: fine)` is part of the condition on purpose —
+long-press on some Android versions makes `(hover: hover)` match. Use `active:` for the feedback that
+matters on touch; it clears itself on release.
+
+**Every action needs a plain tap path.** No hover-to-reveal controls, no long press, no right click, no
+double tap, no drag as the only way to get something done. The reminder rows put their actions behind a
+visible `⋯` trigger for exactly this reason — a swipe-to-delete would be invisible and undiscoverable,
+and a screen reader user could not perform it at all.
+
+**Targets stay at `min-h-touch`.** 48px, as a minimum rather than a fixed height, so a label that wraps
+at a large text size does not clip. Icon buttons get it from `rk-control-base`.
+
+**Text entry renders at 16px or more.** Below that iOS zooms the page in when the field takes focus and
+never zooms back out, leaving the app magnified and scrolling in both directions. `base.css` floors
+`input`, `textarea` and `select` at `max(1rem, 16px)`.
+
+**Keep the platform's own gestures intact.** No `user-scalable=no` or `maximum-scale` in the viewport —
+pinch-zoom is an accessibility feature. `touch-action: manipulation` on interactive elements drops the
+300ms double-tap-to-zoom wait without taking anything else away. Use `dvh` rather than `vh`, because
+`vh` ignores the dynamic browser chrome and cuts content off.
+
+**Do not lean on pointer-only affordances.** Cursors, tooltips via `title`, custom scrollbars and
+resize handles are invisible on a phone: if something needs explaining, it needs visible text.
+
+Playwright runs desktop Chromium, so it cannot catch a sticky hover. The safeguard is the variant, not
+a test — review any new `hover:` in a diff.
+
 ## Scaling-safe rules
 
 Every primitive is built for a root font size far larger than the default, because the OS text-size
@@ -211,6 +246,20 @@ trigger share it — puts `.rk-row` on the `<li>` and says so in a comment.
 
 `.rk-list` clips to its corner radius, which also clips anything hanging out of a row. Add
 `overflow-visible` at the call site where a row opens a menu.
+
+### Round checkbox — `check.css`
+
+`.rk-check` is the tick control for a checklist: a drawn circle instead of the platform square, with
+the checkmark built from two rotated borders in `em` so it scales with its label.
+
+This is the one place the design system uses `appearance: none`, because a native checkbox cannot be
+reshaped. What stays native is everything that carries meaning — it is still an
+`<input type="checkbox">`, so the role, the checked state, Space and the label association come from
+the browser. Under `forced-colors: active` the rule hands the rendering back to the platform, so a
+high-contrast user sees their own control rather than our two colours.
+
+The completion state is never carried by this control alone: the row also strikes its text through, and
+the control's accessible name states the action it will perform.
 
 ### Choice row — `choice.css` + `app-choice-row`
 

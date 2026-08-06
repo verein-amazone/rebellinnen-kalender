@@ -288,6 +288,21 @@ test.describe('the „Nicht vergessen“ list', () => {
     expect(fontSize).toBeGreaterThanOrEqual(16);
   });
 
+  test('closes a row menu again when something else is tapped', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    await row(page, 'Blumen gießen')
+      .getByRole('button', { name: 'Optionen für „Blumen gießen“' })
+      .click();
+    await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeVisible();
+
+    // The only dismissal a finger has: there is no pointer to move away, and no Escape key.
+    await page.getByRole('heading', { name: 'Heute', level: 1 }).click();
+
+    await expect(page.getByRole('menuitem', { name: 'Löschen' })).toHaveCount(0);
+  });
+
   test('reaches both row actions from the keyboard', async ({ page }) => {
     await page.goto('/today');
     await addReminder(page, 'Blumen gießen');
