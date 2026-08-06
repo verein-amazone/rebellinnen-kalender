@@ -119,14 +119,17 @@ pnpm cap:open:android  # Opens the Android project in Android Studio
 ### Angular CLI MCP
 
 For version-accurate Angular support, the official
-[Angular CLI MCP Server](https://angular.dev/ai/mcp) can be used. It runs project-locally through
-the installed Angular CLI:
+[Angular CLI MCP Server](https://angular.dev/ai/mcp) is configured in `.mcp.json` and runs
+project-locally through the installed Angular CLI. Editors and agents that read `.mcp.json` pick it
+up without further setup; everything else can start it manually:
 
 ```bash
 pnpm exec ng mcp
 ```
 
-Setup is host/editor-side and deliberately **not** committed to the repository.
+Its `get_best_practices` and `search_documentation` tools answer against the installed Angular
+version, which is why the architecture documentation keeps Angular code examples short instead of
+pinning them to a version that will move.
 
 ## Planning
 

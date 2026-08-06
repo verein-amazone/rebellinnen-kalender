@@ -3,6 +3,9 @@
 This document describes how the Angular application is structured and the rules that keep it
 maintainable. It applies to all application code under `src/app/`.
 
+For the visual primitives see [Design system](./design-system.md); for the WCAG 2.2 AA rules every
+view has to satisfy see [Accessibility](./accessibility.md).
+
 ## Layers
 
 The application has three primary layers plus one supporting area:
@@ -114,6 +117,10 @@ targets.
 - Switching between primary destinations only **announces** the new page through the CDK
   `LiveAnnouncer`. Moving focus there would throw a keyboard user out of the bottom navigation they
   are operating.
+
+Component-level announcements follow different rules — see
+[Announcements](./accessibility.md#announcements). The one thing not to do is announce the same
+event through both a template live region and the `LiveAnnouncer`.
 
 #### Safe areas
 

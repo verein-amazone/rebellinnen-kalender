@@ -132,6 +132,33 @@ test.describe('application shell', () => {
     await expect(page.getByRole('radio', { name: 'Reduziert', exact: false })).toBeChecked();
   });
 
+  /**
+   * WCAG 2.2 SC 2.4.2: every view needs a title that describes it. Angular's default
+   * `TitleStrategy` writes the route's `title` to `document.title`, so this only holds as long as
+   * every route declares one — a new route without it silently keeps the previous screen's title.
+   * Give a new route a `title` and add it here.
+   */
+  test('gives every route its own document title', async ({ page }) => {
+    for (const [path, title] of [
+      ['/today', 'Heute'],
+      ['/calendar', 'Kalender'],
+      ['/calendar/event/new', 'Neuer Termin'],
+      ['/content', 'Inhalte'],
+      ['/settings', 'Einstellungen'],
+      ['/settings/theme', 'Farbthema'],
+      ['/settings/text-size', 'Textgröße'],
+      ['/settings/motion', 'Bewegung & Animationen'],
+      ['/settings/calendars', 'Kalender verwalten'],
+      ['/settings/privacy', 'Datenschutz'],
+      ['/settings/imprint', 'Impressum'],
+      ['/settings/about', 'Über die App'],
+    ] as const) {
+      await page.goto(path);
+
+      await expect(page).toHaveTitle(title);
+    }
+  });
+
   test('has no serious or critical accessibility violations on Today', async ({ page }) => {
     await page.goto('/');
 

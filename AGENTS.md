@@ -5,6 +5,7 @@ before changing application code:
 
 - [Frontend architecture](./docs/architecture/frontend-architecture.md)
 - [Design system](./docs/architecture/design-system.md)
+- [Accessibility](./docs/architecture/accessibility.md)
 - [Data & persistence](./docs/architecture/data-persistence.md)
 - [Contributing guide](./CONTRIBUTING.md)
 
@@ -14,7 +15,11 @@ before changing application code:
   `yarn.lock`.
 - Use official CLIs and Angular schematics (`pnpm exec ng generate …`, `pnpm exec cap …`) instead of
   hand-writing boilerplate.
-- Consult the [Angular CLI MCP Server](https://angular.dev/ai/mcp) for current Angular 22 practices.
+- The [Angular CLI MCP Server](https://angular.dev/ai/mcp) is configured in `.mcp.json` and runs
+  project-locally. **Use it instead of recalling Angular APIs from memory:** `get_best_practices`
+  before writing Angular code, `search_documentation` for the current spelling of an API, an Angular
+  Aria pattern, a CDK primitive or a router/forms detail. The docs deliberately keep Angular
+  examples short for this reason — the MCP server is the up-to-date source, not the prose.
 
 ## Angular conventions
 
@@ -56,6 +61,34 @@ This is a phone app in a WebView. There is no mouse and no keyboard on the devic
 - Prefer `dvh` over `vh`, and never `user-scalable=no` or `maximum-scale` in the viewport.
 - See [Touch-first interaction](./docs/architecture/design-system.md#touch-first-interaction) for the
   detail and the reasoning.
+
+## Accessibility
+
+The target is **WCAG 2.2 Level AA**, and it is part of the definition of done, not a review step.
+Read [Accessibility](./docs/architecture/accessibility.md) before building a component. The rules
+that bite most often:
+
+- **Work down the order of preference:** native HTML → Angular template binding → Angular Aria
+  (`@angular/aria`) → CDK a11y (`@angular/cdk/a11y`) → custom ARIA. There is no Angular Material
+  here. Do not start a custom ARIA implementation until the levels above have been ruled out.
+- **Style a native element; do not wrap it.** `rk-*` classes and attribute directives go on a real
+  `<button>` or `<a>`. A custom-element host loses focusability, Enter/Space, `disabled` and form
+  participation, and ARIA does not give them back.
+- **The accessible name must contain the visible label**, ideally starting with it — Voice Control
+  users say what they see. Icon-only controls name the action; the icon is `aria-hidden="true"`.
+  `placeholder` is never the only label.
+- **Bind ARIA state to the same signal as the visible state.** `aria-expanded`, `aria-pressed`,
+  `aria-current`, `aria-invalid` must never live in a second place.
+- **Announce once.** A visible change uses a template `role="status"` / `aria-live="polite"` region;
+  a change from outside the template uses the CDK `LiveAnnouncer` — never both for one event.
+  `PageFocus` already owns navigation focus and announcements; pages do not manage either.
+- **Form controls need a real `<label for>`**, plus `aria-invalid` and `aria-describedby` on error.
+  `ng-invalid` and a red border are not error reporting.
+- **Never colour alone**, contrast 4.5:1 for text and 3:1 for meaningful non-text, and focus must
+  stay visible and unobscured by the sticky header, tab bar or an open sheet.
+- `angular-eslint`'s template accessibility rules are active. Fix findings; do not disable them.
+- axe passing is not conformance. Manually check keyboard, maximum OS text size, and VoiceOver or
+  TalkBack for the whole workflow.
 
 ## General
 

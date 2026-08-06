@@ -3,7 +3,10 @@
 The app's visual primitives: what they are, where they live, and the rules they are built to.
 
 This document covers the _how_. For where the UI layers sit relative to interactors and the data
-layer, see [Frontend architecture](./frontend-architecture.md).
+layer, see [Frontend architecture](./frontend-architecture.md). For the conformance target, the
+order of preference between native HTML, Angular Aria and the CDK, and what a primitive owes beyond
+its appearance, see [Accessibility](./accessibility.md) — the touch-first and scaling-safe rules
+below are the two chapters of it that live here.
 
 ## The hybrid rule
 
