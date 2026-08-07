@@ -6,3 +6,16 @@ allowBuilds:
   esbuild: true
   lmdb: true
   msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@capacitor-community/sqlite@8.1.1'
+# Exposes jeep-sqlite's transitive sql.js at node_modules/sql.js so the angular.json asset glob can
+# copy sql-wasm.wasm from it. The app declares no sql.js dependency of its own.
+publicHoistPattern:
+  - sql.js
+# jeep-sqlite declares sql.js ^1.11.0 but bundles an Emscripten glue that only links against the
+# older wasm ABI: sql.js 1.13.0 and 1.14.1 abort with "LinkError: Import #34 requires a callable"
+# and the database never opens (the reminders e2e specs catch this). Until upstream rebuilds its
+# glue, the override keeps the wasm on the newest version that actually links. Re-test on every
+# jeep-sqlite upgrade and drop the override once jeep-sqlite supports current sql.js.
+overrides:
+  sql.js: 1.12.0

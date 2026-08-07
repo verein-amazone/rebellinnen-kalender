@@ -99,9 +99,9 @@ export class ReminderDao {
    * Rewrites several positions at once, for the rare case where the fractional positions have grown
    * too close to fit another entry between them.
    *
-   * One statement on purpose: the database contract has no transactions, so a loop of updates could
-   * be interrupted halfway and leave the section in an order nobody asked for. Only the number of
-   * placeholders is built into the SQL; every value is still bound.
+   * One statement on purpose: it needs no transaction to stay atomic, so a loop of updates that
+   * could be interrupted halfway never exists in the first place. Only the number of placeholders is
+   * built into the SQL; every value is still bound.
    */
   async reassignPositions(
     assignments: readonly PositionAssignment[],

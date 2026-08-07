@@ -6,15 +6,25 @@ import { SqliteGateway } from './sqlite.gateway';
 export type SqlValue = string | number | null;
 
 /**
- * The database as everything above the gateway sees it: two methods, no plugin types.
- *
- * There is deliberately no `transaction()` yet. A single `run()` already executes inside its own
- * transaction, and no use case so far spans more than one statement. The method gets added together
- * with the first real unit of work that needs it, not before.
+ * The statement surface a DAO writes against: two methods, no plugin types. Outside a transaction
+ * the database itself is the executor; inside one, `transaction()` hands the work callback an
+ * executor bound to that transaction.
  */
-export interface SqliteDatabase {
+export interface SqliteExecutor {
   query<TRow>(statement: string, values?: readonly SqlValue[]): Promise<TRow[]>;
   run(statement: string, values?: readonly SqlValue[]): Promise<void>;
+}
+
+/**
+ * The database as everything above the gateway sees it.
+ *
+ * `transaction()` runs the callback as one atomic unit of work: every statement issued through the
+ * given executor commits together or not at all. Transactions are serialized — the database is a
+ * single shared connection — so inside the callback only the passed executor may be used; calling
+ * the database directly from within would deadlock on the serialization lock.
+ */
+export interface SqliteDatabase extends SqliteExecutor {
+  transaction<T>(work: (tx: SqliteExecutor) => Promise<T>): Promise<T>;
 }
 
 /**

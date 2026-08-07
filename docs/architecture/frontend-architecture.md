@@ -288,11 +288,18 @@ Owns persistence and external data-source access. See
 - `data/migrations/` — versioned schema changes.
 - `data/stores/` — small persisted values that do not belong in relational tables.
 - `data/gateways/` — wrappers around external data sources. `sqlite.gateway.ts` owns the database
-  connection and the migration run; `native-calendar.gateway.ts` will own the device calendar. Plugin
-  types stay inside the gateway, and callers depend on the `SqliteDatabase` contract instead.
+  connection, the transactions and the migration run; `native-calendar.gateway.ts` owns the device
+  calendar; `ics-http.gateway.ts` owns ICS downloads. Plugin and parser types stay inside their
+  gateway or module, and callers depend on plugin-free contracts instead.
+- `data/calendar/` — the calendar domain's data machinery: `calendar.repository.ts` (see below),
+  the recurrence materializer (sole importer of `rrule-temporal`), the ICS parser/normalizer (sole
+  importer of `ical.js`) and the device-instance normalizer.
 
 Repositories (`*Repository`) are **not** introduced automatically; reserve them for a meaningful
 abstraction that combines or selects between multiple data sources.
+`data/calendar/calendar.repository.ts` is the one deliberate instance: it is the calendar's
+unit-of-work boundary, coordinating several DAOs, the recurrence engine and both external gateways
+inside single transactions, and it is the only calendar surface interactors talk to.
 
 ## Cross-cutting layer (`cross-cutting/`)
 

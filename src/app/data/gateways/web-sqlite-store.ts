@@ -7,18 +7,19 @@
  *
  * The app itself only ships to iOS and Android. This path exists so `ng serve` and the Playwright
  * suite exercise the real SQL and the real migrations instead of a stand-in that could drift from
- * them. It is loaded lazily and only on the web, so a native build never fetches this chunk, and the
- * `sql-wasm.wasm` asset is copied only by the development build — a production web build therefore
- * cannot open a database, deliberately.
+ * them. It is loaded lazily and only on the web, so a native build never fetches this chunk. The
+ * `sql-wasm.wasm` asset is copied by every build (see angular.json) because CI runs the e2e suite
+ * against the production bundle served statically.
  *
- * `sql.js` is pinned to an exact version in package.json for a reason: `jeep-sqlite` bundles the
- * Emscripten glue of the `sql.js` release it was built against, and a newer `sql-wasm.wasm` next to
- * that older glue fails to instantiate with a `LinkError`. Upgrade the two together, and check the
- * Today page in the browser afterwards.
+ * `sql.js` is not a direct dependency: the wasm must match the Emscripten glue bundled inside
+ * `jeep-sqlite`, so pnpm hoists jeep-sqlite's own `sql.js` and an override in pnpm-workspace.yaml
+ * keeps it on the newest version that actually links (a newer `sql-wasm.wasm` next to the older
+ * glue aborts with a `LinkError` and the database never opens). Re-check the override on every
+ * jeep-sqlite upgrade; the reminders e2e specs fail loudly on a mismatch.
  */
 import type { SQLiteConnection } from '@capacitor-community/sqlite';
 
-/** Where `jeep-sqlite` looks for `sql-wasm.wasm`; see the development assets in angular.json. */
+/** Where `jeep-sqlite` looks for `sql-wasm.wasm`; see the build assets in angular.json. */
 const WASM_PATH = '/assets';
 
 let initialization: Promise<void> | null = null;
