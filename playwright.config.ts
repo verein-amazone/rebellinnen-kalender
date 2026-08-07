@@ -12,10 +12,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Two workers on CI: the hosted runner has 4 vCPUs; leave headroom for the server and browsers. */
+  workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? [['html', { open: 'never' }] as const, ['github'] as const] : 'html',
+  /*
+   * The first database-gated assertion of a test pays the cold web-SQLite open (wasm fetch,
+   * IndexedDB store, migrations). On a shared CI runner that can exceed the default 5 s expect
+   * budget; locally the default stays, so a genuine slowdown is still caught early.
+   */
+  expect: {
+    timeout: process.env.CI ? 15_000 : 5_000,
+  },
   /* Shared settings for all the projects below. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -32,9 +40,12 @@ export default defineConfig({
     },
   ],
 
-  /* Serve the Angular app before running the tests. */
+  /*
+   * Serve the Angular app before running the tests. CI tests the promoted production build served
+   * statically (`pnpm build` must have run first); local runs keep the dev-server ergonomics.
+   */
   webServer: {
-    command: 'pnpm start',
+    command: process.env.CI ? 'pnpm serve:dist' : 'pnpm start',
     url: 'http://localhost:4200',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

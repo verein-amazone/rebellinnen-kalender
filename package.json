@@ -12,6 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "playwright test",
+    "serve:dist": "serve -s dist/rebellinnen-kalender/browser -l 4200",
+    "deps:update": "scripts/update-app-dependencies.sh",
     "cap:sync": "pnpm build && cap sync",
     "cap:open:ios": "cap open ios",
     "cap:open:android": "cap open android"
@@ -67,7 +69,7 @@
     "postcss": "^8.5.25",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "sql.js": "^1.14.1",
+    "serve": "^14.2.6",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "8.62.1",
