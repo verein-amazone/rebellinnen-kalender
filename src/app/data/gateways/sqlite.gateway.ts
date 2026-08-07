@@ -10,7 +10,12 @@ import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platfor
 import { DATABASE_VERSION, MIGRATIONS } from '../migrations/migrations';
 import type { Migration } from '../migrations/migration';
 import { CAPACITOR_SQLITE } from './capacitor-sqlite';
-import { SqliteUnavailableError, type SqlValue, type SqliteDatabase } from './sqlite-database';
+import {
+  SqliteUnavailableError,
+  type SqlValue,
+  type SqliteDatabase,
+  type SqliteExecutor,
+} from './sqlite-database';
 
 const DATABASE_NAME = 'rebellinnen-kalender';
 
@@ -33,25 +38,78 @@ export class SqliteGateway implements SqliteDatabase {
 
   private connection: Promise<SQLiteDBConnection> | null = null;
 
+  /**
+   * Serializes statements and transactions on the single shared connection. Without it, a plain
+   * `run()` issued while a transaction is open would join that transaction — and commit or roll
+   * back with it — instead of being its own unit of work.
+   */
+  private lock: Promise<unknown> = Promise.resolve();
+
   async query<TRow>(statement: string, values: readonly SqlValue[] = []): Promise<TRow[]> {
     const database = await this.database();
-    const result = await database.query(statement, [...values]);
+    return this.serialized(async () => {
+      const result = await database.query(statement, [...values]);
 
-    // `SQLiteDBConnection.query` already normalises the extra first row iOS returns, so the values
-    // are plain row objects on every platform.
-    return (result.values ?? []) as TRow[];
+      // `SQLiteDBConnection.query` already normalises the extra first row iOS returns, so the values
+      // are plain row objects on every platform.
+      return (result.values ?? []) as TRow[];
+    });
   }
 
   async run(statement: string, values: readonly SqlValue[] = []): Promise<void> {
     const database = await this.database();
-    // `run` wraps the statement in a transaction by default, which is exactly the unit of work here.
-    await database.run(statement, [...values]);
+    await this.serialized(async () => {
+      // `run` wraps the statement in a transaction by default, which is exactly the unit of work
+      // here.
+      await database.run(statement, [...values]);
+      await this.persistWebStore();
+    });
+  }
 
+  async transaction<T>(work: (tx: SqliteExecutor) => Promise<T>): Promise<T> {
+    const database = await this.database();
+    return this.serialized(async () => {
+      // Explicit BEGIN/COMMIT instead of the plugin's transaction methods: plain statements behave
+      // identically on iOS, Android and jeep-sqlite, and IMMEDIATE takes the write lock up front so
+      // the transaction cannot fail on upgrade halfway through.
+      await database.execute('BEGIN IMMEDIATE;', false);
+
+      try {
+        const result = await work(transactionExecutorFor(database));
+        await database.execute('COMMIT;', false);
+        // One store write per transaction, after the commit — an aborted transaction must never
+        // reach IndexedDB.
+        await this.persistWebStore();
+        return result;
+      } catch (error) {
+        try {
+          await database.execute('ROLLBACK;', false);
+        } catch {
+          // The original error is the one worth surfacing; a failed rollback on an already-aborted
+          // transaction adds nothing.
+        }
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * The web store copies the database into IndexedDB when asked to, and that is what makes a write
+   * survive a reload. On native the file is the store, so there is nothing to do.
+   */
+  private async persistWebStore(): Promise<void> {
     if (this.isWeb) {
-      // Without this the write only exists in memory: the web store copies the database into
-      // IndexedDB when asked to, and that is what makes it survive a reload.
       await this.sqlite.saveToStore(DATABASE_NAME);
     }
+  }
+
+  private serialized<T>(work: () => Promise<T>): Promise<T> {
+    const result = this.lock.then(work, work);
+    this.lock = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
   }
 
   private database(): Promise<SQLiteDBConnection> {
@@ -106,4 +164,20 @@ export class SqliteGateway implements SqliteDatabase {
 
 function toUpgradeStatement(migration: Migration): capSQLiteVersionUpgrade {
   return { toVersion: migration.toVersion, statements: [...migration.statements] };
+}
+
+/**
+ * The executor handed to a `transaction()` callback. Its statements run with the plugin's automatic
+ * per-statement transaction switched off — they belong to the explicit BEGIN the gateway opened.
+ */
+function transactionExecutorFor(database: SQLiteDBConnection): SqliteExecutor {
+  return {
+    async query<TRow>(statement: string, values: readonly SqlValue[] = []): Promise<TRow[]> {
+      const result = await database.query(statement, [...values]);
+      return (result.values ?? []) as TRow[];
+    },
+    async run(statement: string, values: readonly SqlValue[] = []): Promise<void> {
+      await database.run(statement, [...values], false);
+    },
+  };
 }

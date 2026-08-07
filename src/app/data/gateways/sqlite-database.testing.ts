@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 
 import type { Migration } from '../migrations/migration';
-import type { SqlValue, SqliteDatabase } from './sqlite-database';
+import type { SqlValue, SqliteDatabase, SqliteExecutor } from './sqlite-database';
 
 /**
  * A `SqliteDatabase` backed by Node's built-in SQLite, for tests.
@@ -30,6 +30,23 @@ export class InMemorySqliteDatabase implements SqliteDatabase {
   run(statement: string, values: readonly SqlValue[] = []): Promise<void> {
     this.database.prepare(statement).run(...values);
     return Promise.resolve();
+  }
+
+  /** Mirrors the gateway's semantics: everything in `work` commits together or not at all. */
+  async transaction<T>(work: (tx: SqliteExecutor) => Promise<T>): Promise<T> {
+    this.database.exec('BEGIN IMMEDIATE');
+
+    try {
+      const result = await work({
+        query: (statement, values) => this.query(statement, values),
+        run: (statement, values) => this.run(statement, values),
+      });
+      this.database.exec('COMMIT');
+      return result;
+    } catch (error) {
+      this.database.exec('ROLLBACK');
+      throw error;
+    }
   }
 
   close(): void {

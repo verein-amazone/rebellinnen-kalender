@@ -3,9 +3,10 @@
 This document describes how the app stores data and the conventions the data layer must follow. It
 complements [frontend-architecture.md](./frontend-architecture.md).
 
-> Status: the SQLite foundation exists (gateway, migration registry, first migration, first DAO), and
-> the first table is `reminders` for the „Nicht vergessen“ list. The native calendar gateway is still
-> outstanding.
+> Status: the SQLite foundation exists (gateway with transactions, migration registry, DAOs), and
+> the calendar data architecture (#29) is in place: canonical app items, the materialized occurrence
+> layer, the native calendar gateway with its offline cache, and ICS subscriptions. The calendar
+> screens consuming it are still outstanding.
 
 ## Local-only persistence
 
@@ -33,10 +34,16 @@ depends on the `SqliteDatabase` contract in `sqlite-database.ts` — `query()` a
   dictionary that survives a dev-server reload; without this reconciliation `createConnection` fails
   after every HMR update.
 
-There is deliberately **no `transaction()` method yet**: `SQLiteDBConnection.run()` already wraps a
-statement in its own transaction, and no use case so far spans more than one statement. It gets added
-with the first one that does. Reordering the „Nicht vergessen“ list is the case that came closest and
-still does not need one — see [Manual order](#manual-order) for how it stays a single statement.
+The contract also exposes `transaction<T>(work)`: the callback receives a `SqliteExecutor` (the same
+`query`/`run` surface) and everything issued through it commits together or not at all. The gateway
+implements this with plain `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` statements — identical behaviour on
+iOS, Android and `jeep-sqlite` — with the plugin's automatic per-statement transaction switched off
+inside, and serializes statements and transactions on the single shared connection. Two rules follow:
+
+- **Inside a `transaction()` callback, only the passed executor may be used.** Calling the database
+  directly from within the callback would wait on the serialization lock the transaction holds.
+- **On web, the IndexedDB store is written once per committed transaction**, never for a rolled-back
+  one. A single `run()` outside a transaction still wraps itself and saves as before.
 
 ### SQLite in the browser
 
@@ -119,10 +126,11 @@ that bookkeeping and could disagree with it.
 
 ## Transaction boundaries
 
-A single logical unit of work (for example, a multi-table write for one use case) should run inside
-one transaction. Transaction control belongs at the boundary that represents the unit of work
-(typically coordinated from an interactor calling one or more DAOs with a shared transaction), not
-buried inside unrelated DAO methods.
+A single logical unit of work (for example, a multi-table write for one use case) runs inside one
+`transaction()` call. Transaction control belongs at the boundary that represents the unit of work —
+the service that coordinates several DAOs — not buried inside unrelated DAO methods. DAOs stay
+transaction-agnostic: a DAO method takes an optional trailing `SqliteExecutor` parameter defaulting
+to the injected database, so the same method works standalone and inside a transaction.
 
 ## Records, IDs and timestamps
 
@@ -166,25 +174,82 @@ process' zone — which is not the same on the native plugin and in the `jeep-sq
 be bound as a parameter. It is also a product rule driven by a preference, and DAOs hold no business
 rules. Hidden entries are only filtered out of the list; the rows stay in the database.
 
+## The calendar data architecture
+
+The calendar (#29) combines three source types behind one read model. The dependency chain is
+`interactors/calendar/*` → `data/calendar/calendar.repository.ts` → DAOs, gateways and the
+recurrence machinery. The repository is the calendar's unit-of-work boundary — the deliberate
+exception to „repositories are not introduced automatically“: it coordinates several DAOs, the
+recurrence engine, the native calendar gateway and the ICS pipeline, and every method that changes
+derived rows runs inside one transaction.
+
+### Authoritative, derived, disposable
+
+- **Authoritative:** `calendar_sources` and app `calendars` (configuration); `app_items` and
+  `app_item_exceptions` (canonical events/todos: a master, an optional RFC 5545 `RRULE`, and
+  per-occurrence overrides or cancellations keyed by the occurrence's **original start**);
+  `ics_subscriptions` (configuration plus the raw text and HTTP validators of the last valid
+  download).
+- **Derived but retained:** `ics_items`/`ics_item_exceptions` — the normalized form of the active
+  ICS revision. Only a fully validated new revision may replace them; a failed refresh never
+  touches them.
+- **Derived and disposable:** `occurrences` and `source_coverage`. One row per concrete instance
+  across all sources, always rebuildable from the authoritative or retained data (or a fresh
+  native query), never the only representation of anything.
+
+Start and end times are stored as a lossless temporal triple (`kind` ∈ `date | zoned | floating |
+utc`, `value`, `tz`; see `data/entities/temporal-value.ts`), so a rule like „weekly at 18:00 in
+Europe/Vienna“ survives DST and a birthday stays a date. Materialized rows additionally carry
+computed `start_utc`/`end_utc` (end exclusive) and device-zone day columns; `date` and `floating`
+rows are computed in the device zone at materialization time, which is legitimate because a zone
+change triggers a rebuild (`CalendarMaintenanceInteractor`).
+
+### Occurrence identity
+
+Identity is always source-scoped: `app:<series>#<originalStart>`,
+`ics:<subscription>:<uid>#<recurrenceId>`, `device:<platform>:<calendarId>:<eventId>#<start>`.
+The original start is the identity of a series occurrence; its effective time can differ when an
+override moved it. Identical UIDs from different sources can never collide.
+
+### Materialization window
+
+Expansion is bounded to a configurable window (defaults −6/+18 months,
+`data/calendar/recurrence/materialization-config.ts`) and extended when a range query approaches a
+coverage edge. Coverage rows are written in the same transaction as the rows they describe and are
+stamped with the recurrence-engine version, so an engine upgrade triggers a cheap full rebuild of
+derived rows without touching canonical data.
+
 ## Native calendar gateway boundary
 
-The device calendar is read through a gateway (e.g. `data/gateways/native-calendar.gateway.ts`)
-wrapping [`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar). The
-gateway **prevents Capacitor plugin types from leaking** into interactors or views. The gateway is
-not implemented yet, and no calendar permissions are requested on startup.
+The device calendar is read through `data/gateways/native-calendar.gateway.ts` wrapping
+[`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) — the only file
+importing it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
+views. Permissions are only ever requested from the explicit „connect device calendars“ action,
+never on startup.
 
 ## What is and is not stored in SQLite
 
 Stored locally:
 
 - The „Nicht vergessen“ list (`reminders`).
-- App-owned events and content.
-- Calendar selections and the minimal mappings needed to relate app data to device calendar entries.
+- App-owned events and content (canonical, editable in the app).
+- Calendar sources, calendars, ICS subscriptions with their normalized items, and the materialized
+  occurrence rows of all three source types.
 
-Not stored:
+About device calendar data specifically:
 
-- Device calendar events are **not** copied into SQLite. They are queried through the native
-  calendar gateway on demand.
+- The OS (EventKit / Calendar Provider) stays **authoritative**; device events are never stored as
+  canonical app records and cached instances are never editable in the app.
+- Concrete instances for the covered range **are cached** in the `occurrences` table as
+  disposable, rebuildable rows for offline display, replaced transactionally per refreshed range.
+  (This deliberately supersedes the earlier „queried on demand, never copied“ rule: offline views
+  need the rows, and their disposability keeps the ownership story intact.)
+- Losing calendar permission or a failing native query keeps the cache and flags the source
+  (`permission-lost` / `error`) instead of emptying the calendar.
+
+ICS subscription URLs may embed access tokens. They live only in `ics_subscriptions`, and every
+log- or UI-facing string uses `redactIcsUrl()` (origin plus path tail). HTTPS is required unless a
+subscription explicitly opts into `http`.
 
 ## Stores
 
