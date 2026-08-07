@@ -65,7 +65,7 @@
     "axe-core": "^4.13.0",
     "eslint": "^10.8.0",
     "jeep-sqlite": "^2.8.0",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.25",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
