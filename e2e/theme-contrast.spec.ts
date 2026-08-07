@@ -23,7 +23,7 @@ async function selectTheme(page: Page, theme: (typeof THEMES)[number]) {
  */
 test.describe('colour contrast per theme', () => {
   for (const theme of THEMES) {
-    for (const path of ['/today', '/settings']) {
+    for (const path of ['/today', '/calendar', '/calendar?view=month', '/settings']) {
       test(`${theme} has sufficient contrast on ${path}`, async ({ page }) => {
         await selectTheme(page, theme);
         await page.goto(path);

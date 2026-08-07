@@ -48,6 +48,16 @@
   }
 
   /*
+   * Headings are focused programmatically after navigation (see PageFocus) so reading starts at
+   * the screen's title, but they are not interactive and are never in the tab order — a visible
+   * ring on them only reads as "this heading is a control". WCAG 2.4.7 covers focusable UI
+   * components; a `tabindex="-1"` reading target is not one.
+   */
+  h1[tabindex='-1']:focus-visible {
+    outline: none;
+  }
+
+  /*
    * Interactive elements. `touch-action: manipulation` drops the WebView's 300ms double-tap-to-zoom
    * wait, which otherwise makes every tap feel late.
    */

@@ -1,0 +1,54 @@
+<!-- Decorative: every cell's sr-only label already spells out its full weekday. -->
+<div aria-hidden="true" class="grid grid-cols-7">
+  @for (header of weekdayHeaders; track header.short) {
+    <span class="text-muted-foreground py-1 text-center text-sm font-semibold">
+      {{ header.short }}
+    </span>
+  }
+</div>
+
+<!-- One tab stop for the whole grid; the arrow keys rove between the day buttons. -->
+<div class="grid grid-cols-7">
+  @for (cell of cells(); track cell.day) {
+    <button
+      type="button"
+      class="min-h-touch hoverable:bg-accent/10 active:bg-accent/20 relative flex items-center justify-center rounded-lg px-0.5 py-1"
+      [attr.data-day]="cell.day"
+      [tabindex]="cell.day === tabStopDay() ? 0 : -1"
+      (keydown)="onKeydown($event)"
+      [attr.aria-pressed]="cell.day === selectedDay()"
+      [attr.aria-current]="cell.day === today() ? 'date' : null"
+      (click)="daySelected.emit(cell.day)"
+    >
+      <!-- Part of the accessible name: the visible day number comes first, the sr-only rest follows. -->
+      <span
+        class="flex min-h-[2em] min-w-[2em] items-center justify-center rounded-full px-1"
+        [class.bg-primary]="cell.day === selectedDay()"
+        [class.text-primary-foreground]="cell.day === selectedDay()"
+        [class.font-bold]="cell.day === selectedDay() || cell.day === today()"
+        [class.ring-2]="cell.day === today()"
+        [class.ring-primary]="cell.day === today()"
+        [class.underline]="cell.day === today() && cell.day !== selectedDay()"
+        [class.text-muted-foreground]="!cell.inShownMonth && cell.day !== selectedDay()"
+        [class.font-light]="
+          !cell.inShownMonth && cell.day !== selectedDay() && cell.day !== today()
+        "
+      >
+        {{ cell.dayNumber }}
+      </span>
+      <span class="sr-only">{{ cell.srLabel }}</span>
+      <!-- Out of flow so the day number sits dead centre regardless of whether dots exist. -->
+      <span
+        aria-hidden="true"
+        class="absolute bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-0.5"
+      >
+        @for (color of cell.colors; track $index) {
+          <span
+            class="inline-block size-[0.375em] rounded-full"
+            [style.background-color]="color"
+          ></span>
+        }
+      </span>
+    </button>
+  }
+</div>

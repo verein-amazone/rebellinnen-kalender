@@ -405,7 +405,8 @@ test.describe('the „Nicht vergessen“ list', () => {
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeVisible();
 
     // The only dismissal a finger has: there is no pointer to move away, and no Escape key.
-    await page.getByRole('heading', { name: 'Heute', level: 1 }).click();
+    // The reminder list's own heading — the page `<h1>` is visually hidden and cannot take a tap.
+    await page.getByRole('heading', { name: 'Nicht vergessen' }).click();
 
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toHaveCount(0);
   });
