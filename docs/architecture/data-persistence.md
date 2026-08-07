@@ -55,11 +55,17 @@ migrations that run on a phone are the same ones a developer clicks through.
 
 Two things to keep in mind:
 
-- `sql.js` is pinned to an **exact** version in `package.json`. `jeep-sqlite` bundles the Emscripten
-  glue of the release it was built against, and a newer `sql-wasm.wasm` next to that older glue fails
-  to instantiate with a `LinkError`. Upgrade both together and check the Today page in a browser.
-- `sql-wasm.wasm` is copied by the **development** build only (see `angular.json`). A production web
-  build therefore cannot open a database — intentionally, because there is no web product.
+- `sql.js` is **not a direct dependency**. `jeep-sqlite` bundles the Emscripten glue of the release
+  it was built against, and a newer `sql-wasm.wasm` next to that older glue fails to instantiate
+  with a `LinkError`. pnpm hoists jeep-sqlite's own `sql.js` (`publicHoistPattern`) for the
+  `angular.json` asset copy, and an override in `pnpm-workspace.yaml` keeps it on the newest
+  version that actually links — currently 1.12.0, because jeep-sqlite's declared `^1.11.0` range
+  wrongly admits 1.13+. Re-test on every jeep-sqlite upgrade (the reminders e2e specs catch a
+  mismatch) and drop the override once upstream rebuilds its glue.
+- `sql-wasm.wasm` is copied by **every** build (see `angular.json`). CI runs the e2e suite against
+  the production bundle served statically, so the production web build must be able to open a
+  database too. There is still no web product; the asset also ships in the native bundles, which is
+  accepted for now.
 
 ### No ORM
 

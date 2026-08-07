@@ -136,6 +136,9 @@ test.describe('large text', () => {
 
     await page.reload();
 
+    // The attribute is restored asynchronously from the database after the reload; wait for it
+    // before reading the computed style, which does not retry.
+    await expect(page.locator('html')).toHaveAttribute('data-text-size', 'xxlarge');
     expect(await rootFontSize()).toBe('32px');
   });
 });
