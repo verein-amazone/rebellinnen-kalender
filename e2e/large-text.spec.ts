@@ -25,6 +25,7 @@ test.describe('large text', () => {
       for (const path of [
         '/today',
         '/calendar',
+        '/calendar?view=month',
         '/settings',
         '/settings/theme',
         '/settings/text-size',

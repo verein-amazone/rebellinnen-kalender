@@ -19,3 +19,14 @@ for (const [name, storage] of [
     Object.defineProperty(globalThis, name, { value: storage, configurable: true });
   }
 }
+
+/**
+ * The app formats dates through Angular's `DatePipe`/`formatDate` with the pinned German locale
+ * (see `app.config.ts`). The locale data has to be registered here too, because specs build
+ * components without the application config. Specs rendering a `DatePipe` also provide
+ * `{ provide: LOCALE_ID, useValue: 'de' }`.
+ */
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+registerLocaleData(localeDe);

@@ -125,6 +125,12 @@ keyboard contract with it.
 
 `PageFocus` owns navigation focus and navigation announcements. Pages do not manage either.
 
+Every page still renders exactly one `<h1>` — it is the screen's accessible name and the focus
+target after navigation. On the primary tab screens it is `sr-only`, because the bottom navigation
+already shows the same word visibly; focused screens keep theirs visible in the header bar. The
+programmatic focus draws no ring (`h1[tabindex='-1']` in `base.css`) — the heading is a reading
+target, not a control.
+
 For everything else:
 
 - A change the user can see, inside the component that changed, goes in a template live region:

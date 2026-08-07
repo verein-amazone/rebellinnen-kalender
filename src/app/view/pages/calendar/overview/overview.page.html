@@ -1,8 +1,78 @@
 <div class="space-y-4 px-4 py-6">
-  <h1>Kalender</h1>
-  <p class="text-muted-foreground">
-    Wochen- und Monatsansicht (#17) sowie die Filter nach Kalenderquelle (#18) folgen hier.
-  </p>
+  <!-- Visually hidden: the bottom navigation already shows where the user is. Still the screen's
+       accessible name and the navigation focus target (see PageFocus). -->
+  <h1 class="sr-only">Kalender</h1>
 
-  <a routerLink="/calendar/event/new" class="rk-button rk-button-primary flex">Neuer Termin</a>
+  <div class="flex items-center gap-1">
+    <button
+      type="button"
+      class="rk-icon-button"
+      [attr.aria-label]="previousLabel()"
+      (click)="goToPrevious()"
+    >
+      <svg lucideChevronLeft class="rk-icon" aria-hidden="true"></svg>
+    </button>
+    <p class="min-w-0 flex-1 text-center font-semibold">{{ periodLabel() }}</p>
+    <button
+      type="button"
+      class="rk-icon-button"
+      [attr.aria-label]="nextLabel()"
+      (click)="goToNext()"
+    >
+      <svg lucideChevronRight class="rk-icon" aria-hidden="true"></svg>
+    </button>
+    <button type="button" class="rk-button rk-button-ghost" (click)="goToToday()">Heute</button>
+  </div>
+
+  <fieldset>
+    <legend class="sr-only">Ansicht</legend>
+    <div class="bg-muted flex rounded-lg p-0.5">
+      <label
+        class="min-h-touch has-checked:bg-card has-focus-visible:ring-ring flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold has-checked:font-bold has-checked:shadow-sm has-focus-visible:ring-2"
+      >
+        <input
+          type="radio"
+          name="calendar-view"
+          value="week"
+          class="sr-only"
+          [checked]="viewMode() === 'week'"
+          (change)="setView('week')"
+        />
+        Woche
+      </label>
+      <label
+        class="min-h-touch has-checked:bg-card has-focus-visible:ring-ring flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold has-checked:font-bold has-checked:shadow-sm has-focus-visible:ring-2"
+      >
+        <input
+          type="radio"
+          name="calendar-view"
+          value="month"
+          class="sr-only"
+          [checked]="viewMode() === 'month'"
+          (change)="setView('month')"
+        />
+        Monat
+      </label>
+    </div>
+  </fieldset>
+
+  <!-- On a card surface: the muted weekday and out-of-month text meets contrast on `card`, not on
+       every theme's page background. -->
+  <div class="rk-card p-2">
+    <app-calendar-grid
+      [view]="viewMode()"
+      [selectedDay]="selectedDay()"
+      [today]="today()"
+      [markersByDay]="markersByDay()"
+      (daySelected)="selectDay($event)"
+    />
+  </div>
+
+  @if (occurrences.error()) {
+    <div class="rk-card px-4 py-6">
+      <p class="text-muted-foreground text-center">Die Termine konnten nicht geladen werden.</p>
+    </div>
+  } @else {
+    <app-calendar-agenda [day]="selectedDay()" [occurrences]="loadedOccurrences()" />
+  }
 </div>

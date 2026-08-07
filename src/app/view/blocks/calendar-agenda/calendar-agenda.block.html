@@ -1,0 +1,20 @@
+<h2 class="mb-3 text-base font-semibold">{{ dayLabel() }}</h2>
+
+<!-- Announces a selection change once; nothing else announces it. Present from the first render. -->
+<p role="status" aria-atomic="true" class="sr-only">{{ announcement() }}</p>
+
+@if (entries().length === 0) {
+  <div class="rk-card mb-3 px-4 py-6">
+    <p class="text-muted-foreground text-center">Keine Termine an diesem Tag.</p>
+  </div>
+} @else {
+  <ul class="mb-3 space-y-2">
+    @for (entry of entries(); track entry.id) {
+      <li>
+        <app-occurrence-card [occurrence]="entry" [day]="day()" [timeZone]="timeZone()" />
+      </li>
+    }
+  </ul>
+}
+
+<a routerLink="/calendar/event/new" class="rk-button rk-button-primary flex">Neuer Termin</a>
