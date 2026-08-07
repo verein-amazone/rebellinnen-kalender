@@ -61,7 +61,17 @@ Two things to keep in mind:
   `angular.json` asset copy, and an override in `pnpm-workspace.yaml` keeps it on the newest
   version that actually links — currently 1.12.0, because jeep-sqlite's declared `^1.11.0` range
   wrongly admits 1.13+. Re-test on every jeep-sqlite upgrade (the reminders e2e specs catch a
-  mismatch) and drop the override once upstream rebuilds its glue.
+  mismatch) and drop the override once upstream rebuilds its glue — tracked upstream in
+  [jeep-sqlite#50](https://github.com/jepiqueau/jeep-sqlite/issues/50) (same `LinkError`, same
+  override as the community fix) and
+  [jeep-sqlite#52](https://github.com/jepiqueau/jeep-sqlite/issues/52) (sql.js 1.14 support).
+  The actual exit path is
+  [capacitor-community/sqlite#694](https://github.com/capacitor-community/sqlite/pull/694), which
+  replaces the plugin's jeep-sqlite web implementation with `@sqlite.org/sqlite-wasm` + OPFS.
+  When that ships: bump the plugin, remove the jeep-sqlite wiring in `web-sqlite-store.ts`, and
+  delete the `publicHoistPattern`/`overrides` block plus the `sql-wasm.wasm` asset entry. (A
+  repo-local fallback design for the same replacement — main-thread `kvvfs` behind the
+  `SQLITE_DATABASE` token — was sketched on 2026-08-07 and can be built if #694 stalls for good.)
 - `sql-wasm.wasm` is copied by **every** build (see `angular.json`). CI runs the e2e suite against
   the production bundle served statically, so the production web build must be able to open a
   database too. There is still no web product; the asset also ships in the native bundles, which is

@@ -3,6 +3,10 @@
 # opens or refreshes a single PR against dev. Range-crossing majors and security advisories are
 # Dependabot's job (see .github/dependabot.yml).
 #
+# Requires the repository setting "Allow GitHub Actions to create and approve pull requests"
+# (Settings → Actions → General → Workflow permissions) — without it the final step fails with
+# "GitHub Actions is not permitted to create or approve pull requests".
+#
 # Known limitation: PRs created with the default GITHUB_TOKEN do not trigger the CI workflow.
 # Close and reopen the PR (or push to its branch) to get a CI run before merging.
 name: Weekly app dependency update
