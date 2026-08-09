@@ -1,0 +1,44 @@
+<p class="pt-1 pb-2">{{ data.message }}</p>
+
+<fieldset class="border-0 p-0 pb-4">
+  <legend class="sr-only">Gültigkeitsbereich</legend>
+
+  <app-choice-row
+    name="recurrenceScope"
+    value="occurrence"
+    label="Nur dieser Termin"
+    [checked]="selectedScope() === 'occurrence'"
+    (selected)="selectedScope.set($event)"
+  />
+
+  <app-choice-row
+    name="recurrenceScope"
+    value="following"
+    label="Dieser und folgende Termine"
+    [checked]="selectedScope() === 'following'"
+    (selected)="selectedScope.set($event)"
+  />
+
+  <app-choice-row
+    name="recurrenceScope"
+    value="all"
+    label="Alle Termine"
+    [checked]="selectedScope() === 'all'"
+    (selected)="selectedScope.set($event)"
+  />
+</fieldset>
+
+<!--
+  Stacked and full width: the confirming and the declining action are not a pair of equal buttons
+  side by side — full-width targets are easier to hit, and stacking keeps the verb readable at any
+  text size.
+-->
+<div class="rk-sheet-footer flex-col">
+  <button type="button" class="rk-button rk-button-primary w-full" (click)="confirm()">
+    Bestätigen
+  </button>
+
+  <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
+    Abbrechen
+  </button>
+</div>

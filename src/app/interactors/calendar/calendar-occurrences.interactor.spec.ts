@@ -79,6 +79,7 @@ describe('CalendarOccurrencesInteractor', () => {
     expect(occurrences).toHaveLength(1);
     expect(occurrences[0]).toMatchObject({
       id: 'app:item-1',
+      itemId: 'item-1',
       kind: 'event',
       title: 'Plenum',
       allDay: false,
@@ -89,5 +90,34 @@ describe('CalendarOccurrencesInteractor', () => {
     });
 
     await expect(interactor.listForDays('2026-09-08', '2026-09-08')).resolves.toEqual([]);
+  });
+
+  it('finds one occurrence by id, or null when it does not exist', async () => {
+    const repository = TestBed.inject(CalendarRepository);
+    await repository.createItem(
+      {
+        id: 'item-1',
+        calendarId: 'calendar-1',
+        kind: 'event',
+        title: 'Plenum',
+        location: 'Vereinslokal',
+        note: null,
+        start: { kind: 'utc', value: '2026-09-07T12:00:00Z', timeZone: null },
+        end: { kind: 'utc', value: '2026-09-07T13:00:00Z', timeZone: null },
+        rrule: null,
+        predecessorSeriesId: null,
+        ruleRevision: 0,
+        createdAt: '2026-08-01T10:00:00.000Z',
+        updatedAt: '2026-08-01T10:00:00.000Z',
+      },
+      CONTEXT,
+    );
+
+    await expect(interactor.findById('app:item-1')).resolves.toMatchObject({
+      id: 'app:item-1',
+      itemId: 'item-1',
+      title: 'Plenum',
+    });
+    await expect(interactor.findById('does-not-exist')).resolves.toBeNull();
   });
 });

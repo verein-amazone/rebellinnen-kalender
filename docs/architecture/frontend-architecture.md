@@ -241,6 +241,13 @@ here. The `rk-` / `app-` prefixes are the visible marker of which is which.
 [Design system](./design-system.md) has the decision rule, the token layers and the rules every
 primitive is built to.
 
+One documented exception to "no interactor injection": `EventForm`'s calendar picker (#19) injects
+`AppCalendarsInteractor`. It is a dedicated read-model built specifically for that picker — not a
+general-purpose DAO — so every create/edit form gets one shared load of the writable calendars
+instead of each caller re-fetching and re-shaping the same list itself. See
+[Design system § Field components](./design-system.md#field-components--viewcomponentsfield) for the
+components this backs.
+
 ## Interactors (`interactors/`)
 
 Stateless Angular services representing application use cases. Group them by domain, not by page —

@@ -54,6 +54,16 @@ export interface AppEventChanges {
 export class AppEventEditingInteractor {
   private readonly repository = inject(CalendarRepository);
 
+  /**
+   * The full canonical record behind an item, for a consumer that needs a field the read-model
+   * (`CalendarOccurrence`) does not carry — currently the note, for the detail page's read view and
+   * its edit-mode prefill. Kept here rather than exposing `CalendarRepository` to views, per the
+   * architecture's DAO/repository-injection boundary.
+   */
+  findRecord(itemId: string): Promise<AppItemRecord | null> {
+    return this.repository.findItem(itemId);
+  }
+
   /** Creates a standalone item or a new series and returns its id. */
   async create(draft: AppEventDraft): Promise<string> {
     const context = this.context();

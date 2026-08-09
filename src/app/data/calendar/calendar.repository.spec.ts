@@ -407,6 +407,25 @@ describe('CalendarRepository', () => {
     expect(rows[0].calendarName).toBe('Termine');
   });
 
+  it('finds one occurrence by id with the same joined shape as the range query', async () => {
+    await repository.createItem(item({ rrule: null }), CONTEXT);
+
+    const found = await repository.occurrenceById('app:item-1');
+
+    expect(found).not.toBeNull();
+    expect(found!.itemId).toBe('item-1');
+    expect(found!.capabilities).toEqual({
+      editableInApp: true,
+      deletableInApp: true,
+      editViaNativeCalendar: false,
+    });
+    expect(found!.calendarName).toBe('Termine');
+  });
+
+  it('returns null for an occurrence id that does not exist', async () => {
+    await expect(repository.occurrenceById('does-not-exist')).resolves.toBeNull();
+  });
+
   it('hides occurrences of disabled sources and calendars', async () => {
     await repository.createItem(item({ rrule: null }), CONTEXT);
 

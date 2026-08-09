@@ -31,7 +31,8 @@ test.describe('application shell', () => {
     await page.goto('/calendar');
     await page.getByRole('link', { name: 'Neuer Termin' }).click();
 
-    await expect(page).toHaveURL(/\/calendar\/event\/new$/);
+    // Carries the day the agenda was showing as `?day=`, so no `$` anchor here.
+    await expect(page).toHaveURL(/\/calendar\/event\/new\?day=/);
     await expect(page.getByRole('navigation', { name: 'Hauptbereiche' })).toBeHidden();
     // Creation screens dismiss with "Schließen", not "Zurück".
     await expect(page.getByRole('heading', { name: 'Neuer Termin', level: 1 })).toBeFocused();

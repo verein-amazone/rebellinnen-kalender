@@ -50,6 +50,12 @@ export class CalendarOccurrencesInteractor {
     const rows = await this.repository.occurrencesInRange(rangeStartUtc, rangeEndUtc, filter);
     return rows.map(toOccurrence);
   }
+
+  /** One occurrence by its id, for a detail view opened from a range list or a deep link. */
+  async findById(id: string): Promise<CalendarOccurrence | null> {
+    const row = await this.repository.occurrenceById(id);
+    return row === null ? null : toOccurrence(row);
+  }
 }
 
 function toOccurrence(row: RangeOccurrence): CalendarOccurrence {
@@ -59,6 +65,8 @@ function toOccurrence(row: RangeOccurrence): CalendarOccurrence {
     calendarId: row.calendarId,
     seriesId: row.seriesId,
     originalStart: row.originalStart,
+    itemId: row.itemId,
+    externalId: row.externalId,
     kind: row.itemKind,
     title: row.title,
     location: row.location,

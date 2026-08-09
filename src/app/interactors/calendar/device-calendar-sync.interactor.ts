@@ -91,6 +91,18 @@ export class DeviceCalendarSyncInteractor {
     }
   }
 
+  /**
+   * Hands a writable device event to the OS calendar's own edit prompt, then refreshes the cache so
+   * whatever the user changed there shows up without waiting for the next automatic refresh.
+   *
+   * The gateway stays behind this interactor rather than being injected into the detail page
+   * directly, per the architecture's boundary that keeps plugin access out of views.
+   */
+  async openForEditing(eventId: string): Promise<void> {
+    await this.gateway.openEventForEditing(eventId);
+    await this.refresh({ force: true });
+  }
+
   /** Creates the device source on first connect; safe to call again. */
   async ensureSource(): Promise<void> {
     const existing = await this.repository.findSource(DEVICE_SOURCE_ID);

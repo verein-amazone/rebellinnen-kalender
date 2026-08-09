@@ -29,6 +29,10 @@
     @apply flex items-center gap-2 px-2 py-2;
   }
 
+  .rk-screen-footer-bar {
+    @apply px-4 py-2;
+  }
+
   /*
    * The compact form. The 13rem literal mirrors `--container-compact` in ../theme.css.
    *

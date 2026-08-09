@@ -18,6 +18,10 @@ export interface CalendarOccurrence {
   /** Set for occurrences of a recurring series, together with the occurrence's original start. */
   readonly seriesId: string | null;
   readonly originalStart: string | null;
+  /** The owning `AppItemRecord.id` for app-owned occurrences; `null` for device/ICS ones. */
+  readonly itemId: string | null;
+  /** The platform's own event id for device occurrences; `null` for app/ICS ones. */
+  readonly externalId: string | null;
   readonly kind: 'event' | 'todo';
   readonly title: string;
   readonly location: string | null;

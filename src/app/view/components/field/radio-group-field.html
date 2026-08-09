@@ -1,0 +1,32 @@
+<fieldset class="space-y-2">
+  <legend [class.sr-only]="legendHidden()">{{ legend() }}</legend>
+
+  @for (option of options(); track option.value) {
+    <label class="rk-choice">
+      <input
+        type="radio"
+        class="rk-choice-control"
+        [value]="option.value"
+        [formField]="field()"
+        [attr.aria-invalid]="showError() ? 'true' : null"
+        [attr.aria-describedby]="showError() ? errorId() : null"
+      />
+      <span class="rk-choice-text">
+        {{ option.label }}
+        @if (option.description; as text) {
+          <span class="rk-choice-description">{{ text }}</span>
+        }
+      </span>
+    </label>
+  }
+</fieldset>
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (showError()) {
+    <p [id]="errorId()" class="rk-error">{{ errorMessage() }}</p>
+  }
+</div>

@@ -133,18 +133,50 @@ export class CalendarRepository {
         continue;
       }
 
-      result.push({
-        ...row,
-        capabilities: capabilitiesFor(source.type, calendar.writable),
-        sourceState: source.state,
-        sourceName: source.name,
-        calendarName: calendar.name,
-        calendarColor: calendar.color,
-        calendarEmoji: calendar.emoji,
-      });
+      result.push(this.toRangeOccurrence(row, source, calendar));
     }
 
     return result;
+  }
+
+  /**
+   * One occurrence by id, joined the same way as `occurrencesInRange` — for a detail view opened
+   * from a range list or a deep link. `null` when the row is gone or orphaned (its source or
+   * calendar no longer exists); disabled sources/calendars are not filtered out here, unlike the
+   * range query, since a detail view opened directly is not browsing a list of visible rows.
+   */
+  async occurrenceById(id: string): Promise<RangeOccurrence | null> {
+    const row = await this.occurrences.findOne(id);
+    if (row === null) {
+      return null;
+    }
+
+    const [source, calendar] = await Promise.all([
+      this.sources.findSource(row.sourceId),
+      this.sources.findCalendar(row.calendarId),
+    ]);
+    if (source === null || calendar === null) {
+      return null;
+    }
+
+    return this.toRangeOccurrence(row, source, calendar);
+  }
+
+  /** Joins a derived row with its source and calendar — the shape every calendar view consumes. */
+  private toRangeOccurrence(
+    row: OccurrenceRecord,
+    source: CalendarSourceRecord,
+    calendar: CalendarRecord,
+  ): RangeOccurrence {
+    return {
+      ...row,
+      capabilities: capabilitiesFor(source.type, calendar.writable),
+      sourceState: source.state,
+      sourceName: source.name,
+      calendarName: calendar.name,
+      calendarColor: calendar.color,
+      calendarEmoji: calendar.emoji,
+    };
   }
 
   /** Creates a standalone item or a new series and materializes it in one unit of work. */

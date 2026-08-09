@@ -1,9 +1,12 @@
 /*
  * Form fields.
  *
- * Classes only, deliberately: the first users are the „Nicht vergessen“ add row and its edit sheet,
- * and the `touched`/`invalid` API of a field component should be designed against a screen with a real
- * multi-field form (#14, #19) rather than around one trimmed line of text.
+ * First used, classes only, by the „Nicht vergessen“ add row and its edit sheet (#14). #19 then
+ * built the first real multi-field form (the create/edit appointment form) against these classes and
+ * added the `touched`/`invalid` field _components_ that wrap them: `app-text-field`,
+ * `app-textarea-field`, `app-radio-group-field` and `app-toggle-field`, all under
+ * `src/app/view/components/field/`. See design-system.md's "Field, input and error" section for the
+ * component-level contract; this file still only owns the markup/CSS contract below.
  *
  * The accessibility contract every form honours:
  *   - every `.rk-input` has its own `<label for>`; a placeholder is not a label

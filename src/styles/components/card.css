@@ -27,6 +27,9 @@
 
   .rk-row {
     @apply min-h-row flex items-center gap-3 px-4 py-3;
+    /* A disabled row (e.g. the calendar picker while editing) otherwise looks identical to an
+       active one — nothing tells a tap it did nothing on purpose. */
+    @apply disabled:pointer-events-none disabled:opacity-60;
   }
 
   /*

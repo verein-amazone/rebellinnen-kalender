@@ -14,6 +14,8 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     calendarId: 'calendar-1',
     seriesId: null,
     originalStart: null,
+    itemId: null,
+    externalId: null,
     kind: 'event',
     title: 'Workshop',
     location: null,
@@ -125,6 +127,6 @@ describe('CalendarAgendaBlock', () => {
     const links = Array.from(element.querySelectorAll('a'));
     const last = links[links.length - 1];
     expect(last.textContent).toContain('Neuer Termin');
-    expect(last.getAttribute('href')).toBe('/calendar/event/new');
+    expect(last.getAttribute('href')).toBe('/calendar/event/new?day=2026-08-05');
   });
 });

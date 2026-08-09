@@ -77,6 +77,7 @@ function toRow(
     originalStart: null,
     provenance: 'device-cached',
     itemKind: 'event',
+    itemId: null,
     title: instance.title,
     location: instance.location,
     isAllDay: instance.isAllDay,

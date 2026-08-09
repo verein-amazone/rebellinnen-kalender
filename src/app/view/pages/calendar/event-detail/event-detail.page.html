@@ -1,3 +1,130 @@
-<app-focused-screen heading="Termin" fallbackLink="/calendar">
-  <p class="text-muted-foreground">Die Termindetails werden in Issue #19 umgesetzt.</p>
+<app-focused-screen heading="Termin" fallbackLink="/calendar" [beforeDismiss]="handleBeforeDismiss">
+  <!--
+    Each slot-projected element (`header-actions`, `footer`) is its own top-level `@if`, a direct
+    child of `app-focused-screen` — not nested inside the big loading/found/editing `@if` below.
+    Angular only projects into a named `ng-content select` when EVERY `@if` between the element and
+    the component boundary has exactly one node at its root (NG8011); nesting it inside the shared
+    branch (which has several sibling nodes) silently drops it into the default slot instead.
+  -->
+  @if (!editing() && (occurrence()?.actions?.editableInApp ?? false)) {
+    <button
+      header-actions
+      #editButton
+      type="button"
+      class="rk-icon-button rk-icon-button-outline-primary"
+      (click)="startEditing()"
+    >
+      <svg lucidePencil class="rk-icon" aria-hidden="true"></svg>
+      <span class="sr-only">Bearbeiten</span>
+    </button>
+  }
+
+  @if (editing()) {
+    <button
+      header-actions
+      type="submit"
+      form="event-form"
+      class="rk-icon-button rk-icon-button-primary"
+      [disabled]="!canSubmitEdit()"
+    >
+      <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+      <span class="sr-only">Speichern</span>
+    </button>
+  }
+
+  @if (!editing() && (occurrence()?.actions?.deletableInApp ?? false)) {
+    <button
+      footer
+      #focusedScreenFooter
+      type="button"
+      class="rk-button rk-button-danger-secondary w-full"
+      (click)="confirmDelete()"
+    >
+      <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+      <span>Löschen</span>
+    </button>
+  }
+
+  @if (occurrenceResource.isLoading()) {
+    <div class="rk-card p-4">
+      <p class="text-muted-foreground">Termin wird geladen …</p>
+    </div>
+  } @else if (occurrence(); as currentOccurrence) {
+    @if (!editing()) {
+      <section class="rk-card space-y-3 p-4">
+        <p class="text-muted-foreground flex items-center gap-1 text-sm">
+          @if (currentOccurrence.calendarEmoji; as emoji) {
+            <span aria-hidden="true">{{ emoji }}</span>
+          }
+          <span>{{ currentOccurrence.calendarName }}</span>
+        </p>
+
+        <h2 class="text-lg font-semibold">{{ currentOccurrence.title }}</h2>
+
+        <p>{{ dateLabel() }}</p>
+
+        @if (currentOccurrence.allDay) {
+          <p class="text-muted-foreground">Ganztägig</p>
+        } @else {
+          <p class="text-muted-foreground tabular-nums">
+            {{ currentOccurrence.startUtc | date: 'shortTime' }}–{{
+              currentOccurrence.endUtc | date: 'shortTime'
+            }}
+          </p>
+        }
+
+        @if (currentOccurrence.location; as location) {
+          <p class="text-muted-foreground">{{ location }}</p>
+        }
+
+        @if (note(); as currentNote) {
+          <p class="text-muted-foreground whitespace-pre-line">{{ currentNote }}</p>
+        }
+
+        @if (currentOccurrence.stale) {
+          <p class="text-muted-foreground text-sm">
+            Diese Kalenderquelle konnte zuletzt nicht aktualisiert werden. Angezeigte Daten können
+            veraltet sein.
+          </p>
+        }
+      </section>
+
+      @if (currentOccurrence.actions.editViaNativeCalendar) {
+        <div class="pt-4">
+          <button
+            type="button"
+            class="rk-button rk-button-ghost w-full"
+            (click)="openInNativeCalendar()"
+          >
+            <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
+            <span>In Kalender-App bearbeiten</span>
+          </button>
+        </div>
+      }
+
+      @if (
+        !currentOccurrence.actions.editableInApp &&
+        !currentOccurrence.actions.deletableInApp &&
+        !currentOccurrence.actions.editViaNativeCalendar
+      ) {
+        <p class="rk-card text-muted-foreground mt-4 p-4 text-sm">
+          Dieser Termin ist schreibgeschützt und kann in dieser App nicht bearbeitet oder gelöscht
+          werden.
+        </p>
+      }
+    } @else {
+      <h2 #editHeading tabindex="-1" class="mb-3 text-lg font-semibold">Termin bearbeiten</h2>
+
+      <app-event-form
+        mode="edit"
+        [initialOccurrence]="currentOccurrence"
+        [initialNote]="note()"
+        (save)="handleSave($event)"
+      />
+    }
+  } @else {
+    <div class="rk-card p-4">
+      <p class="text-muted-foreground">Dieser Termin konnte nicht gefunden werden.</p>
+    </div>
+  }
 </app-focused-screen>

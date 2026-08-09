@@ -1,3 +1,13 @@
 <app-focused-screen heading="Neuer Termin" fallbackLink="/calendar" dismissal="close">
-  <p class="text-muted-foreground">Das Anlegen von Terminen wird in Issue #19 umgesetzt.</p>
+  <button
+    header-actions
+    type="submit"
+    form="event-form"
+    class="rk-icon-button rk-icon-button-primary"
+  >
+    <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+    <span class="sr-only">Speichern</span>
+  </button>
+
+  <app-event-form mode="create" [initialDate]="day() ?? null" (save)="handleSave($event)" />
 </app-focused-screen>

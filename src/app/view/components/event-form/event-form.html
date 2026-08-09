@@ -1,0 +1,35 @@
+<form id="event-form" [formRoot]="form" class="space-y-4">
+  <app-text-field id="event-form-title" label="Titel" [field]="form.title" />
+
+  <app-date-time-field
+    id="event-form-date-time"
+    [dateField]="form.date"
+    [startTimeField]="form.startTime"
+    [endDateField]="form.endDate"
+    [endTimeField]="form.endTime"
+    [allDayField]="form.allDay"
+  />
+
+  <app-text-field id="event-form-location" label="Ort" [field]="form.location" />
+
+  @if (hasNoWritableCalendars()) {
+    <div class="rk-card p-4">
+      <p class="text-muted-foreground">
+        Es ist noch kein Kalender vorhanden. Lege zuerst einen Kalender an.
+      </p>
+    </div>
+  } @else {
+    <app-calendar-picker-field
+      id="event-form-calendar"
+      [field]="form.calendarId"
+      [calendars]="calendars()"
+    />
+  }
+
+  <app-textarea-field
+    id="event-form-note"
+    label="Notiz"
+    placeholder="Weitere Details"
+    [field]="form.note"
+  />
+</form>
