@@ -234,6 +234,9 @@ function buildRow(input: RowInput): OccurrenceRecord {
     originalStart: input.originalStart,
     provenance: input.provenance,
     itemKind: item.kind,
+    // The ICS pipeline reuses this materializer with a fabricated `AppItemRecord` shape (see
+    // `icsItemAsSeries`) whose `id` is not a real app item — only genuine `app` rows carry identity.
+    itemId: input.branding.sourceType === 'app' ? item.id : null,
     title: input.overrides?.title ?? item.title,
     location: input.overrides ? (input.overrides.location ?? item.location) : item.location,
     isAllDay,

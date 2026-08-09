@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  computed,
+  contentChild,
+  inject,
+  input,
+} from '@angular/core';
 import { Location } from '@angular/common';
 import { LucideArrowLeft, LucideX } from '@lucide/angular';
 import { Router } from '@angular/router';
@@ -41,15 +49,31 @@ export class FocusedScreenScaffold {
   readonly dismissal = input<FocusedScreenDismissal>('back');
   /** Accessible name of the dismiss action. Override where the default is not specific enough. */
   readonly dismissLabel = input<string | null>(null);
+  /**
+   * Lets a screen that edits in place (e.g. a detail page toggling into an edit view without
+   * navigating) intercept the dismiss action. Called before the default back/close navigation; a
+   * `true` return means the caller already handled it (e.g. stepped out of edit mode) and the
+   * scaffold does nothing further. A `false` return, or omitting this input entirely, runs the
+   * default navigation exactly as before.
+   */
+  readonly beforeDismiss = input<(() => boolean) | undefined>();
 
   private readonly location = inject(Location);
   private readonly router = inject(Router);
+
+  /** Set via a template reference variable (`#focusedScreenFooter`) on the projected footer content. */
+  protected readonly footerContent = contentChild<ElementRef>('focusedScreenFooter');
+  protected readonly hasFooter = computed(() => this.footerContent() != null);
 
   protected readonly resolvedDismissLabel = computed(
     () => this.dismissLabel() ?? (this.dismissal() === 'close' ? 'Schließen' : 'Zurück'),
   );
 
   protected dismiss(): void {
+    if (this.beforeDismiss()?.() === true) {
+      return;
+    }
+
     if (this.router.lastSuccessfulNavigation()?.previousNavigation != null) {
       this.location.back();
       return;

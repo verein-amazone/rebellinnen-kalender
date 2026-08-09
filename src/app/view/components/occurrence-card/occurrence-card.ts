@@ -26,11 +26,27 @@ export class OccurrenceCard {
    */
   readonly timeZone = input<string>();
 
+  private readonly isStartDay = computed(() => this.occurrence().startDay === this.day());
+  private readonly isEndDay = computed(() => this.occurrence().endDay === this.day());
+
   /**
-   * An occurrence covers the shown day entirely when it is all-day, or when it started on an
-   * earlier day — mid-span there is no meaningful time to show, so it reads as „Ganztägig".
+   * A day the occurrence covers but neither starts nor ends on has no meaningful time to show —
+   * this is true both for a genuinely all-day occurrence and for a day a multi-day timed one
+   * merely passes through.
    */
   protected readonly coversWholeDay = computed(
-    () => this.occurrence().allDay || this.occurrence().startDay < this.day(),
+    () => this.occurrence().allDay || (!this.isStartDay() && !this.isEndDay()),
+  );
+
+  /** A timed occurrence that started on an earlier day has a real end time worth showing on the
+   * day it ends — just not a start time, since it did not start today. */
+  protected readonly endsToday = computed(
+    () => !this.occurrence().allDay && this.isEndDay() && !this.isStartDay(),
+  );
+
+  /** The mirror of `endsToday`: a timed occurrence that will not end today still has a real start
+   * time worth showing, with nothing to pair it with since the end falls on a later day. */
+  protected readonly startsToday = computed(
+    () => !this.occurrence().allDay && this.isStartDay() && !this.isEndDay(),
   );
 }

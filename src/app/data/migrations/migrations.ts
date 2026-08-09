@@ -4,6 +4,7 @@ import { CREATE_CALENDAR_SOURCES } from './003-create-calendar-sources';
 import { CREATE_APP_ITEMS } from './004-create-app-items';
 import { CREATE_OCCURRENCES } from './005-create-occurrences';
 import { CREATE_ICS_SUBSCRIPTIONS } from './006-create-ics-subscriptions';
+import { ADD_OCCURRENCE_ITEM_ID } from './007-add-occurrence-item-id';
 import type { Migration } from './migration';
 
 /**
@@ -20,6 +21,7 @@ export const MIGRATIONS: readonly Migration[] = [
   CREATE_APP_ITEMS,
   CREATE_OCCURRENCES,
   CREATE_ICS_SUBSCRIPTIONS,
+  ADD_OCCURRENCE_ITEM_ID,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

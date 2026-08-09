@@ -1,0 +1,46 @@
+/*
+ * A slide toggle for a single on/off setting: `<input type="checkbox" role="switch">`.
+ *
+ * `role="switch"` only changes the accessible role/state; the control is still a native checkbox,
+ * so `checked`, Space/Enter and label association stay the browser's. `forced-colors` hands the
+ * rendering back to the platform, same reasoning as ./check.css.
+ */
+
+@layer components {
+  .rk-toggle {
+    @apply bg-muted border-border shrink-0 appearance-none rounded-full border-2;
+    inline-size: 2.75em;
+    block-size: 1.5em;
+    transition: background-color 0.15s ease-in-out;
+
+    &:checked {
+      @apply bg-primary border-primary;
+    }
+
+    &::after {
+      content: '';
+      display: block;
+      inline-size: 1em;
+      block-size: 1em;
+      margin-block-start: 0.15em;
+      margin-inline-start: 0.15em;
+      border-radius: 50%;
+      background-color: var(--color-card);
+      transition: translate 0.15s ease-in-out;
+    }
+
+    &:checked::after {
+      translate: 1.15em 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .rk-toggle {
+      appearance: auto;
+    }
+
+    .rk-toggle::after {
+      content: none;
+    }
+  }
+}

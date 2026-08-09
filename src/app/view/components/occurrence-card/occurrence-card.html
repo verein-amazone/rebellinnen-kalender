@@ -14,6 +14,14 @@
       <span class="bg-muted text-muted-foreground inline-block rounded-full px-2 py-0.5 text-sm">
         Ganztägig
       </span>
+    } @else if (endsToday()) {
+      <span class="text-muted-foreground block text-sm tabular-nums">
+        bis {{ occurrence().endUtc | date: 'shortTime' : timeZone() }}
+      </span>
+    } @else if (startsToday()) {
+      <span class="text-muted-foreground block text-sm tabular-nums">
+        ab {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}
+      </span>
     } @else {
       <span class="text-muted-foreground block text-sm tabular-nums">
         {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}–{{

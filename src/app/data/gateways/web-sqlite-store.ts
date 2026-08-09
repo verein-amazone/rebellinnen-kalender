@@ -43,7 +43,20 @@ async function initialize(sqlite: SQLiteConnection): Promise<void> {
   const element = document.createElement('jeep-sqlite');
   // Attributes rather than properties: the element parses them in its own lifecycle hook, so they
   // have to be in place before it is connected.
-  element.setAttribute('autoSave', 'true');
+  //
+  // No `autoSave`: `SqliteGateway` already persists explicitly after every `run()` and after every
+  // `transaction()` commit (`persistWebStore()`), so it is redundant — and actively harmful.
+  // `transaction()` issues `BEGIN IMMEDIATE;`/`COMMIT;` as plain statements with the plugin's own
+  // `transaction` flag off (see the comment there), so jeep-sqlite's `isTransactionActive`
+  // bookkeeping never learns a transaction is open. With `autoSave` on, jeep-sqlite still reacts to
+  // that flag being false and calls `saveToStore()` — which exports the live sql.js database —
+  // after *every intermediate statement inside the transaction*, including the ones between BEGIN
+  // and COMMIT. That export silently ends the manually-opened transaction, so the later `COMMIT;`
+  // fails with "cannot commit - no transaction is active" even though the writes already landed
+  // via SQLite's autocommit. Discovered via e2e/support/calendar-seed.ts while adding coverage for
+  // #19: every write through `CalendarRepository` (create/update/delete an appointment) uses
+  // `transaction()` and hit this on the web platform, which is also what the e2e suite runs
+  // against — iOS and Android never load jeep-sqlite and are unaffected either way.
   element.setAttribute('wasmPath', WASM_PATH);
   document.body.appendChild(element);
 

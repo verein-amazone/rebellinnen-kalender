@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedAppCalendar, seedOccurrence } from './support/calendar-seed';
 
 /**
  * The in-app ladder tops out at 2x, Apple's Larger Text floor — but leaving the setting on
@@ -31,6 +32,7 @@ test.describe('large text', () => {
         '/settings/text-size',
         '/settings/motion',
         '/settings/reminders',
+        '/calendar/event/new',
       ]) {
         test(`${path} does not scroll horizontally at large text`, async ({ page }) => {
           await page.goto(path);
@@ -88,6 +90,101 @@ test.describe('large text', () => {
         });
 
         expect(overflow, `a long entry at ${size}`).toBeLessThanOrEqual(1);
+      }
+    });
+  });
+
+  /**
+   * The loop above never opens an appointment (there is nothing to open until one is seeded — see
+   * `e2e/support/calendar-seed.ts`), so its detail read view, its in-place edit view, and the two
+   * sheets calendar delete/edit can now open (`ConfirmationDialog`, `RecurrenceScopeDialog`) are
+   * otherwise untested at large text. A long title is what exercises row/heading wrapping, the same
+   * reasoning as the reminder entry above.
+   */
+  test.describe('320x568 with an appointment', () => {
+    test.use({ viewport: { width: 320, height: 568 } });
+
+    test('appointment screens and sheets do not scroll sideways at large text', async ({
+      page,
+    }) => {
+      const longTitle = 'Donaudampfschifffahrtsgesellschaftskapitänsversammlung';
+
+      const { occurrenceId } = await seedOccurrence(page, {
+        sourceType: 'app',
+        title: longTitle,
+        day: '2026-09-14',
+        recurring: true,
+      });
+
+      const checkNoOverflow = async (label: string) => {
+        for (const size of ['200%', '300%']) {
+          await page.evaluate((value) => {
+            document.documentElement.style.fontSize = value;
+          }, size);
+
+          const overflow = await page.evaluate(() => {
+            const document_ = document.scrollingElement ?? document.documentElement;
+            const region = document.querySelector('main');
+            return Math.max(
+              document_.scrollWidth - document_.clientWidth,
+              region === null ? 0 : region.scrollWidth - region.clientWidth,
+            );
+          });
+
+          expect(overflow, `${label} at ${size}`).toBeLessThanOrEqual(1);
+        }
+        await page.evaluate(() => {
+          document.documentElement.style.fontSize = '';
+        });
+      };
+
+      await page.goto(`/calendar/event/${occurrenceId}`);
+      await expect(page.getByRole('heading', { name: longTitle })).toBeVisible();
+      await checkNoOverflow('detail read view');
+
+      await page.getByRole('button', { name: 'Bearbeiten' }).click();
+      await checkNoOverflow('detail edit view');
+
+      // No "Abbrechen" button any more — the header back-arrow cancels edit mode (see
+      // `EventDetailPage.handleBeforeDismiss`).
+      await page.getByRole('button', { name: 'Zurück' }).click();
+      await page.getByRole('button', { name: 'Löschen' }).click();
+      await expect(page.getByRole('dialog', { name: 'Termin löschen?' })).toBeVisible();
+      await checkNoOverflow('the delete confirmation sheet');
+
+      await page
+        .getByRole('dialog', { name: 'Termin löschen?' })
+        .getByRole('button', { name: 'Löschen' })
+        .click();
+      await expect(page.getByRole('dialog', { name: 'Was möchtest du löschen?' })).toBeVisible();
+      await checkNoOverflow('the recurrence scope sheet');
+    });
+  });
+
+  test.describe('320x568 with a new-appointment form', () => {
+    test.use({ viewport: { width: 320, height: 568 } });
+
+    test('the calendar picker does not scroll sideways at large text with a long calendar name', async ({
+      page,
+    }) => {
+      await seedAppCalendar(page, 'Donaudampfschifffahrtsgesellschaftskapitänsverein');
+      await page.goto('/calendar/event/new');
+
+      for (const size of ['200%', '300%']) {
+        await page.evaluate((value) => {
+          document.documentElement.style.fontSize = value;
+        }, size);
+
+        const overflow = await page.evaluate(() => {
+          const document_ = document.scrollingElement ?? document.documentElement;
+          const region = document.querySelector('main');
+          return Math.max(
+            document_.scrollWidth - document_.clientWidth,
+            region === null ? 0 : region.scrollWidth - region.clientWidth,
+          );
+        });
+
+        expect(overflow, `a long calendar name at ${size}`).toBeLessThanOrEqual(1);
       }
     });
   });

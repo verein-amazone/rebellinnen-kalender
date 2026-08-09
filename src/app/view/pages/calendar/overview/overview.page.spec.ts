@@ -16,6 +16,8 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     calendarId: 'calendar-1',
     seriesId: null,
     originalStart: null,
+    itemId: null,
+    externalId: null,
     kind: 'event',
     title: 'Workshop',
     location: null,

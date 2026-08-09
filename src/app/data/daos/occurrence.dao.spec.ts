@@ -16,6 +16,7 @@ function occurrence(overrides: Partial<OccurrenceRecord> = {}): OccurrenceRecord
     originalStart: null,
     provenance: 'standalone',
     itemKind: 'event',
+    itemId: 'item-1',
     title: 'Plenum',
     location: null,
     isAllDay: false,
@@ -153,5 +154,12 @@ describe('OccurrenceDao', () => {
       updatedAt: '2026-08-07T12:00:00Z',
     });
     await expect(dao.findCoverage('other')).resolves.toBeNull();
+  });
+
+  it('finds one row by id, or null when it does not exist', async () => {
+    await dao.insertMany([occurrence()]);
+
+    await expect(dao.findOne('app:item-1')).resolves.toEqual(occurrence());
+    await expect(dao.findOne('does-not-exist')).resolves.toBeNull();
   });
 });

@@ -14,14 +14,29 @@
         }
         <span class="sr-only">{{ resolvedDismissLabel() }}</span>
       </button>
-      <h1 class="min-w-0 text-xl">{{ heading() }}</h1>
+      <h1 class="min-w-0 flex-1 text-xl">{{ heading() }}</h1>
+      <!-- Kebab-case selector, not camelCase: Angular's template parser lowercases HTML attribute
+           names before content-projection selectors are matched, so a consumer's `headerActions`
+           attribute would silently never match `[headerActions]` here. -->
+      <div class="flex items-center gap-2">
+        <ng-content select="[header-actions]" />
+      </div>
     </div>
   </header>
 
-  <!-- Focused screens have no bottom navigation, so they clear the home indicator themselves. -->
-  <div class="safe-bottom flex-1">
+  <!-- Focused screens have no bottom navigation, so whichever of body/footer is last clears the
+       home indicator itself. -->
+  <div class="flex-1" [class.safe-bottom]="!hasFooter()">
     <div class="rk-screen-body">
       <ng-content />
     </div>
   </div>
+
+  @if (hasFooter()) {
+    <footer class="bg-background safe-bottom sticky bottom-0 z-10">
+      <div class="rk-screen-footer-bar">
+        <ng-content select="[footer]" />
+      </div>
+    </footer>
+  }
 </div>

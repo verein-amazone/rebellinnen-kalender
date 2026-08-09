@@ -83,6 +83,11 @@ export class NativeCalendarGateway {
       timeZone: event.timezone,
     }));
   }
+
+  /** Opens the system calendar's own edit prompt for a writable device event. */
+  async openEventForEditing(eventId: string): Promise<void> {
+    await this.plugin.modifyEventWithPrompt({ id: eventId });
+  }
 }
 
 function toPermission(state: string): DeviceCalendarPermission {

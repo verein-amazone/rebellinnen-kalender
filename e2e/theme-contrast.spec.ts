@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { seedAppCalendar, seedOccurrence } from './support/calendar-seed';
 
 type Page = import('@playwright/test').Page;
 
@@ -58,6 +59,71 @@ test.describe('colour contrast per theme', () => {
       const results = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
 
       expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+    });
+
+    /**
+     * #19's appointment screens and dialogs, none of which the path loop above reaches: the
+     * three `actions` combinations a detail read view can render (app-owned, a writable device
+     * event, a read-only one), the in-place edit view, the "Neuer Termin" form, and the two sheets
+     * calendar delete/edit can now open — `ConfirmationDialog` and `RecurrenceScopeDialog`.
+     */
+    test(`${theme} has sufficient contrast on appointment screens`, async ({ page }) => {
+      await selectTheme(page, theme);
+
+      const checkContrast = async () => {
+        const results = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
+        expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+      };
+
+      await seedAppCalendar(page, 'Testkalender');
+      await page.goto('/calendar/event/new');
+      await checkContrast();
+
+      const app = await seedOccurrence(page, {
+        sourceType: 'app',
+        title: 'App-Termin',
+        day: '2026-09-11',
+        recurring: true,
+      });
+      await page.goto(`/calendar/event/${app.occurrenceId}`);
+      await expect(page.getByRole('button', { name: 'Bearbeiten' })).toBeVisible();
+      await checkContrast();
+
+      await page.getByRole('button', { name: 'Bearbeiten' }).click();
+      await checkContrast();
+
+      // No "Abbrechen" button any more — the header back-arrow cancels edit mode (see
+      // `EventDetailPage.handleBeforeDismiss`).
+      await page.getByRole('button', { name: 'Zurück' }).click();
+      await page.getByRole('button', { name: 'Löschen' }).click();
+      const confirmation = page.getByRole('dialog', { name: 'Termin löschen?' });
+      await expect(confirmation).toBeVisible();
+      await checkContrast();
+
+      await confirmation.getByRole('button', { name: 'Löschen' }).click();
+      const scope = page.getByRole('dialog', { name: 'Was möchtest du löschen?' });
+      await expect(scope).toBeVisible();
+      await checkContrast();
+      await scope.getByRole('button', { name: 'Abbrechen' }).click();
+
+      const device = await seedOccurrence(page, {
+        sourceType: 'device',
+        calendarWritable: true,
+        title: 'Geräte-Termin',
+        day: '2026-09-12',
+      });
+      await page.goto(`/calendar/event/${device.occurrenceId}`);
+      await expect(page.getByRole('button', { name: 'In Kalender-App bearbeiten' })).toBeVisible();
+      await checkContrast();
+
+      const readOnly = await seedOccurrence(page, {
+        sourceType: 'ics',
+        title: 'ICS-Termin',
+        day: '2026-09-13',
+      });
+      await page.goto(`/calendar/event/${readOnly.occurrenceId}`);
+      await expect(page.getByText('schreibgeschützt')).toBeVisible();
+      await checkContrast();
     });
   }
 });

@@ -1,0 +1,20 @@
+<p class="text-muted-foreground pt-1 pb-2 text-sm">Diese App</p>
+
+<ul class="space-y-2">
+  @for (calendar of data.calendars; track calendar.id) {
+    <li>
+      <button type="button" class="rk-choice w-full text-left" (click)="pick(calendar.id)">
+        <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
+        <span class="rk-choice-text">
+          {{ calendar.name }}
+          @if (calendar.id === data.selectedId) {
+            <span class="sr-only"> (ausgewählt)</span>
+          }
+        </span>
+        @if (calendar.id === data.selectedId) {
+          <svg lucideCheck class="rk-icon text-primary" aria-hidden="true"></svg>
+        }
+      </button>
+    </li>
+  }
+</ul>

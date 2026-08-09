@@ -1,0 +1,105 @@
+<ul class="rk-list">
+  <li>
+    <button
+      type="button"
+      class="rk-row w-full text-left"
+      [attr.aria-expanded]="expanded()"
+      (click)="toggleExpanded()"
+    >
+      <span class="rk-row-label">{{ summary() }}</span>
+      <svg
+        lucideChevronDown
+        class="rk-icon-sm transition-transform"
+        [class.rotate-180]="expanded()"
+        aria-hidden="true"
+      ></svg>
+    </button>
+  </li>
+
+  @if (expanded()) {
+    <li class="px-4 py-3">
+      <span class="rk-label" [id]="id() + '-starts-label'">Beginnt</span>
+      <div class="flex gap-2">
+        <div class="rk-field flex-1">
+          <label class="sr-only" [for]="id() + '-start-date'">Startdatum</label>
+          <input
+            [id]="id() + '-start-date'"
+            class="rk-input"
+            type="date"
+            [formField]="dateField()"
+            [attr.aria-labelledby]="id() + '-starts-label'"
+          />
+        </div>
+
+        @if (!allDayState().value()) {
+          <div class="rk-field flex-1">
+            <label class="sr-only" [for]="id() + '-start-time'">Startzeit</label>
+            <input
+              [id]="id() + '-start-time'"
+              class="rk-input"
+              type="time"
+              [formField]="startTimeField()"
+            />
+          </div>
+        }
+      </div>
+    </li>
+
+    <li class="px-4 py-3">
+      <span class="rk-label" [id]="id() + '-ends-label'">Endet</span>
+      <div class="flex gap-2">
+        <div class="rk-field flex-1">
+          <label class="sr-only" [for]="id() + '-end-date'">Enddatum</label>
+          <input
+            [id]="id() + '-end-date'"
+            class="rk-input"
+            type="date"
+            [formField]="endDateField()"
+            [attr.aria-labelledby]="id() + '-ends-label'"
+          />
+        </div>
+
+        @if (!allDayState().value()) {
+          <div class="rk-field flex-1">
+            <label class="sr-only" [for]="id() + '-end-time'">Endzeit</label>
+            <input
+              [id]="id() + '-end-time'"
+              class="rk-input"
+              type="time"
+              [formField]="endTimeField()"
+            />
+          </div>
+        }
+      </div>
+    </li>
+
+    <li>
+      <label class="rk-row w-full">
+        <span class="rk-row-label">Ganztägig</span>
+        <input
+          type="checkbox"
+          role="switch"
+          class="rk-toggle"
+          [checked]="allDayState().value()"
+          (change)="onAllDayChange($event)"
+        />
+      </label>
+    </li>
+  }
+</ul>
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (dateField()().touched() && dateField()().invalid()) {
+    <p class="rk-error">{{ dateField()().errors()[0]?.message }}</p>
+  } @else if (startTimeField()().touched() && startTimeField()().invalid()) {
+    <p class="rk-error">{{ startTimeField()().errors()[0]?.message }}</p>
+  } @else if (endDateField()().touched() && endDateField()().invalid()) {
+    <p class="rk-error">{{ endDateField()().errors()[0]?.message }}</p>
+  } @else if (endTimeField()().touched() && endTimeField()().invalid()) {
+    <p class="rk-error">{{ endTimeField()().errors()[0]?.message }}</p>
+  }
+</div>

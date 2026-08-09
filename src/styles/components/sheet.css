@@ -55,11 +55,14 @@
 
   /*
    * The only scrolling region. `overscroll-contain` stops the scroll from chaining to the page
-   * behind once the body hits its end.
+   * behind once the body hits its end. The safe-area inset lives here rather than on
+   * `.rk-sheet-footer`, because not every sheet's content has one (e.g. a picker that closes on
+   * tap) — this is the one wrapper every sheet's content always sits inside.
    */
   .rk-sheet-body {
-    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4;
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
     padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
   /*
@@ -69,8 +72,6 @@
    */
   .rk-sheet-footer {
     @apply flex flex-wrap gap-2 pt-2;
-    /* Clears the home indicator, with a floor so the row never sits flush against the edge. */
-    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
     container-type: inline-size;
   }
 

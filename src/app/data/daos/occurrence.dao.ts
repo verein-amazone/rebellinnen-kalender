@@ -20,6 +20,7 @@ interface OccurrenceRow {
   readonly original_start: string | null;
   readonly provenance: OccurrenceProvenance;
   readonly item_kind: AppItemKind;
+  readonly item_id: string | null;
   readonly title: string;
   readonly location: string | null;
   readonly is_all_day: number;
@@ -46,7 +47,7 @@ interface CoverageRow {
 }
 
 const COLUMNS = `id, source_id, source_type, calendar_id, series_id, original_start, provenance,
-  item_kind, title, location, is_all_day, start_kind, start_value, start_tz,
+  item_kind, item_id, title, location, is_all_day, start_kind, start_value, start_tz,
   end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id`;
 
 /**
@@ -86,7 +87,7 @@ export class OccurrenceDao {
     for (const record of records) {
       await executor.run(
         `INSERT INTO occurrences (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           record.id,
           record.sourceId,
@@ -96,6 +97,7 @@ export class OccurrenceDao {
           record.originalStart,
           record.provenance,
           record.itemKind,
+          record.itemId,
           record.title,
           record.location,
           record.isAllDay ? 1 : 0,
@@ -159,6 +161,19 @@ export class OccurrenceDao {
 
   async deleteOne(id: string, executor: SqliteExecutor = this.database): Promise<void> {
     await executor.run(`DELETE FROM occurrences WHERE id = ?`, [id]);
+  }
+
+  async findOne(
+    id: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<OccurrenceRecord | null> {
+    const rows = await executor.query<OccurrenceRow>(
+      `SELECT ${COLUMNS} FROM occurrences WHERE id = ?`,
+      [id],
+    );
+
+    const row = rows[0];
+    return row ? toRecord(row) : null;
   }
 
   /** Cached device instances — the rows a device-zone change repairs locally, without a refetch. */
@@ -250,6 +265,7 @@ function toRecord(row: OccurrenceRow): OccurrenceRecord {
     originalStart: row.original_start ?? null,
     provenance: row.provenance,
     itemKind: row.item_kind,
+    itemId: row.item_id ?? null,
     title: row.title,
     location: row.location ?? null,
     isAllDay: row.is_all_day === 1,

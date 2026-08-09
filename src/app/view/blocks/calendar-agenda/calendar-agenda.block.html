@@ -17,4 +17,9 @@
   </ul>
 }
 
-<a routerLink="/calendar/event/new" class="rk-button rk-button-primary flex">Neuer Termin</a>
+<a
+  routerLink="/calendar/event/new"
+  [queryParams]="{ day: day() }"
+  class="rk-button rk-button-primary flex"
+  >Neuer Termin</a
+>

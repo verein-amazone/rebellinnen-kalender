@@ -1,0 +1,24 @@
+<label class="rk-choice">
+  <span class="rk-choice-text">{{ label() }}</span>
+  <input
+    [id]="id()"
+    type="checkbox"
+    role="switch"
+    class="rk-toggle"
+    [checked]="checked()"
+    [attr.aria-invalid]="showError() ? 'true' : null"
+    [attr.aria-describedby]="showError() ? errorId() : null"
+    (change)="onChange($event)"
+    (blur)="touch.emit()"
+  />
+</label>
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (showError()) {
+    <p [id]="errorId()" class="rk-error">{{ errorMessage() }}</p>
+  }
+</div>

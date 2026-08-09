@@ -35,6 +35,8 @@ export interface OccurrenceRecord {
   readonly originalStart: string | null;
   readonly provenance: OccurrenceProvenance;
   readonly itemKind: AppItemKind;
+  /** The owning `AppItemRecord.id` for app-owned rows (standalone or of a series); `null` otherwise. */
+  readonly itemId: string | null;
   readonly title: string;
   readonly location: string | null;
   readonly isAllDay: boolean;

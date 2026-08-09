@@ -295,9 +295,7 @@ Two things a call site has to get right, both learned the hard way in `reminder-
 
 ### Field, input and error — `field.css`
 
-First used by the „Nicht vergessen“ list: the inline add row and the edit sheet. There is still no
-field _component_ — a `touched`/`invalid` API should be designed once a screen has a real multi-field
-form rather than one trimmed line of text.
+First used by the „Nicht vergessen“ list: the inline add row and the edit sheet (#14).
 
 `.rk-field` grows its border from 2px to 4px on `:focus-within` while shrinking the padding by
 exactly the same amount, so the box keeps its size and nothing reflows.
@@ -314,6 +312,23 @@ The contract every form honours:
   announced at all
 - `aria-invalid` and `aria-describedby` bind only once the field has been touched
 - the error is always text; the red border is a redundant cue, never the only one
+
+#### Field components — `view/components/field/`
+
+#19 built the first real multi-field form (the create/edit appointment form, `EventForm`) against
+`.rk-field` and, with it, the first Angular components that implement the contract above so a
+consumer never hand-rolls the markup: `app-text-field`, `app-textarea-field`,
+`app-radio-group-field` and `app-all-day-toggle-field`. All four bind to a `@angular/forms/signals`
+`Field` (via a `[field]`/`[formField]` input), read `touched()`/`invalid()`/`errors()` off the
+field's state, and render the always-in-the-DOM `aria-live` error wrapper themselves — a consumer
+just points one at a `schemaPath` and a `label`/`legend`.
+
+`app-radio-group-field` is generic over its option type and is shared by more than the calendar
+picker — the recurrence-scope dialog uses it too — so a new set of mutually exclusive choices bound
+to a Signal Forms field should reach for it before writing another `<fieldset>` by hand.
+
+Add a new field component here, not a new one-off template, whenever a screen needs a control shape
+these four do not yet cover.
 
 ### Reorderable list — `reorder.css` + `@angular/cdk/drag-drop`
 

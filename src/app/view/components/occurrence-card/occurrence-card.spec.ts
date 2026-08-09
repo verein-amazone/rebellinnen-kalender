@@ -14,6 +14,8 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     calendarId: 'calendar-1',
     seriesId: null,
     originalStart: null,
+    itemId: null,
+    externalId: null,
     kind: 'event',
     title: 'Workshop',
     location: null,
@@ -96,7 +98,39 @@ describe('OccurrenceCard', () => {
     expect(element.textContent).not.toContain('09:30');
   });
 
-  it('labels a spanning appointment that started before the shown day as all-day', async () => {
+  it('shows only the end time, never "Ganztägig", for a timed appointment on the day it ends', async () => {
+    const { element } = await setup(
+      occurrence({
+        startDay: '2026-08-04',
+        endDay: '2026-08-05',
+        startUtc: '2026-08-04T20:00:00Z',
+        endUtc: '2026-08-05T09:00:00Z',
+      }),
+      '2026-08-05',
+    );
+
+    expect(element.textContent).not.toContain('Ganztägig');
+    expect(element.textContent).toContain('bis');
+    expect(element.textContent).toContain('11:00');
+  });
+
+  it('shows only the start time, with "ab", on the day a multi-day timed appointment starts', async () => {
+    const { element } = await setup(
+      occurrence({
+        startDay: '2026-08-05',
+        endDay: '2026-08-07',
+        startUtc: '2026-08-05T07:30:00Z',
+        endUtc: '2026-08-07T09:00:00Z',
+      }),
+      '2026-08-05',
+    );
+
+    expect(element.textContent).not.toContain('Ganztägig');
+    expect(element.textContent).toContain('ab');
+    expect(element.textContent).toContain('09:30');
+  });
+
+  it('labels a day a timed appointment merely passes through as "Ganztägig", same as a real all-day one', async () => {
     const { element } = await setup(
       occurrence({
         startDay: '2026-08-04',
@@ -104,6 +138,58 @@ describe('OccurrenceCard', () => {
         startUtc: '2026-08-04T07:30:00Z',
         endUtc: '2026-08-06T09:00:00Z',
       }),
+      '2026-08-05',
+    );
+
+    expect(element.textContent).toContain('Ganztägig');
+  });
+
+  it('labels the first day of a multi-day all-day appointment "Ganztägig"', async () => {
+    const { element } = await setup(
+      occurrence({
+        allDay: true,
+        start: { kind: 'date', value: '2026-08-04', timeZone: null },
+        end: null,
+        startDay: '2026-08-04',
+        endDay: '2026-08-06',
+        startUtc: '2026-08-03T22:00:00Z',
+        endUtc: '2026-08-06T22:00:00Z',
+      }),
+      '2026-08-04',
+    );
+
+    expect(element.textContent).toContain('Ganztägig');
+  });
+
+  it('labels the middle day of a multi-day all-day appointment "Ganztägig"', async () => {
+    const { element } = await setup(
+      occurrence({
+        allDay: true,
+        start: { kind: 'date', value: '2026-08-04', timeZone: null },
+        end: null,
+        startDay: '2026-08-04',
+        endDay: '2026-08-06',
+        startUtc: '2026-08-03T22:00:00Z',
+        endUtc: '2026-08-06T22:00:00Z',
+      }),
+      '2026-08-05',
+    );
+
+    expect(element.textContent).toContain('Ganztägig');
+  });
+
+  it('labels the last day of a multi-day all-day appointment "Ganztägig"', async () => {
+    const { element } = await setup(
+      occurrence({
+        allDay: true,
+        start: { kind: 'date', value: '2026-08-04', timeZone: null },
+        end: null,
+        startDay: '2026-08-04',
+        endDay: '2026-08-06',
+        startUtc: '2026-08-03T22:00:00Z',
+        endUtc: '2026-08-06T22:00:00Z',
+      }),
+      '2026-08-06',
     );
 
     expect(element.textContent).toContain('Ganztägig');

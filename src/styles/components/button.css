@@ -62,6 +62,18 @@
     @apply hoverable:brightness-95 active:brightness-90;
   }
 
+  /* A destructive action that shouldn't carry primary-button weight — an outline in the danger
+     colour rather than a fill, so it reads as "available but not the default path". Still pair it
+     with an explicit verb, an icon and a confirmation step. Same shell as a field (`field.css`):
+     `border-2` and `bg-input-background`, not `bg-transparent` — `text-danger` alone doesn't clear
+     4.5:1 against `bg-background` in every theme, and a danger-tinted surface only made that worse
+     (mixing a dark colour into the page background lowers its luminance, closing the gap further);
+     the field surface is close to white in every theme and keeps the pairing safely above 4.5:1. */
+  .rk-button-danger-secondary {
+    @apply border-danger text-danger bg-input-background border-2;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
   /*
    * A square, label-less action. The accessible name comes from a visually hidden <span> or an
    * `aria-label`; the icon inside is always `aria-hidden`.
@@ -77,6 +89,16 @@
    */
   .rk-icon-button-primary {
     @apply bg-primary text-primary-foreground;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
+  /* An outline variant in the primary colour, for an action worth more affordance than the plain
+     ghost `.rk-icon-button` but not filled like `.rk-icon-button-primary` — e.g. a header action
+     that isn't the screen's main call to action. Primary, not secondary/muted, colour: a dim
+     outline reads as disabled, which this control is not. `border-2` matches the field shell's
+     border weight (`field.css`). */
+  .rk-icon-button-outline-primary {
+    @apply border-primary text-primary bg-input-background border-2;
     @apply hoverable:brightness-95 active:brightness-90;
   }
 }

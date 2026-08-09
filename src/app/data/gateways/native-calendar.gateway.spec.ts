@@ -79,4 +79,18 @@ describe('NativeCalendarGateway', () => {
       },
     ]);
   });
+
+  it('opens the system prompt to modify an event by id', async () => {
+    let requestedId: string | undefined;
+    const gateway = setup({
+      modifyEventWithPrompt: async (options: { id: string }) => {
+        requestedId = options.id;
+        return { result: null as never };
+      },
+    });
+
+    await gateway.openEventForEditing('event-1');
+
+    expect(requestedId).toBe('event-1');
+  });
 });
