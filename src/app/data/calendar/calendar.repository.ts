@@ -310,6 +310,99 @@ export class CalendarRepository {
     return this.sources.findSource(sourceId);
   }
 
+  /** Read access to a calendar together with its owning source, e.g. to branch on source type. */
+  async findCalendarWithSource(
+    calendarId: string,
+  ): Promise<{ calendar: CalendarRecord; source: CalendarSourceRecord } | null> {
+    const calendar = await this.sources.findCalendar(calendarId);
+    if (calendar === null) {
+      return null;
+    }
+
+    const source = await this.sources.findSource(calendar.sourceId);
+    if (source === null) {
+      return null;
+    }
+
+    return { calendar, source };
+  }
+
+  /** Read access to a source's calendars, for the management screen's device-calendar list. */
+  listCalendarsOfSource(sourceId: string): Promise<CalendarRecord[]> {
+    return this.sources.listCalendarsOfSource(sourceId);
+  }
+
+  /** Renames the app calendar or changes its colour/emoji identity. */
+  async updateCalendarIdentity(
+    calendarId: string,
+    identity: { name: string; color: string | null; emoji: string | null },
+    context: CalendarContext,
+  ): Promise<void> {
+    await this.sources.updateCalendarIdentity(
+      calendarId,
+      identity.name,
+      identity.color,
+      identity.emoji,
+      context.nowUtc,
+    );
+  }
+
+  /**
+   * Enables or disables one calendar. `occurrencesInRange` already filters on `calendar.enabled`,
+   * so a disabled calendar's occurrences stop appearing without any further change.
+   */
+  async setCalendarEnabled(
+    calendarId: string,
+    enabled: boolean,
+    context: CalendarContext,
+  ): Promise<void> {
+    await this.sources.updateCalendarEnabled(calendarId, enabled, context.nowUtc);
+  }
+
+  /**
+   * Enables or disables every calendar of one source that shares a given native account/source
+   * (`nativeSourceId`, `null` included) in one transaction — the management screen's per-account
+   * "select all" toggle. The calendar source's own `enabled` flag is untouched.
+   */
+  async setCalendarsEnabledByNativeSource(
+    sourceId: string,
+    nativeSourceId: string | null,
+    enabled: boolean,
+    context: CalendarContext,
+  ): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      for (const calendar of await this.sources.listCalendarsOfSource(sourceId, tx)) {
+        if (calendar.nativeSourceId === nativeSourceId) {
+          await this.sources.updateCalendarEnabled(calendar.id, enabled, context.nowUtc, tx);
+        }
+      }
+    });
+  }
+
+  /**
+   * Opts out of the device source locally: it and its calendars stop being enabled, so their
+   * occurrences disappear from every range query immediately. This does not and cannot revoke the
+   * OS permission — only the OS settings can do that — so a later `connect()` re-enables it.
+   */
+  async disconnectDeviceSource(sourceId: string, context: CalendarContext): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await this.sources.updateSourceEnabled(sourceId, false, context.nowUtc, tx);
+      for (const calendar of await this.sources.listCalendarsOfSource(sourceId, tx)) {
+        await this.sources.updateCalendarEnabled(calendar.id, false, context.nowUtc, tx);
+      }
+    });
+  }
+
+  /** The mirror of `disconnectDeviceSource`, run when the user connects again. */
+  async reconnectDeviceSource(sourceId: string, context: CalendarContext): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await this.sources.updateSourceEnabled(sourceId, true, context.nowUtc, tx);
+      for (const calendar of await this.sources.listCalendarsOfSource(sourceId, tx)) {
+        await this.sources.updateCalendarEnabled(calendar.id, true, context.nowUtc, tx);
+      }
+    });
+  }
+
   /** Read access to a source's coverage, for interactors picking a refresh range. */
   findCoverage(sourceId: string): Promise<SourceCoverageRecord | null> {
     return this.occurrences.findCoverage(sourceId);
@@ -373,16 +466,25 @@ export class CalendarRepository {
               enabled: true,
               writable: calendar.writable,
               externalId: calendar.id,
+              nativeSourceId: calendar.sourceId,
+              nativeSourceName: calendar.sourceName,
               createdAt: context.nowUtc,
               updatedAt: context.nowUtc,
             },
             tx,
           );
-        } else if (known.name !== calendar.name || known.writable !== calendar.writable) {
+        } else if (
+          known.name !== calendar.name ||
+          known.writable !== calendar.writable ||
+          known.nativeSourceId !== calendar.sourceId ||
+          known.nativeSourceName !== calendar.sourceName
+        ) {
           await this.sources.updateCalendarSnapshot(
             rowId,
             calendar.name,
             calendar.writable,
+            calendar.sourceId,
+            calendar.sourceName,
             context.nowUtc,
             tx,
           );

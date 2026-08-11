@@ -35,6 +35,14 @@ export interface CalendarRecord {
   /** Whether the underlying store accepts writes — always true for app, always false for ICS. */
   readonly writable: boolean;
   readonly externalId: string | null;
+  /**
+   * The native account/source this calendar belongs to on the device — `null` for app and ICS
+   * calendars, which have no such concept. `nativeSourceId` is the grouping key (iOS: the native
+   * `CalendarSource` id; Android has no separate id, so its account name doubles as both);
+   * `nativeSourceName` is what a subheading shows for it.
+   */
+  readonly nativeSourceId: string | null;
+  readonly nativeSourceName: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

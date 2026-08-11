@@ -43,6 +43,8 @@ describe('CalendarOccurrencesInteractor', () => {
       enabled: true,
       writable: true,
       externalId: null,
+      nativeSourceId: null,
+      nativeSourceName: null,
       createdAt: '2026-08-01T09:00:00.000Z',
       updatedAt: '2026-08-01T09:00:00.000Z',
     });

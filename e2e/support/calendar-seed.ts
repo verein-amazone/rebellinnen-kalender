@@ -76,6 +76,55 @@ export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promis
   );
 }
 
+/**
+ * Seeds a connected device source with one calendar, straight into SQLite — the same way
+ * `seedAppCalendar` stands in for the (still screen-less on iOS/Android-free CI) native connection
+ * flow. Used to render `CalendarsPage`'s "connected" state without a real OS calendar, which the
+ * web build has no access to at all.
+ */
+export async function seedDeviceCalendar(page: Page, name = 'Familie'): Promise<SeededCalendar> {
+  await ensureDatabaseReady(page);
+
+  return page.evaluate(
+    async ({ calendarName, databaseName }) => {
+      const plugin = (
+        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
+      ).Capacitor.Plugins.CapacitorSQLite;
+      const now = new Date().toISOString();
+      const sourceId = 'device';
+      const calendarId = `device-cal:e2e-${crypto.randomUUID()}`;
+
+      const run = (statement: string, values: readonly unknown[]) =>
+        plugin.run({ database: databaseName, statement, values, transaction: false });
+
+      await run(
+        'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [sourceId, 'device', 'Gerätekalender', 1, 'ok', now, now],
+      );
+      await run(
+        'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          calendarId,
+          sourceId,
+          calendarName,
+          '#2f6f8f',
+          null,
+          1,
+          1,
+          `native-${calendarId}`,
+          now,
+          now,
+        ],
+      );
+
+      await plugin.saveToStore({ database: databaseName });
+
+      return { sourceId, calendarId };
+    },
+    { calendarName: name, databaseName: DATABASE_NAME },
+  );
+}
+
 export interface SeedOccurrenceOptions {
   /**
    * For a real, editable app appointment prefer the actual create flow (`seedAppCalendar` plus the
@@ -95,6 +144,12 @@ export interface SeedOccurrenceOptions {
    * edit/delete through it is out of scope here (`app_items.rrule` is left `null`).
    */
   readonly recurring?: boolean;
+  /**
+   * Bucket the occurrence under an already-seeded source/calendar (e.g. `seedDeviceCalendar`)
+   * instead of creating a fresh throwaway pair — needed to test enabling/disabling a specific
+   * calendar in `CalendarsPage` and seeing its occurrences appear or disappear.
+   */
+  readonly existingCalendar?: SeededCalendar;
 }
 
 export interface SeededOccurrence {
@@ -123,6 +178,7 @@ export async function seedOccurrence(
   const day = options.day ?? '2026-09-01';
   const writable = options.calendarWritable ?? false;
   const recurring = options.recurring ?? false;
+  const existing = options.existingCalendar ?? null;
 
   return page.evaluate(
     async ({
@@ -132,13 +188,14 @@ export async function seedOccurrence(
       day: localDay,
       databaseName,
       recurring: isRecurring,
+      existingCalendar,
     }) => {
       const plugin = (
         window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
       ).Capacitor.Plugins.CapacitorSQLite;
       const now = new Date().toISOString();
-      const sourceId = `e2e-source-${crypto.randomUUID()}`;
-      const calendarId = `e2e-calendar-${crypto.randomUUID()}`;
+      const sourceId = existingCalendar?.sourceId ?? `e2e-source-${crypto.randomUUID()}`;
+      const calendarId = existingCalendar?.calendarId ?? `e2e-calendar-${crypto.randomUUID()}`;
       const startUtc = new Date(`${localDay}T00:00:00.000Z`).toISOString();
       const endUtc = new Date(`${localDay}T00:00:00.000Z`);
       endUtc.setUTCDate(endUtc.getUTCDate() + 1);
@@ -160,25 +217,27 @@ export async function seedOccurrence(
       // it; a mismatched id would leave a stale row an edit or delete cannot ever touch.
       const occurrenceId = itemId !== null ? `app:${itemId}` : `e2e-occ-${crypto.randomUUID()}`;
 
-      await run(
-        'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [sourceId, sourceType, sourceName, 1, 'ok', now, now],
-      );
-      await run(
-        'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-          calendarId,
-          sourceId,
-          sourceName,
-          '#2f6f8f',
-          null,
-          1,
-          calendarWritable ? 1 : 0,
-          sourceType === 'device' ? `device-cal-${calendarId}` : null,
-          now,
-          now,
-        ],
-      );
+      if (existingCalendar === null) {
+        await run(
+          'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [sourceId, sourceType, sourceName, 1, 'ok', now, now],
+        );
+        await run(
+          'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            calendarId,
+            sourceId,
+            sourceName,
+            '#2f6f8f',
+            null,
+            1,
+            calendarWritable ? 1 : 0,
+            sourceType === 'device' ? `device-cal-${calendarId}` : null,
+            now,
+            now,
+          ],
+        );
+      }
       if (itemId !== null) {
         await run(
           `INSERT INTO app_items (
@@ -250,6 +309,7 @@ export async function seedOccurrence(
       day,
       databaseName: DATABASE_NAME,
       recurring,
+      existingCalendar: existing,
     },
   );
 }

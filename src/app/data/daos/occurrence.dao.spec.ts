@@ -19,6 +19,7 @@ function occurrence(overrides: Partial<OccurrenceRecord> = {}): OccurrenceRecord
     itemId: 'item-1',
     title: 'Plenum',
     location: null,
+    description: null,
     isAllDay: false,
     start: { kind: 'zoned', value: '2026-10-12T18:00:00', timeZone: 'Europe/Vienna' },
     end: { kind: 'zoned', value: '2026-10-12T20:00:00', timeZone: 'Europe/Vienna' },

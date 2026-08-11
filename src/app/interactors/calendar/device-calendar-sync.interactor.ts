@@ -36,10 +36,15 @@ export class DeviceCalendarSyncInteractor {
 
   private lastAutomaticRefreshAt = 0;
 
-  /** The user-initiated connection: asks for access and, when granted, loads the first cache. */
+  /**
+   * The user-initiated connection: asks for access and, when granted, re-enables the source (in
+   * case it was previously disconnected) and loads the first cache.
+   */
   async connect(): Promise<DeviceCalendarPermission> {
     const permission = await this.gateway.requestReadAccess();
     if (permission === 'granted') {
+      await this.ensureSource();
+      await this.repository.reconnectDeviceSource(DEVICE_SOURCE_ID, this.context());
       await this.refresh({ force: true });
     }
 
@@ -65,7 +70,17 @@ export class DeviceCalendarSyncInteractor {
       return;
     }
 
-    const permission = await this.gateway.checkReadPermission();
+    let permission: DeviceCalendarPermission;
+    try {
+      permission = await this.gateway.checkReadPermission();
+    } catch {
+      // The web build has no native implementation at all (`@ebarooni/capacitor-calendar` is
+      // iOS/Android only) and an automatic trigger — app foreground, opening the calendar screen —
+      // can call `refresh()` on it with a source already seeded/connected. The previous cache stays;
+      // the source just shows as failing rather than throwing an unhandled rejection.
+      await this.repository.setSourceState(DEVICE_SOURCE_ID, 'error', context);
+      return;
+    }
     if (permission !== 'granted') {
       // Access revoked: keep the cache, flag the source; the user decides what happens next.
       await this.repository.setSourceState(DEVICE_SOURCE_ID, 'permission-lost', context);

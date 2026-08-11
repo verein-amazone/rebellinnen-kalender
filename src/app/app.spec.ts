@@ -2,6 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from '@app/app';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+
+class FakeDeviceCalendarSyncInteractor {
+  refresh(): Promise<void> {
+    return Promise.resolve();
+  }
+}
 
 describe('App', () => {
   beforeEach(async () => {
@@ -13,7 +20,10 @@ describe('App', () => {
 
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
+      ],
     }).compileComponents();
   });
 

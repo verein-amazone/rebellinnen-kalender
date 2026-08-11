@@ -17,7 +17,14 @@ import { DEVICE_SOURCE_ID, DeviceCalendarSyncInteractor } from './device-calenda
 class FakeNativeCalendarGateway {
   permission: DeviceCalendarPermission = 'granted';
   calendars: DeviceCalendar[] = [
-    { id: 'cal-1', name: 'Familie', color: '#ff0000', writable: true },
+    {
+      id: 'cal-1',
+      name: 'Familie',
+      color: '#ff0000',
+      writable: true,
+      sourceId: null,
+      sourceName: null,
+    },
   ];
   instances: DeviceEventInstance[] = [
     {
@@ -25,6 +32,7 @@ class FakeNativeCalendarGateway {
       calendarId: 'cal-1',
       title: 'Zahnarzt',
       location: null,
+      description: null,
       startUtc: '2026-08-10T08:00:00Z',
       endUtc: '2026-08-10T09:00:00Z',
       isAllDay: false,
@@ -153,6 +161,19 @@ describe('DeviceCalendarSyncInteractor', () => {
     gateway.failNative = true;
 
     await interactor.refresh({ force: true });
+
+    const source = await repository.findSource(DEVICE_SOURCE_ID);
+    expect(source!.state).toBe('error');
+    await expect(
+      occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z'),
+    ).resolves.toHaveLength(1);
+  });
+
+  it('a thrown permission check (e.g. the unimplemented web plugin) marks the source as failing without throwing', async () => {
+    await interactor.connect();
+    gateway.checkReadPermission = () => Promise.reject(new Error('not implemented on web'));
+
+    await expect(interactor.refresh({ force: true })).resolves.toBeUndefined();
 
     const source = await repository.findSource(DEVICE_SOURCE_ID);
     expect(source!.state).toBe('error');

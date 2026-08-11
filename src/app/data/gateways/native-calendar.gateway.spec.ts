@@ -32,7 +32,54 @@ describe('NativeCalendarGateway', () => {
     });
 
     await expect(gateway.listCalendars()).resolves.toEqual([
-      { id: 'cal-1', name: 'Familie', color: '#ff0000', writable: false },
+      {
+        id: 'cal-1',
+        name: 'Familie',
+        color: '#ff0000',
+        writable: false,
+        sourceId: null,
+        sourceName: null,
+      },
+    ]);
+  });
+
+  it('reads the native source from iOS’s `source` object', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          {
+            id: 'cal-1',
+            title: 'Familie',
+            color: '#ff0000',
+            allowsContentModifications: true,
+            source: { id: 'icloud', title: 'iCloud' },
+          },
+        ] as never,
+      }),
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ sourceId: 'icloud', sourceName: 'iCloud' }),
+    ]);
+  });
+
+  it('falls back to Android’s `accountName` when there is no `source` object', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          {
+            id: 'cal-1',
+            title: 'Familie',
+            color: '#ff0000',
+            allowsContentModifications: true,
+            accountName: 'user@gmail.com',
+          },
+        ] as never,
+      }),
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ sourceId: 'user@gmail.com', sourceName: 'user@gmail.com' }),
     ]);
   });
 
@@ -48,6 +95,7 @@ describe('NativeCalendarGateway', () => {
               title: 'Zahnarzt',
               calendarId: 'cal-1',
               location: null,
+              description: 'Kontrolle und Reinigung',
               startDate: Date.parse('2026-08-10T08:00:00Z'),
               endDate: Date.parse('2026-08-10T09:00:00Z'),
               isAllDay: false,
@@ -72,6 +120,7 @@ describe('NativeCalendarGateway', () => {
         calendarId: 'cal-1',
         title: 'Zahnarzt',
         location: null,
+        description: 'Kontrolle und Reinigung',
         startUtc: '2026-08-10T08:00:00Z',
         endUtc: '2026-08-10T09:00:00Z',
         isAllDay: false,
@@ -92,5 +141,56 @@ describe('NativeCalendarGateway', () => {
     await gateway.openEventForEditing('event-1');
 
     expect(requestedId).toBe('event-1');
+  });
+
+  it('writes a new event straight into a device calendar with a default 15-minute alert', async () => {
+    let sentOptions: unknown;
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sentOptions = options;
+        return { id: 'event-2' };
+      },
+    });
+
+    const result = await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: 'Vereinsraum',
+      startUtc: '2026-08-10T08:00:00Z',
+      endUtc: '2026-08-10T09:00:00Z',
+      isAllDay: false,
+    });
+
+    expect(result).toEqual({ eventId: 'event-2' });
+    expect(sentOptions).toEqual({
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: 'Vereinsraum',
+      startDate: Date.parse('2026-08-10T08:00:00Z'),
+      endDate: Date.parse('2026-08-10T09:00:00Z'),
+      isAllDay: false,
+      alerts: [-15],
+    });
+  });
+
+  it('sets no alert for an all-day device event', async () => {
+    let sentOptions: unknown;
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sentOptions = options;
+        return { id: 'event-3' };
+      },
+    });
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-08-10T00:00:00Z',
+      endUtc: '2026-08-11T00:00:00Z',
+      isAllDay: true,
+    });
+
+    expect(sentOptions).toEqual(expect.objectContaining({ isAllDay: true, alerts: undefined }));
   });
 });

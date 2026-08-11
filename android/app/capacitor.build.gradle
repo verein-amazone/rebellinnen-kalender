@@ -14,6 +14,7 @@ dependencies {
     implementation project(':capacitor-text-zoom')
     implementation project(':capawesome-capacitor-accessibility-preferences')
     implementation project(':ebarooni-capacitor-calendar')
+    implementation project(':capacitor-native-settings')
 
 }
 

@@ -1,22 +1,29 @@
 import { inject, Injectable } from '@angular/core';
 
-import { CalendarRepository } from '@app/data/calendar/calendar.repository';
+import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 
-/** A calendar the create/edit form's picker may offer, stripped of everything view-irrelevant. */
+/**
+ * A calendar the create/edit form's picker may offer, stripped of everything view-irrelevant.
+ * `sourceType` defaults to `'app'` when absent, which every fixture predating device calendars in
+ * the picker relies on.
+ */
 export interface WritableAppCalendar {
   readonly id: string;
   readonly name: string;
   readonly color: string | null;
   readonly emoji: string | null;
+  readonly sourceType?: 'app' | 'device';
 }
 
 /**
  * The calendar picker's data source for creating and editing app-owned events and todos.
  *
- * App calendars are always writable — capabilities follow ownership (see `source-capabilities.ts`)
- * and every `app`-type source is app-owned — so this only ever filters by source type. This is the
- * only interactor the picker may use; views must never inject `CalendarSourceDao` directly.
+ * Writable calendars come from two source types: the app's own calendars, always writable because
+ * capabilities follow ownership (see `source-capabilities.ts`), and enabled, writable device
+ * calendars — a create writes straight into the OS calendar (see
+ * `AppEventEditingInteractor.create`), never a canonical app record. This is the only interactor
+ * the picker may use; views must never inject `CalendarSourceDao` directly.
  */
 @Injectable({ providedIn: 'root' })
 export class AppCalendarsInteractor {
@@ -38,18 +45,39 @@ export class AppCalendarsInteractor {
       this.sources.listCalendars(),
     ]);
 
-    const appSourceIds = new Set(
-      sources.filter((source) => source.type === 'app').map((source) => source.id),
+    const sourceTypeById = new Map(sources.map((source) => [source.id, source.type]));
+    const enabledSourceIds = new Set(
+      sources.filter((source) => source.enabled).map((source) => source.id),
     );
 
     return calendars
-      .filter((calendar) => appSourceIds.has(calendar.sourceId))
+      .filter((calendar) => {
+        const sourceType = sourceTypeById.get(calendar.sourceId);
+        if (sourceType === 'app') {
+          return true;
+        }
+        return (
+          sourceType === 'device' &&
+          calendar.writable &&
+          calendar.enabled &&
+          enabledSourceIds.has(calendar.sourceId)
+        );
+      })
       .map((calendar) => ({
         id: calendar.id,
         name: calendar.name,
         color: calendar.color,
         emoji: calendar.emoji,
+        sourceType: sourceTypeById.get(calendar.sourceId) as 'app' | 'device',
       }));
+  }
+
+  /** Renames the app calendar or changes its colour/emoji identity. */
+  async updateIdentity(
+    calendarId: string,
+    identity: { name: string; color: string | null; emoji: string | null },
+  ): Promise<void> {
+    await this.repository.updateCalendarIdentity(calendarId, identity, this.context());
   }
 
   /** Creates the app's own calendar source on first run. A no-op once an app source exists. */
@@ -82,10 +110,19 @@ export class AppCalendarsInteractor {
           enabled: true,
           writable: true,
           externalId: null,
+          nativeSourceId: null,
+          nativeSourceName: null,
           createdAt: now,
           updatedAt: now,
         },
       ],
     );
+  }
+
+  private context(): CalendarContext {
+    return {
+      nowUtc: new Date().toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
   }
 }

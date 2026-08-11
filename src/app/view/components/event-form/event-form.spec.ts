@@ -64,6 +64,7 @@ function timedOccurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarO
     kind: 'event',
     title: 'Zahnarzt',
     location: 'Praxis Dr. Muster',
+    description: null,
     allDay: false,
     start: { kind: 'zoned', value: '2026-08-10T09:00:00', timeZone: deviceZone },
     end: { kind: 'zoned', value: '2026-08-10T10:30:00', timeZone: deviceZone },

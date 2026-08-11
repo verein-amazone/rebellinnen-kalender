@@ -72,6 +72,8 @@ describe('CalendarRepository', () => {
       enabled: true,
       writable: true,
       externalId: null,
+      nativeSourceId: null,
+      nativeSourceName: null,
       createdAt: '2026-08-01T09:00:00.000Z',
       updatedAt: '2026-08-01T09:00:00.000Z',
     });
@@ -542,5 +544,133 @@ describe('CalendarRepository', () => {
     await expect(
       occurrences.listInRange('2026-01-01T00:00:00Z', '2027-01-01T00:00:00Z'),
     ).resolves.toEqual([]);
+  });
+
+  it('updates a calendar’s name, colour and emoji', async () => {
+    await repository.updateCalendarIdentity(
+      'calendar-1',
+      { name: 'Mein Kalender', color: '#ff0000', emoji: '\u{1F4C5}' },
+      CONTEXT,
+    );
+
+    const calendar = await sources.findCalendar('calendar-1');
+    expect(calendar).toEqual(
+      expect.objectContaining({ name: 'Mein Kalender', color: '#ff0000', emoji: '\u{1F4C5}' }),
+    );
+  });
+
+  it('enables and disables one calendar without touching its source', async () => {
+    await repository.setCalendarEnabled('calendar-1', false, CONTEXT);
+
+    const disabled = await sources.findCalendar('calendar-1');
+    expect(disabled?.enabled).toBe(false);
+
+    await repository.setCalendarEnabled('calendar-1', true, CONTEXT);
+    const enabled = await sources.findCalendar('calendar-1');
+    expect(enabled?.enabled).toBe(true);
+  });
+
+  it('disconnecting a device source disables it and all its calendars', async () => {
+    await sources.insertSource({
+      id: 'device',
+      type: 'device',
+      name: 'Gerätekalender',
+      enabled: true,
+      state: 'ok',
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+    await sources.insertCalendar({
+      id: 'device-cal:cal-1',
+      sourceId: 'device',
+      name: 'Familie',
+      color: '#ff0000',
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-1',
+      nativeSourceId: null,
+      nativeSourceName: null,
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+
+    await repository.disconnectDeviceSource('device', CONTEXT);
+
+    await expect(repository.findSource('device')).resolves.toEqual(
+      expect.objectContaining({ enabled: false }),
+    );
+    const calendars = await repository.listCalendarsOfSource('device');
+    expect(calendars.every((calendar) => !calendar.enabled)).toBe(true);
+
+    await repository.reconnectDeviceSource('device', CONTEXT);
+
+    await expect(repository.findSource('device')).resolves.toEqual(
+      expect.objectContaining({ enabled: true }),
+    );
+    const reenabled = await repository.listCalendarsOfSource('device');
+    expect(reenabled.every((calendar) => calendar.enabled)).toBe(true);
+  });
+
+  it('toggles only the calendars of one native source, leaving other sources and the source itself untouched', async () => {
+    await sources.insertSource({
+      id: 'device',
+      type: 'device',
+      name: 'Gerätekalender',
+      enabled: true,
+      state: 'ok',
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+    await sources.insertCalendar({
+      id: 'device-cal:cal-1',
+      sourceId: 'device',
+      name: 'Familie',
+      color: '#ff0000',
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-1',
+      nativeSourceId: 'icloud',
+      nativeSourceName: 'iCloud',
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+    await sources.insertCalendar({
+      id: 'device-cal:cal-2',
+      sourceId: 'device',
+      name: 'Arbeit',
+      color: '#0000ff',
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-2',
+      nativeSourceId: 'google',
+      nativeSourceName: 'user@gmail.com',
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+
+    await repository.setCalendarsEnabledByNativeSource('device', 'icloud', false, CONTEXT);
+
+    const calendars = await repository.listCalendarsOfSource('device');
+    expect(calendars.find((calendar) => calendar.id === 'device-cal:cal-1')?.enabled).toBe(false);
+    expect(calendars.find((calendar) => calendar.id === 'device-cal:cal-2')?.enabled).toBe(true);
+    await expect(repository.findSource('device')).resolves.toEqual(
+      expect.objectContaining({ enabled: true }),
+    );
+
+    await repository.setCalendarsEnabledByNativeSource('device', 'icloud', true, CONTEXT);
+    const reenabled = await repository.listCalendarsOfSource('device');
+    expect(reenabled.every((calendar) => calendar.enabled)).toBe(true);
+  });
+
+  it('resolves a calendar together with its owning source', async () => {
+    await expect(repository.findCalendarWithSource('calendar-1')).resolves.toEqual({
+      calendar: expect.objectContaining({ id: 'calendar-1' }),
+      source: expect.objectContaining({ id: 'source-1', type: 'app' }),
+    });
+
+    await expect(repository.findCalendarWithSource('missing')).resolves.toBeNull();
   });
 });

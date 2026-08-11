@@ -39,6 +39,11 @@ export interface OccurrenceRecord {
   readonly itemId: string | null;
   readonly title: string;
   readonly location: string | null;
+  /**
+   * A device event's description/notes, straight from the OS calendar. `null` for app-owned rows
+   * (which keep their note on the canonical `app_items` record instead) and for ICS rows.
+   */
+  readonly description: string | null;
   readonly isAllDay: boolean;
   readonly start: TemporalValue;
   readonly end: TemporalValue | null;

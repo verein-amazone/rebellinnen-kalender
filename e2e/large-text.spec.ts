@@ -32,6 +32,7 @@ test.describe('large text', () => {
         '/settings/text-size',
         '/settings/motion',
         '/settings/reminders',
+        '/settings/calendars',
         '/calendar/event/new',
       ]) {
         test(`${path} does not scroll horizontally at large text`, async ({ page }) => {

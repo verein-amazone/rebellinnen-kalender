@@ -19,6 +19,7 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     kind: 'event',
     title: 'Workshop',
     location: null,
+    description: null,
     allDay: false,
     start: { kind: 'zoned', value: '2026-08-05T09:30:00', timeZone: 'Europe/Vienna' },
     end: { kind: 'zoned', value: '2026-08-05T11:00:00', timeZone: 'Europe/Vienna' },
