@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 
 import { CalendarOverviewPage } from './overview.page';
 
@@ -21,6 +22,7 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     kind: 'event',
     title: 'Workshop',
     location: null,
+    description: null,
     allDay: false,
     start: { kind: 'zoned', value: '2026-08-05T09:30:00', timeZone: 'Europe/Vienna' },
     end: { kind: 'zoned', value: '2026-08-05T11:00:00', timeZone: 'Europe/Vienna' },
@@ -52,6 +54,15 @@ class StubLocalDay {
   readonly day = signal('2026-08-07');
 }
 
+class FakeDeviceCalendarSyncInteractor {
+  refreshCalls = 0;
+
+  refresh(): Promise<void> {
+    this.refreshCalls += 1;
+    return Promise.resolve();
+  }
+}
+
 interface Setup {
   readonly element: HTMLElement;
   readonly interactor: FakeCalendarOccurrencesInteractor;
@@ -71,6 +82,7 @@ async function setup(
       provideRouter([]),
       { provide: LOCALE_ID, useValue: 'de' },
       { provide: CalendarOccurrencesInteractor, useValue: interactor },
+      { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
       { provide: LocalDay, useClass: StubLocalDay },
     ],
   });

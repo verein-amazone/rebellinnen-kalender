@@ -1,0 +1,62 @@
+<form (submit)="$event.preventDefault(); save()">
+  <label class="rk-label" for="calendar-identity-name">Name</label>
+  <div class="rk-field">
+    <input
+      id="calendar-identity-name"
+      class="rk-input"
+      type="text"
+      autocomplete="off"
+      [attr.maxlength]="maxLength"
+      [value]="name()"
+      [attr.aria-invalid]="error() === '' ? null : 'true'"
+      [attr.aria-describedby]="error() === '' ? null : 'calendar-identity-name-error'"
+      (input)="updateName($any($event.target).value)"
+    />
+  </div>
+
+  <!--
+    Always in the DOM: a live region that appears together with its text is frequently not announced
+    at all. See the contract in src/styles/components/field.css.
+  -->
+  <div aria-live="polite" aria-atomic="true">
+    @if (error() !== '') {
+      <p id="calendar-identity-name-error" class="rk-error">{{ error() }}</p>
+    }
+  </div>
+
+  <div class="mt-4">
+    <label class="rk-label" for="calendar-identity-color">Farbe</label>
+    <input
+      id="calendar-identity-color"
+      class="min-h-touch w-full cursor-pointer rounded-lg border-0 p-0"
+      type="color"
+      [value]="color()"
+      (input)="color.set($any($event.target).value)"
+    />
+  </div>
+
+  <div class="mt-4">
+    <label class="rk-label" for="calendar-identity-emoji">Emoji</label>
+    <div class="rk-field">
+      <input
+        id="calendar-identity-emoji"
+        class="rk-input"
+        type="text"
+        autocomplete="off"
+        maxlength="8"
+        placeholder="🗓️"
+        [value]="emoji()"
+        (input)="emoji.set($any($event.target).value)"
+      />
+    </div>
+    <p class="rk-hint">Ein einzelnes Emoji, z. B. über die Emoji-Tastatur.</p>
+  </div>
+
+  <!-- Stacked and full width, like every other sheet: one action per line, easy to hit. -->
+  <div class="rk-sheet-footer flex-col">
+    <button type="submit" class="rk-button rk-button-primary w-full">Speichern</button>
+    <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
+      Abbrechen
+    </button>
+  </div>
+</form>

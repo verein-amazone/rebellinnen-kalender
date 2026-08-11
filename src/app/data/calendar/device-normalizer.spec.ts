@@ -7,6 +7,7 @@ function instance(overrides: Partial<DeviceEventInstance> = {}): DeviceEventInst
     calendarId: 'cal-1',
     title: 'Zahnarzt',
     location: null,
+    description: null,
     // Matches what the gateway actually produces (`utcInstantFromEpochMilliseconds`), not
     // `Date#toISOString()` — the normalizer stores this string verbatim as the occurrence's
     // start_utc/end_utc, so it must already be in the format range queries compare against.

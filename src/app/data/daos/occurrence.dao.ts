@@ -23,6 +23,7 @@ interface OccurrenceRow {
   readonly item_id: string | null;
   readonly title: string;
   readonly location: string | null;
+  readonly description: string | null;
   readonly is_all_day: number;
   readonly start_kind: TemporalKind;
   readonly start_value: string;
@@ -47,7 +48,7 @@ interface CoverageRow {
 }
 
 const COLUMNS = `id, source_id, source_type, calendar_id, series_id, original_start, provenance,
-  item_kind, item_id, title, location, is_all_day, start_kind, start_value, start_tz,
+  item_kind, item_id, title, location, description, is_all_day, start_kind, start_value, start_tz,
   end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id`;
 
 /**
@@ -87,7 +88,7 @@ export class OccurrenceDao {
     for (const record of records) {
       await executor.run(
         `INSERT INTO occurrences (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           record.id,
           record.sourceId,
@@ -100,6 +101,7 @@ export class OccurrenceDao {
           record.itemId,
           record.title,
           record.location,
+          record.description,
           record.isAllDay ? 1 : 0,
           record.start.kind,
           record.start.value,
@@ -268,6 +270,7 @@ function toRecord(row: OccurrenceRow): OccurrenceRecord {
     itemId: row.item_id ?? null,
     title: row.title,
     location: row.location ?? null,
+    description: row.description ?? null,
     isAllDay: row.is_all_day === 1,
     start: { kind: row.start_kind, value: row.start_value, timeZone: row.start_tz ?? null },
     end:

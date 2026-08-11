@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AppCalendarItemDao } from '@app/data/daos/app-calendar-item.dao';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import { CAPACITOR_CALENDAR } from '@app/data/gateways/capacitor-calendar';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
 import { MIGRATIONS } from '@app/data/migrations/migrations';
@@ -36,7 +37,12 @@ describe('AppEventEditingInteractor', () => {
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: SQLITE_DATABASE, useValue: database }],
+      providers: [
+        { provide: SQLITE_DATABASE, useValue: database },
+        // These tests only ever target the app calendar; a stub keeps the real plugin (which
+        // fails `ngOnDestroy()` under jsdom) out of the picture entirely.
+        { provide: CAPACITOR_CALENDAR, useValue: {} },
+      ],
     });
 
     interactor = TestBed.inject(AppEventEditingInteractor);
@@ -61,6 +67,8 @@ describe('AppEventEditingInteractor', () => {
       enabled: true,
       writable: true,
       externalId: null,
+      nativeSourceId: null,
+      nativeSourceName: null,
       createdAt: '2026-08-01T09:00:00.000Z',
       updatedAt: '2026-08-01T09:00:00.000Z',
     });
@@ -121,5 +129,79 @@ describe('AppEventEditingInteractor', () => {
     const exceptions = await items.listExceptionsOfSeries(id);
     expect(exceptions).toHaveLength(1);
     expect(exceptions[0].status).toBe('cancelled');
+  });
+});
+
+describe('AppEventEditingInteractor targeting a device calendar', () => {
+  let database: InMemorySqliteDatabase;
+  let interactor: AppEventEditingInteractor;
+  let items: AppCalendarItemDao;
+  let createdOptions: unknown;
+
+  beforeEach(async () => {
+    database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+    createdOptions = undefined;
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SQLITE_DATABASE, useValue: database },
+        {
+          provide: CAPACITOR_CALENDAR,
+          useValue: {
+            createEvent: async (options: unknown) => {
+              createdOptions = options;
+              return { id: 'native-event-1' };
+            },
+            checkPermission: async () => ({ result: 'granted' }),
+            listCalendars: async () => ({ result: [] }),
+            listEventsInRange: async () => ({ result: [] }),
+          },
+        },
+      ],
+    });
+
+    interactor = TestBed.inject(AppEventEditingInteractor);
+    items = TestBed.inject(AppCalendarItemDao);
+
+    const sources = TestBed.inject(CalendarSourceDao);
+    await sources.insertSource({
+      id: 'device',
+      type: 'device',
+      name: 'Gerätekalender',
+      enabled: true,
+      state: 'ok',
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+    await sources.insertCalendar({
+      id: 'device-cal:cal-1',
+      sourceId: 'device',
+      name: 'Familie',
+      color: '#ff0000',
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-1',
+      nativeSourceId: null,
+      nativeSourceName: null,
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+  });
+
+  afterEach(() => {
+    database.close();
+  });
+
+  it('writes the event straight into the OS calendar instead of a canonical app row', async () => {
+    const id = await interactor.create(draft({ calendarId: 'device-cal:cal-1' }));
+
+    expect(id).toBe('native-event-1');
+    expect(createdOptions).toEqual(
+      expect.objectContaining({ calendarId: 'cal-1', title: 'Plenum' }),
+    );
+    await expect(items.listAll()).resolves.toEqual([]);
   });
 });

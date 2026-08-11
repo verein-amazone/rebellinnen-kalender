@@ -29,6 +29,8 @@ function calendar(overrides: Partial<CalendarRecord> = {}): CalendarRecord {
     enabled: true,
     writable: true,
     externalId: null,
+    nativeSourceId: null,
+    nativeSourceName: null,
     createdAt: '2026-08-01T10:00:00.000Z',
     updatedAt: '2026-08-01T10:00:00.000Z',
     ...overrides,
@@ -112,13 +114,22 @@ describe('CalendarSourceDao', () => {
     await dao.insertSource(source({ type: 'device' }));
     await dao.insertCalendar(calendar({ emoji: '🌙', color: '#123456' }));
 
-    await dao.updateCalendarSnapshot('calendar-1', 'Familie', false, '2026-08-02T10:00:00.000Z');
+    await dao.updateCalendarSnapshot(
+      'calendar-1',
+      'Familie',
+      false,
+      'icloud',
+      'iCloud',
+      '2026-08-02T10:00:00.000Z',
+    );
 
     const [updated] = await dao.listCalendarsOfSource('source-1');
     expect(updated).toEqual(
       calendar({
         name: 'Familie',
         writable: false,
+        nativeSourceId: 'icloud',
+        nativeSourceName: 'iCloud',
         emoji: '🌙',
         color: '#123456',
         updatedAt: '2026-08-02T10:00:00.000Z',

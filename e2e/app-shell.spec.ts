@@ -167,4 +167,12 @@ test.describe('application shell', () => {
 
     await expectNoBlockingViolations(page);
   });
+
+  test('has no serious or critical accessibility violations on calendar management', async ({
+    page,
+  }) => {
+    await page.goto('/settings/calendars');
+
+    await expectNoBlockingViolations(page);
+  });
 });

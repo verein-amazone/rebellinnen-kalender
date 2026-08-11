@@ -239,6 +239,10 @@ function buildRow(input: RowInput): OccurrenceRecord {
     itemId: input.branding.sourceType === 'app' ? item.id : null,
     title: input.overrides?.title ?? item.title,
     location: input.overrides ? (input.overrides.location ?? item.location) : item.location,
+    // Only device-cached rows carry a description (see `device-normalizer.ts`); app-owned items
+    // keep their note on the canonical `app_items` record instead, and ICS description support is
+    // out of scope here.
+    description: null,
     isAllDay,
     start,
     end,

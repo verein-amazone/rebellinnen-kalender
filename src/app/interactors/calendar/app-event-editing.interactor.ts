@@ -2,13 +2,15 @@ import { inject, Injectable } from '@angular/core';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import { shiftEnd } from '@app/data/calendar/recurrence/occurrence-materializer';
-import { withoutEndBound } from '@app/data/calendar/recurrence/rrule-tools';
+import { toUtcInstantString, withoutEndBound } from '@app/data/calendar/recurrence/rrule-tools';
 import type {
   AppItemExceptionRecord,
   AppItemKind,
   AppItemRecord,
 } from '@app/data/entities/app-item.record';
 import type { TemporalValue } from '@app/data/entities/temporal-value';
+import { NativeCalendarGateway } from '@app/data/gateways/native-calendar.gateway';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 
 // Views describe times through the interactor's types; the storage type is the domain language.
 export type { TemporalValue } from '@app/data/entities/temporal-value';
@@ -53,6 +55,8 @@ export interface AppEventChanges {
 @Injectable({ providedIn: 'root' })
 export class AppEventEditingInteractor {
   private readonly repository = inject(CalendarRepository);
+  private readonly nativeCalendar = inject(NativeCalendarGateway);
+  private readonly deviceSync = inject(DeviceCalendarSyncInteractor);
 
   /**
    * The full canonical record behind an item, for a consumer that needs a field the read-model
@@ -64,8 +68,18 @@ export class AppEventEditingInteractor {
     return this.repository.findItem(itemId);
   }
 
-  /** Creates a standalone item or a new series and returns its id. */
+  /**
+   * Creates a standalone item or a new series and returns its id — unless `calendarId` names a
+   * writable device calendar, in which case the appointment is written straight into the OS
+   * calendar via `createDeviceEvent` instead. `EventForm` never sets `rrule` on a draft, so a
+   * device destination never has to represent recurrence the plugin write does not accept.
+   */
   async create(draft: AppEventDraft): Promise<string> {
+    const target = await this.repository.findCalendarWithSource(draft.calendarId);
+    if (target !== null && target.source.type === 'device') {
+      return this.createDeviceEvent(target.calendar.externalId ?? draft.calendarId, draft);
+    }
+
     const context = this.context();
     const record: AppItemRecord = {
       id: crypto.randomUUID(),
@@ -85,6 +99,30 @@ export class AppEventEditingInteractor {
 
     await this.repository.createItem(record, context);
     return record.id;
+  }
+
+  /**
+   * Writes a standalone event directly into the OS calendar and refreshes the device cache so it
+   * appears immediately, instead of waiting for the next automatic sync. No canonical app row is
+   * created — the OS is the record from the start, the same as any other device event.
+   */
+  private async createDeviceEvent(nativeCalendarId: string, draft: AppEventDraft): Promise<string> {
+    const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const isAllDay = draft.start.kind === 'date';
+    const startUtc = toUtcInstantString(draft.start, deviceZone);
+    const endUtc = toUtcInstantString(draft.end ?? draft.start, deviceZone);
+
+    const { eventId } = await this.nativeCalendar.createEvent({
+      calendarId: nativeCalendarId,
+      title: validatedTitle(draft.title),
+      location: draft.location,
+      startUtc,
+      endUtc,
+      isAllDay,
+    });
+
+    await this.deviceSync.refresh({ force: true });
+    return eventId;
   }
 
   /** Edits a standalone item, or every occurrence of a series. */

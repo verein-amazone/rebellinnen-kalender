@@ -72,6 +72,8 @@ export class IcsSubscriptionInteractor {
         enabled: true,
         writable: false,
         externalId: null,
+        nativeSourceId: null,
+        nativeSourceName: null,
         createdAt: context.nowUtc,
         updatedAt: context.nowUtc,
       },

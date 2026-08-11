@@ -16,7 +16,8 @@ let package = Package(
         .package(name: "CapacitorApp", path: "../../../node_modules/.pnpm/@capacitor+app@8.1.1_@capacitor+core@8.5.0/node_modules/@capacitor/app"),
         .package(name: "CapacitorTextZoom", path: "../../../node_modules/.pnpm/@capacitor+text-zoom@8.0.1_@capacitor+core@8.5.0/node_modules/@capacitor/text-zoom"),
         .package(name: "CapawesomeCapacitorAccessibilityPreferences", path: "../../../node_modules/.pnpm/@capawesome+capacitor-accessibility-preferences@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-accessibility-preferences"),
-        .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.2.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar")
+        .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.2.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar"),
+        .package(name: "CapacitorNativeSettings", path: "../../../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.5.0/node_modules/capacitor-native-settings")
     ],
     targets: [
         .target(
@@ -28,7 +29,8 @@ let package = Package(
                 .product(name: "CapacitorApp", package: "CapacitorApp"),
                 .product(name: "CapacitorTextZoom", package: "CapacitorTextZoom"),
                 .product(name: "CapawesomeCapacitorAccessibilityPreferences", package: "CapawesomeCapacitorAccessibilityPreferences"),
-                .product(name: "EbarooniCapacitorCalendar", package: "EbarooniCapacitorCalendar")
+                .product(name: "EbarooniCapacitorCalendar", package: "EbarooniCapacitorCalendar"),
+                .product(name: "CapacitorNativeSettings", package: "CapacitorNativeSettings")
             ]
         )
     ]

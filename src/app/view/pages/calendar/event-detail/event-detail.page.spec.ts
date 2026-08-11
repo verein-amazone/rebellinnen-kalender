@@ -34,6 +34,7 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     kind: 'event',
     title: 'Zahnarzt',
     location: 'Praxis Dr. Muster',
+    description: null,
     allDay: false,
     start: { kind: 'zoned', value: '2026-08-10T09:00:00', timeZone: 'Europe/Vienna' },
     end: { kind: 'zoned', value: '2026-08-10T10:30:00', timeZone: 'Europe/Vienna' },

@@ -22,6 +22,7 @@ import {
   CalendarOccurrencesInteractor,
   type OccurrenceFilter,
 } from '@app/interactors/calendar/calendar-occurrences.interactor';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { CalendarAgendaBlock } from '@app/view/blocks/calendar-agenda/calendar-agenda.block';
 import {
@@ -50,7 +51,18 @@ export class CalendarOverviewPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly occurrencesInteractor = inject(CalendarOccurrencesInteractor);
+  private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
   private readonly localDay = inject(LocalDay);
+
+  constructor() {
+    // The "calendar screen" trigger `DeviceCalendarSyncInteractor`'s own doc comment promises:
+    // an external change (edited in Google Calendar, synced in by the OS in the background) has
+    // otherwise no way to reach this screen until the next debounced refresh happens to land.
+    // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap; the
+    // occurrences resource is reloaded afterwards so a genuinely fresh cache is not stuck behind
+    // the range param not having changed.
+    void this.deviceCalendarSync.refresh().then(() => this.occurrences.reload());
+  }
 
   /** Bound from the `view` query parameter. Anything but `month` reads as the week view. */
   readonly view = input<string>();

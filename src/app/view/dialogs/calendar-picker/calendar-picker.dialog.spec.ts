@@ -78,4 +78,31 @@ describe('CalendarPickerDialog', () => {
 
     expect(results).toEqual(['cal-verein']);
   });
+
+  it('groups device calendars under their own heading when both kinds are on offer', async () => {
+    const deviceCalendar: WritableAppCalendar = {
+      id: 'cal-device',
+      name: 'Familie',
+      color: '#112233',
+      emoji: null,
+      sourceType: 'device',
+    };
+
+    const { element } = await setup({
+      calendars: [calendarPrivate, deviceCalendar],
+      selectedId: 'cal-privat',
+    });
+
+    expect(element.textContent).toContain('Gerätekalender');
+    expect(element.textContent).toContain('Familie');
+  });
+
+  it('omits the device-calendar heading when there is nothing to put under it', async () => {
+    const { element } = await setup({
+      calendars: [calendarPrivate, calendarVerein],
+      selectedId: 'cal-privat',
+    });
+
+    expect(element.textContent).not.toContain('Gerätekalender');
+  });
 });

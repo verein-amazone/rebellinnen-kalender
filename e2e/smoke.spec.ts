@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { expectNoBlockingViolations } from './support/a11y';
-import { seedAppCalendar, seedOccurrence } from './support/calendar-seed';
+import { seedAppCalendar, seedDeviceCalendar, seedOccurrence } from './support/calendar-seed';
 
 /**
  * Functional coverage for #19 (view and manage appointments): creating, editing and deleting an
@@ -156,5 +156,83 @@ test.describe('appointments', () => {
     await page.goto('/calendar/event/new');
 
     await expectNoBlockingViolations(page);
+  });
+});
+
+/**
+ * Functional coverage for #20 (manage the app calendar and device calendars). The device
+ * connection flow itself (requesting OS permission) has no web equivalent and cannot run under
+ * Playwright, so these scenarios seed an already-connected device source straight into SQLite —
+ * the same workaround `seedAppCalendar`/`seedOccurrence` already use for #19 — and exercise
+ * everything reachable from there: the identity-edit sheet (this issue's own comment asked
+ * whichever of #18/#19/#20 landed first to add the first real colour/emoji-picker sheet coverage),
+ * per-calendar enable/disable, and disconnecting.
+ */
+test.describe('calendar management', () => {
+  test('edits the app calendar’s name and emoji through the identity sheet', async ({ page }) => {
+    await seedAppCalendar(page, 'Testkalender');
+
+    await page.goto('/settings/calendars');
+    await page.getByRole('button', { name: /Testkalender/ }).click();
+
+    const sheet = page.getByRole('dialog', { name: 'Kalender bearbeiten' });
+    await expect(sheet).toBeVisible();
+
+    await sheet.getByLabel('Name').fill('Vereinstermine');
+    await sheet.getByLabel('Emoji').fill('🌸');
+    await sheet.getByRole('button', { name: 'Speichern' }).click();
+
+    await expect(sheet).toBeHidden();
+    await expect(page.getByRole('button', { name: /Vereinstermine/ })).toBeVisible();
+  });
+
+  test('explains the device-calendar connection before one exists', async ({ page }) => {
+    await page.goto('/settings/calendars');
+
+    await expect(page.getByText('Verbinde die Kalender deines Geräts')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Gerätekalender verbinden' })).toBeVisible();
+  });
+
+  test('lists a connected device calendar and hides its appointments once disabled', async ({
+    page,
+  }) => {
+    const deviceCalendar = await seedDeviceCalendar(page, 'Familie');
+    const { occurrenceId } = await seedOccurrence(page, {
+      sourceType: 'device',
+      title: 'Familientreffen',
+      day: '2026-09-10',
+      existingCalendar: deviceCalendar,
+    });
+
+    await page.goto('/calendar?day=2026-09-10');
+    await expect(page.getByRole('link', { name: /Familientreffen/ })).toBeVisible();
+
+    await page.goto('/settings/calendars');
+    const toggle = page.getByRole('switch', { name: 'Familie' });
+    await expect(toggle).toBeChecked();
+    await toggle.click();
+    await expect(toggle).not.toBeChecked();
+
+    await page.goto('/calendar?day=2026-09-10');
+    await expect(page.getByRole('link', { name: /Familientreffen/ })).toHaveCount(0);
+
+    // The cached occurrence is only hidden, not gone — its detail is still reachable directly.
+    await page.goto(`/calendar/event/${occurrenceId}`);
+    await expect(page.getByRole('heading', { name: 'Familientreffen' })).toBeVisible();
+  });
+
+  test('disconnects the device calendar after confirming', async ({ page }) => {
+    await seedDeviceCalendar(page, 'Familie');
+
+    await page.goto('/settings/calendars');
+    await page.getByRole('button', { name: 'Verbindung trennen' }).click();
+
+    const confirmation = page.getByRole('dialog', { name: 'Verbindung trennen?' });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Trennen' }).click();
+
+    await expect(confirmation).toBeHidden();
+    await expect(page.getByText('Der Gerätekalender ist getrennt')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Verbinden' })).toBeVisible();
   });
 });

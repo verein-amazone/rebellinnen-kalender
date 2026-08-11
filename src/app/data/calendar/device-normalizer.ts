@@ -80,6 +80,7 @@ function toRow(
     itemId: null,
     title: instance.title,
     location: instance.location,
+    description: instance.description,
     isAllDay: instance.isAllDay,
     start: instance.isAllDay
       ? { kind: 'date', value: startDay, timeZone: null }

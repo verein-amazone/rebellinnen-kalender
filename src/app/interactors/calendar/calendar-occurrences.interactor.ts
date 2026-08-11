@@ -70,6 +70,7 @@ function toOccurrence(row: RangeOccurrence): CalendarOccurrence {
     kind: row.itemKind,
     title: row.title,
     location: row.location,
+    description: row.description,
     allDay: row.isAllDay,
     start: row.start,
     end: row.end,

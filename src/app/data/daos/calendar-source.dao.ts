@@ -28,13 +28,15 @@ interface CalendarRow {
   readonly enabled: number;
   readonly writable: number;
   readonly external_id: string | null;
+  readonly native_source_id: string | null;
+  readonly native_source_name: string | null;
   readonly created_at: string;
   readonly updated_at: string;
 }
 
 const SOURCE_COLUMNS = 'id, type, name, enabled, state, created_at, updated_at';
 const CALENDAR_COLUMNS =
-  'id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at';
+  'id, source_id, name, color, emoji, enabled, writable, external_id, native_source_id, native_source_name, created_at, updated_at';
 
 /**
  * Table access for calendar sources and their calendars.
@@ -168,7 +170,7 @@ export class CalendarSourceDao {
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `INSERT INTO calendars (${CALENDAR_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO calendars (${CALENDAR_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.sourceId,
@@ -178,6 +180,8 @@ export class CalendarSourceDao {
         record.enabled ? 1 : 0,
         record.writable ? 1 : 0,
         record.externalId,
+        record.nativeSourceId,
+        record.nativeSourceName,
         record.createdAt,
         record.updatedAt,
       ],
@@ -189,15 +193,17 @@ export class CalendarSourceDao {
     id: string,
     name: string,
     writable: boolean,
+    nativeSourceId: string | null,
+    nativeSourceName: string | null,
     updatedAt: string,
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
-    await executor.run(`UPDATE calendars SET name = ?, writable = ?, updated_at = ? WHERE id = ?`, [
-      name,
-      writable ? 1 : 0,
-      updatedAt,
-      id,
-    ]);
+    await executor.run(
+      `UPDATE calendars
+       SET name = ?, writable = ?, native_source_id = ?, native_source_name = ?, updated_at = ?
+       WHERE id = ?`,
+      [name, writable ? 1 : 0, nativeSourceId, nativeSourceName, updatedAt, id],
+    );
   }
 
   async updateCalendarIdentity(
@@ -261,6 +267,8 @@ function toCalendarRecord(row: CalendarRow): CalendarRecord {
     enabled: row.enabled === 1,
     writable: row.writable === 1,
     externalId: row.external_id ?? null,
+    nativeSourceId: row.native_source_id ?? null,
+    nativeSourceName: row.native_source_name ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
