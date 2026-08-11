@@ -1,0 +1,7 @@
+@if (headline(); as text) {
+  <app-today-closing-message
+    [headline]="text"
+    [supportingLine]="supportingLine()"
+    [appointment]="appointment()"
+  />
+}

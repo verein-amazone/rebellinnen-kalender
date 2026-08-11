@@ -30,6 +30,7 @@ import {
 } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
+import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
 import {
   REMINDER_TEXT_MAX_LENGTH,
   ReminderListInteractor,
@@ -97,6 +98,7 @@ export class ReminderListBlock {
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly currentDay = inject(LocalDay);
+  private readonly reminderChanges = inject(ReminderChanges);
 
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('newReminderInput');
 
@@ -374,10 +376,15 @@ export class ReminderListBlock {
       });
   }
 
-  /** Every reload drops the hand-made order: the list that arrives is the one to show. */
+  /**
+   * Every reload drops the hand-made order: the list that arrives is the one to show. Also the one
+   * place every write funnels through, so it doubles as the notification the Today page's closing
+   * message — a sibling block with no other view of this list — reacts to.
+   */
   protected reload(): void {
     this.ordered.set(null);
     this.items.reload();
+    this.reminderChanges.notify();
   }
 }
 

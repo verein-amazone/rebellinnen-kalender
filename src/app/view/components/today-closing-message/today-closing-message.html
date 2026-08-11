@@ -1,0 +1,18 @@
+<div class="space-y-1 py-2 text-center" aria-live="polite" aria-atomic="true">
+  @if (headline(); as text) {
+    <p class="text-muted-foreground text-sm">{{ text }}</p>
+
+    @if (supportingLine(); as line) {
+      <p data-testid="supporting-line" class="text-muted-foreground text-xs">{{ line }}</p>
+    }
+
+    @if (appointment(); as occurrence) {
+      <a
+        [routerLink]="['/calendar', 'event', occurrence.id]"
+        class="text-muted-foreground text-xs underline-offset-2 hover:underline"
+      >
+        {{ occurrence.title }}
+      </a>
+    }
+  }
+</div>
