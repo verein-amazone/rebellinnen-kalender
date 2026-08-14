@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { ProfileInteractor } from '@app/interactors/settings/profile.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 @Component({
@@ -10,4 +11,11 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   templateUrl: './profile.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfilePage {}
+export class ProfilePage {
+  protected readonly profile = inject(ProfileInteractor);
+  protected readonly maxLength = this.profile.nameMaxLength;
+
+  protected updateName(value: string): void {
+    this.profile.setName(value);
+  }
+}

@@ -1,3 +1,15 @@
 <app-focused-screen heading="Profil" fallbackLink="/settings">
-  <p class="text-muted-foreground">Name und Begrüßung werden in Issue #14 umgesetzt.</p>
+  <label class="rk-label" for="profile-name">Mein Name</label>
+  <div class="rk-field">
+    <input
+      id="profile-name"
+      class="rk-input"
+      type="text"
+      autocomplete="off"
+      [attr.maxlength]="maxLength"
+      [value]="profile.name() ?? ''"
+      (input)="updateName($any($event.target).value)"
+    />
+  </div>
+  <p class="rk-hint">Wie soll die App dich begrüßen?</p>
 </app-focused-screen>
