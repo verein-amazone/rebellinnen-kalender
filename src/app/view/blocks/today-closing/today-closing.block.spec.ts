@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
@@ -70,6 +70,14 @@ async function setup(config: {
   const occurrences = new FakeCalendarOccurrencesInteractor();
   const today = config.today ?? '2026-08-11';
   const tomorrow = '2026-08-12';
+
+  // The block reads the wall clock directly (`new Date().toISOString()`) to decide whether an
+  // occurrence is still upcoming, so the fixtures' fixed `today`/occurrence times only stay
+  // "future" relative to a pinned clock — otherwise this suite silently breaks once the real date
+  // passes 2026-08-11.
+  // Only `Date` is faked — timers stay real so `fixture.whenStable()` still resolves.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(`${today}T12:00:00Z`));
   occurrences.byRange.set(`${today}|${today}`, config.todayOccurrences ?? []);
   occurrences.byRange.set(`${tomorrow}|${tomorrow}`, config.tomorrowOccurrences ?? []);
 
@@ -97,6 +105,10 @@ async function setup(config: {
 describe('TodayClosingBlock', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('shows the open-reminders headline when reminders are open and nothing else is scheduled', async () => {
