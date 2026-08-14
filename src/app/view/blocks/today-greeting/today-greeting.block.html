@@ -1,0 +1,12 @@
+<div class="flex items-center justify-between gap-3">
+  <p class="text-lg">{{ greeting() }}{{ name() ? ', ' + name() : '' }}</p>
+
+  <button
+    type="button"
+    class="rk-icon-button text-2xl"
+    (click)="openEmojiPicker()"
+    [attr.aria-label]="'Persönliches Emoji ändern, aktuell ' + emoji()"
+  >
+    <span aria-hidden="true">{{ emoji() }}</span>
+  </button>
+</div>
