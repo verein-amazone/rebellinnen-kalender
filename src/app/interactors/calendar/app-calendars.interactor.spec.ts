@@ -1,23 +1,37 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
 import { MIGRATIONS } from '@app/data/migrations/migrations';
 import { AppCalendarsInteractor } from './app-calendars.interactor';
 
+class FakeEmojiPickerGateway {
+  result: string | null = '🌻';
+
+  pickEmoji(): Promise<string | null> {
+    return Promise.resolve(this.result);
+  }
+}
+
 describe('AppCalendarsInteractor', () => {
   let database: InMemorySqliteDatabase;
   let interactor: AppCalendarsInteractor;
   let sources: CalendarSourceDao;
+  let emojiPicker: FakeEmojiPickerGateway;
 
   beforeEach(() => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
+    emojiPicker = new FakeEmojiPickerGateway();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: SQLITE_DATABASE, useValue: database }],
+      providers: [
+        { provide: SQLITE_DATABASE, useValue: database },
+        { provide: EmojiPickerGateway, useValue: emojiPicker },
+      ],
     });
 
     interactor = TestBed.inject(AppCalendarsInteractor);
@@ -211,5 +225,17 @@ describe('AppCalendarsInteractor', () => {
 
     const updated = await sources.findCalendar(calendar.id);
     expect(updated).toMatchObject({ name: 'Vereinstermine', color: '#336699', emoji: '🗓️' });
+  });
+
+  it('resolves the emoji the picker returns', async () => {
+    emojiPicker.result = '🌻';
+
+    await expect(interactor.pickEmoji()).resolves.toBe('🌻');
+  });
+
+  it('resolves null when the picker is dismissed without a selection', async () => {
+    emojiPicker.result = null;
+
+    await expect(interactor.pickEmoji()).resolves.toBeNull();
   });
 });

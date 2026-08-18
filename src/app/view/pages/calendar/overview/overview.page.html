@@ -1,28 +1,39 @@
-<!-- `py-2` here and `pt-4` on the block below reproduce the space `.rk-screen-header-bar` +
-     `.rk-screen-body` reserve on a focused screen, so switching between this tab and a focused
-     screen (e.g. event detail) doesn't shift where scrollable content starts. -->
-<div class="flex items-center gap-1 px-4 py-2">
-  <!-- Visually hidden: the bottom navigation already shows where the user is. Still the screen's
-       accessible name and the navigation focus target (see PageFocus). -->
-  <h1 class="sr-only">Kalender</h1>
+<!-- Pinned: the period nav and the Woche/Monat switcher stay put while the agenda below scrolls
+     under them, the same `sticky top-0` pattern `focused-screen.scaffold.html`'s header uses. A
+     background is required — without one the scrolling content behind would show through. `safe-top`
+     sits here rather than on the shell's `<main>` (see that comment) so this header's own background
+     — not whatever scrolls underneath it — fills the notch area. -->
+<div class="bg-background safe-top sticky top-0 z-10">
+  <!-- `py-2` here and `pt-4` on the scrollable block below reproduce the space
+       `.rk-screen-header-bar` + `.rk-screen-body` reserve on a focused screen, so switching between
+       this tab and a focused screen (e.g. event detail) doesn't shift where scrollable content
+       starts. -->
+  <div class="flex items-center gap-1 px-4 py-2">
+    <!-- Visually hidden: the bottom navigation already shows where the user is. Still the screen's
+         accessible name and the navigation focus target (see PageFocus). -->
+    <h1 class="sr-only">Kalender</h1>
 
-  <button
-    type="button"
-    class="rk-icon-button"
-    [attr.aria-label]="previousLabel()"
-    (click)="goToPrevious()"
-  >
-    <svg lucideChevronLeft class="rk-icon" aria-hidden="true"></svg>
-  </button>
-  <p class="min-w-0 flex-1 text-center font-semibold">{{ periodLabel() }}</p>
-  <button type="button" class="rk-icon-button" [attr.aria-label]="nextLabel()" (click)="goToNext()">
-    <svg lucideChevronRight class="rk-icon" aria-hidden="true"></svg>
-  </button>
-  <button type="button" class="rk-button rk-button-ghost" (click)="goToToday()">Heute</button>
-</div>
+    <button
+      type="button"
+      class="rk-icon-button"
+      [attr.aria-label]="previousLabel()"
+      (click)="goToPrevious()"
+    >
+      <svg lucideChevronLeft class="rk-icon" aria-hidden="true"></svg>
+    </button>
+    <p class="min-w-0 flex-1 text-center font-semibold">{{ periodLabel() }}</p>
+    <button
+      type="button"
+      class="rk-icon-button"
+      [attr.aria-label]="nextLabel()"
+      (click)="goToNext()"
+    >
+      <svg lucideChevronRight class="rk-icon" aria-hidden="true"></svg>
+    </button>
+    <button type="button" class="rk-button rk-button-ghost" (click)="goToToday()">Heute</button>
+  </div>
 
-<div class="space-y-4 px-4 pt-4 pb-6">
-  <fieldset>
+  <fieldset class="px-4 pb-2">
     <legend class="sr-only">Ansicht</legend>
     <div class="bg-muted flex rounded-lg p-0.5">
       <label
@@ -53,7 +64,9 @@
       </label>
     </div>
   </fieldset>
+</div>
 
+<div class="space-y-4 px-4 pt-4 pb-6">
   <!-- On a card surface: the muted weekday and out-of-month text meets contrast on `card`, not on
        every theme's page background. -->
   <div class="rk-card p-2">

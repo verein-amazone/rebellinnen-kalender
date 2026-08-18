@@ -10,6 +10,7 @@ import {
 import { LucideExternalLink } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
 import {
   DeviceCalendarsInteractor,
@@ -49,6 +50,9 @@ export class CalendarsPage {
   private readonly deviceCalendars = inject(DeviceCalendarsInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+
+  /** Device calendars are an OS concept; there is nothing to connect to in a browser tab. */
+  protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
 
   private readonly appCalendarsResource = resource({
     loader: () => this.appCalendars.listWritable(),
@@ -117,6 +121,20 @@ export class CalendarsPage {
 
   protected async toggleDeviceCalendar(calendarId: string, enabled: boolean): Promise<void> {
     await this.deviceCalendars.setCalendarEnabled(calendarId, enabled);
+    this.deviceResource.reload();
+  }
+
+  /**
+   * The device never reports an emoji of its own, so its avatar doubles as the picker trigger —
+   * unlike name/colour, which come from the OS and are read-only here.
+   */
+  protected async pickDeviceCalendarEmoji(calendarId: string): Promise<void> {
+    const emoji = await this.deviceCalendars.pickEmoji();
+    if (emoji === null) {
+      return;
+    }
+
+    await this.deviceCalendars.setCalendarEmoji(calendarId, emoji);
     this.deviceResource.reload();
   }
 

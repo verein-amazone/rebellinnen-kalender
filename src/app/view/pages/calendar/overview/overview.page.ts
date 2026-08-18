@@ -20,10 +20,7 @@ import {
 import { formatMonthYear, formatWeekRangeLabel } from '@app/cross-cutting/helpers/date-format';
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { CalendarFiltersInteractor } from '@app/interactors/calendar/calendar-filters.interactor';
-import {
-  CalendarOccurrencesInteractor,
-  type OccurrenceFilter,
-} from '@app/interactors/calendar/calendar-occurrences.interactor';
+import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { CalendarAgendaBlock } from '@app/view/blocks/calendar-agenda/calendar-agenda.block';
@@ -99,20 +96,6 @@ export class CalendarOverviewPage {
   /** Empty means "nothing hidden yet" — every filterable calendar is visible by default. */
   protected readonly hiddenCalendarIds = signal<ReadonlySet<string>>(new Set());
 
-  /** `undefined` (no narrowing) once nothing is hidden, so the default query stays unfiltered. */
-  private readonly filter = computed<OccurrenceFilter | undefined>(() => {
-    const hidden = this.hiddenCalendarIds();
-    if (hidden.size === 0) {
-      return undefined;
-    }
-
-    const calendarIds = (this.filterableCalendars.value() ?? [])
-      .filter((calendar) => !hidden.has(calendar.id))
-      .map((calendar) => calendar.id);
-
-    return { calendarIds };
-  });
-
   /** Every filterable calendar is hidden — the agenda swaps its empty state for an explanation. */
   protected readonly allSourcesHidden = computed(() => {
     const calendars = this.filterableCalendars.value() ?? [];
@@ -134,19 +117,23 @@ export class CalendarOverviewPage {
   );
 
   protected readonly occurrences = resource({
-    // The filter is read here too — not just the range — since `resource()` only reacts to
-    // signals read while computing `params`; a filter change is invisible to it otherwise.
-    params: () => ({ range: this.range(), filter: this.filter() }),
-    loader: ({ params }) => {
-      const { fromDay, toDay } = params.range;
-
-      return this.occurrencesInteractor.listForDays(fromDay, toDay, params.filter);
-    },
+    params: () => this.range(),
+    loader: ({ params }) => this.occurrencesInteractor.listForDays(params.fromDay, params.toDay),
   });
 
-  protected readonly loadedOccurrences = computed<readonly CalendarOccurrence[]>(
-    () => this.occurrences.value() ?? [],
-  );
+  /**
+   * The source filter (#18) is applied here, client-side, rather than by re-querying with
+   * `OccurrenceFilter` — the full range is already loaded, so narrowing it is a synchronous
+   * recompute. Round-tripping through the resource on every toggle used to flash the agenda empty
+   * mid-reload (the resource clears `value()` while its loader runs), which collapsed the list's
+   * height and reset the scroll position — exactly the "layout jumps to the top" bug this avoids.
+   */
+  protected readonly loadedOccurrences = computed<readonly CalendarOccurrence[]>(() => {
+    const all = this.occurrences.value() ?? [];
+    const hidden = this.hiddenCalendarIds();
+
+    return hidden.size === 0 ? all : all.filter((occurrence) => !hidden.has(occurrence.calendarId));
+  });
 
   protected readonly periodLabel = computed(() => {
     const { fromDay, toDay } = this.range();

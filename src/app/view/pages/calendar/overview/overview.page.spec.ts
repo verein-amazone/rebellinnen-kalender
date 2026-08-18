@@ -260,15 +260,21 @@ describe('CalendarOverviewPage', () => {
     expect(element.textContent).toContain('Rebell*innen Kalender');
   });
 
-  it('narrows the occurrence query to the still-visible calendars after hiding one', async () => {
+  it('filters the agenda client-side after hiding a calendar, without re-querying the interactor', async () => {
     const { element, interactor, whenStable } = await setup(
       { day: '2026-08-05' },
-      [],
+      [
+        occurrence({ id: 'a', calendarId: 'cal-1', title: 'Von Mein Kalender' }),
+        occurrence({ id: 'b', calendarId: 'cal-2', title: 'Von Rebellinnen' }),
+      ],
       [
         { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
         { id: 'cal-2', name: 'Rebell*innen Kalender', color: '#E92F2A', emoji: '✊' },
       ],
     );
+
+    expect(element.textContent).toContain('Von Mein Kalender');
+    expect(element.textContent).toContain('Von Rebellinnen');
 
     const chip = Array.from(element.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Mein Kalender'),
@@ -276,7 +282,11 @@ describe('CalendarOverviewPage', () => {
     chip?.click();
     await whenStable();
 
-    expect(interactor.calls.at(-1)?.filter).toEqual({ calendarIds: ['cal-2'] });
+    expect(element.textContent).not.toContain('Von Mein Kalender');
+    expect(element.textContent).toContain('Von Rebellinnen');
+    // The fix for the scroll-jump-on-toggle bug: filtering must never re-trigger the occurrences
+    // resource, only recompute from what is already loaded.
+    expect(interactor.calls).toHaveLength(1);
   });
 
   it('shows the sources-hidden explanation once every filterable calendar is toggled off', async () => {

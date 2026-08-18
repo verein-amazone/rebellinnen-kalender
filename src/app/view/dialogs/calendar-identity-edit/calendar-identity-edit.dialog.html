@@ -1,4 +1,12 @@
 <form (submit)="$event.preventDefault(); save()">
+  <!-- Live preview: reflects the colour and emoji as they're picked, before saving. -->
+  <span class="rk-pill mb-4" [style.--pill-color]="color()">
+    @if (emoji(); as e) {
+      <span aria-hidden="true">{{ e }}</span>
+    }
+    <span>{{ name() || 'Kalender' }}</span>
+  </span>
+
   <label class="rk-label" for="calendar-identity-name">Name</label>
   <div class="rk-field">
     <input
@@ -25,31 +33,51 @@
   </div>
 
   <div class="mt-4">
-    <label class="rk-label" for="calendar-identity-color">Farbe</label>
-    <input
-      id="calendar-identity-color"
-      class="min-h-touch w-full cursor-pointer rounded-lg border-0 p-0"
-      type="color"
-      [value]="color()"
-      (input)="color.set($any($event.target).value)"
-    />
+    <span class="rk-label" id="calendar-identity-emoji-label">Emoji</span>
+    <div
+      class="flex items-center gap-2"
+      role="group"
+      aria-labelledby="calendar-identity-emoji-label"
+    >
+      <button
+        type="button"
+        id="calendar-identity-emoji-picker"
+        class="rk-icon-button text-2xl"
+        (click)="pickEmoji()"
+        [attr.aria-label]="'Emoji auswählen, aktuell ' + (emoji() ?? 'kein Emoji ausgewählt')"
+      >
+        <span aria-hidden="true">{{ emoji() ?? '➕' }}</span>
+      </button>
+      @if (emoji(); as e) {
+        <button type="button" class="rk-button rk-button-ghost" (click)="clearEmoji()">
+          Entfernen
+        </button>
+      }
+    </div>
   </div>
 
   <div class="mt-4">
-    <label class="rk-label" for="calendar-identity-emoji">Emoji</label>
-    <div class="rk-field">
-      <input
-        id="calendar-identity-emoji"
-        class="rk-input"
-        type="text"
-        autocomplete="off"
-        maxlength="8"
-        placeholder="🗓️"
-        [value]="emoji()"
-        (input)="emoji.set($any($event.target).value)"
-      />
-    </div>
-    <p class="rk-hint">Ein einzelnes Emoji, z. B. über die Emoji-Tastatur.</p>
+    <fieldset>
+      <legend class="rk-label">Farbe</legend>
+      <div class="grid grid-cols-6 gap-3">
+        @for (swatch of palette; track swatch.hex) {
+          <label
+            class="has-checked:ring-foreground relative block aspect-square cursor-pointer rounded-full has-checked:ring-2 has-checked:ring-offset-2"
+            [style.background-color]="swatch.hex"
+          >
+            <input
+              type="radio"
+              name="calendar-identity-color"
+              class="sr-only"
+              [value]="swatch.hex"
+              [attr.aria-label]="swatch.name"
+              [checked]="color() === swatch.hex"
+              (change)="color.set(swatch.hex)"
+            />
+          </label>
+        }
+      </div>
+    </fieldset>
   </div>
 
   <!-- Stacked and full width, like every other sheet: one action per line, easy to hit. -->

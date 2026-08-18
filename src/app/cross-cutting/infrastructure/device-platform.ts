@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 
 /**
@@ -24,4 +25,14 @@ export function devicePlatform(): DevicePlatform {
  */
 export function supportsViewTransitions(): boolean {
   return devicePlatform() !== 'ios';
+}
+
+/**
+ * The injectable form of `devicePlatform()`, for components that branch on the platform and need a
+ * fake in tests — a plain function call can't be substituted through `TestBed`, unlike a provider.
+ * Bootstrap-time code still calls `devicePlatform()` directly; this exists for everything after.
+ */
+@Injectable({ providedIn: 'root' })
+export class DevicePlatformService {
+  readonly platform: DevicePlatform = devicePlatform();
 }

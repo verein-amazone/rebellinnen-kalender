@@ -74,4 +74,19 @@ describe('CalendarSourceFilterBlock', () => {
 
     expect(host.toggledIds).toEqual(['a']);
   });
+
+  it('carries the calendar colour as the pill colour when visible', async () => {
+    const { element } = await setup([calendar({ id: 'a', color: '#E92F2A' })]);
+
+    const button = element.querySelector<HTMLButtonElement>('button');
+    expect(button?.classList).toContain('rk-pill');
+    expect(button?.style.getPropertyValue('--pill-color')).toBe('#E92F2A');
+  });
+
+  it('drops the pill colour when hidden, so the muted default applies', async () => {
+    const { element } = await setup([calendar({ id: 'a', color: '#E92F2A' })], new Set(['a']));
+
+    const button = element.querySelector<HTMLButtonElement>('button');
+    expect(button?.style.getPropertyValue('--pill-color')).toBe('');
+  });
 });

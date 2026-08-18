@@ -5,11 +5,16 @@
 <div class="flex h-dvh flex-col overflow-hidden">
   <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
   <!--
-    Primary destinations have no header of their own, so the shell keeps their content clear of the
-    notch. Focused screens do have one and apply the top inset to it instead, so that its background
-    fills the notch area when the content scrolls underneath.
+    Primary destinations without a header of their own have the shell keep their content clear of
+    the notch. The calendar tab owns a sticky header of its own (its Woche/Monat switcher stays
+    pinned while the agenda scrolls under it), so it applies the top inset to that header instead —
+    same reasoning as a focused screen's `<header>` — and must not get it here too, or the inset
+    would be added twice.
   -->
-  <main class="rk-scroll-region safe-x" [class.safe-top]="activeTab() !== null">
+  <main
+    class="rk-scroll-region safe-x"
+    [class.safe-top]="activeTab() !== null && activeTab() !== 'calendar'"
+  >
     <router-outlet />
   </main>
 

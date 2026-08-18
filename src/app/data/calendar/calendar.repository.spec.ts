@@ -559,6 +559,15 @@ describe('CalendarRepository', () => {
     );
   });
 
+  it('changes a calendar’s emoji without touching its name or colour', async () => {
+    await repository.setCalendarEmoji('calendar-1', '🌻', CONTEXT);
+
+    const calendar = await sources.findCalendar('calendar-1');
+    expect(calendar).toEqual(
+      expect.objectContaining({ emoji: '🌻', name: 'Termine', color: null }),
+    );
+  });
+
   it('enables and disables one calendar without touching its source', async () => {
     await repository.setCalendarEnabled('calendar-1', false, CONTEXT);
 

@@ -319,6 +319,40 @@ export class EventForm {
   });
 
   /**
+   * Changing `startTime` should carry the same shift into `endDate`/`endTime`, so the appointment's
+   * duration stays what it was, instead of leaving the end pinned while the start moves — the same
+   * "carry along" behaviour `shiftEndDateWithStart` already gives `date`. The delta is the plain
+   * clock difference (never wrapped at midnight): applying the identical delta to both start and end
+   * always preserves the span between them, regardless of which literal delta is chosen, so there is
+   * no need to reason about which direction is "closer" across a midnight edit.
+   */
+  private previousStartTime: string | null = null;
+  private readonly shiftEndTimeWithStart = effect(() => {
+    const startTime = this.form.startTime().value();
+    const previous = this.previousStartTime;
+    this.previousStartTime = startTime;
+
+    if (previous === null || previous === startTime || previous === '' || startTime === '') {
+      return;
+    }
+
+    const endDateField = this.form.endDate;
+    const endTimeField = this.form.endTime;
+    const endDate = endDateField().value();
+    const endTime = endTimeField().value();
+    if (endDate === '' || endTime === '') {
+      return;
+    }
+
+    const deltaMinutes = minutesOfDay(startTime) - minutesOfDay(previous);
+    const shiftedEnd = Temporal.PlainDateTime.from(`${endDate}T${endTime}:00`).add({
+      minutes: deltaMinutes,
+    });
+    endDateField().value.set(shiftedEnd.toPlainDate().toString());
+    endTimeField().value.set(toHm(shiftedEnd.toPlainTime()));
+  });
+
+  /**
    * Whether an external save button (living in the surrounding screen's header, wired to this form
    * via `form="event-form"`) should be enabled. Public and unprefixed so a parent template can read
    * it through a `#`-reference on `<app-event-form>` — Angular only allows a parent template to
@@ -440,4 +474,9 @@ function toDeviceParts(value: TemporalValue, deviceZone: string): { date: string
 
 function toHm(time: Temporal.PlainTime): string {
   return time.toString({ smallestUnit: 'minute' });
+}
+
+function minutesOfDay(time: string): number {
+  const parsed = Temporal.PlainTime.from(time);
+  return parsed.hour * 60 + parsed.minute;
 }

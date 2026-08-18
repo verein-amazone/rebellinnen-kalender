@@ -73,6 +73,18 @@ describe('MainNavigationScaffold', () => {
     expect(document.activeElement).toBe(element.querySelector('main h1'));
   });
 
+  it('keeps the shell’s safe-top inset for a primary destination with no header of its own', async () => {
+    const { element } = await setUp('/today');
+
+    expect(element.querySelector('main')?.classList).toContain('safe-top');
+  });
+
+  it('leaves the safe-top inset to the calendar tab’s own sticky header instead of doubling it', async () => {
+    const { element } = await setUp('/calendar');
+
+    expect(element.querySelector('main')?.classList).not.toContain('safe-top');
+  });
+
   it('should announce rather than steal focus when switching primary destinations', async () => {
     const { element, navigateTo } = await setUp('/today');
     const announce = vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce');

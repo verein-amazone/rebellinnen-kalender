@@ -393,6 +393,63 @@ describe('EventForm, edit mode', () => {
       timeZone: deviceZone,
     });
   });
+
+  it('shifts the end time together with the start time, keeping the duration', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+    });
+    await form.expandDateTime();
+
+    // Start moves from 09:00 to 09:30 — the original 90-minute span (09:00–10:30) should carry
+    // forward, landing the end at 11:00, not stay pinned at 10:30.
+    await form.type('event-form-date-time-start-time', '09:30');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.start).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T09:30:00',
+      timeZone: deviceZone,
+    });
+    expect(changes.end).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T11:00:00',
+      timeZone: deviceZone,
+    });
+  });
+
+  it('keeps the duration when the start time moves across midnight relative to the end', async () => {
+    const overnight = timedOccurrence({
+      start: { kind: 'zoned', value: '2026-08-10T23:00:00', timeZone: deviceZone },
+      end: { kind: 'zoned', value: '2026-08-11T01:00:00', timeZone: deviceZone },
+      startDay: '2026-08-10',
+      endDay: '2026-08-11',
+    });
+    const form = await setup({ mode: 'edit', initialOccurrence: overnight, initialNote: '' });
+    await form.expandDateTime();
+
+    // The start-time field itself never crosses midnight (the date field is untouched), so the
+    // shift is the plain clock delta: 23:00 -> 01:00 is -22h, applied to both ends alike. The
+    // 2-hour span survives: new start 2026-08-10T01:00, new end 2026-08-10T03:00.
+    await form.type('event-form-date-time-start-time', '01:00');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.start).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T01:00:00',
+      timeZone: deviceZone,
+    });
+    expect(changes.end).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T03:00:00',
+      timeZone: deviceZone,
+    });
+  });
 });
 
 describe('EventForm, all-day toggle', () => {

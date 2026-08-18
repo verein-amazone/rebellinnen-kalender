@@ -220,6 +220,19 @@ export class CalendarSourceDao {
     );
   }
 
+  async updateCalendarEmoji(
+    id: string,
+    emoji: string | null,
+    updatedAt: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<void> {
+    await executor.run(`UPDATE calendars SET emoji = ?, updated_at = ? WHERE id = ?`, [
+      emoji,
+      updatedAt,
+      id,
+    ]);
+  }
+
   async updateCalendarEnabled(
     id: string,
     enabled: boolean,

@@ -1,22 +1,34 @@
 import { TestBed } from '@angular/core/testing';
 
+import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
 import {
+  CALENDAR_COLOR_PALETTE,
   CalendarIdentityEditDialog,
   type CalendarIdentityEditDialogData,
   type CalendarIdentityEditResult,
 } from './calendar-identity-edit.dialog';
 
+class FakeAppCalendarsInteractor {
+  pickedEmoji: string | null = '🌻';
+
+  pickEmoji(): Promise<string | null> {
+    return Promise.resolve(this.pickedEmoji);
+  }
+}
+
 async function setup(data: CalendarIdentityEditDialogData) {
   const results: (CalendarIdentityEditResult | undefined)[] = [];
   const sheetRef = { close: (result?: CalendarIdentityEditResult) => results.push(result) };
+  const appCalendars = new FakeAppCalendarsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       { provide: SHEET_DATA, useValue: data },
       { provide: SheetRef, useValue: sheetRef },
+      { provide: AppCalendarsInteractor, useValue: appCalendars },
     ],
   });
 
@@ -25,16 +37,42 @@ async function setup(data: CalendarIdentityEditDialogData) {
 
   const element = fixture.nativeElement as HTMLElement;
 
+  function buttonNamed(text: string): HTMLButtonElement {
+    const button = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes(text),
+    );
+    if (button === undefined) {
+      throw new Error(`No button contains "${text}"`);
+    }
+    return button;
+  }
+
   return {
     element,
     results,
+    appCalendars,
     nameInput: element.querySelector<HTMLInputElement>('#calendar-identity-name')!,
-    colorInput: element.querySelector<HTMLInputElement>('#calendar-identity-color')!,
-    emojiInput: element.querySelector<HTMLInputElement>('#calendar-identity-emoji')!,
+    colorSwatch: (hex: string) =>
+      element.querySelector<HTMLInputElement>(`input[type="radio"][value="${hex}"]`)!,
+    previewPill: element.querySelector<HTMLElement>('.rk-pill')!,
+    emojiButton: element.querySelector<HTMLButtonElement>('#calendar-identity-emoji-picker')!,
     form: element.querySelector('form')!,
+    buttonNamed,
     async type(input: HTMLInputElement, value: string) {
       input.value = value;
       input.dispatchEvent(new Event('input'));
+      await fixture.whenStable();
+    },
+    async selectColor(hex: string) {
+      const swatch = element.querySelector<HTMLInputElement>(
+        `input[type="radio"][value="${hex}"]`,
+      )!;
+      swatch.checked = true;
+      swatch.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    },
+    async pickEmoji() {
+      element.querySelector<HTMLButtonElement>('#calendar-identity-emoji-picker')!.click();
       await fixture.whenStable();
     },
     async submit() {
@@ -45,44 +83,103 @@ async function setup(data: CalendarIdentityEditDialogData) {
 }
 
 describe('CalendarIdentityEditDialog', () => {
-  it('prefills the current name, colour and emoji', async () => {
-    const { nameInput, colorInput, emojiInput } = await setup({
+  it('prefills the current name and selects the stored colour swatch', async () => {
+    const color = CALENDAR_COLOR_PALETTE[3].hex;
+    const { nameInput, colorSwatch } = await setup({
       name: 'Mein Kalender',
-      color: '#336699',
+      color,
       emoji: '🗓️',
     });
 
     expect(nameInput.value).toBe('Mein Kalender');
-    expect(colorInput.value).toBe('#336699');
-    expect(emojiInput.value).toBe('🗓️');
+    expect(colorSwatch(color).checked).toBe(true);
   });
 
-  it('falls back to a default colour and an empty emoji field when neither is set', async () => {
-    const { colorInput, emojiInput } = await setup({
+  it('falls back to the palette’s first colour when none is stored', async () => {
+    const { colorSwatch } = await setup({ name: 'Mein Kalender', color: null, emoji: null });
+
+    expect(colorSwatch(CALENDAR_COLOR_PALETTE[0].hex).checked).toBe(true);
+  });
+
+  it('shows the current emoji on the picker button and an „Entfernen“ action once one is set', async () => {
+    const { emojiButton, element } = await setup({
       name: 'Mein Kalender',
       color: null,
+      emoji: '🗓️',
+    });
+
+    expect(emojiButton.textContent).toContain('🗓️');
+    expect(
+      Array.from(element.querySelectorAll('button')).some((b) =>
+        b.textContent?.includes('Entfernen'),
+      ),
+    ).toBe(true);
+  });
+
+  it('shows no „Entfernen“ action when no emoji is set', async () => {
+    const { element } = await setup({ name: 'Mein Kalender', color: null, emoji: null });
+
+    expect(
+      Array.from(element.querySelectorAll('button')).some((b) =>
+        b.textContent?.includes('Entfernen'),
+      ),
+    ).toBe(false);
+  });
+
+  it('selecting a colour swatch updates the preview pill and the saved colour', async () => {
+    const newColor = CALENDAR_COLOR_PALETTE[5].hex;
+    const dialog = await setup({
+      name: 'Mein Kalender',
+      color: CALENDAR_COLOR_PALETTE[0].hex,
       emoji: null,
     });
 
-    expect(colorInput.value).not.toBe('');
-    expect(emojiInput.value).toBe('');
+    await dialog.selectColor(newColor);
+
+    expect(dialog.previewPill.style.getPropertyValue('--pill-color')).toBe(newColor);
+
+    await dialog.submit();
+    expect(dialog.results).toEqual([{ name: 'Mein Kalender', color: newColor, emoji: null }]);
   });
 
-  it('closes with the trimmed name, the chosen colour and the emoji, or null when cleared', async () => {
-    const dialog = await setup({ name: 'Mein Kalender', color: '#336699', emoji: '🗓️' });
+  it('opens the emoji picker and adopts the picked emoji', async () => {
+    const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: null });
+    dialog.appCalendars.pickedEmoji = '🌻';
 
-    await dialog.type(dialog.nameInput, '  Vereinstermine  ');
-    await dialog.type(dialog.colorInput, '#aa3377');
-    await dialog.type(dialog.emojiInput, '  ');
+    await dialog.pickEmoji();
+
+    expect(dialog.emojiButton.textContent).toContain('🌻');
+
+    await dialog.submit();
+    expect(dialog.results).toEqual([
+      { name: 'Mein Kalender', color: CALENDAR_COLOR_PALETTE[0].hex, emoji: '🌻' },
+    ]);
+  });
+
+  it('leaves the emoji unchanged when the picker is dismissed without a selection', async () => {
+    const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: '🗓️' });
+    dialog.appCalendars.pickedEmoji = null;
+
+    await dialog.pickEmoji();
+
+    expect(dialog.emojiButton.textContent).toContain('🗓️');
+  });
+
+  it('clears the emoji via „Entfernen“, which then disappears', async () => {
+    const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: '🗓️' });
+
+    dialog.buttonNamed('Entfernen').click();
     await dialog.submit();
 
-    expect(dialog.results).toEqual([{ name: 'Vereinstermine', color: '#aa3377', emoji: null }]);
+    expect(dialog.results).toEqual([
+      { name: 'Mein Kalender', color: CALENDAR_COLOR_PALETTE[0].hex, emoji: null },
+    ]);
   });
 
   it('closes without a result when cancelled', async () => {
     const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: null });
 
-    dialog.element.querySelectorAll('button')[1].click();
+    dialog.buttonNamed('Abbrechen').click();
 
     expect(dialog.results).toEqual([undefined]);
   });
@@ -98,5 +195,16 @@ describe('CalendarIdentityEditDialog', () => {
     expect(error?.textContent?.trim()).not.toBe('');
     expect(dialog.nameInput.getAttribute('aria-invalid')).toBe('true');
     expect(dialog.nameInput.getAttribute('aria-describedby')).toBe(error?.id);
+  });
+
+  it('trims the name on save', async () => {
+    const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: null });
+
+    await dialog.type(dialog.nameInput, '  Vereinstermine  ');
+    await dialog.submit();
+
+    expect(dialog.results).toEqual([
+      { name: 'Vereinstermine', color: CALENDAR_COLOR_PALETTE[0].hex, emoji: null },
+    ]);
   });
 });

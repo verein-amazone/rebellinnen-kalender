@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import { CAPACITOR_CALENDAR } from '@app/data/gateways/capacitor-calendar';
+import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
 import { NATIVE_SETTINGS } from '@app/data/gateways/native-settings';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
@@ -10,14 +11,24 @@ import { MIGRATIONS } from '@app/data/migrations/migrations';
 import { DEVICE_SOURCE_ID } from './device-calendar-sync.interactor';
 import { DeviceCalendarsInteractor } from './device-calendars.interactor';
 
+class FakeEmojiPickerGateway {
+  result: string | null = '🌻';
+
+  pickEmoji(): Promise<string | null> {
+    return Promise.resolve(this.result);
+  }
+}
+
 describe('DeviceCalendarsInteractor', () => {
   let database: InMemorySqliteDatabase;
   let interactor: DeviceCalendarsInteractor;
   let sources: CalendarSourceDao;
+  let emojiPicker: FakeEmojiPickerGateway;
 
   beforeEach(() => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
+    emojiPicker = new FakeEmojiPickerGateway();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -33,6 +44,7 @@ describe('DeviceCalendarsInteractor', () => {
           },
         },
         { provide: NATIVE_SETTINGS, useValue: {} },
+        { provide: EmojiPickerGateway, useValue: emojiPicker },
       ],
     });
 
@@ -258,6 +270,45 @@ describe('DeviceCalendarsInteractor', () => {
     const google = snapshot.groups.find((group) => group.nativeSourceId === 'google');
     expect(icloud?.calendars.every((calendar) => !calendar.enabled)).toBe(true);
     expect(google?.calendars.every((calendar) => calendar.enabled)).toBe(true);
+  });
+
+  it('changes one calendar’s emoji, leaving its name and colour alone', async () => {
+    await interactor.connect();
+    await sources.insertCalendar({
+      id: 'device-cal:cal-1',
+      sourceId: DEVICE_SOURCE_ID,
+      name: 'Familie',
+      color: '#ff0000',
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-1',
+      nativeSourceId: null,
+      nativeSourceName: null,
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+    });
+
+    await interactor.setCalendarEmoji('device-cal:cal-1', '🌻');
+
+    const snapshot = await interactor.loadSnapshot();
+    expect(snapshot.groups[0].calendars[0]).toMatchObject({
+      name: 'Familie',
+      color: '#ff0000',
+      emoji: '🌻',
+    });
+  });
+
+  it('resolves the emoji the picker returns', async () => {
+    emojiPicker.result = '🌻';
+
+    await expect(interactor.pickEmoji()).resolves.toBe('🌻');
+  });
+
+  it('resolves null when the picker is dismissed without a selection', async () => {
+    emojiPicker.result = null;
+
+    await expect(interactor.pickEmoji()).resolves.toBeNull();
   });
 
   it('disconnecting disables the source and its calendars locally', async () => {
