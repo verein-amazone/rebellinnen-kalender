@@ -1,0 +1,29 @@
+<div class="mb-3 flex items-center justify-between gap-2">
+  <h2 id="today-appointments-heading">Heute</h2>
+  <a
+    routerLink="/calendar"
+    class="text-primary min-h-touch -mx-2 flex items-center px-2 text-sm font-semibold"
+    >Alle Termine</a
+  >
+</div>
+
+@if (entries().length === 0) {
+  <div class="rk-card mb-3 px-4 py-6">
+    <p class="text-muted-foreground text-center">Heute steht noch nichts an.</p>
+  </div>
+} @else {
+  <ul class="mb-3 space-y-2">
+    @for (entry of entries(); track entry.id) {
+      <li>
+        <app-occurrence-card [occurrence]="entry" [day]="today()" />
+      </li>
+    }
+  </ul>
+}
+
+<a
+  routerLink="/calendar/event/new"
+  [queryParams]="{ day: today() }"
+  class="rk-button rk-button-primary flex"
+  >Neuer Termin</a
+>
