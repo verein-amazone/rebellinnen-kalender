@@ -25,17 +25,65 @@
       }
     </section>
 
-    <section class="space-y-2">
-      <h2 class="text-muted-foreground text-sm">Gerätekalender</h2>
+    @if (isNativePlatform) {
+      <section class="space-y-2">
+        <h2 class="text-muted-foreground text-sm">Gerätekalender</h2>
 
-      @if (deviceResource.value(); as snapshot) {
-        @if (snapshot.source === null) {
-          @if (lastPermission() === 'denied') {
+        @if (deviceResource.value(); as snapshot) {
+          @if (snapshot.source === null) {
+            @if (lastPermission() === 'denied') {
+              <p class="text-muted-foreground text-sm">
+                Der Zugriff auf den Gerätekalender wurde nicht erteilt. Du kannst ihn in den
+                Systemeinstellungen erlauben und es hier erneut versuchen.
+              </p>
+              <div class="space-y-2">
+                <button
+                  type="button"
+                  class="rk-button rk-button-secondary w-full"
+                  (click)="openAppSettings()"
+                >
+                  <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
+                  <span>Einstellungen öffnen</span>
+                </button>
+                <button
+                  type="button"
+                  class="rk-button rk-button-ghost w-full"
+                  (click)="connectDeviceCalendars()"
+                >
+                  Erneut versuchen
+                </button>
+              </div>
+            } @else {
+              <p class="text-muted-foreground text-sm">
+                Verbinde die Kalender deines Geräts, um deren Termine zusätzlich zu deinem
+                App-Kalender zu sehen. Deine Termine bleiben dabei auf dem Gerät — sie werden nicht
+                hochgeladen oder geteilt.
+              </p>
+              <button
+                type="button"
+                class="rk-button rk-button-primary w-full"
+                (click)="connectDeviceCalendars()"
+              >
+                Gerätekalender verbinden
+              </button>
+            }
+          } @else if (!snapshot.source.enabled) {
             <p class="text-muted-foreground text-sm">
-              Der Zugriff auf den Gerätekalender wurde nicht erteilt. Du kannst ihn in den
-              Systemeinstellungen erlauben und es hier erneut versuchen.
+              Der Gerätekalender ist getrennt. Deine App-Termine sind davon nicht betroffen.
             </p>
-            <div class="space-y-2">
+            <button
+              type="button"
+              class="rk-button rk-button-primary w-full"
+              (click)="connectDeviceCalendars()"
+            >
+              Verbinden
+            </button>
+          } @else {
+            @if (snapshot.source.state === 'permission-lost') {
+              <p class="text-muted-foreground text-sm">
+                Der Zugriff auf den Gerätekalender wurde entzogen. Zuletzt bekannte Kalender werden
+                weiter angezeigt. Erlaube den Zugriff erneut in den Systemeinstellungen.
+              </p>
               <button
                 type="button"
                 class="rk-button rk-button-secondary w-full"
@@ -44,114 +92,76 @@
                 <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
                 <span>Einstellungen öffnen</span>
               </button>
-              <button
-                type="button"
-                class="rk-button rk-button-ghost w-full"
-                (click)="connectDeviceCalendars()"
-              >
-                Erneut versuchen
-              </button>
-            </div>
-          } @else {
-            <p class="text-muted-foreground text-sm">
-              Verbinde die Kalender deines Geräts, um deren Termine zusätzlich zu deinem
-              App-Kalender zu sehen. Deine Termine bleiben dabei auf dem Gerät — sie werden nicht
-              hochgeladen oder geteilt.
-            </p>
-            <button
-              type="button"
-              class="rk-button rk-button-primary w-full"
-              (click)="connectDeviceCalendars()"
-            >
-              Gerätekalender verbinden
-            </button>
-          }
-        } @else if (!snapshot.source.enabled) {
-          <p class="text-muted-foreground text-sm">
-            Der Gerätekalender ist getrennt. Deine App-Termine sind davon nicht betroffen.
-          </p>
-          <button
-            type="button"
-            class="rk-button rk-button-primary w-full"
-            (click)="connectDeviceCalendars()"
-          >
-            Verbinden
-          </button>
-        } @else {
-          @if (snapshot.source.state === 'permission-lost') {
-            <p class="text-muted-foreground text-sm">
-              Der Zugriff auf den Gerätekalender wurde entzogen. Zuletzt bekannte Kalender werden
-              weiter angezeigt. Erlaube den Zugriff erneut in den Systemeinstellungen.
-            </p>
-            <button
-              type="button"
-              class="rk-button rk-button-secondary w-full"
-              (click)="openAppSettings()"
-            >
-              <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
-              <span>Einstellungen öffnen</span>
-            </button>
-          } @else if (snapshot.source.state === 'error') {
-            <p class="text-muted-foreground text-sm">
-              Die Gerätekalender konnten zuletzt nicht aktualisiert werden. Angezeigte Daten können
-              veraltet sein.
-            </p>
-          }
-
-          @if (snapshot.groups.length > 0) {
-            @for (group of snapshot.groups; track group.nativeSourceId ?? '') {
-              <div class="space-y-2">
-                <h3 class="text-muted-foreground text-sm">
-                  {{ group.nativeSourceName ?? 'Weitere Kalender' }}
-                </h3>
-
-                <ul class="rk-list">
-                  @if (group.calendars.length > 1) {
-                    <li class="rk-row items-center gap-2">
-                      <app-toggle-field
-                        [id]="'device-calendar-group-' + (group.nativeSourceId ?? 'none')"
-                        label="Alle anzeigen"
-                        class="min-w-0 flex-1"
-                        [checked]="group.allEnabled"
-                        (checkedChange)="toggleSourceGroup(group.nativeSourceId, $event)"
-                      />
-                    </li>
-                  }
-
-                  @for (calendar of group.calendars; track calendar.id) {
-                    <!-- `.rk-row` on the `<li>`, not a single `<a>`/`<button>`: this row holds two
-                         independent controls (the avatar is decorative, the toggle is the real one). -->
-                    <li class="rk-row items-center gap-2">
-                      <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
-                      <app-toggle-field
-                        [id]="'device-calendar-' + calendar.id"
-                        [label]="calendar.name"
-                        class="min-w-0 flex-1"
-                        [checked]="calendar.enabled"
-                        (checkedChange)="toggleDeviceCalendar(calendar.id, $event)"
-                      />
-                    </li>
-                  }
-                </ul>
-              </div>
+            } @else if (snapshot.source.state === 'error') {
+              <p class="text-muted-foreground text-sm">
+                Die Gerätekalender konnten zuletzt nicht aktualisiert werden. Angezeigte Daten
+                können veraltet sein.
+              </p>
             }
-          } @else {
-            <p class="text-muted-foreground text-sm">
-              Auf deinem Gerät sind keine Kalender eingerichtet.
-            </p>
-          }
 
-          <button
-            type="button"
-            class="rk-button rk-button-danger-secondary w-full"
-            (click)="confirmDisconnect()"
-          >
-            Verbindung trennen
-          </button>
+            @if (snapshot.groups.length > 0) {
+              @for (group of snapshot.groups; track group.nativeSourceId ?? '') {
+                <div class="space-y-2">
+                  <h3 class="text-muted-foreground text-sm">
+                    {{ group.nativeSourceName ?? 'Weitere Kalender' }}
+                  </h3>
+
+                  <ul class="rk-list">
+                    @if (group.calendars.length > 1) {
+                      <li class="rk-row items-center gap-2">
+                        <app-toggle-field
+                          [id]="'device-calendar-group-' + (group.nativeSourceId ?? 'none')"
+                          label="Alle anzeigen"
+                          class="min-w-0 flex-1"
+                          [checked]="group.allEnabled"
+                          (checkedChange)="toggleSourceGroup(group.nativeSourceId, $event)"
+                        />
+                      </li>
+                    }
+
+                    @for (calendar of group.calendars; track calendar.id) {
+                      <!-- `.rk-row` on the `<li>`, not a single `<a>`/`<button>`: this row holds two
+                         independent controls — the avatar now opens the emoji picker, the toggle
+                         shows/hides the calendar. -->
+                      <li class="rk-row items-center gap-2">
+                        <button
+                          type="button"
+                          class="rk-icon-button shrink-0"
+                          [attr.aria-label]="'Emoji für ' + calendar.name + ' auswählen'"
+                          (click)="pickDeviceCalendarEmoji(calendar.id)"
+                        >
+                          <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
+                        </button>
+                        <app-toggle-field
+                          [id]="'device-calendar-' + calendar.id"
+                          [label]="calendar.name"
+                          class="min-w-0 flex-1"
+                          [checked]="calendar.enabled"
+                          (checkedChange)="toggleDeviceCalendar(calendar.id, $event)"
+                        />
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            } @else {
+              <p class="text-muted-foreground text-sm">
+                Auf deinem Gerät sind keine Kalender eingerichtet.
+              </p>
+            }
+
+            <button
+              type="button"
+              class="rk-button rk-button-danger-secondary w-full"
+              (click)="confirmDisconnect()"
+            >
+              Verbindung trennen
+            </button>
+          }
+        } @else {
+          <p class="text-muted-foreground text-sm">Wird geladen …</p>
         }
-      } @else {
-        <p class="text-muted-foreground text-sm">Wird geladen …</p>
-      }
-    </section>
+      </section>
+    }
   </div>
 </app-focused-screen>

@@ -1,0 +1,29 @@
+<!-- `-mx-4 px-4`: breaks out of the page's own `px-4` gutter so the track scrolls edge-to-edge
+     instead of being clipped by it, then puts the same 1rem gutter back as padding *inside* the
+     scroll area — part of the scrollable content, not a boundary that cuts a chip off mid-scroll —
+     so the first/last chip still lines up with the grid/agenda above and below at rest. -->
+<div
+  class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+  role="group"
+  aria-label="Kalenderquellen filtern"
+>
+  @for (calendar of calendars(); track calendar.id) {
+    <button
+      type="button"
+      class="rk-pill min-h-touch shrink-0 transition-colors"
+      [class.font-bold]="isVisible(calendar.id)"
+      [class.opacity-55]="!isVisible(calendar.id)"
+      [style.--pill-color]="isVisible(calendar.id) ? calendar.color : null"
+      [attr.aria-pressed]="isVisible(calendar.id)"
+      (click)="toggled.emit(calendar.id)"
+    >
+      @if (isVisible(calendar.id)) {
+        <svg lucideCheck class="rk-icon-sm" aria-hidden="true"></svg>
+      }
+      @if (calendar.emoji; as emoji) {
+        <span aria-hidden="true">{{ emoji }}</span>
+      }
+      <span>{{ calendar.name }}</span>
+    </button>
+  }
+</div>

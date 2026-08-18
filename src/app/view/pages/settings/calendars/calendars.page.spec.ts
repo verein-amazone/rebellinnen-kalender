@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
   AppCalendarsInteractor,
   type WritableAppCalendar,
@@ -70,6 +71,18 @@ class FakeDeviceCalendarsInteractor {
     return Promise.resolve();
   }
 
+  pickedEmoji: string | null = '🌻';
+  readonly setEmojiCalls: { calendarId: string; emoji: string }[] = [];
+
+  pickEmoji(): Promise<string | null> {
+    return Promise.resolve(this.pickedEmoji);
+  }
+
+  setCalendarEmoji(calendarId: string, emoji: string): Promise<void> {
+    this.setEmojiCalls.push({ calendarId, emoji });
+    return Promise.resolve();
+  }
+
   disconnect(): Promise<void> {
     this.disconnectCalled = true;
     return Promise.resolve();
@@ -107,6 +120,7 @@ async function setup(
   options: {
     deviceSnapshot?: DeviceCalendarsSnapshot;
     connectResult?: DeviceCalendarPermission;
+    platform?: 'ios' | 'android' | 'web';
   } = {},
 ) {
   const appCalendars = new FakeAppCalendarsInteractor();
@@ -128,6 +142,9 @@ async function setup(
       { provide: DeviceCalendarsInteractor, useValue: deviceCalendars },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      // Most of this suite exercises the device-calendar section directly, so it defaults to a
+      // native platform; only the platform-gating tests pass a different one.
+      { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
     ],
   });
 
@@ -184,6 +201,20 @@ describe('CalendarsPage, app calendar', () => {
     await page.settle();
 
     expect(page.appCalendars.updateIdentityCalls).toEqual([]);
+  });
+});
+
+describe('CalendarsPage, platform gating', () => {
+  it('hides the device-calendar section on web', async () => {
+    const { element } = await setup({ platform: 'web' });
+
+    expect(element.textContent).not.toContain('Gerätekalender');
+  });
+
+  it('shows the device-calendar section on android', async () => {
+    const { element } = await setup({ platform: 'android' });
+
+    expect(element.textContent).toContain('Gerätekalender');
   });
 });
 
@@ -278,6 +309,34 @@ describe('CalendarsPage, device calendars: connected', () => {
     expect(page.deviceCalendars.setEnabledCalls).toEqual([
       { calendarId: 'device-cal:cal-1', enabled: false },
     ]);
+  });
+
+  it('opens the emoji picker from the avatar and saves the picked emoji', async () => {
+    const page = await setup({ deviceSnapshot: snapshot });
+    page.deviceCalendars.pickedEmoji = '🌻';
+
+    const avatarButton = page.element.querySelector<HTMLButtonElement>(
+      'button[aria-label*="Emoji"][aria-label*="Familie"]',
+    )!;
+    avatarButton.click();
+    await page.settle();
+
+    expect(page.deviceCalendars.setEmojiCalls).toEqual([
+      { calendarId: 'device-cal:cal-1', emoji: '🌻' },
+    ]);
+  });
+
+  it('leaves the emoji unchanged when the picker is dismissed without a selection', async () => {
+    const page = await setup({ deviceSnapshot: snapshot });
+    page.deviceCalendars.pickedEmoji = null;
+
+    const avatarButton = page.element.querySelector<HTMLButtonElement>(
+      'button[aria-label*="Emoji"][aria-label*="Familie"]',
+    )!;
+    avatarButton.click();
+    await page.settle();
+
+    expect(page.deviceCalendars.setEmojiCalls).toEqual([]);
   });
 
   it('disconnects after confirmation', async () => {

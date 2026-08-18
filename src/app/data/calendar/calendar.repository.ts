@@ -347,6 +347,15 @@ export class CalendarRepository {
     );
   }
 
+  /** Changes one calendar's emoji only — its name and colour are untouched. */
+  async setCalendarEmoji(
+    calendarId: string,
+    emoji: string | null,
+    context: CalendarContext,
+  ): Promise<void> {
+    await this.sources.updateCalendarEmoji(calendarId, emoji, context.nowUtc);
+  }
+
   /**
    * Enables or disables one calendar. `occurrencesInRange` already filters on `calendar.enabled`,
    * so a disabled calendar's occurrences stop appearing without any further change.

@@ -1,0 +1,23 @@
+/*
+ * A calendar's colour identity as a rounded chip: a coloured border over a tinted background.
+ *
+ * Consumers set `--pill-color` inline (an arbitrary per-instance hex, not a design token, so this
+ * can't be a Tailwind colour utility). Text stays the normal foreground colour rather than the
+ * calendar's own colour — with a 30-swatch curated palette and two themes, per-swatch text-colour
+ * contrast can't be guaranteed, so the identity lives in the border and the tint only, never in
+ * text contrast. The tint blends toward `--color-card` rather than white, the same `color-mix()`
+ * technique `theme.css` uses for the `-subtle` status backgrounds, so it lands correctly in dark
+ * mode too. Omitting `--pill-color` falls back to the neutral card/border look.
+ */
+
+@layer components {
+  .rk-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-semibold;
+    border-color: var(--pill-color, var(--color-border));
+    background-color: color-mix(
+      in srgb,
+      var(--pill-color, var(--color-border)) 15%,
+      var(--color-card)
+    );
+  }
+}

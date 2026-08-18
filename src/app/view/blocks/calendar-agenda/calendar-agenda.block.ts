@@ -22,6 +22,8 @@ export class CalendarAgendaBlock {
   readonly occurrences = input.required<readonly CalendarOccurrence[]>();
   /** Passed through to the cards' `DatePipe`; unset means device zone. For deterministic tests. */
   readonly timeZone = input<string>();
+  /** True when the source filter (#18) has hidden every calendar — takes over the empty state. */
+  readonly sourcesHidden = input(false);
 
   protected readonly dayLabel = computed(() => formatDayLong(this.day()));
 
