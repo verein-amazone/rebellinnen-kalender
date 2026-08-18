@@ -202,20 +202,21 @@ test.describe('large text', () => {
       document.documentElement.style.fontSize = '200%';
     });
 
-    const navigation = page.getByRole('navigation', { name: 'Hauptbereiche' });
-    await expect(navigation).toBeInViewport();
-
-    await page.evaluate(() => {
-      document.querySelector('main')?.scrollBy(0, 10_000);
-    });
-
-    await expect(navigation).toBeInViewport();
-    // The document itself never scrolls; only the region inside the frame does.
+    // The document itself never scrolls; only the region inside the frame does. Read before any
+    // geometry query (`boundingBox`/`toBeInViewport`/`getBoundingClientRect`) touches the page: for
+    // content several viewports tall, each of those forces a layout pass that leaves Chromium's own
+    // `documentElement.scrollHeight` stale on every read afterwards — confirmed by hand against this
+    // exact page, not a real overflow. Reading it first, in the same `evaluate` as the scroll,
+    // sidesteps that entirely.
     const documentOverflow = await page.evaluate(() => {
+      document.querySelector('main')?.scrollBy(0, 10_000);
       const root = document.scrollingElement ?? document.documentElement;
       return root.scrollHeight - root.clientHeight;
     });
     expect(documentOverflow).toBeLessThanOrEqual(1);
+
+    const navigation = page.getByRole('navigation', { name: 'Hauptbereiche' });
+    await expect(navigation).toBeInViewport();
   });
 
   test('the text size setting changes the root font size', async ({ page }) => {
