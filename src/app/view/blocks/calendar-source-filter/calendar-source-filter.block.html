@@ -1,0 +1,33 @@
+<div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Kalenderquellen filtern">
+  @for (calendar of calendars(); track calendar.id) {
+    <button
+      type="button"
+      class="min-h-touch flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 text-sm font-semibold transition-colors"
+      [class.font-bold]="isVisible(calendar.id)"
+      [class.opacity-55]="!isVisible(calendar.id)"
+      [style.border-color]="
+        isVisible(calendar.id) ? (calendar.color ?? 'var(--color-border)') : 'var(--color-border)'
+      "
+      [style.background-color]="
+        isVisible(calendar.id)
+          ? (calendar.color ?? 'var(--color-muted)') + '26'
+          : 'var(--color-muted)'
+      "
+      [style.color]="
+        isVisible(calendar.id)
+          ? (calendar.color ?? 'var(--color-foreground)')
+          : 'var(--color-muted-foreground)'
+      "
+      [attr.aria-pressed]="isVisible(calendar.id)"
+      (click)="toggled.emit(calendar.id)"
+    >
+      @if (isVisible(calendar.id)) {
+        <svg lucideCheck class="rk-icon-sm" aria-hidden="true"></svg>
+      }
+      @if (calendar.emoji; as emoji) {
+        <span aria-hidden="true">{{ emoji }}</span>
+      }
+      <span>{{ calendar.name }}</span>
+    </button>
+  }
+</div>

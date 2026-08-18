@@ -5,6 +5,7 @@ import {
   inject,
   input,
   resource,
+  signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
@@ -18,6 +19,7 @@ import {
 } from '@app/cross-cutting/helpers/calendar-days';
 import { formatMonthYear, formatWeekRangeLabel } from '@app/cross-cutting/helpers/date-format';
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
+import { CalendarFiltersInteractor } from '@app/interactors/calendar/calendar-filters.interactor';
 import {
   CalendarOccurrencesInteractor,
   type OccurrenceFilter,
@@ -29,6 +31,7 @@ import {
   CalendarGridBlock,
   type DayMarker,
 } from '@app/view/blocks/calendar-grid/calendar-grid.block';
+import { CalendarSourceFilterBlock } from '@app/view/blocks/calendar-source-filter/calendar-source-filter.block';
 
 type ViewMode = 'week' | 'month';
 
@@ -43,7 +46,13 @@ type ViewMode = 'week' | 'month';
   selector: 'app-calendar-overview',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [CalendarAgendaBlock, CalendarGridBlock, LucideChevronLeft, LucideChevronRight],
+  imports: [
+    CalendarAgendaBlock,
+    CalendarGridBlock,
+    CalendarSourceFilterBlock,
+    LucideChevronLeft,
+    LucideChevronRight,
+  ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,6 +60,7 @@ export class CalendarOverviewPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly occurrencesInteractor = inject(CalendarOccurrencesInteractor);
+  private readonly calendarFilters = inject(CalendarFiltersInteractor);
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
   private readonly localDay = inject(LocalDay);
 
@@ -61,7 +71,10 @@ export class CalendarOverviewPage {
     // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap; the
     // occurrences resource is reloaded afterwards so a genuinely fresh cache is not stuck behind
     // the range param not having changed.
-    void this.deviceCalendarSync.refresh().then(() => this.occurrences.reload());
+    void this.deviceCalendarSync.refresh().then(() => {
+      this.occurrences.reload();
+      this.filterableCalendars.reload();
+    });
   }
 
   /** Bound from the `view` query parameter. Anything but `month` reads as the week view. */
@@ -79,8 +92,33 @@ export class CalendarOverviewPage {
     return day !== undefined && isPlainDate(day) ? day : this.today();
   });
 
-  /** Seam for the source filters of #18; until then every visible source is queried. */
-  private readonly filter = computed<OccurrenceFilter | undefined>(() => undefined);
+  protected readonly filterableCalendars = resource({
+    loader: () => this.calendarFilters.listFilterable(),
+  });
+
+  /** Empty means "nothing hidden yet" — every filterable calendar is visible by default. */
+  protected readonly hiddenCalendarIds = signal<ReadonlySet<string>>(new Set());
+
+  /** `undefined` (no narrowing) once nothing is hidden, so the default query stays unfiltered. */
+  private readonly filter = computed<OccurrenceFilter | undefined>(() => {
+    const hidden = this.hiddenCalendarIds();
+    if (hidden.size === 0) {
+      return undefined;
+    }
+
+    const calendarIds = (this.filterableCalendars.value() ?? [])
+      .filter((calendar) => !hidden.has(calendar.id))
+      .map((calendar) => calendar.id);
+
+    return { calendarIds };
+  });
+
+  /** Every filterable calendar is hidden — the agenda swaps its empty state for an explanation. */
+  protected readonly allSourcesHidden = computed(() => {
+    const calendars = this.filterableCalendars.value() ?? [];
+
+    return calendars.length > 0 && calendars.every((c) => this.hiddenCalendarIds().has(c.id));
+  });
 
   /**
    * The loaded range: the visible week, or the month's full grid including its edge days. Value
@@ -96,11 +134,13 @@ export class CalendarOverviewPage {
   );
 
   protected readonly occurrences = resource({
-    params: () => `${this.range().fromDay}:${this.range().toDay}`,
+    // The filter is read here too — not just the range — since `resource()` only reacts to
+    // signals read while computing `params`; a filter change is invisible to it otherwise.
+    params: () => ({ range: this.range(), filter: this.filter() }),
     loader: ({ params }) => {
-      const [fromDay, toDay] = params.split(':');
+      const { fromDay, toDay } = params.range;
 
-      return this.occurrencesInteractor.listForDays(fromDay, toDay, this.filter());
+      return this.occurrencesInteractor.listForDays(fromDay, toDay, params.filter);
     },
   });
 
@@ -168,6 +208,18 @@ export class CalendarOverviewPage {
 
   protected setView(view: ViewMode): void {
     this.navigate({ view, day: this.selectedDay() });
+  }
+
+  protected toggleCalendar(calendarId: string): void {
+    this.hiddenCalendarIds.update((hidden) => {
+      const next = new Set(hidden);
+      if (next.has(calendarId)) {
+        next.delete(calendarId);
+      } else {
+        next.add(calendarId);
+      }
+      return next;
+    });
   }
 
   private step(direction: -1 | 1): string {

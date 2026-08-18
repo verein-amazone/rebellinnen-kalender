@@ -66,11 +66,23 @@
     />
   </div>
 
+  @if ((filterableCalendars.value() ?? []).length > 0) {
+    <app-calendar-source-filter
+      [calendars]="filterableCalendars.value() ?? []"
+      [hiddenIds]="hiddenCalendarIds()"
+      (toggled)="toggleCalendar($event)"
+    />
+  }
+
   @if (occurrences.error()) {
     <div class="rk-card px-4 py-6">
       <p class="text-muted-foreground text-center">Die Termine konnten nicht geladen werden.</p>
     </div>
   } @else {
-    <app-calendar-agenda [day]="selectedDay()" [occurrences]="loadedOccurrences()" />
+    <app-calendar-agenda
+      [day]="selectedDay()"
+      [occurrences]="loadedOccurrences()"
+      [sourcesHidden]="allSourcesHidden()"
+    />
   }
 </div>

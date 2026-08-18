@@ -40,17 +40,24 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
 @Component({
   imports: [CalendarAgendaBlock],
   template: `
-    <app-calendar-agenda [day]="day()" [occurrences]="occurrences()" timeZone="+0200" />
+    <app-calendar-agenda
+      [day]="day()"
+      [occurrences]="occurrences()"
+      [sourcesHidden]="sourcesHidden()"
+      timeZone="+0200"
+    />
   `,
 })
 class Host {
   readonly day = input.required<string>();
   readonly occurrences = input.required<readonly CalendarOccurrence[]>();
+  readonly sourcesHidden = input(false);
 }
 
 async function setup(
   day: string,
   occurrences: readonly CalendarOccurrence[],
+  sourcesHidden = false,
 ): Promise<{ element: HTMLElement }> {
   TestBed.configureTestingModule({
     providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'de' }],
@@ -59,6 +66,7 @@ async function setup(
   const fixture = TestBed.createComponent(Host);
   fixture.componentRef.setInput('day', day);
   fixture.componentRef.setInput('occurrences', occurrences);
+  fixture.componentRef.setInput('sourcesHidden', sourcesHidden);
   await fixture.whenStable();
 
   return { element: fixture.nativeElement as HTMLElement };
@@ -111,6 +119,20 @@ describe('CalendarAgendaBlock', () => {
     const { element } = await setup('2026-08-05', []);
 
     expect(element.textContent).toContain('Keine Termine an diesem Tag.');
+  });
+
+  it('explains that every source is hidden instead of the plain empty state', async () => {
+    const { element } = await setup('2026-08-05', [], true);
+
+    expect(element.textContent).toContain('Alle Kalender ausgeblendet');
+    expect(element.textContent).not.toContain('Keine Termine an diesem Tag.');
+  });
+
+  it('prefers the sources-hidden explanation even when occurrences would otherwise show', async () => {
+    const { element } = await setup('2026-08-05', [occurrence()], true);
+
+    expect(element.textContent).toContain('Alle Kalender ausgeblendet');
+    expect(element.textContent).not.toContain('Workshop');
   });
 
   it('announces the day and its appointment count through a status region', async () => {

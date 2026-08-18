@@ -4,7 +4,14 @@ import { Router, provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
-import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
+import {
+  CalendarFiltersInteractor,
+  type CalendarFilterOption,
+} from '@app/interactors/calendar/calendar-filters.interactor';
+import {
+  CalendarOccurrencesInteractor,
+  type OccurrenceFilter,
+} from '@app/interactors/calendar/calendar-occurrences.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 
@@ -42,11 +49,23 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
 
 class FakeCalendarOccurrencesInteractor {
   items: CalendarOccurrence[] = [];
-  readonly calls: { fromDay: string; toDay: string }[] = [];
+  readonly calls: { fromDay: string; toDay: string; filter?: OccurrenceFilter }[] = [];
 
-  listForDays(fromDay: string, toDay: string): Promise<CalendarOccurrence[]> {
-    this.calls.push({ fromDay, toDay });
+  listForDays(
+    fromDay: string,
+    toDay: string,
+    filter?: OccurrenceFilter,
+  ): Promise<CalendarOccurrence[]> {
+    this.calls.push({ fromDay, toDay, filter });
     return Promise.resolve(this.items);
+  }
+}
+
+class FakeCalendarFiltersInteractor {
+  calendars: CalendarFilterOption[] = [];
+
+  listFilterable(): Promise<CalendarFilterOption[]> {
+    return Promise.resolve(this.calendars);
   }
 }
 
@@ -66,22 +85,28 @@ class FakeDeviceCalendarSyncInteractor {
 interface Setup {
   readonly element: HTMLElement;
   readonly interactor: FakeCalendarOccurrencesInteractor;
+  readonly filters: FakeCalendarFiltersInteractor;
   readonly navigate: ReturnType<typeof vi.fn>;
   readonly setInputs: (inputs: { view?: string; day?: string }) => Promise<void>;
+  readonly whenStable: () => Promise<void>;
 }
 
 async function setup(
   inputs: { view?: string; day?: string } = {},
   items: CalendarOccurrence[] = [],
+  filterableCalendars: CalendarFilterOption[] = [],
 ): Promise<Setup> {
   const interactor = new FakeCalendarOccurrencesInteractor();
   interactor.items = items;
+  const filters = new FakeCalendarFiltersInteractor();
+  filters.calendars = filterableCalendars;
 
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: LOCALE_ID, useValue: 'de' },
       { provide: CalendarOccurrencesInteractor, useValue: interactor },
+      { provide: CalendarFiltersInteractor, useValue: filters },
       { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
       { provide: LocalDay, useClass: StubLocalDay },
     ],
@@ -98,12 +123,14 @@ async function setup(
   return {
     element: fixture.nativeElement as HTMLElement,
     interactor,
+    filters,
     navigate,
     setInputs: async (next) => {
       fixture.componentRef.setInput('view', next.view);
       fixture.componentRef.setInput('day', next.day);
       await fixture.whenStable();
     },
+    whenStable: () => fixture.whenStable(),
   };
 }
 
@@ -217,5 +244,54 @@ describe('CalendarOverviewPage', () => {
 
     expect(element.textContent).toContain('Workshop');
     expect(element.textContent).toContain('Mittwoch, 5. August 2026');
+  });
+
+  it('renders a filter chip for every filterable calendar', async () => {
+    const { element } = await setup(
+      { day: '2026-08-05' },
+      [],
+      [
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
+        { id: 'cal-2', name: 'Rebell*innen Kalender', color: '#E92F2A', emoji: '✊' },
+      ],
+    );
+
+    expect(element.textContent).toContain('Mein Kalender');
+    expect(element.textContent).toContain('Rebell*innen Kalender');
+  });
+
+  it('narrows the occurrence query to the still-visible calendars after hiding one', async () => {
+    const { element, interactor, whenStable } = await setup(
+      { day: '2026-08-05' },
+      [],
+      [
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
+        { id: 'cal-2', name: 'Rebell*innen Kalender', color: '#E92F2A', emoji: '✊' },
+      ],
+    );
+
+    const chip = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Mein Kalender'),
+    );
+    chip?.click();
+    await whenStable();
+
+    expect(interactor.calls.at(-1)?.filter).toEqual({ calendarIds: ['cal-2'] });
+  });
+
+  it('shows the sources-hidden explanation once every filterable calendar is toggled off', async () => {
+    const { element, whenStable } = await setup(
+      { day: '2026-08-05' },
+      [],
+      [{ id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' }],
+    );
+
+    const chip = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Mein Kalender'),
+    );
+    chip?.click();
+    await whenStable();
+
+    expect(element.textContent).toContain('Alle Kalender ausgeblendet');
   });
 });

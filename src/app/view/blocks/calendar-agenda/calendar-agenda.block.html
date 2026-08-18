@@ -3,7 +3,13 @@
 <!-- Announces a selection change once; nothing else announces it. Present from the first render. -->
 <p role="status" aria-atomic="true" class="sr-only">{{ announcement() }}</p>
 
-@if (entries().length === 0) {
+@if (sourcesHidden()) {
+  <div class="rk-card mb-3 px-4 py-6">
+    <p class="text-muted-foreground text-center">
+      Alle Kalender ausgeblendet. Wähle oben einen Kalender aus, um Termine zu sehen.
+    </p>
+  </div>
+} @else if (entries().length === 0) {
   <div class="rk-card mb-3 px-4 py-6">
     <p class="text-muted-foreground text-center">Keine Termine an diesem Tag.</p>
   </div>
