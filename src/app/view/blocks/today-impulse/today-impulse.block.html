@@ -1,0 +1,30 @@
+<div class="rk-card border-primary border-2 px-4 py-5">
+  <h2 id="impulse-heading" class="mb-1 text-sm font-bold">Tagesimpuls</h2>
+
+  @if (item(); as content) {
+    <!-- The whole card is one link — one action (open the item), so its accessible name (kind,
+         title, teaser, the "Mehr lesen" hint) already states enough context for what will open. -->
+    <a [routerLink]="['/content', content.id]" [queryParams]="{ returnTo: '/today' }" class="block">
+      <!-- The content type is never colour alone: an icon and its own text label always ship
+           together. -->
+      <span class="rk-pill mb-2 text-xs">
+        @if (content.kind === 'rebellin') {
+          <svg lucideUsers class="rk-icon-sm" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideSparkles class="rk-icon-sm" aria-hidden="true"></svg>
+        }
+        <span>{{ typeLabel() }}</span>
+      </span>
+
+      <p class="font-bold">{{ content.title }}</p>
+      <p class="text-muted-foreground mb-2 line-clamp-2">{{ content.teaser }}</p>
+
+      <span class="text-primary inline-flex items-center gap-0.5 text-sm font-semibold">
+        Mehr lesen
+        <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+      </span>
+    </a>
+  } @else {
+    <p class="text-muted-foreground">Heute gibt es noch keinen Tagesimpuls.</p>
+  }
+</div>

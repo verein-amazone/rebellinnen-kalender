@@ -1,5 +1,73 @@
-<app-focused-screen heading="Inhalt" fallbackLink="/content">
-  <p class="text-muted-foreground">
-    Die Inhaltsdetails folgen mit den kuratierten Inhalten in Milestone 3.
-  </p>
+<app-focused-screen [heading]="heading()" fallbackLink="/content" [beforeDismiss]="beforeDismiss">
+  @if (item(); as headerContent) {
+    <button
+      header-actions
+      type="button"
+      class="rk-icon-button"
+      [attr.aria-pressed]="bookmarked()"
+      (click)="toggleBookmark()"
+    >
+      @if (bookmarked()) {
+        <svg lucideBookmarkCheck class="rk-icon" aria-hidden="true"></svg>
+      } @else {
+        <svg lucideBookmark class="rk-icon" aria-hidden="true"></svg>
+      }
+      <span class="sr-only">{{ bookmarkActionLabel() }}: {{ headerContent.title }}</span>
+    </button>
+  }
+
+  @if (item(); as content) {
+    <div class="space-y-4 pb-6">
+      <!-- The content type is never colour alone: an icon and its own text label always ship
+           together. -->
+      <span class="rk-pill text-xs">
+        @if (content.kind === 'rebellin') {
+          <svg lucideUsers class="rk-icon-sm" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideSparkles class="rk-icon-sm" aria-hidden="true"></svg>
+        }
+        <span>{{ typeLabel() }}</span>
+      </span>
+
+      @if (content.imagePath; as imagePath) {
+        <img [src]="imagePath" [alt]="content.imageAttribution ?? ''" class="w-full rounded-lg" />
+      }
+
+      <div class="rk-card px-4 py-5">
+        <app-markdown-content [markdown]="content.bodyMarkdown" />
+      </div>
+    </div>
+  } @else {
+    <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
+  }
+
+  <!-- Its own top-level `@if`, a direct child of `app-focused-screen` — nesting it inside the
+       `item(); as content` branch above (which has sibling nodes) would silently drop the
+       projection instead of rendering it (NG8011), per `FocusedScreenScaffold`'s own contract. -->
+  @if (item(); as footerContent) {
+    @if (footerContent.sourceLabel || footerContent.sourceUrl || footerContent.imageAttribution) {
+      <div footer #focusedScreenFooter class="space-y-0.5 pt-2">
+        @if (footerContent.sourceLabel || footerContent.sourceUrl) {
+          <p class="text-muted-foreground text-sm">
+            Quelle:
+            @if (footerContent.sourceUrl; as sourceUrl) {
+              <a
+                [href]="sourceUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="underline underline-offset-2"
+                >{{ footerContent.sourceLabel ?? sourceUrl }}</a
+              >
+            } @else {
+              {{ footerContent.sourceLabel }}
+            }
+          </p>
+        }
+
+        @if (footerContent.imageAttribution) {
+          <p class="text-muted-foreground text-xs">Bild: {{ footerContent.imageAttribution }}</p>
+        }
+      </div>
+    }
+  }
 </app-focused-screen>

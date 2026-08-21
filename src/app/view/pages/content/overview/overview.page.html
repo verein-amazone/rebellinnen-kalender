@@ -12,4 +12,34 @@
   <p class="text-muted-foreground">
     Anlaufstellen und die eigene Sammlung folgen mit den kuratierten Inhalten in Milestone 3.
   </p>
+
+  <!--
+    Debug entry point (#1): every seeded item, so the catalog can be clicked through one by one
+    while Anlaufstellen and My Collection are still unbuilt. Not a product surface — #23 (My
+    Collection) is where a real browsing UI for this content belongs.
+  -->
+  <div class="space-y-2">
+    <h2 class="text-sm font-bold">Alle Inhalte (Debug)</h2>
+
+    @if (items().length > 0) {
+      <ul class="rk-card divide-border divide-y">
+        @for (item of items(); track item.id) {
+          <li>
+            <a
+              [routerLink]="['/content', item.id]"
+              [queryParams]="{ returnTo: '/content' }"
+              class="block px-4 py-3"
+            >
+              <span class="text-muted-foreground text-xs">{{
+                item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
+              }}</span>
+              <p class="font-semibold">{{ item.title }}</p>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="text-muted-foreground">Noch keine Inhalte vorhanden.</p>
+    }
+  </div>
 </div>

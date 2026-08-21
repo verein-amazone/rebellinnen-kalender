@@ -1,0 +1,51 @@
+<app-focused-screen heading="Bildnachweise" fallbackLink="/settings">
+  @if (items().length > 0) {
+    <ul class="space-y-3">
+      @for (item of items(); track item.path) {
+        <li class="rk-card flex items-start gap-3 px-4 py-4">
+          <div class="min-w-0 flex-1 space-y-1">
+            <p class="font-bold">{{ item.title }}</p>
+            <p class="text-muted-foreground text-sm">{{ item.creator }}</p>
+
+            <p class="text-muted-foreground text-sm">
+              @if (item.licenseUrl; as licenseUrl) {
+                <a
+                  [href]="licenseUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="underline underline-offset-2"
+                  >{{ item.license }}</a
+                >
+              } @else {
+                {{ item.license }}
+              }
+            </p>
+
+            @if (item.sourceUrl; as sourceUrl) {
+              <p class="text-muted-foreground text-sm">
+                Quelle:
+                <a
+                  [href]="sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="underline underline-offset-2"
+                  >{{ sourceUrl }}</a
+                >
+              </p>
+            } @else if (item.source; as source) {
+              <p class="text-muted-foreground text-sm">Quelle: {{ source }}</p>
+            }
+
+            @if (item.changes.length > 0) {
+              <p class="text-muted-foreground text-xs">Änderungen: {{ item.changes.join(', ') }}</p>
+            }
+          </div>
+
+          <img [src]="item.path" alt="" class="h-16 w-16 shrink-0 rounded-md object-cover" />
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="text-muted-foreground">Keine Bildnachweise verfügbar.</p>
+  }
+</app-focused-screen>

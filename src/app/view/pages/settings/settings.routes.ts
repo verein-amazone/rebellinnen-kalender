@@ -2,7 +2,9 @@ import { Routes } from '@angular/router';
 
 import { AboutPage } from './about/about.page';
 import { CalendarsPage } from './calendars/calendars.page';
+import { ImageCreditsPage } from './image-credits/image-credits.page';
 import { ImprintPage } from './imprint/imprint.page';
+import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
 import { PrivacyPage } from './privacy/privacy.page';
 import { ProfilePage } from './profile/profile.page';
@@ -23,5 +25,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
   { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },
   { path: 'imprint', component: ImprintPage, title: 'Impressum' },
+  { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
+  { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },
   { path: 'about', component: AboutPage, title: 'Über die App' },
 ];

@@ -1,0 +1,9 @@
+<app-focused-screen heading="Open-Source-Lizenzen" fallbackLink="/settings">
+  @if (text(); as licenseText) {
+    <pre class="rk-card overflow-x-auto px-4 py-5 text-xs whitespace-pre-wrap">{{
+      licenseText
+    }}</pre>
+  } @else {
+    <p class="text-muted-foreground">Die Lizenztexte sind in diesem Build nicht verfügbar.</p>
+  }
+</app-focused-screen>

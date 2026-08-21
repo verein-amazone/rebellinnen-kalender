@@ -8,6 +8,7 @@ import { ReminderListBlock } from '@app/view/blocks/reminder-list/reminder-list.
 import { TodayAppointmentsBlock } from '@app/view/blocks/today-appointments/today-appointments.block';
 import { TodayClosingBlock } from '@app/view/blocks/today-closing/today-closing.block';
 import { TodayGreetingBlock } from '@app/view/blocks/today-greeting/today-greeting.block';
+import { TodayImpulseBlock } from '@app/view/blocks/today-impulse/today-impulse.block';
 
 @Component({
   selector: 'app-today',
@@ -20,6 +21,7 @@ import { TodayGreetingBlock } from '@app/view/blocks/today-greeting/today-greeti
     TodayAppointmentsBlock,
     TodayClosingBlock,
     TodayGreetingBlock,
+    TodayImpulseBlock,
   ],
   templateUrl: './today.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
