@@ -1,0 +1,15 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": ["src/app/view/components/support-service-avatar/support-service-avatar.html"],
+        "createdAt": "2026-08-22T19:53:06.353Z",
+        "reason": "dynamic [src]=logoPath() binds to real bundled webp assets, verified working live in browser"
+      }
+    ]
+  }
+}

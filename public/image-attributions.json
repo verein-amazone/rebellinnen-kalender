@@ -588,5 +588,58 @@
     ],
     "needsReview": true,
     "reviewNote": "Flickr source page identified matching this licence and creator; not visually cross-checked against the bundled image — confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/support-services/logos/zara.webp",
+    "title": "ZARA logo",
+    "creator": "Zaraista",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zara-Logo.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": ["resized", "converted to WebP"],
+    "needsReview": false
+  },
+  {
+    "path": "/support-services/logos/kinder-jugendanwaltschaften-oesterreichs.webp",
+    "title": "kija.at logo",
+    "creator": "Kija Salzburg",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kija.at_logo.jpg",
+    "license": "CC-BY-3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "changes": ["padded to a square canvas", "converted to WebP"],
+    "needsReview": false
+  },
+  {
+    "path": "/support-services/logos/telefonseelsorge.webp",
+    "title": "Telefonseelsorge Österreich logo",
+    "creator": "Telefonseelsorge Österreich",
+    "sourceUrl": "https://www.telefonseelsorge.at/home",
+    "license": "All rights reserved (referential/nominative use)",
+    "licenseUrl": null,
+    "changes": ["padded to a square canvas", "converted to WebP"],
+    "needsReview": true,
+    "reviewNote": "Pulled from the organisation's own public site, used only to identify and link to their service (not explicitly permission-granted) — confirm with Telefonseelsorge Österreich before relying on this long-term."
+  },
+  {
+    "path": "/support-services/logos/kindernotruf.webp",
+    "title": "Kindernotruf (Verein Lichtblick) logo",
+    "creator": "Verein Lichtblick",
+    "sourceUrl": "https://www.verein-lichtblick.at/kindernotruf-3/",
+    "license": "All rights reserved (referential/nominative use)",
+    "licenseUrl": null,
+    "changes": ["padded to a square canvas", "converted to WebP"],
+    "needsReview": true,
+    "reviewNote": "Pulled from the organisation's own public site, used only to identify and link to their service (not explicitly permission-granted) — confirm with Verein Lichtblick before relying on this long-term."
+  },
+  {
+    "path": "/support-services/logos/helpchat.webp",
+    "title": "HelpCh@t logo",
+    "creator": "AÖF (Autonome Österreichische Frauenhäuser)",
+    "sourceUrl": "https://www.haltdergewalt.at/",
+    "license": "All rights reserved (referential/nominative use)",
+    "licenseUrl": null,
+    "changes": ["padded to a square canvas", "converted to WebP"],
+    "needsReview": true,
+    "reviewNote": "Pulled from the organisation's own public site, used only to identify and link to their service (not explicitly permission-granted) — confirm with AÖF before relying on this long-term."
   }
 ]

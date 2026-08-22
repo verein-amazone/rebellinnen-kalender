@@ -1,45 +1,124 @@
-<!-- `min-h-16` here and `pt-4` on the block below reproduce the space `.rk-screen-header-bar` +
-     `.rk-screen-body` reserve on a focused screen, so switching between this tab and a focused
-     screen (e.g. event detail) doesn't shift where scrollable content starts. `min-h-16` (64px),
-     not `min-h-touch` (48px): the `<h1>` is `sr-only` and contributes no in-flow height, so nothing
-     here is a touch target — the row exists purely to reserve the same 64px the other tabs' visible
-     controls happen to fill on their own. -->
-<div class="min-h-16 px-4 py-2">
-  <h1 class="sr-only">Inhalte</h1>
-</div>
+<div ngTabs>
+  <!-- `py-2` here reproduces the space `.rk-screen-header-bar` reserves on a focused screen, so
+       switching between this tab and a focused screen (e.g. event detail) doesn't shift where
+       scrollable content starts — the same pattern `today.page.html`/the calendar overview use.
+       Unlike those pages there is no per-screen icon action to fill this row with, so the tabs
+       themselves live here instead of behind a separate blank spacer.
 
-<div class="space-y-4 px-4 pt-4 pb-6">
-  <p class="text-muted-foreground">
-    Anlaufstellen und die eigene Sammlung folgen mit den kuratierten Inhalten in Milestone 3.
-  </p>
+       The visual "inset track, active segment lifted with `bg-card`/`shadow-sm`" look mirrors the
+       calendar view's Woche/Monat switcher, but this is a real APG tab widget (see the class
+       doc-comment): `ngTabList`/`ngTab` supply `role="tablist"`/`role="tab"`, `aria-selected`,
+       `aria-controls`, and arrow-key navigation, so `aria-selected:` is enough to style the active
+       tab without a manual "is this selected" class binding. -->
+  <div class="flex items-center gap-2 px-4 py-2">
+    <h1 class="sr-only">Inhalte</h1>
 
-  <!--
-    Debug entry point (#1): every seeded item, so the catalog can be clicked through one by one
-    while Anlaufstellen and My Collection are still unbuilt. Not a product surface — #23 (My
-    Collection) is where a real browsing UI for this content belongs.
-  -->
-  <div class="space-y-2">
-    <h2 class="text-sm font-bold">Alle Inhalte (Debug)</h2>
+    <ul
+      ngTabList
+      [selectedTab]="activeArea()"
+      (selectedTabChange)="onAreaChange($event)"
+      class="bg-muted flex min-w-0 flex-1 list-none gap-0.5 rounded-lg p-0.5"
+    >
+      <li
+        ngTab
+        value="services"
+        class="min-h-touch aria-selected:bg-card flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-center font-semibold aria-selected:font-bold aria-selected:shadow-sm"
+      >
+        Anlaufstellen
+      </li>
+      <li
+        ngTab
+        value="collection"
+        class="min-h-touch aria-selected:bg-card flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-center font-semibold aria-selected:font-bold aria-selected:shadow-sm"
+      >
+        Meine Sammlung
+      </li>
+    </ul>
+  </div>
 
-    @if (items().length > 0) {
-      <ul class="rk-card divide-border divide-y">
-        @for (item of items(); track item.id) {
-          <li>
-            <a
-              [routerLink]="['/content', item.id]"
-              [queryParams]="{ returnTo: '/content' }"
-              class="block px-4 py-3"
-            >
-              <span class="text-muted-foreground text-xs">{{
-                item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
-              }}</span>
-              <p class="font-semibold">{{ item.title }}</p>
-            </a>
-          </li>
-        }
-      </ul>
-    } @else {
-      <p class="text-muted-foreground">Noch keine Inhalte vorhanden.</p>
-    }
+  <div class="px-4 pt-4 pb-6">
+    <!-- `visible()` drives `[class.hidden]` by hand: `ngTabPanel` sets `inert` on the hidden panel
+         (removing it from the accessibility tree and from tab order) but deliberately leaves visual
+         hiding to the consumer. `ngTabContent` defers the panel's content until it's selected once,
+         then keeps it mounted — the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
+    <div
+      ngTabPanel
+      value="services"
+      #servicesPanel="ngTabPanel"
+      [class.hidden]="!servicesPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          <p class="text-muted-foreground">
+            Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an die
+            du dich wenden kannst.
+          </p>
+
+          @if (regions().length > 0) {
+            <app-support-service-region-filter
+              [regions]="regions()"
+              [selectedRegionId]="selectedRegionId()"
+              (regionSelected)="selectRegion($event)"
+            />
+
+            @if (filteredServices().length > 0) {
+              <div class="space-y-2">
+                @for (service of filteredServices(); track service.id) {
+                  <app-support-service-card [service]="service" />
+                }
+              </div>
+            } @else {
+              <p class="text-muted-foreground px-4 py-6 text-center">
+                Für diese Region sind noch keine Anlaufstellen hinterlegt.
+              </p>
+            }
+          }
+        </div>
+      </ng-template>
+    </div>
+
+    <div
+      ngTabPanel
+      value="collection"
+      #collectionPanel="ngTabPanel"
+      [class.hidden]="!collectionPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          <p class="text-muted-foreground">
+            Deine gespeicherten Inhalte folgen mit den kuratierten Inhalten in Milestone 3.
+          </p>
+
+          <!--
+            Debug entry point (#1): every seeded item, so the catalog can be clicked through one by
+            one while My Collection (#23) is still unbuilt.
+          -->
+          <div class="space-y-2">
+            <h2 class="text-sm font-bold">Alle Inhalte (Debug)</h2>
+
+            @if (items().length > 0) {
+              <ul class="rk-card divide-border divide-y">
+                @for (item of items(); track item.id) {
+                  <li>
+                    <a
+                      [routerLink]="['/content', item.id]"
+                      [queryParams]="{ returnTo: '/content' }"
+                      class="block px-4 py-3"
+                    >
+                      <span class="text-muted-foreground text-xs">{{
+                        item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
+                      }}</span>
+                      <p class="font-semibold">{{ item.title }}</p>
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-muted-foreground">Noch keine Inhalte vorhanden.</p>
+            }
+          </div>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>

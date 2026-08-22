@@ -1,0 +1,24 @@
+<!-- `-mx-4 px-4`: see `calendar-source-filter.block.html` — breaks out of the page's own `px-4`
+     gutter so the track scrolls edge-to-edge, then puts the gutter back as padding inside the
+     scroll area. -->
+<div
+  class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+  role="radiogroup"
+  aria-label="Region filtern"
+>
+  @for (region of regions(); track region.id) {
+    <button
+      type="button"
+      role="radio"
+      class="rk-pill min-h-touch shrink-0 transition-colors"
+      [class.font-bold]="region.id === selectedRegionId()"
+      [attr.aria-checked]="region.id === selectedRegionId()"
+      (click)="regionSelected.emit(region.id)"
+    >
+      @if (region.id === selectedRegionId()) {
+        <svg lucideCheck class="rk-icon-sm" aria-hidden="true"></svg>
+      }
+      <span>{{ region.label }}</span>
+    </button>
+  }
+</div>

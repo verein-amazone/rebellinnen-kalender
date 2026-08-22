@@ -1,0 +1,62 @@
+<div class="rk-card space-y-3 p-4">
+  <div class="flex gap-3">
+    <div class="min-w-0 flex-1 space-y-1">
+      @if (service().crisis) {
+        <span
+          class="bg-danger/10 text-danger inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"
+        >
+          <svg lucideTriangleAlert class="rk-icon-sm" aria-hidden="true"></svg>
+          <span>Krisenhotline</span>
+        </span>
+      }
+      <p class="font-semibold">{{ service().name }}</p>
+      <p class="text-muted-foreground">{{ service().teaser }}</p>
+    </div>
+
+    <app-support-service-avatar
+      [icon]="service().icon"
+      [color]="service().color"
+      [logoPath]="service().logoPath"
+    />
+  </div>
+
+  @if (service().actions.length > 0) {
+    <div class="flex gap-2">
+      @for (action of service().actions; track action.uri; let first = $first) {
+        <a
+          [href]="action.uri"
+          [attr.target]="isExternal(action.type) ? '_blank' : null"
+          [attr.rel]="isExternal(action.type) ? 'noopener noreferrer' : null"
+          class="rk-button flex-1"
+          [class.rk-button-primary]="first"
+          [class.rk-button-secondary]="!first"
+          [attr.aria-label]="actionAriaLabel(service().name, action.label, action.displayValue)"
+        >
+          @switch (action.type) {
+            @case ('phone') {
+              <svg lucidePhone class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @case ('sms') {
+              <svg lucideMessageSquare class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @case ('chat') {
+              <svg lucideMessageCircle class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @default {
+              <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+          }
+          <span class="flex flex-col items-center leading-tight">
+            <span>{{ action.label }}</span>
+            @if (action.displayValue) {
+              <!-- The visible number, not just the aria-label's spoken one: a sighted user reading
+                   the card (e.g. to note it down or dial from another device) needs to see the
+                   actual digits, not just "Anrufen". -->
+              <span class="text-xs font-normal opacity-90">{{ action.displayValue }}</span>
+            }
+          </span>
+        </a>
+      }
+    </div>
+  }
+</div>
