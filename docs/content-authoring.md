@@ -118,3 +118,80 @@ Notes from doing this for the first 41 items:
    click through the new item: image loads, markdown renders as expected, footer attribution shows.
 3. If the item is `eligibleForDaily`, the Today card only shows one stable item per day — force a
    look by clearing `localStorage` (`rk.dailyImpulse`) or checking on a day where it's due to rotate.
+
+## Adding an Anlaufstelle (support service)
+
+Anlaufstellen (`public/support-services/catalog.json`, shown under Content → Anlaufstellen, #24)
+are a **separate, simpler catalog** from the one above — don't confuse the two:
+
+- No SQLite sync. `SupportServiceCatalogGateway` fetches the file directly on every page load; there
+  is no `version` field to bump, no `content_items` table, and no build step. Anlaufstellen has no
+  per-item state to persist (no bookmarking, no daily rotation, no read history), so the
+  `ContentCatalogSync` machinery the Wissensimpulse/Rebell\*in catalog needs would add nothing here.
+  Fields per entry:
+
+| Field            | Notes                                                                                                                                                                                                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Stable, unique, kebab-case (e.g. `rat-auf-draht`).                                                                                                                                                                                                                                          |
+| `region`         | `'online'` (Austria-wide phone/online offers) or an Austrian state slug (e.g. `vorarlberg`). A region only appears as a filter chip once it has at least one entry — see `SupportServicesInteractor`'s fixed display order (online first, then Vorarlberg, Tirol, Salzburg, then the rest). |
+| `name`, `teaser` | Plain text.                                                                                                                                                                                                                                                                                 |
+| `crisis`         | Optional, defaults to `false`. Set `true` for an acute-crisis/emergency hotline; the card marks it with an icon **and** the text "Krisenhotline", never colour alone.                                                                                                                       |
+| `icon`           | One emoji, freely chosen to fit the service (e.g. 🧠, 🛡️, ⚖️) — shown on a tinted badge next to the name. Every entry needs one; there's no default and no shared palette to pick from, just something distinct from its neighbours in the same region's list.                              |
+| `color`          | A hex colour tinting that badge (e.g. `"#E92F2A"`). Vary it across entries in the same region so a long scrolling list stays scannable — two red badges back-to-back defeats the point.                                                                                                     |
+| `logoPath`       | Optional, omitted today on every entry. A real organisation logo **may only be added once its usage rights are cleared** — same rule `image-attributions.json` already enforces for other images. See "Adding a real logo" below.                                                           |
+| `actions`        | Array of contact actions, in the order the buttons should appear (first button is primary). May be empty, though a service with no way to reach it is unusual.                                                                                                                              |
+
+### `actions[]` — enter numbers pre-formatted, don't rely on the app to convert them
+
+Each action is `{ type, label, uri, displayValue? }`. **The app renders `uri` and `label` exactly
+as given — it does not parse or reformat phone numbers at runtime.** Getting the `uri` right when
+you add an entry is the whole job; there is no normalization pass to catch a mistake later.
+
+| Field          | Notes                                                                                                                                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`         | `'phone'`, `'sms'`, `'website'`, or `'chat'`. Decides the icon and whether the link opens externally (`website`/`chat`) or hands off to the OS (`phone`/`sms`). |
+| `label`        | The exact button text (e.g. `"Anrufen"`, `"SMS senden"`, `"Chat"`, `"Webseite"`).                                                                               |
+| `uri`          | The literal `tel:`/`sms:`/`https:` value — see the number-formatting rules below.                                                                               |
+| `displayValue` | Optional, `phone`/`sms` only: the human-readable number, read out in the button's accessible name (e.g. `"Anrufen (147)"`). Omit for `website`/`chat`.          |
+
+**Phone number formatting for `uri` — get this right per number, there's no generic rule that
+covers all of them:**
+
+- **Austrian short/service numbers** (e.g. `147` Rat auf Draht, `142` Telefonseelsorge): keep
+  exactly as given. `uri: 'tel:147'`. **Never** prepend `+43` — `+43147` is a different, wrong
+  number, not an internationalised version of `147`.
+- **Ordinary Austrian numbers and `0800` numbers**: strip the leading `0`, prepend `+43`, remove
+  spaces. `01 4000 53655` → `uri: 'tel:+431400053655'`. `0800 222 555` → `uri: 'tel:+43800222555'`.
+  Keep the original spaced form as `displayValue` (e.g. `'0800 222 555'`) — only `uri` needs to be
+  machine-readable.
+  - `0800` means freephone **in Austria only** — it is not guaranteed reachable or free from
+    abroad. Don't describe an `0800` service as free worldwide.
+- **A number already given in `+43…` form** (e.g. Verein Amazone's `+43 5574 45801`): just remove
+  the spaces for `uri` (`tel:+43557445801`); it's already correct, don't reprocess it.
+- **SMS-only services**: use `type: 'sms'` and a `sms:` URI (digits only, no `+43` unless the
+  service explicitly documents an international SMS number), never `type: 'phone'` — a `tel:` link
+  on an SMS-only number opens the dialer for a service that doesn't take calls. Re-check the
+  provider's current recommended contact method before shipping an SMS-only entry; emergency/crisis
+  communication channels change.
+- A `Chatten:`/web-chat link from source material becomes `type: 'chat'`; a plain informational
+  link becomes `type: 'website'`. Both render as an external link — the distinction only changes
+  the icon and default label.
+
+Verify: `pnpm test:ci`, then open `/content` → Anlaufstellen and check the region filter, each
+`phone` action opens the device dialer with the exact number shown, each `sms` action opens the
+messaging app (not the dialer), `website`/`chat` actions open externally, and each card shows a
+distinct icon/colour badge.
+
+### Adding a real logo
+
+Every entry ships with an `icon`/`color` badge today; a real organisation logo replaces it once
+one is sourced and cleared, per organisation:
+
+1. Confirm the logo's usage rights first — same rule as `image-attributions.json` (see §4 above):
+   don't add a logo image on the assumption that licensing will be sorted out later.
+2. Convert it to WebP and place it at `public/support-services/logos/<id>.webp`, matching the
+   entry's `id` (mirrors the `public/content/<kind>/<id>.webp` convention the daily-impulse
+   catalog uses — see §2 above for the `ffmpeg`/`cwebp` conversion steps).
+3. Set `"logoPath": "/support-services/logos/<id>.webp"` on that entry. `SupportServiceAvatar`
+   prefers the image automatically and falls back to the `icon`/`color` badge if it 404s — leave
+   `icon`/`color` in place as that fallback, don't remove them.

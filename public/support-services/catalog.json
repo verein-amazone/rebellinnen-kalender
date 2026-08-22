@@ -1,0 +1,264 @@
+{
+  "version": 4,
+  "items": [
+    {
+      "id": "rat-auf-draht",
+      "region": "online",
+      "name": "Rat auf Draht",
+      "teaser": "Beratung für Kinder und Jugendliche",
+      "crisis": true,
+      "icon": "📱",
+      "color": "#E92F2A",
+      "actions": [
+        { "type": "phone", "label": "Anrufen", "uri": "tel:147", "displayValue": "147" },
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://www.rataufdraht.at/chatberatung"
+        }
+      ]
+    },
+    {
+      "id": "telefonseelsorge",
+      "region": "online",
+      "name": "Telefonseelsorge",
+      "teaser": "Beratung bei Ängsten und Sorgen",
+      "crisis": true,
+      "icon": "🫂",
+      "color": "#5C6BC0",
+      "logoPath": "/support-services/logos/telefonseelsorge.webp",
+      "actions": [
+        { "type": "phone", "label": "Anrufen", "uri": "tel:142", "displayValue": "142" },
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://chat.onlineberatung-telefonseelsorge.at/hc/de"
+        }
+      ]
+    },
+    {
+      "id": "kindernotruf",
+      "region": "online",
+      "name": "Kindernotruf",
+      "teaser": "Telefonberatung bei akuten Krisen",
+      "crisis": true,
+      "icon": "🚨",
+      "color": "#FF6B6B",
+      "logoPath": "/support-services/logos/kindernotruf.webp",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43800567567",
+          "displayValue": "0800 567567"
+        }
+      ]
+    },
+    {
+      "id": "frauenhelpline-gegen-gewalt",
+      "region": "online",
+      "name": "Frauenhelpline gegen Gewalt",
+      "teaser": "Kostenlose und anonyme Beratung für Frauen*, die von Gewalt betroffen sind",
+      "crisis": true,
+      "icon": "✊",
+      "color": "#9C27B0",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43800222555",
+          "displayValue": "0800 222 555"
+        }
+      ]
+    },
+    {
+      "id": "hotline-fuer-essstoerungen",
+      "region": "online",
+      "name": "Hotline für Essstörungen",
+      "teaser": "Beratung bei Essstörungen",
+      "icon": "🎗️",
+      "color": "#F48FB1",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43800201120",
+          "displayValue": "0800 20 11 20"
+        }
+      ]
+    },
+    {
+      "id": "sms-notruf-gehoerlose-hoerbehinderte",
+      "region": "online",
+      "name": "SMS-Notruf für gehörlose und hörbehinderte Menschen",
+      "teaser": "Notruf per SMS",
+      "crisis": true,
+      "icon": "🚨",
+      "color": "#26A69A",
+      "actions": [
+        {
+          "type": "sms",
+          "label": "SMS senden",
+          "uri": "sms:0800133133",
+          "displayValue": "0800 133 133"
+        }
+      ]
+    },
+    {
+      "id": "first-love-herzklopfen",
+      "region": "online",
+      "name": "First Love - Herzklopfen",
+      "teaser": "Online-Beratung zu den Themen Liebe, Sex und Beziehungen",
+      "icon": "💘",
+      "color": "#FF8FA3",
+      "actions": [
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://firstlove.at/online-beratung/#/questions"
+        }
+      ]
+    },
+    {
+      "id": "kids-line",
+      "region": "online",
+      "name": "kids-line",
+      "teaser": "Rat für Jugendliche",
+      "icon": "🧒",
+      "color": "#FFD54F",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43800234123",
+          "displayValue": "0800 234 123"
+        },
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://www.kids-line.at/teens"
+        }
+      ]
+    },
+    {
+      "id": "time4friends",
+      "region": "online",
+      "name": "TIME4FRIENDS",
+      "teaser": "Die Peer-Beratung auf WhatsApp",
+      "icon": "💬",
+      "color": "#4DB6AC",
+      "actions": [
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://www.get-social.at/time4friends"
+        }
+      ]
+    },
+    {
+      "id": "kinder-jugendanwaltschaften-oesterreichs",
+      "region": "online",
+      "name": "Kinder- und Jugendanwaltschaften Österreichs",
+      "teaser": "Info und Rat zu deinen Rechten",
+      "icon": "⚖️",
+      "color": "#3F51B5",
+      "logoPath": "/support-services/logos/kinder-jugendanwaltschaften-oesterreichs.webp",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.kija.at/"
+        }
+      ]
+    },
+    {
+      "id": "checkit",
+      "region": "online",
+      "name": "checkit!",
+      "teaser": "Info- und Beratungsstelle zu Drogen, Sucht und Konsum",
+      "icon": "💊",
+      "color": "#8D6E63",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+431400053655",
+          "displayValue": "01 4000 53655"
+        },
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://checkit.wien/beratung/#onlineberatung"
+        }
+      ]
+    },
+    {
+      "id": "helpchat",
+      "region": "online",
+      "name": "HelpCh@t",
+      "teaser": "Beratung für Frauen* und Mädchen*, die von Gewalt betroffen sind",
+      "icon": "🆘",
+      "color": "#BA68C8",
+      "logoPath": "/support-services/logos/helpchat.webp",
+      "actions": [
+        {
+          "type": "chat",
+          "label": "Chat",
+          "uri": "https://www.haltdergewalt.at/"
+        }
+      ]
+    },
+    {
+      "id": "zara",
+      "region": "online",
+      "name": "ZARA",
+      "teaser": "Beratungsstellen #GegenHassimNetz und !GegenRassismus",
+      "icon": "🛡️",
+      "color": "#1565C0",
+      "logoPath": "/support-services/logos/zara.webp",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://zara.or.at/beratung/"
+        }
+      ]
+    },
+    {
+      "id": "orient-express",
+      "region": "online",
+      "name": "Orient Express",
+      "teaser": "Zwangsheirat ist Gewalt. Hier bekommst du Unterstützung.",
+      "icon": "🕊️",
+      "color": "#7DBDBB",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.orientexpress-wien.com/beratung"
+        }
+      ]
+    },
+    {
+      "id": "verein-amazone",
+      "region": "vorarlberg",
+      "name": "Verein Amazone",
+      "teaser": "amazoneZENTRUM und amazoneBERATUNG für Mädchen*, junge Frauen*, inter*, nicht-binäre, trans* und agender Jugendliche",
+      "icon": "🏳️‍🌈",
+      "color": "#4CAF82",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43557445801",
+          "displayValue": "05574 45801"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.amazone.or.at"
+        }
+      ]
+    }
+  ]
+}

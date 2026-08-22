@@ -1,0 +1,26 @@
+@if (showLogo()) {
+  <!-- `p-2` keeps the logo's own (usually white/opaque) background from butting straight up
+       against the surrounding card — without it a light logo square sits edge-to-edge against a
+       dark card in dark mode with no visual seam. `bg-white` rather than `bg-card`: every source
+       logo bakes in a plain white background, so the frame needs to match that fixed white, not
+       the theme's own (possibly dark) card colour, or the padding itself would show a seam.
+       `object-contain`, not `cover`: some source logos are wide wordmarks rather than square marks,
+       and cropping them would cut off the name. -->
+  <div class="border-border size-24 shrink-0 rounded-2xl border-2 bg-white p-2">
+    <img
+      [src]="logoPath()"
+      (error)="onLogoError()"
+      alt=""
+      aria-hidden="true"
+      class="size-full object-contain"
+    />
+  </div>
+} @else {
+  <span
+    aria-hidden="true"
+    class="rk-service-badge size-24 shrink-0"
+    [style.--badge-color]="color()"
+  >
+    {{ icon() }}
+  </span>
+}

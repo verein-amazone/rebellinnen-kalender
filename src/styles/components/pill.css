@@ -20,4 +20,22 @@
       var(--color-card)
     );
   }
+
+  /*
+   * A support service's colour identity as a square badge (Anlaufstellen, #24 follow-up) — same
+   * "coloured border over a tinted background" technique as `.rk-pill`, so it stays correct in
+   * dark mode too, but `rounded-2xl` rather than `rounded-full` so the two identities read as
+   * visually distinct contexts (a filter chip vs. a card's lead visual). Consumers set
+   * `--badge-color` inline, same reasoning as `--pill-color`: an arbitrary per-entry hex, not a
+   * design token.
+   */
+  .rk-service-badge {
+    @apply grid place-content-center rounded-2xl border-2 text-4xl;
+    border-color: var(--badge-color, var(--color-border));
+    background-color: color-mix(
+      in srgb,
+      var(--badge-color, var(--color-border)) 20%,
+      var(--color-card)
+    );
+  }
 }
