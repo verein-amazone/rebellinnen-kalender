@@ -1,5 +1,51 @@
 <app-focused-screen heading="Über die App" fallbackLink="/settings">
-  <p class="text-muted-foreground">
-    Die Beschreibung der App, die Open-Source-Lizenzen und die Bildnachweise folgen in Issue #11.
-  </p>
+  <div class="space-y-4">
+    <p class="text-muted-foreground">
+      Der Rebell*innen Kalender ist eine gemeinsame Weiterentwicklung von
+      <a
+        href="https://www.amazone.or.at/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary underline underline-offset-2"
+        >Verein Amazone</a
+      >, Workshop-Teilnehmer*innen und
+      <a
+        href="https://independo.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary underline underline-offset-2"
+        >Independo</a
+      >
+      — die digitale Version des bestehenden
+      <a
+        href="https://www.amazone.or.at/projekte/rebell-innen-kalender"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary underline underline-offset-2"
+        >Rebell*innen Kalenders</a
+      >.
+    </p>
+
+    <p class="text-muted-foreground">
+      Sie funktioniert ganz ohne Login und ohne eigene Server-Infrastruktur: dein Kalender, deine
+      Erinnerungen und deine gemerkten Inhalte bleiben auf deinem Gerät.
+    </p>
+
+    <p class="text-muted-foreground">Developed by Independo GmbH on behalf of Verein Amazone.</p>
+
+    <ul class="rk-list">
+      <li>
+        <a routerLink="/settings/licenses" class="rk-row">
+          <span class="rk-row-label">Open-Source-Lizenzen</span>
+          <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/settings/image-credits" class="rk-row">
+          <span class="rk-row-label">Bildnachweise</span>
+          <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+        </a>
+      </li>
+    </ul>
+  </div>
 </app-focused-screen>

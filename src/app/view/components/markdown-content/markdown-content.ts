@@ -11,7 +11,7 @@ import { MarkdownRenderer } from '@app/cross-cutting/markdown/markdown-renderer'
 @Component({
   selector: 'app-markdown-content',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div class="markdown-content" [innerHTML]="renderedHtml()"></div>`,
+  template: `<div class="rk-markdown-content" [innerHTML]="renderedHtml()"></div>`,
 })
 export class MarkdownContentComponent {
   private readonly renderer = inject(MarkdownRenderer);

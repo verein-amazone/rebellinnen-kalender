@@ -10,6 +10,8 @@ workshop participants and [Independo](https://independo.app/) as a digital versi
 
 This repository is the central place for planning, discussion and development of the first version.
 
+Developed by Independo GmbH on behalf of Verein Amazone.
+
 ## Status
 
 Early development. The technical foundation (Angular 22 + Capacitor 8, tooling, the application
@@ -52,6 +54,9 @@ The application follows a layered architecture with the dependency direction
 - [Frontend architecture](./docs/architecture/frontend-architecture.md)
 - [Data & persistence](./docs/architecture/data-persistence.md)
 - [Agent instructions](./AGENTS.md)
+
+Adding or editing a curated Wissensimpulse/Rebell\*in item (catalog entry, image conversion,
+licensing)? See [docs/content-authoring.md](./docs/content-authoring.md).
 
 ## Tech stack
 
@@ -163,6 +168,24 @@ Workshop ideas already visible in the repo:
 Feedback is welcome directly in the GitHub Issues. Workshop participants may also give feedback via
 the WhatsApp group; the project team transfers relevant feedback into the matching issue so that
 decisions stay traceable. See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+
+## Licensing
+
+Unless stated otherwise, the source code in this repository is licensed
+under the MIT License. See [LICENSE](./LICENSE).
+
+Images, photographs, editorial content and other media assets are not
+covered by the MIT License. Each asset is subject to its own licence or
+permission terms. Image licence and attribution information is documented
+in the image attribution data included in this repository
+([public/image-attributions.json](./public/image-attributions.json)).
+
+No permission to reuse an asset should be assumed beyond the licence or
+permission explicitly documented for that asset.
+
+Third-party software licences (JS/TS dependencies and, once wired up, native
+iOS/Android dependencies) ship with production builds and are readable
+offline in the app under **Settings → Lizenzen & Impressum**.
 
 ## Note on design
 

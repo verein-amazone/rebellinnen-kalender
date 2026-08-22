@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LucideChevronRight } from '@lucide/angular';
 
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
@@ -6,7 +8,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-about',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold],
+  imports: [FocusedScreenScaffold, RouterLink, LucideChevronRight],
   templateUrl: './about.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
