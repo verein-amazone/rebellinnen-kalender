@@ -30,7 +30,7 @@ export class TodayClosingBlock {
   private readonly currentDay = inject(LocalDay);
   private readonly reminderChanges = inject(ReminderChanges);
 
-  private readonly data = resource({
+  protected readonly data = resource({
     // Reloads on a day change as well as any reminder write, even though only the reminders
     // themselves came from the write — the occurrences are cheap to re-read and this keeps the
     // loader a single, simple params function instead of two independently reloading resources.
@@ -89,6 +89,10 @@ export class TodayClosingBlock {
   });
 
   protected readonly appointment = computed(() => this.state()?.nextAppointment ?? null);
+
+  protected reload(): void {
+    this.data.reload();
+  }
 }
 
 /** Resolves a message key to its picked, interpolated text for the day the block loaded. */

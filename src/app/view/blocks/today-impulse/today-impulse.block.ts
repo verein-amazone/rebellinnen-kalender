@@ -28,7 +28,7 @@ export class TodayImpulseBlock {
   private readonly daily = inject(DailyImpulseInteractor);
   private readonly currentDay = inject(LocalDay);
 
-  private readonly data = resource({
+  protected readonly data = resource({
     params: () => ({ today: this.currentDay.day() }),
     loader: ({ params: { today } }) => this.daily.featuredItem(today),
   });
@@ -38,4 +38,8 @@ export class TodayImpulseBlock {
   protected readonly typeLabel = computed(() =>
     this.item()?.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse',
   );
+
+  protected reload(): void {
+    this.data.reload();
+  }
 }

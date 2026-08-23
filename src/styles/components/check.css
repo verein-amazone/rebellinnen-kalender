@@ -20,6 +20,7 @@
 @layer components {
   .rk-check {
     @apply border-border bg-card grid shrink-0 appearance-none place-content-center rounded-full border-2;
+    @apply transition-colors duration-150;
     /* `em`, so the control tracks its label. The border stays in px: it is decoration, not text. */
     inline-size: 1.35em;
     block-size: 1.35em;

@@ -21,5 +21,7 @@
 @import './components/pill.css';
 @import './components/reorder.css';
 @import './components/screen.css';
+@import './components/segmented.css';
 @import './components/sheet.css';
+@import './components/skeleton.css';
 @import './components/toggle.css';

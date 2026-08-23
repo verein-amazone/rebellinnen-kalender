@@ -24,7 +24,7 @@ export class TodayAppointmentsBlock {
 
   protected readonly today = this.currentDay.day;
 
-  private readonly occurrences = resource({
+  protected readonly occurrences = resource({
     params: () => this.currentDay.day(),
     loader: ({ params: day }) => this.occurrencesInteractor.listForDays(day, day),
   });
@@ -32,4 +32,8 @@ export class TodayAppointmentsBlock {
   protected readonly entries = computed<readonly CalendarOccurrence[]>(
     () => this.occurrences.value() ?? [],
   );
+
+  protected reload(): void {
+    this.occurrences.reload();
+  }
 }

@@ -72,8 +72,11 @@ test.describe('large text', () => {
     test('a long entry does not make Today scroll sideways at large text', async ({ page }) => {
       await page.goto('/today');
       await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
-      await page.getByLabel('Neue Erinnerung').fill('Donaudampfschifffahrtsgesellschaftskapitän');
-      await page.getByRole('button', { name: 'Hinzufügen' }).click();
+      const addDialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });
+      await addDialog
+        .getByLabel('Text der Erinnerung')
+        .fill('Donaudampfschifffahrtsgesellschaftskapitän');
+      await addDialog.getByRole('button', { name: 'Speichern' }).click();
       await expect(page.locator('ul.rk-list > li')).toHaveCount(1);
 
       for (const size of ['200%', '300%']) {

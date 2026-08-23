@@ -60,13 +60,19 @@ export class ContentOverviewPage {
   });
   protected readonly items = computed(() => this.contentData.value() ?? []);
 
-  private readonly servicesData = resource({
+  protected readonly servicesData = resource({
     loader: () => this.supportServices.listAll(),
   });
-  private readonly regionsData = resource({
+  protected readonly regionsData = resource({
     loader: () => this.supportServices.listRegions(),
   });
   protected readonly regions = computed(() => this.regionsData.value() ?? []);
+  protected readonly servicesLoading = computed(
+    () => this.regionsData.status() === 'loading' || this.servicesData.status() === 'loading',
+  );
+  protected readonly servicesError = computed(
+    () => this.regionsData.error() !== undefined || this.servicesData.error() !== undefined,
+  );
 
   private readonly selectedRegion = signal<string | null>(null);
   protected readonly effectiveRegion = computed(
@@ -93,5 +99,10 @@ export class ContentOverviewPage {
     if (isContentArea(value)) {
       this.activeArea.set(value);
     }
+  }
+
+  protected reloadServices(): void {
+    this.regionsData.reload();
+    this.servicesData.reload();
   }
 }

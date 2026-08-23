@@ -11,11 +11,9 @@ import {
   Component,
   computed,
   effect,
-  ElementRef,
   inject,
   resource,
   signal,
-  viewChild,
 } from '@angular/core';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
 import {
@@ -26,15 +24,11 @@ import {
   LucidePencil,
   LucidePlus,
   LucideTrash2,
-  LucideX,
 } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
-import {
-  REMINDER_TEXT_MAX_LENGTH,
-  ReminderListInteractor,
-} from '@app/interactors/reminders/reminder-list.interactor';
+import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
@@ -67,8 +61,7 @@ export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
  * stays the only way across. Dragging is also never the only way to move a row; the same moves sit in
  * the row's menu, which is what makes them reachable by tap and by keyboard.
  *
- * Adding happens in the last row of the card, which is a button until it is used and an input
- * afterwards — so the quiet state stays quiet and the field only appears once it is wanted.
+ * Adding opens the same sheet `edit()` does, with an empty draft — see `openAdd()`.
  */
 @Component({
   selector: 'app-reminder-list',
@@ -88,7 +81,6 @@ export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
     LucidePencil,
     LucidePlus,
     LucideTrash2,
-    LucideX,
   ],
   templateUrl: './reminder-list.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,8 +91,6 @@ export class ReminderListBlock {
   private readonly announcer = inject(LiveAnnouncer);
   private readonly currentDay = inject(LocalDay);
   private readonly reminderChanges = inject(ReminderChanges);
-
-  private readonly input = viewChild<ElementRef<HTMLInputElement>>('newReminderInput');
 
   protected readonly items = resource({
     // Reloads by itself when the day rolls over, which is when completed entries stop being shown.
@@ -149,19 +139,7 @@ export class ReminderListBlock {
     }));
   });
 
-  protected readonly maxLength = REMINDER_TEXT_MAX_LENGTH;
-  protected readonly adding = signal(false);
-  protected readonly draft = signal('');
-  protected readonly error = signal('');
-
   constructor() {
-    // The field is opened by a button press, so the press has to end with the caret in the field.
-    effect(() => {
-      if (this.adding()) {
-        this.input()?.nativeElement.focus();
-      }
-    });
-
     // A new day means a new list, so a hand-made order from yesterday must not survive it.
     effect(() => {
       this.currentDay.day();
@@ -169,42 +147,23 @@ export class ReminderListBlock {
     });
   }
 
-  protected startAdding(): void {
-    this.adding.set(true);
-  }
+  /** Opens the same sheet `edit()` uses, empty rather than prefilled. */
+  protected openAdd(): void {
+    const data: ReminderEditDialogData = { text: '' };
 
-  protected cancelAdding(): void {
-    this.adding.set(false);
-    this.draft.set('');
-    this.error.set('');
-  }
+    this.sheets
+      .open<string, ReminderEditDialogData>(ReminderEditDialog, {
+        heading: 'Neue Erinnerung',
+        data,
+      })
+      .closed.subscribe(async (text) => {
+        if (text === undefined) {
+          return;
+        }
 
-  protected updateDraft(value: string): void {
-    this.draft.set(value);
-
-    if (this.error() !== '') {
-      this.error.set('');
-    }
-  }
-
-  /**
-   * The confirm button stays enabled even with an empty field: a disabled control cannot be reached
-   * and explains nothing, so an empty submit answers instead.
-   */
-  protected async add(): Promise<void> {
-    const text = this.draft().trim();
-
-    if (text === '') {
-      this.error.set('Bitte gib zuerst einen Text ein.');
-      this.input()?.nativeElement.focus();
-      return;
-    }
-
-    await this.reminders.add(text);
-    this.draft.set('');
-    this.reload();
-    // The field stays open and focused, so several entries can be written one after another.
-    this.input()?.nativeElement.focus();
+        await this.reminders.add(text);
+        this.reload();
+      });
   }
 
   protected async toggle(item: Reminder): Promise<void> {

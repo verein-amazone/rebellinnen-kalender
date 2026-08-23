@@ -35,10 +35,8 @@
 
   <fieldset class="px-4 pb-2">
     <legend class="sr-only">Ansicht</legend>
-    <div class="bg-muted flex rounded-lg p-0.5">
-      <label
-        class="min-h-touch has-checked:bg-card has-focus-visible:ring-ring flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold has-checked:font-bold has-checked:shadow-sm has-focus-visible:ring-2"
-      >
+    <div class="rk-segmented">
+      <label class="rk-segmented-item">
         <input
           type="radio"
           name="calendar-view"
@@ -49,9 +47,7 @@
         />
         Woche
       </label>
-      <label
-        class="min-h-touch has-checked:bg-card has-focus-visible:ring-ring flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold has-checked:font-bold has-checked:shadow-sm has-focus-visible:ring-2"
-      >
+      <label class="rk-segmented-item">
         <input
           type="radio"
           name="calendar-view"
@@ -88,8 +84,23 @@
   }
 
   @if (occurrences.error()) {
-    <div class="rk-card px-4 py-6">
-      <p class="text-muted-foreground text-center">Die Termine konnten nicht geladen werden.</p>
+    <div class="rk-card space-y-3 px-4 py-6 text-center">
+      <p>Die Termine konnten nicht geladen werden.</p>
+      <button type="button" class="rk-button rk-button-ghost" (click)="occurrences.reload()">
+        Erneut versuchen
+      </button>
+    </div>
+  } @else if (occurrences.status() === 'loading') {
+    <!-- Two agenda-row placeholders. -->
+    <div class="space-y-2" aria-hidden="true">
+      <div class="rk-card flex items-center gap-3 px-4 py-3">
+        <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
+        <span class="rk-skeleton block h-4 w-1/2"></span>
+      </div>
+      <div class="rk-card flex items-center gap-3 px-4 py-3">
+        <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
+        <span class="rk-skeleton block h-4 w-1/3"></span>
+      </div>
     </div>
   } @else {
     <app-calendar-agenda
