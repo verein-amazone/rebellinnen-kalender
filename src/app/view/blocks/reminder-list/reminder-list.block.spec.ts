@@ -76,9 +76,14 @@ class FakeReminderListInteractor {
 class StubSheetService {
   results: unknown[] = [];
   readonly headings: string[] = [];
+  readonly data: unknown[] = [];
 
-  open(_content: unknown, config: { heading: string }): { closed: Observable<unknown> } {
+  open(
+    _content: unknown,
+    config: { heading: string; data?: unknown },
+  ): { closed: Observable<unknown> } {
     this.headings.push(config.heading);
+    this.data.push(config.data);
     return { closed: of(this.results.shift()) };
   }
 }
@@ -150,20 +155,9 @@ async function setup(items: Reminder[] = []) {
         span.textContent?.trim(),
       ),
     rows: () => Array.from(element.querySelectorAll('li')),
-    input: () => element.querySelector('input[type="text"]') as HTMLInputElement,
-    /** The field only exists once the last row has been used, so most tests start here. */
-    async startAdding() {
+    /** Opens the add sheet — a stub, so this just triggers `openAdd()`, not a real overlay. */
+    async openAdd() {
       await this.clickByText('button', 'Punkt hinzufügen');
-    },
-    async type(value: string) {
-      const input = this.input();
-      input.value = value;
-      input.dispatchEvent(new Event('input'));
-      await fixture.whenStable();
-    },
-    async submit() {
-      element.querySelector('form')!.dispatchEvent(new Event('submit'));
-      await fixture.whenStable();
     },
     async click(selector: string, index = 0) {
       Array.from(element.querySelectorAll<HTMLElement>(selector))[index].click();
@@ -255,60 +249,33 @@ describe('ReminderListBlock', () => {
     ).toEqual(['Bearbeiten', 'Löschen']);
   });
 
-  it('opens the field only once adding is asked for, and puts the caret in it', async () => {
+  it('opens the add sheet with an empty draft and the right heading', async () => {
     const block = await setup();
+    block.sheets.results = [undefined];
 
-    expect(block.element.querySelector('input[type="text"]')).toBeNull();
+    await block.openAdd();
 
-    await block.startAdding();
-
-    expect(block.input()).not.toBeNull();
-    expect(document.activeElement).toBe(block.input());
+    expect(block.sheets.headings).toEqual(['Neue Erinnerung']);
+    expect(block.sheets.data).toEqual([{ text: '' }]);
   });
 
-  it('closes the field again when the entry is abandoned', async () => {
+  it('adds the entry the sheet resolves with', async () => {
     const block = await setup();
-    await block.startAdding();
-    await block.type('Halb getippt');
+    block.sheets.results = ['Blumen gießen'];
 
-    await block.clickByText('button', 'Eingabe abbrechen');
-
-    expect(block.element.querySelector('input[type="text"]')).toBeNull();
-    expect(block.interactor.added).toEqual([]);
-  });
-
-  it('keeps the live region in the DOM before anything goes wrong', async () => {
-    const block = await setup();
-    await block.startAdding();
-
-    expect(block.element.querySelector('[aria-live="polite"]')).not.toBeNull();
-    expect(block.element.querySelector('.rk-error')).toBeNull();
-  });
-
-  it('answers an empty submit instead of writing an entry', async () => {
-    const block = await setup();
-    await block.startAdding();
-
-    await block.submit();
-
-    expect(block.interactor.added).toEqual([]);
-    const error = block.element.querySelector('.rk-error');
-    expect(error?.textContent?.trim()).not.toBe('');
-    expect(block.input().getAttribute('aria-describedby')).toBe(error?.id);
-    expect(document.activeElement).toBe(block.input());
-  });
-
-  it('adds a trimmed entry, clears the field and stays ready for the next one', async () => {
-    const block = await setup();
-    await block.startAdding();
-
-    await block.type('  Blumen gießen ');
-    await block.submit();
+    await block.openAdd();
 
     expect(block.interactor.added).toEqual(['Blumen gießen']);
-    expect(block.input().value).toBe('');
-    expect(document.activeElement).toBe(block.input());
     expect(block.rows()).toHaveLength(1);
+  });
+
+  it('adds nothing when the add sheet is cancelled', async () => {
+    const block = await setup();
+    block.sheets.results = [undefined];
+
+    await block.openAdd();
+
+    expect(block.interactor.added).toEqual([]);
   });
 
   it('completes an open entry and reopens a completed one', async () => {

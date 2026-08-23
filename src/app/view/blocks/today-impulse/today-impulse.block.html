@@ -1,7 +1,22 @@
 <div class="rk-card border-primary border-2 px-4 py-5">
   <h2 id="impulse-heading" class="mb-1 text-sm font-bold">Tagesimpuls</h2>
 
-  @if (item(); as content) {
+  @if (data.error() !== undefined) {
+    <div class="space-y-3 text-center">
+      <p class="text-muted-foreground">Der Tagesimpuls konnte nicht geladen werden.</p>
+      <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
+        Erneut versuchen
+      </button>
+    </div>
+  } @else if (data.status() === 'loading') {
+    <!-- Shaped like the loaded card: pill, title, two teaser lines. -->
+    <div class="space-y-2" aria-hidden="true">
+      <span class="rk-skeleton mb-2 block h-6 w-24 rounded-full"></span>
+      <span class="rk-skeleton block h-4 w-2/3"></span>
+      <span class="rk-skeleton block h-3 w-full"></span>
+      <span class="rk-skeleton block h-3 w-4/5"></span>
+    </div>
+  } @else if (item(); as content) {
     <!-- The whole card is one link — one action (open the item), so its accessible name (kind,
          title, teaser, the "Mehr lesen" hint) already states enough context for what will open. -->
     <a [routerLink]="['/content', content.id]" [queryParams]="{ returnTo: '/today' }" class="block">

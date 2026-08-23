@@ -9,12 +9,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- adjustResize: the WebView shrinks when the keyboard opens, so the fixed h-dvh shell
+             (main-navigation.scaffold.html) recomputes to the smaller viewport and the bottom tab
+             bar ends up flush above the keyboard. The default (adjustPan) instead pans the whole
+             window, leaving the tab bar floating above the keyboard with a gap below it. -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
 
             <intent-filter>

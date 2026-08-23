@@ -1,0 +1,23 @@
+/*
+ * A view/area switcher: an inset track with the active segment lifted on the `card` surface.
+ *
+ * One class pair backs two different controls with the same look: a native radio group (Woche/
+ * Monat) and an `@angular/aria` tab list (Anlaufstellen/Meine Sammlung). `has-checked:` matches the
+ * radio case (the input lives inside the segment); `aria-selected:` matches the tab case (the
+ * state lives on the segment itself, there is no input). Both variants are always applied — a given
+ * segment only ever satisfies one of them.
+ */
+
+@layer components {
+  .rk-segmented {
+    @apply bg-muted flex rounded-lg p-0.5;
+  }
+
+  .rk-segmented-item {
+    @apply min-h-touch flex flex-1 cursor-pointer items-center justify-center rounded-md px-3;
+    @apply text-center font-semibold;
+    @apply has-checked:bg-card has-checked:font-bold has-checked:shadow-sm;
+    @apply aria-selected:bg-card aria-selected:font-bold aria-selected:shadow-sm;
+    @apply has-focus-visible:ring-ring has-focus-visible:ring-2;
+  }
+}

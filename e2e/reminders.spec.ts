@@ -19,13 +19,11 @@ test.describe('the „Nicht vergessen“ list', () => {
   }
 
   async function addReminder(page: Page, text: string) {
-    const field = page.getByLabel('Neue Erinnerung');
-    if (!(await field.isVisible())) {
-      await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
-    }
+    await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
 
-    await field.fill(text);
-    await page.getByRole('button', { name: 'Hinzufügen' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });
+    await dialog.getByLabel('Text der Erinnerung').fill(text);
+    await dialog.getByRole('button', { name: 'Speichern' }).click();
     await expect(row(page, text)).toBeVisible();
   }
 
@@ -348,7 +346,6 @@ test.describe('the „Nicht vergessen“ list', () => {
 
     await chooseAction(page, 'Blumen gießen und lüften', 'Bearbeiten');
     await page.getByLabel('Text der Erinnerung').fill('Etwas anderes');
-    // Scoped to the sheet: the add row's cancel control is also named "… abbrechen".
     await page
       .getByRole('dialog', { name: 'Erinnerung bearbeiten' })
       .getByRole('button', { name: 'Abbrechen', exact: true })
@@ -390,7 +387,8 @@ test.describe('the „Nicht vergessen“ list', () => {
     await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
 
     const fontSize = await page
-      .getByLabel('Neue Erinnerung')
+      .getByRole('dialog', { name: 'Neue Erinnerung' })
+      .getByLabel('Text der Erinnerung')
       .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
     expect(fontSize).toBeGreaterThanOrEqual(16);
   });

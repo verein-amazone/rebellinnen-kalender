@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-22T20:27:18Z",
+  "title": "Design System: Rebell*innen Kalender",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Amazone Red",
+        "canonical": "var(--color-primary)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-primary) 20%, black)",
+          "color-mix(in oklch, var(--color-primary) 40%, black)",
+          "color-mix(in oklch, var(--color-primary) 60%, black)",
+          "color-mix(in oklch, var(--color-primary) 80%, black)",
+          "var(--color-primary)",
+          "color-mix(in oklch, var(--color-primary) 80%, white)",
+          "color-mix(in oklch, var(--color-primary) 55%, white)",
+          "color-mix(in oklch, var(--color-primary) 30%, white)"
+        ]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Amazone Teal",
+        "canonical": "var(--color-secondary)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-secondary) 20%, black)",
+          "color-mix(in oklch, var(--color-secondary) 40%, black)",
+          "color-mix(in oklch, var(--color-secondary) 60%, black)",
+          "color-mix(in oklch, var(--color-secondary) 80%, black)",
+          "var(--color-secondary)",
+          "color-mix(in oklch, var(--color-secondary) 80%, white)",
+          "color-mix(in oklch, var(--color-secondary) 55%, white)",
+          "color-mix(in oklch, var(--color-secondary) 30%, white)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Amazone Teal Background",
+        "canonical": "var(--color-background)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-background) 20%, black)",
+          "color-mix(in oklch, var(--color-background) 40%, black)",
+          "color-mix(in oklch, var(--color-background) 60%, black)",
+          "color-mix(in oklch, var(--color-background) 80%, black)",
+          "var(--color-background)",
+          "color-mix(in oklch, var(--color-background) 80%, white)",
+          "color-mix(in oklch, var(--color-background) 55%, white)",
+          "color-mix(in oklch, var(--color-background) 30%, white)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Warm Cream Card",
+        "canonical": "var(--color-card)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-card) 20%, black)",
+          "color-mix(in oklch, var(--color-card) 40%, black)",
+          "color-mix(in oklch, var(--color-card) 60%, black)",
+          "color-mix(in oklch, var(--color-card) 80%, black)",
+          "var(--color-card)",
+          "color-mix(in oklch, var(--color-card) 80%, white)",
+          "color-mix(in oklch, var(--color-card) 55%, white)",
+          "color-mix(in oklch, var(--color-card) 30%, white)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Deep Indigo Foreground",
+        "canonical": "var(--color-foreground)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-foreground) 20%, black)",
+          "color-mix(in oklch, var(--color-foreground) 40%, black)",
+          "color-mix(in oklch, var(--color-foreground) 60%, black)",
+          "color-mix(in oklch, var(--color-foreground) 80%, black)",
+          "var(--color-foreground)",
+          "color-mix(in oklch, var(--color-foreground) 80%, white)",
+          "color-mix(in oklch, var(--color-foreground) 55%, white)",
+          "color-mix(in oklch, var(--color-foreground) 30%, white)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Soft Sand Muted",
+        "canonical": "var(--color-muted)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-muted) 20%, black)",
+          "color-mix(in oklch, var(--color-muted) 40%, black)",
+          "color-mix(in oklch, var(--color-muted) 60%, black)",
+          "color-mix(in oklch, var(--color-muted) 80%, black)",
+          "var(--color-muted)",
+          "color-mix(in oklch, var(--color-muted) 80%, white)",
+          "color-mix(in oklch, var(--color-muted) 55%, white)",
+          "color-mix(in oklch, var(--color-muted) 30%, white)"
+        ]
+      },
+      "accent": {
+        "role": "tertiary",
+        "displayName": "Amazone Orange Accent",
+        "canonical": "var(--color-accent)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-accent) 20%, black)",
+          "color-mix(in oklch, var(--color-accent) 40%, black)",
+          "color-mix(in oklch, var(--color-accent) 60%, black)",
+          "color-mix(in oklch, var(--color-accent) 80%, black)",
+          "var(--color-accent)",
+          "color-mix(in oklch, var(--color-accent) 80%, white)",
+          "color-mix(in oklch, var(--color-accent) 55%, white)",
+          "color-mix(in oklch, var(--color-accent) 30%, white)"
+        ]
+      },
+      "danger": {
+        "role": "status",
+        "displayName": "Deep Danger Red",
+        "canonical": "var(--color-danger)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-danger) 20%, black)",
+          "color-mix(in oklch, var(--color-danger) 40%, black)",
+          "color-mix(in oklch, var(--color-danger) 60%, black)",
+          "color-mix(in oklch, var(--color-danger) 80%, black)",
+          "var(--color-danger)",
+          "color-mix(in oklch, var(--color-danger) 80%, white)",
+          "color-mix(in oklch, var(--color-danger) 55%, white)",
+          "color-mix(in oklch, var(--color-danger) 30%, white)"
+        ]
+      },
+      "success": {
+        "role": "status",
+        "displayName": "Deep Forest Success",
+        "canonical": "var(--color-success)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-success) 20%, black)",
+          "color-mix(in oklch, var(--color-success) 40%, black)",
+          "color-mix(in oklch, var(--color-success) 60%, black)",
+          "color-mix(in oklch, var(--color-success) 80%, black)",
+          "var(--color-success)",
+          "color-mix(in oklch, var(--color-success) 80%, white)",
+          "color-mix(in oklch, var(--color-success) 55%, white)",
+          "color-mix(in oklch, var(--color-success) 30%, white)"
+        ]
+      },
+      "warning": {
+        "role": "status",
+        "displayName": "Deep Amber Warning",
+        "canonical": "var(--color-warning)",
+        "tonalRamp": [
+          "color-mix(in oklch, var(--color-warning) 20%, black)",
+          "color-mix(in oklch, var(--color-warning) 40%, black)",
+          "color-mix(in oklch, var(--color-warning) 60%, black)",
+          "color-mix(in oklch, var(--color-warning) 80%, black)",
+          "var(--color-warning)",
+          "color-mix(in oklch, var(--color-warning) 80%, white)",
+          "color-mix(in oklch, var(--color-warning) 55%, white)",
+          "color-mix(in oklch, var(--color-warning) 30%, white)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Fredoka Display",
+        "purpose": "App wordmark and hero-scale moments only; not used for ordinary headings."
+      },
+      "headline": {
+        "displayName": "Screen Headline",
+        "purpose": "h1 screen titles, rendered in Fredoka semibold."
+      },
+      "title": {
+        "displayName": "Section Title",
+        "purpose": "h2/h3 section and card-group headings, Fredoka semibold."
+      },
+      "body": {
+        "displayName": "Body Text",
+        "purpose": "All running text, row labels and values, Inter regular."
+      },
+      "label": {
+        "displayName": "Field Label",
+        "purpose": "Form labels, hints, errors, row values, Inter semibold at small sizes."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-panel",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Menu panel and actively-dragged reorder row only; every resting surface is flat."
+      }
+    ],
+    "motion": [
+      {
+        "name": "sheet-enter",
+        "value": "220ms cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Modal sheet slide-up entry."
+      },
+      {
+        "name": "sheet-exit",
+        "value": "180ms cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Modal sheet slide-down exit."
+      },
+      {
+        "name": "control-transition",
+        "value": "150ms color/background transition",
+        "purpose": "Default state transition for buttons, toggles and checks."
+      },
+      {
+        "name": "page-transition",
+        "value": "180ms ease cross-fade",
+        "purpose": "Router view-transition between screens; a fade rather than a directional slide since screens are unrelated content."
+      }
+    ],
+    "breakpoints": [
+      { "name": "tablet", "value": "40rem" },
+      {
+        "name": "container-row",
+        "value": "18rem",
+        "purpose": "Container query threshold below which a row stacks its label/value/chevron."
+      },
+      {
+        "name": "container-compact",
+        "value": "13rem",
+        "purpose": "Container query threshold below which decoration (icon size, padding) drops to fixed px while text keeps scaling."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default filled call-to-action button.",
+      "html": "<button class=\"ds-btn-primary\">Neuer Termin</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--spacing-touch); min-width: var(--spacing-touch); border-radius: var(--radius-lg); padding: 8px 16px; font-weight: 600; background: var(--color-primary); color: var(--color-primary-foreground); border: none; transition: filter 150ms, background-color 150ms; } .ds-btn-primary:active { filter: brightness(0.9); } @media (hover: hover) and (pointer: fine) { .ds-btn-primary:hover { filter: brightness(0.95); } } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; border-radius: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Low-emphasis text-only button, e.g. a secondary sheet action.",
+      "html": "<button class=\"ds-btn-ghost\">Abbrechen</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--spacing-touch); min-width: var(--spacing-touch); border-radius: var(--radius-lg); padding: 8px 16px; font-weight: 600; background: transparent; color: var(--color-foreground); border: none; transition: background-color 150ms; } .ds-btn-ghost:active { background: var(--color-muted); } @media (hover: hover) and (pointer: fine) { .ds-btn-ghost:hover { background: var(--color-muted); } }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "The field shell around a labelled text input; border thickens on focus without reflowing.",
+      "html": "<div class=\"ds-field\"><input class=\"ds-input\" type=\"text\" placeholder=\" \" aria-label=\"Titel\"/></div>",
+      "css": ".ds-field { display: flex; align-items: center; gap: 8px; border-radius: var(--radius-lg); border: 2px solid var(--color-border); background: var(--color-input-background); padding: 8px 16px; } .ds-field:focus-within { border-width: 4px; border-color: var(--color-ring); padding: 6px 14px; } .ds-input { width: 100%; min-width: 0; border: 0; background: transparent; outline: none; font-size: 16px; color: var(--color-foreground); }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Bottom tab bar; active destination marked by bold label plus an accent indicator bar, never color alone.",
+      "html": "<nav class=\"ds-tab-bar\"><div class=\"ds-tab-list\"><button class=\"ds-tab ds-tab-active\"><svg class=\"ds-tab-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 10h18M8 2v4M16 2v4\"/></svg><span>Heute</span><span class=\"ds-tab-indicator\"></span></button><button class=\"ds-tab\"><svg class=\"ds-tab-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/></svg><span>Kalender</span></button></div></nav>",
+      "css": ".ds-tab-bar { background: var(--color-nav-bg); color: var(--color-rebel-text); flex-shrink: 0; } .ds-tab-list { display: flex; } .ds-tab { min-height: var(--spacing-touch); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; font-size: 14px; background: none; border: none; color: inherit; font-weight: 500; } .ds-tab-active { font-weight: 700; } .ds-tab-icon { width: 24px; height: 24px; } .ds-tab-indicator { display: none; background: var(--color-accent); height: 4px; width: 24px; border-radius: 9999px; } .ds-tab-active .ds-tab-indicator { display: block; } .ds-tab:focus-visible { outline: 2px solid var(--color-ring); outline-offset: -2px; }"
+    },
+    {
+      "name": "Calendar Pill",
+      "kind": "chip",
+      "refersTo": "pill",
+      "description": "A calendar's colour identity as a rounded chip: coloured border over a tinted background, arbitrary per-instance colour.",
+      "html": "<span class=\"ds-pill\" style=\"--pill-color:#7b3fa8\">Privat</span>",
+      "css": ".ds-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px; border: 2px solid var(--pill-color, var(--color-border)); padding: 4px 12px; font-size: 14px; font-weight: 600; color: var(--color-foreground); background-color: color-mix(in srgb, var(--pill-color, var(--color-border)) 15%, var(--color-card)); }"
+    },
+    {
+      "name": "Grouped List Row",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A row inside a grouped list surface; the surface clips first/last row corners and divides rows with a hairline.",
+      "html": "<ul class=\"ds-list\"><li><button class=\"ds-row\"><span class=\"ds-row-label\">Sprache</span><span class=\"ds-row-value\">Deutsch</span></button></li></ul>",
+      "css": ".ds-list { background: var(--color-card); color: var(--color-card-foreground); border-radius: var(--radius-lg); overflow: hidden; } .ds-row { min-height: var(--spacing-row); width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: none; border: none; border-bottom: 1px solid var(--color-border); text-align: left; } .ds-row-label { min-width: 0; flex: 1; font-size: 16px; } .ds-row-value { color: var(--color-muted-foreground); min-width: 0; font-size: 14px; } .ds-row:focus-visible { outline: 2px solid var(--color-ring); outline-offset: -2px; } @media (hover: hover) and (pointer: fine) { .ds-row:hover { filter: brightness(0.98); } } .ds-row:active { filter: brightness(0.97); }"
+    },
+    {
+      "name": "Checklist Check",
+      "kind": "custom",
+      "refersTo": "check",
+      "description": "The round checkbox used for the Nicht vergessen checklist; native input reskinned, tick drawn from rotated borders.",
+      "html": "<label style=\"display:inline-flex;align-items:center;gap:8px\"><input type=\"checkbox\" class=\"ds-check\" checked aria-label=\"Als erledigt markieren\"/> <span style=\"text-decoration: line-through; color: var(--color-muted-foreground);\">Kalender abholen</span></label>",
+      "css": ".ds-check { appearance: none; display: grid; place-content: center; flex-shrink: 0; border-radius: 9999px; border: 2px solid var(--color-border); background: var(--color-card); width: 1.35em; height: 1.35em; } .ds-check:checked { background: var(--color-primary); border-color: var(--color-primary); } .ds-check:checked::after { content: ''; width: 0.5em; height: 0.25em; border-left: 2px solid var(--color-primary-foreground); border-bottom: 2px solid var(--color-primary-foreground); transform: translateY(-0.06em) rotate(-45deg); } .ds-check:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Print Kalender, Rebuilt as Touch",
+    "overview": "The app is a digital continuation of an existing physical Rebell*innen Kalender, and the visual system reads that way: a chunky, rounded, poster-like display face (Fredoka) over a plain, legible body face (Inter), warm-but-bold color blocks, and the dotted notebook-grid background (.dotted-bg) lifted directly from the print design. Nothing in the system is decorative for its own sake — every primitive exists because a real screen (Today, appointments, Nicht vergessen, Anlaufstellen) needed it, and the component set stays deliberately small: buttons, cards/rows, fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.\n\nThe system is four swappable palettes (amazone default, warm/Sonnenuntergang, nacht/Mitternacht, lila/Lavendel) over one shared shape, type and spacing language — recoloring the app is a data-theme attribute swap, never a second set of components. Everything is built for a thumb on glass: no bare hover: anywhere in the codebase, min-h-touch (48px) on every interactive target, 16px-minimum form text, and a text-size ladder (small 14px through xxlarge 32px) that reflows components rather than clipping them — container queries, not media queries, drive that reflow because only a container query reacts to root-font-size growth.",
+    "keyCharacteristics": [
+      "Chunky rounded display type (Fredoka) paired with a plain, highly legible UI/body face (Inter)",
+      "Four complete, swappable color themes sharing one token structure, not one static palette",
+      "Native-control-first: checkboxes, radios and switches are real <input>s reskinned with accent-color/appearance: none, not custom widgets, so forced-colors mode and screen readers get the platform's own behavior for free",
+      "A print-calendar motif (the dotted notebook grid) as the app's one recurring decorative texture",
+      "No shadows as a default idiom; depth comes from flat color-block layering, with shadow-lg reserved for genuinely floating surfaces (menu panel, dragged row)"
+    ],
+    "rules": [
+      {
+        "name": "The No Color-Only Signal Rule",
+        "body": "In every theme, danger is deliberately much darker than primary — on amazone specifically, the brand primary is itself red, which would collide with the conventional \"danger\" red if the two weren't kept clearly apart. Every destructive action pairs its color with an explicit verb, an icon, and a confirmation step — never color alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Theme-Complete Rule",
+        "body": "A color is never hard-coded outside theme.css. Adding a fifth theme means adding one [data-theme='…'] block there (plus registering its id in the settings interactor) — no other file, and no TypeScript, holds a color value.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hyphenate-and-Wrap Rule",
+        "body": "German compounds are long. body sets hyphens: auto (with lang=\"de\" on <html>) plus overflow-wrap: anywhere as a fallback, and no label anywhere uses whitespace-nowrap.",
+        "section": "typography"
+      },
+      {
+        "name": "The Absolute-Scale Rule",
+        "body": "The in-app text-size setting replaces the OS text-scale rather than multiplying it, and deliberately stops at 2x, Apple's own Larger-Text floor.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-Unless-Floating Rule",
+        "body": "A shadow is reserved for an element that has actually left the page's normal layer (an open menu, a row mid-drag). Every resting surface stays flat.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep every color value inside theme.css's per-theme blocks; a theme is complete or it doesn't exist (The Theme-Complete Rule).",
+      "Do gate hover styles behind hoverable: and use active: for the state that actually matters on a touch screen.",
+      "Do use container queries (18rem/13rem thresholds), not media queries, for any layout rule that must react to the in-app text-size setting.",
+      "Do reserve shadow-lg for content that has actually left the page's normal stacking layer (an open menu, a dragged row) — not for ordinary resting cards or fields.",
+      "Do pair danger with an explicit verb, icon and confirmation step; never let color alone carry a destructive action.",
+      "Do keep a native <input type=\"checkbox\">/radio under any reskinned control (check, toggle, choice) so forced-colors mode, Space/Enter and screen-reader semantics keep working."
+    ],
+    "donts": [
+      "Don't write a bare hover: utility anywhere — it sticks after a tap on touch and never clears.",
+      "Don't give an interactive element a fixed h-*/w-*; use min-h-touch/min-w-touch so a wrapped label at a large text size never clips.",
+      "Don't introduce a shadow on a resting surface (card, row, field, sheet panel) — depth there comes from the flat card/background color pairing, never a drop shadow.",
+      "Don't add a fifth radius value outside the sm/md/lg/xl scale derived from --rk-radius."
+    ]
+  }
+}

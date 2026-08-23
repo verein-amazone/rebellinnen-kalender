@@ -265,7 +265,7 @@ describe('EventDetailPage, loading', () => {
     fixture.componentRef.setInput('id', 'occ-1');
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('wird geladen');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.rk-skeleton')).not.toBeNull();
 
     resolveLoad(occurrence());
     await fixture.whenStable();

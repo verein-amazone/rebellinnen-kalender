@@ -39,6 +39,7 @@
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/keyboard": "^8.0.5",
     "@capacitor/text-zoom": "^8.0.1",
     "@capawesome/capacitor-accessibility-preferences": "^0.1.1",
     "@ebarooni/capacitor-calendar": "^8.2.0",

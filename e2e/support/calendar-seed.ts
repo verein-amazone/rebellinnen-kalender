@@ -331,11 +331,9 @@ async function ensureDatabaseReady(page: Page): Promise<void> {
   await page.goto('/today');
   const marker = `e2e-db-warmup-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-  const field = page.getByLabel('Neue Erinnerung');
-  if (!(await field.isVisible())) {
-    await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
-  }
-  await field.fill(marker);
-  await page.getByRole('button', { name: 'Hinzufügen' }).click();
+  await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });
+  await dialog.getByLabel('Text der Erinnerung').fill(marker);
+  await dialog.getByRole('button', { name: 'Speichern' }).click();
   await page.locator('ul.rk-list > li').filter({ hasText: marker }).waitFor({ state: 'visible' });
 }

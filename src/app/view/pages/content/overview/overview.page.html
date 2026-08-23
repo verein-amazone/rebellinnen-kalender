@@ -17,22 +17,10 @@
       ngTabList
       [selectedTab]="activeArea()"
       (selectedTabChange)="onAreaChange($event)"
-      class="bg-muted flex min-w-0 flex-1 list-none gap-0.5 rounded-lg p-0.5"
+      class="rk-segmented min-w-0 flex-1 list-none gap-0.5"
     >
-      <li
-        ngTab
-        value="services"
-        class="min-h-touch aria-selected:bg-card flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-center font-semibold aria-selected:font-bold aria-selected:shadow-sm"
-      >
-        Anlaufstellen
-      </li>
-      <li
-        ngTab
-        value="collection"
-        class="min-h-touch aria-selected:bg-card flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-center font-semibold aria-selected:font-bold aria-selected:shadow-sm"
-      >
-        Meine Sammlung
-      </li>
+      <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
+      <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
     </ul>
   </div>
 
@@ -54,7 +42,31 @@
             du dich wenden kannst.
           </p>
 
-          @if (regions().length > 0) {
+          @if (servicesError()) {
+            <div class="rk-card space-y-3 px-4 py-6 text-center">
+              <p>Die Anlaufstellen konnten nicht geladen werden.</p>
+              <button type="button" class="rk-button rk-button-ghost" (click)="reloadServices()">
+                Erneut versuchen
+              </button>
+            </div>
+          } @else if (servicesLoading()) {
+            <!-- Region-filter chip row, then two service-card placeholders. -->
+            <div class="space-y-2" aria-hidden="true">
+              <div class="flex gap-2">
+                <span class="rk-skeleton block h-8 w-20 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-24 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-16 rounded-full"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-1/2"></span>
+                <span class="rk-skeleton block h-3 w-3/4"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-2/5"></span>
+                <span class="rk-skeleton block h-3 w-2/3"></span>
+              </div>
+            </div>
+          } @else if (regions().length > 0) {
             <app-support-service-region-filter
               [regions]="regions()"
               [selectedRegionId]="selectedRegionId()"

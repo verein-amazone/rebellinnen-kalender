@@ -5,8 +5,23 @@
       Erneut versuchen
     </button>
   </div>
-} @else if (items.isLoading()) {
-  <p class="text-muted-foreground">Wird geladen …</p>
+} @else if (items.status() === 'loading') {
+  <!--
+    Only the very first load — see the `status()` note in ../../../../styles/components/skeleton.css.
+    A tick/reorder/add reloads this resource too, and must keep showing the current rows while that
+    happens in the background rather than collapsing to this placeholder, or the list's height drops
+    to one line and the page loses its scroll position.
+  -->
+  <div class="rk-card space-y-3 px-4 py-4" aria-hidden="true">
+    <div class="flex items-center gap-3">
+      <span class="rk-skeleton block h-5 w-5 shrink-0 rounded-full"></span>
+      <span class="rk-skeleton block h-4 w-2/3"></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="rk-skeleton block h-5 w-5 shrink-0 rounded-full"></span>
+      <span class="rk-skeleton block h-4 w-1/2"></span>
+    </div>
+  </div>
 } @else {
   <!--
     One card holds the entries and the row that adds the next one, so the list reads as a single
@@ -140,78 +155,32 @@
       </ul>
     }
 
-    <!-- The last row of the card: an invitation while it is unused, the field once it is. -->
+    <!--
+      The last row of the card: an invitation, opening the same sheet `edit()` uses rather than
+      growing an inline field here. The list sits in the page's own scroll region, not a sheet's
+      own — a field that grew and focused in place there fought the keyboard for scroll position
+      (the row above it appearing after a submit pushed the still-focused field behind the
+      keyboard, and closing the keyboard again did not reliably give the scroll position back). The
+      sheet already owns exactly that problem correctly for editing an entry; adding one reuses it
+      instead of solving it a second time here.
+    -->
     <div class="border-border border-t">
-      @if (adding()) {
-        <form (submit)="$event.preventDefault(); add()">
-          <label class="sr-only" for="new-reminder-text">Neue Erinnerung</label>
+      <!--
+        The label stays visible on the left, and the control is an icon button in the same column as
+        a row's menu trigger, so the card has one line of actions rather than two competing shapes.
+        The visible text is `aria-hidden` because the button already carries it as its name — read
+        twice it would sound like two separate things.
+      -->
+      <div class="rk-row">
+        <span class="text-muted-foreground min-w-0 flex-1" aria-hidden="true">
+          Punkt hinzufügen
+        </span>
 
-          <!--
-            `.rk-row` so this line sits on exactly the same padding and minimum height as the closed
-            state and as an entry above it — including the trims its container queries apply at large
-            text sizes.
-
-            Two icon buttons around the field rather than a labelled button: at those sizes a word
-            like „Hinzufügen“ is wider than the row it sits in, while an icon scales with the text and
-            stays a 48px target. Both carry a visually hidden name.
-          -->
-          <div class="rk-row flex-wrap">
-            <div class="rk-field min-w-0 flex-1">
-              <input
-                #newReminderInput
-                id="new-reminder-text"
-                class="rk-input"
-                type="text"
-                autocomplete="off"
-                placeholder="Neuer Punkt …"
-                [attr.maxlength]="maxLength"
-                [value]="draft()"
-                [attr.aria-invalid]="error() === '' ? null : 'true'"
-                [attr.aria-describedby]="error() === '' ? null : 'new-reminder-error'"
-                (input)="updateDraft($any($event.target).value)"
-                (keydown.escape)="cancelAdding()"
-              />
-            </div>
-
-            <button type="button" class="rk-icon-button" (click)="cancelAdding()">
-              <svg lucideX class="rk-icon" aria-hidden="true"></svg>
-              <span class="sr-only">Eingabe abbrechen</span>
-            </button>
-
-            <button type="submit" class="rk-icon-button rk-icon-button-primary">
-              <svg lucideArrowUp class="rk-icon" aria-hidden="true"></svg>
-              <span class="sr-only">Hinzufügen</span>
-            </button>
-          </div>
-
-          <!--
-            Always in the DOM: a live region that appears together with its text is frequently not
-            announced at all. See the contract in src/styles/components/field.css.
-          -->
-          <div class="px-4" aria-live="polite" aria-atomic="true">
-            @if (error() !== '') {
-              <p id="new-reminder-error" class="rk-error pb-3">{{ error() }}</p>
-            }
-          </div>
-        </form>
-      } @else {
-        <!--
-          The label stays visible on the left, and the control is an icon button in the same column as
-          a row's menu trigger, so the card has one line of actions rather than two competing shapes.
-          The visible text is `aria-hidden` because the button already carries it as its name — read
-          twice it would sound like two separate things.
-        -->
-        <div class="rk-row">
-          <span class="text-muted-foreground min-w-0 flex-1" aria-hidden="true">
-            Punkt hinzufügen
-          </span>
-
-          <button type="button" class="rk-icon-button" (click)="startAdding()">
-            <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
-            <span class="sr-only">Punkt hinzufügen</span>
-          </button>
-        </div>
-      }
+        <button type="button" class="rk-icon-button" (click)="openAdd()">
+          <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+          <span class="sr-only">Punkt hinzufügen</span>
+        </button>
+      </div>
     </div>
   </div>
 }

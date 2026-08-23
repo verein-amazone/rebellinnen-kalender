@@ -1,0 +1,17 @@
+/*
+ * A loading placeholder: a pulsing block roughly the size of the content it stands in for, so the
+ * first paint reserves the right amount of space instead of the layout shifting once real content
+ * arrives. `animate-pulse` is a plain CSS animation, so `[data-motion='reduced']`/
+ * `prefers-reduced-motion` (see ../base.css) neutralise it the same way as every other animation —
+ * nothing extra to opt it out.
+ *
+ * Only for a resource's *first* load (`resource.status() === 'loading'`). A background reload that
+ * already has a previous value keeps showing that value — see the interactor-facing rule in
+ * docs/architecture/design-system.md and the blocks that consume this class.
+ */
+
+@layer components {
+  .rk-skeleton {
+    @apply bg-muted animate-pulse rounded-lg;
+  }
+}

@@ -2,11 +2,15 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  effect,
+  ElementRef,
   inject,
   Injector,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideBookOpen, LucideCalendarDays, LucideSun } from '@lucide/angular';
+import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { PageFocus } from '@app/cross-cutting/infrastructure/page-focus';
 import {
   ActivatedRouteSnapshot,
@@ -47,6 +51,12 @@ export class MainNavigationScaffold {
   private readonly pageFocus = inject(PageFocus);
   private readonly injector = inject(Injector);
 
+  /** Drives the scroll-position correction below — see the effect in the constructor. */
+  private readonly keyboardVisible = inject(KeyboardVisibility).visible;
+
+  /** The scroll region itself, to correct its scroll position once the keyboard closes again. */
+  private readonly scrollRegion = viewChild<ElementRef<HTMLElement>>('scrollRegion');
+
   /** The tab of the previous navigation, used to tell a tab switch from any other navigation. */
   private previousTab: Tab | null = null;
 
@@ -68,6 +78,29 @@ export class MainNavigationScaffold {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.handleNavigation());
+
+    // The keyboard closing does not undo the scroll the platform applied to keep the focused field
+    // clear of it: the scroll region's own height grows back, but its `scrollTop` stays where it
+    // was, which now overshoots the content and leaves the shell — bottom navigation included —
+    // stranded above a blank gap. Clamping back to the region's real scroll range fixes that
+    // without fighting a scroll position the user set on purpose while the keyboard was still open.
+    effect(() => {
+      if (this.keyboardVisible()) {
+        return;
+      }
+
+      const element = this.scrollRegion()?.nativeElement;
+      if (element === undefined) {
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        const maxScrollTop = Math.max(0, element.scrollHeight - element.clientHeight);
+        if (element.scrollTop > maxScrollTop) {
+          element.scrollTop = maxScrollTop;
+        }
+      });
+    });
   }
 
   /**

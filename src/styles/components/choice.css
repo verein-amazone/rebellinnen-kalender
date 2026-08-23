@@ -19,6 +19,7 @@
     @apply bg-card text-card-foreground rounded-lg;
     @apply min-h-row flex flex-wrap items-center gap-3 px-4 py-3;
     @apply hoverable:brightness-98 active:brightness-97;
+    @apply transition-[filter] duration-150;
   }
 
   /* Sized in em so the control tracks its label rather than staying pinned while the text grows. */
