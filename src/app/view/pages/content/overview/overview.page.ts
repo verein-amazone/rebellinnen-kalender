@@ -7,25 +7,50 @@ import {
   signal,
 } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { LucideCheck } from '@lucide/angular';
 
-import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
+import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
+import { estimateReadingTime } from '@app/cross-cutting/helpers/reading-time';
+import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
+import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
 import { SupportServiceCardBlock } from '@app/view/blocks/support-service-card/support-service-card.block';
 import { SupportServiceRegionFilterBlock } from '@app/view/blocks/support-service-region-filter/support-service-region-filter.block';
+import {
+  ConfirmationDialog,
+  type ConfirmationDialogData,
+} from '@app/view/dialogs/confirmation/confirmation.dialog';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 type ContentArea = 'services' | 'collection';
 
-function isContentArea(value: string | undefined): value is ContentArea {
+function isContentArea(value: string | null | undefined): value is ContentArea {
   return value === 'services' || value === 'collection';
+}
+
+type CollectionFilter = 'all' | ContentItemView['kind'];
+
+function isCollectionFilter(value: string | null | undefined): value is CollectionFilter {
+  return value === 'all' || value === 'wissensimpulse' || value === 'rebellin';
+}
+
+const COLLECTION_FILTERS: readonly { readonly id: CollectionFilter; readonly label: string }[] = [
+  { id: 'all', label: 'Alle' },
+  { id: 'wissensimpulse', label: 'Wissen & Impulse' },
+  { id: 'rebellin', label: 'Rebell*in' },
+];
+
+/** One saved item as the Meine Sammlung card needs it — its reading time precomputed once. */
+interface SavedItemRow {
+  readonly item: ContentItemView;
+  readonly readingTime: string;
 }
 
 /**
  * The Content home (#24): a switch between Anlaufstellen (support services) and Meine Sammlung
- * (My Collection). Anlaufstellen is the default and only area this ticket builds; My Collection
- * stays a placeholder — #23 replaces it with the real screen — and keeps the previous debug entry
- * point into every curated item, since the detail route otherwise is only reachable through the
- * Today page's single daily impulse.
+ * (My Collection, #23) — every bookmarked item, filterable by content type, reactive to bookmark
+ * toggles made elsewhere (the detail view) via `BookmarkChanges`.
  *
  * The area switch uses `@angular/aria/tabs` (`Tabs`/`TabList`/`Tab`/`TabPanel`) rather than a
  * hand-rolled `role="tab"` set — it's the APG tab pattern (arrow-key navigation, `aria-selected`,
@@ -45,20 +70,87 @@ function isContentArea(value: string | undefined): value is ContentArea {
     Tab,
     TabPanel,
     TabContent,
+    LucideCheck,
   ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentOverviewPage {
-  private readonly contentItems = inject(ContentItemsInteractor);
+  private readonly route = inject(ActivatedRoute);
+  private readonly bookmarks = inject(BookmarksInteractor);
+  private readonly bookmarkChanges = inject(BookmarkChanges);
   private readonly supportServices = inject(SupportServicesInteractor);
+  private readonly sheets = inject(SheetService);
 
-  protected readonly activeArea = signal<ContentArea>('services');
+  /**
+   * The detail view's `returnTo` carries `?area=collection&filter=<kind>` back here (see
+   * `collectionReturnTo` below) so leaving a Meine Sammlung item lands back on the same tab and
+   * filter chip instead of resetting to Anlaufstellen/Alle. Read once from the initial navigation,
+   * matching every other piece of this page's state (also plain signals, not synced to the URL
+   * after that).
+   */
+  protected readonly activeArea = signal<ContentArea>(
+    isContentArea(this.route.snapshot.queryParamMap.get('area'))
+      ? (this.route.snapshot.queryParamMap.get('area') as ContentArea)
+      : 'services',
+  );
 
-  private readonly contentData = resource({
-    loader: () => this.contentItems.listAll(),
+  protected readonly collectionFilters = COLLECTION_FILTERS;
+  protected readonly collectionFilter = signal<CollectionFilter>(
+    isCollectionFilter(this.route.snapshot.queryParamMap.get('filter'))
+      ? (this.route.snapshot.queryParamMap.get('filter') as CollectionFilter)
+      : 'all',
+  );
+
+  /** The `returnTo` a Meine Sammlung item's link carries into the detail view — see above. */
+  protected readonly collectionReturnTo = computed(
+    () => `/content?area=collection&filter=${this.collectionFilter()}`,
+  );
+
+  private readonly savedData = resource({
+    params: () => ({ version: this.bookmarkChanges.version() }),
+    loader: () => this.bookmarks.listSavedItems(),
   });
-  protected readonly items = computed(() => this.contentData.value() ?? []);
+  protected readonly savedItems = computed(() => this.savedData.value() ?? []);
+  protected readonly hasSavedItems = computed(() => this.savedItems().length > 0);
+
+  protected readonly filterCounts = computed<Record<CollectionFilter, number>>(() => {
+    const items = this.savedItems();
+    return {
+      all: items.length,
+      wissensimpulse: items.filter((item) => item.kind === 'wissensimpulse').length,
+      rebellin: items.filter((item) => item.kind === 'rebellin').length,
+    };
+  });
+
+  protected readonly filteredSavedItems = computed<readonly SavedItemRow[]>(() => {
+    const filter = this.collectionFilter();
+    const items = this.savedItems().filter((item) => filter === 'all' || item.kind === filter);
+    return items.map((item) => ({ item, readingTime: estimateReadingTime(item.bodyMarkdown) }));
+  });
+
+  protected selectCollectionFilter(filter: CollectionFilter): void {
+    this.collectionFilter.set(filter);
+  }
+
+  /** Confirms before removing — a saved item is easy to lose track of, unlike bookmarking one. */
+  protected confirmUnsave(item: ContentItemView): void {
+    const data: ConfirmationDialogData = {
+      message: `„${item.title}“ wird aus deiner Sammlung entfernt.`,
+      confirmLabel: 'Entfernen',
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Aus Sammlung entfernen?',
+        data,
+      })
+      .closed.subscribe((confirmed) => {
+        if (confirmed === true) {
+          void this.bookmarks.toggle(item.id);
+        }
+      });
+  }
 
   protected readonly servicesData = resource({
     loader: () => this.supportServices.listAll(),

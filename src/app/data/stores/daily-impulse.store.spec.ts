@@ -51,7 +51,7 @@ describe('DailyImpulseStore', () => {
     expect(TestBed.inject(DailyImpulseStore).recentIds()).toEqual(['wi-02', 'wi-03']);
   });
 
-  it('rolls the picked item into the recent-ids window, keeping only the last 7', () => {
+  it('rolls the picked item into the recent-ids window, keeping only the last 14', () => {
     const store = TestBed.inject(DailyImpulseStore);
     const days = [
       '2027-02-01',
@@ -62,6 +62,13 @@ describe('DailyImpulseStore', () => {
       '2027-02-06',
       '2027-02-07',
       '2027-02-08',
+      '2027-02-09',
+      '2027-02-10',
+      '2027-02-11',
+      '2027-02-12',
+      '2027-02-13',
+      '2027-02-14',
+      '2027-02-15',
     ];
 
     days.forEach((day, index) => store.setPick(day, `item-${index}`));
@@ -74,6 +81,13 @@ describe('DailyImpulseStore', () => {
       'item-5',
       'item-6',
       'item-7',
+      'item-8',
+      'item-9',
+      'item-10',
+      'item-11',
+      'item-12',
+      'item-13',
+      'item-14',
     ]);
   });
 

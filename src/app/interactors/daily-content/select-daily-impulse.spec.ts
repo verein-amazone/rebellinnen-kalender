@@ -13,6 +13,7 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
@@ -33,17 +34,43 @@ describe('selectDailyImpulse', () => {
     expect(picked).toEqual(only);
   });
 
-  it('prefers a date-specific item over an evergreen one', () => {
+  it('favors a single-day item over an evergreen one', () => {
     const evergreen = item({ id: 'evergreen', validFrom: null, validTo: null });
-    const dated = item({ id: 'dated', validFrom: '2027-02-01', validTo: '2027-02-10' });
+    const oneDay = item({ id: 'one-day', validFrom: '2027-02-05', validTo: '2027-02-05' });
 
     const picked = selectDailyImpulse({
-      eligible: [evergreen, dated],
+      eligible: [evergreen, oneDay],
       recentIds: [],
       today: '2027-02-05',
     });
 
-    expect(picked?.id).toBe('dated');
+    expect(picked?.id).toBe('one-day');
+  });
+
+  it('favors a narrower eligibility window over a wider one', () => {
+    const wideWindow = item({ id: 'wide', validFrom: '2027-02-01', validTo: '2027-02-07' });
+    const narrowWindow = item({ id: 'narrow', validFrom: '2027-02-05', validTo: '2027-02-05' });
+
+    const picked = selectDailyImpulse({
+      eligible: [wideWindow, narrowWindow],
+      recentIds: [],
+      today: '2027-02-05',
+    });
+
+    expect(picked?.id).toBe('narrow');
+  });
+
+  it('treats an open-ended window (only one of validFrom/validTo set) as evergreen', () => {
+    const openEnded = item({ id: 'open-ended', validFrom: '2027-01-01', validTo: null });
+    const narrowWindow = item({ id: 'narrow', validFrom: '2027-02-05', validTo: '2027-02-05' });
+
+    const picked = selectDailyImpulse({
+      eligible: [openEnded, narrowWindow],
+      recentIds: [],
+      today: '2027-02-05',
+    });
+
+    expect(picked?.id).toBe('narrow');
   });
 
   it('excludes ids in recentIds when other eligible items remain', () => {
@@ -85,7 +112,7 @@ describe('selectDailyImpulse', () => {
     const eligible = [item({ id: 'a' }), item({ id: 'b' }), item({ id: 'c' }), item({ id: 'd' })];
 
     const picks = new Set(
-      ['2027-02-01', '2027-02-02', '2027-02-03', '2027-02-04', '2027-02-05'].map(
+      ['2025-01-01', '2025-04-01', '2026-01-01', '2026-04-01'].map(
         (today) => selectDailyImpulse({ eligible, recentIds: [], today })?.id,
       ),
     );

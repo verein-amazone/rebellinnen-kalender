@@ -2,7 +2,11 @@ import { inject, Injectable } from '@angular/core';
 
 import { BookmarkDao } from '../daos/bookmark.dao';
 import { ContentItemDao } from '../daos/content-item.dao';
-import type { ContentItemKind, ContentItemRecord } from '../entities/content-item.record';
+import type {
+  ContentItemKind,
+  ContentItemRecord,
+  RelatedSourceRecord,
+} from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
 import { ContentCatalogStore } from '../stores/content-catalog.store';
 
@@ -18,6 +22,8 @@ export interface CatalogEntry {
   readonly imageAttribution: string | null;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
+  /** "More on this topic" links (#22). Optional — omitted on entries that ship without any. */
+  readonly relatedSources?: readonly RelatedSourceRecord[];
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
@@ -105,7 +111,7 @@ function isCatalog(value: unknown): value is Catalog {
 }
 
 function toRecord(entry: CatalogEntry): ContentItemRecord {
-  return { ...entry, imagePath: imagePathFor(entry) };
+  return { ...entry, relatedSources: entry.relatedSources ?? [], imagePath: imagePathFor(entry) };
 }
 
 /** Every catalog entry has a matching bundled image at this path — see `public/content/README`. */

@@ -18,6 +18,7 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,

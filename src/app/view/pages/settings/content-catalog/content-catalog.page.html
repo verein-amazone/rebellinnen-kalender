@@ -1,0 +1,31 @@
+<app-focused-screen heading="Alle Inhalte (Debug)" fallbackLink="/settings">
+  <div class="space-y-4">
+    <p class="text-muted-foreground">
+      Jeder kuratierte Inhalt, zum Durchklicken ohne Tagesimpuls-Auswahl oder Lesezeichen — nur für
+      die Entwicklung.
+    </p>
+
+    @if (items().length > 0) {
+      <ul class="rk-list">
+        @for (item of items(); track item.id) {
+          <li>
+            <a
+              [routerLink]="['/content', item.id]"
+              [queryParams]="{ returnTo: '/settings/content-catalog' }"
+              class="rk-row"
+            >
+              <span class="min-w-0">
+                <span class="text-muted-foreground block text-xs">{{
+                  item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
+                }}</span>
+                <span class="rk-row-label">{{ item.title }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="text-muted-foreground">Noch keine Inhalte vorhanden.</p>
+    }
+  </div>
+</app-focused-screen>

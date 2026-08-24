@@ -39,5 +39,6 @@ function toView(record: ContentItemRecord): ContentItemView {
     imageAttribution: record.imageAttribution,
     sourceLabel: record.sourceLabel,
     sourceUrl: record.sourceUrl,
+    relatedSources: record.relatedSources,
   };
 }

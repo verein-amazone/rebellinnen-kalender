@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "items": [
     {
       "id": "wi-01",
@@ -298,7 +298,13 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "relatedSources": [
+        {
+          "title": "Hedy Lamarr – Wikipedia",
+          "url": "https://de.wikipedia.org/wiki/Hedy_Lamarr"
+        }
+      ]
     },
     {
       "id": "reb-02",
@@ -402,7 +408,13 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "relatedSources": [
+        {
+          "title": "Ada Lovelace – Wikipedia",
+          "url": "https://de.wikipedia.org/wiki/Ada_Lovelace"
+        }
+      ]
     },
     {
       "id": "reb-10",
@@ -415,7 +427,13 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "relatedSources": [
+        {
+          "title": "Johanna Dohnal – Wikipedia",
+          "url": "https://de.wikipedia.org/wiki/Johanna_Dohnal"
+        }
+      ]
     },
     {
       "id": "reb-11",
@@ -454,7 +472,13 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "relatedSources": [
+        {
+          "title": "Patti Smith – Wikipedia",
+          "url": "https://de.wikipedia.org/wiki/Patti_Smith"
+        }
+      ]
     },
     {
       "id": "reb-14",
@@ -493,7 +517,13 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "relatedSources": [
+        {
+          "title": "Simone Biles – Wikipedia",
+          "url": "https://de.wikipedia.org/wiki/Simone_Biles"
+        }
+      ]
     },
     {
       "id": "reb-17",

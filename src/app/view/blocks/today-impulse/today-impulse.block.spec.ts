@@ -19,6 +19,7 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     ...overrides,
   };
 }

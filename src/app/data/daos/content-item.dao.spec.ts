@@ -17,6 +17,7 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     imageAttribution: 'Verein Amazone',
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
@@ -84,6 +85,18 @@ describe('ContentItemDao', () => {
     );
 
     await expect(dao.findById('item-1')).resolves.toEqual(record());
+  });
+
+  it('round-trips related sources through upsert and findById', async () => {
+    await database.run(`DELETE FROM content_items`);
+    const relatedSources = [
+      { title: 'Vertiefender Artikel', url: 'https://www.example.org/artikel' },
+      { title: 'Studie', url: 'https://example.com/studie' },
+    ];
+
+    await dao.upsert(record({ id: 'with-sources', relatedSources }));
+
+    await expect(dao.findById('with-sources')).resolves.toMatchObject({ relatedSources });
   });
 
   it('lists only items eligible for a given day: evergreen and in-range date-specific items', async () => {
