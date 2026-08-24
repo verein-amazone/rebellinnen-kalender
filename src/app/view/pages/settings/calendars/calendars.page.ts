@@ -1,24 +1,12 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  resource,
-  signal,
-} from '@angular/core';
-import { LucideExternalLink, LucideTrash2 } from '@lucide/angular';
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { LucideChevronRight } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
-import {
-  DeviceCalendarsInteractor,
-  type DeviceCalendarPermission,
-} from '@app/interactors/calendar/device-calendars.interactor';
-import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
-import { ToggleField } from '@app/view/components/field/toggle-field';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
   CalendarIdentityEditDialog,
@@ -26,32 +14,26 @@ import {
   type CalendarIdentityEditDialogData,
   type CalendarIdentityEditResult,
 } from '@app/view/dialogs/calendar-identity-edit/calendar-identity-edit.dialog';
-import {
-  ConfirmationDialog,
-  type ConfirmationDialogData,
-} from '@app/view/dialogs/confirmation/confirmation.dialog';
-import { IcsSubscriptionAddDialog } from '@app/view/dialogs/ics-subscription-add/ics-subscription-add.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 /**
- * „Kalender verwalten“ (#20): the app calendar's identity editor and the device-calendar connection
- * flow — connect, list, enable/disable individual calendars, disconnect.
+ * „Kalender verwalten“ (#20): the app calendar's identity editor, plus links into the
+ * device-calendar and ICS-subscription screens, each a self-contained flow of its own (#25
+ * follow-up split them out of what used to be one long page).
  *
- * Both sections use `resource()` and reload after every write, per the frontend-architecture
- * convention; there is no persisted list cache here, matching `view/blocks/reminder-list/`.
+ * Uses `resource()` and reloads after every write, per the frontend-architecture convention;
+ * there is no persisted list cache here, matching `view/blocks/reminder-list/`.
  */
 @Component({
   selector: 'app-settings-calendars',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideExternalLink, LucideTrash2],
+  imports: [FocusedScreenScaffold, CalendarAvatar, RouterLink, LucideChevronRight],
   templateUrl: './calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarsPage {
   private readonly appCalendars = inject(AppCalendarsInteractor);
-  private readonly deviceCalendars = inject(DeviceCalendarsInteractor);
-  private readonly icsSubscriptions = inject(IcsSubscriptionInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
 
@@ -68,21 +50,6 @@ export class CalendarsPage {
       this.appCalendarsResource.value()?.find((calendar) => calendar.sourceType !== 'device') ??
       null,
   );
-
-  protected readonly deviceResource = resource({
-    loader: () => this.deviceCalendars.loadSnapshot(),
-  });
-
-  protected readonly icsResource = resource({
-    loader: () => this.icsSubscriptions.listForManagement(),
-  });
-
-  /**
-   * Set only after an explicit connect attempt, since a denied permission leaves no source row in
-   * the database at all — there is nothing in `deviceResource` to tell "never tried" and "just
-   * denied" apart otherwise.
-   */
-  protected readonly lastPermission = signal<DeviceCalendarPermission | null>(null);
 
   protected async editAppCalendarIdentity(): Promise<void> {
     const calendar = this.appCalendar();
@@ -114,160 +81,5 @@ export class CalendarsPage {
     await this.appCalendars.updateIdentity(calendar.id, result);
     this.appCalendarsResource.reload();
     this.announcer.announce('Kalender gespeichert');
-  }
-
-  protected async connectDeviceCalendars(): Promise<void> {
-    const permission = await this.deviceCalendars.connect();
-    this.lastPermission.set(permission);
-    this.deviceResource.reload();
-
-    if (permission === 'granted') {
-      this.announcer.announce('Gerätekalender verbunden');
-    } else {
-      this.announcer.announce('Zugriff auf den Gerätekalender wurde nicht erteilt');
-    }
-  }
-
-  protected async openAppSettings(): Promise<void> {
-    await this.deviceCalendars.openAppSettings();
-  }
-
-  protected async toggleDeviceCalendar(calendarId: string, enabled: boolean): Promise<void> {
-    await this.deviceCalendars.setCalendarEnabled(calendarId, enabled);
-    this.deviceResource.reload();
-  }
-
-  /**
-   * The device never reports an emoji of its own, so its avatar doubles as the picker trigger —
-   * unlike name/colour, which come from the OS and are read-only here.
-   */
-  protected async pickDeviceCalendarEmoji(calendarId: string): Promise<void> {
-    const emoji = await this.deviceCalendars.pickEmoji();
-    if (emoji === null) {
-      return;
-    }
-
-    await this.deviceCalendars.setCalendarEmoji(calendarId, emoji);
-    this.deviceResource.reload();
-  }
-
-  protected async toggleSourceGroup(
-    nativeSourceId: string | null,
-    enabled: boolean,
-  ): Promise<void> {
-    await this.deviceCalendars.setCalendarsEnabledByNativeSource(nativeSourceId, enabled);
-    this.deviceResource.reload();
-  }
-
-  protected confirmDisconnect(): void {
-    const data: ConfirmationDialogData = {
-      message:
-        'Der Gerätekalender wird getrennt. Termine aus dem Gerätekalender werden nicht mehr angezeigt, bis du erneut verbindest.',
-      confirmLabel: 'Trennen',
-      destructive: true,
-    };
-
-    this.sheets
-      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
-        heading: 'Verbindung trennen?',
-        data,
-      })
-      .closed.subscribe((confirmed) => {
-        if (confirmed !== true) {
-          return;
-        }
-
-        void this.disconnect();
-      });
-  }
-
-  private async disconnect(): Promise<void> {
-    await this.deviceCalendars.disconnect();
-    this.lastPermission.set(null);
-    this.deviceResource.reload();
-    this.announcer.announce('Gerätekalender getrennt');
-  }
-
-  protected async addIcsSubscription(): Promise<void> {
-    const result = await firstValueFrom(
-      this.sheets.open<{ subscriptionId: string; outcome: string } | undefined, undefined>(
-        IcsSubscriptionAddDialog,
-        { heading: 'Kalender per Link hinzufügen', mode: 'full' },
-      ).closed,
-    );
-    if (result === undefined) {
-      return;
-    }
-
-    this.icsResource.reload();
-    this.announcer.announce(
-      result.outcome === 'failed'
-        ? 'Kalender hinzugefügt, konnte aber noch nicht geladen werden'
-        : 'Kalender hinzugefügt',
-    );
-  }
-
-  protected async editIcsIdentity(
-    subscriptionId: string,
-    current: CalendarIdentityEditDialogData,
-  ): Promise<void> {
-    const result = await firstValueFrom(
-      this.sheets.open<CalendarIdentityEditResult, CalendarIdentityEditDialogData>(
-        CalendarIdentityEditDialog,
-        {
-          heading: 'Kalender bearbeiten',
-          mode: 'full',
-          data: current,
-          providers: [{ provide: EMOJI_PICKER, useValue: () => this.icsSubscriptions.pickEmoji() }],
-        },
-      ).closed,
-    );
-    if (result === undefined) {
-      return;
-    }
-
-    await this.icsSubscriptions.updateIdentity(subscriptionId, result);
-    this.icsResource.reload();
-    this.announcer.announce('Kalender gespeichert');
-  }
-
-  protected async toggleIcs(subscriptionId: string, enabled: boolean): Promise<void> {
-    await this.icsSubscriptions.setEnabled(subscriptionId, enabled);
-    this.icsResource.reload();
-  }
-
-  protected async retryIcs(subscriptionId: string): Promise<void> {
-    const outcome = await this.icsSubscriptions.refresh(subscriptionId, { force: true });
-    this.icsResource.reload();
-    this.announcer.announce(
-      outcome === 'failed' ? 'Aktualisierung fehlgeschlagen' : 'Kalender aktualisiert',
-    );
-  }
-
-  protected confirmRemoveIcs(subscriptionId: string, name: string): void {
-    const data: ConfirmationDialogData = {
-      message: `„${name}“ wird entfernt. Termine aus diesem Kalender werden nicht mehr angezeigt.`,
-      confirmLabel: 'Entfernen',
-      destructive: true,
-    };
-
-    this.sheets
-      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
-        heading: 'Kalender entfernen?',
-        data,
-      })
-      .closed.subscribe((confirmed) => {
-        if (confirmed !== true) {
-          return;
-        }
-
-        void this.removeIcs(subscriptionId);
-      });
-  }
-
-  private async removeIcs(subscriptionId: string): Promise<void> {
-    await this.icsSubscriptions.remove(subscriptionId);
-    this.icsResource.reload();
-    this.announcer.announce('Kalender entfernt');
   }
 }
