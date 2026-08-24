@@ -1,4 +1,4 @@
-import { InjectionToken, signal, type Type } from '@angular/core';
+import { InjectionToken, signal, type StaticProvider, type Type } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 
 /**
@@ -23,6 +23,8 @@ export interface SheetConfig<TData = undefined> {
   readonly dismissLabel?: string;
   /** Handed to the content component through `SHEET_DATA`. */
   readonly data?: TData;
+  /** Extra providers visible to the content component, for per-open configuration (e.g. tokens). */
+  readonly providers?: readonly StaticProvider[];
 }
 
 /** `SheetConfig` with the defaults applied, so nothing downstream repeats them. */

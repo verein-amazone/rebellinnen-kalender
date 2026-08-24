@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
 import {
   CALENDAR_COLOR_PALETTE,
   CalendarIdentityEditDialog,
+  EMOJI_PICKER,
   type CalendarIdentityEditDialogData,
   type CalendarIdentityEditResult,
 } from './calendar-identity-edit.dialog';
 
-class FakeAppCalendarsInteractor {
+class FakeEmojiPicker {
   pickedEmoji: string | null = '🌻';
 
   pickEmoji(): Promise<string | null> {
@@ -21,14 +21,14 @@ class FakeAppCalendarsInteractor {
 async function setup(data: CalendarIdentityEditDialogData) {
   const results: (CalendarIdentityEditResult | undefined)[] = [];
   const sheetRef = { close: (result?: CalendarIdentityEditResult) => results.push(result) };
-  const appCalendars = new FakeAppCalendarsInteractor();
+  const emojiPicker = new FakeEmojiPicker();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       { provide: SHEET_DATA, useValue: data },
       { provide: SheetRef, useValue: sheetRef },
-      { provide: AppCalendarsInteractor, useValue: appCalendars },
+      { provide: EMOJI_PICKER, useValue: () => emojiPicker.pickEmoji() },
     ],
   });
 
@@ -50,7 +50,7 @@ async function setup(data: CalendarIdentityEditDialogData) {
   return {
     element,
     results,
-    appCalendars,
+    emojiPicker,
     nameInput: element.querySelector<HTMLInputElement>('#calendar-identity-name')!,
     colorSwatch: (hex: string) =>
       element.querySelector<HTMLInputElement>(`input[type="radio"][value="${hex}"]`)!,
@@ -144,7 +144,7 @@ describe('CalendarIdentityEditDialog', () => {
 
   it('opens the emoji picker and adopts the picked emoji', async () => {
     const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: null });
-    dialog.appCalendars.pickedEmoji = '🌻';
+    dialog.emojiPicker.pickedEmoji = '🌻';
 
     await dialog.pickEmoji();
 
@@ -158,7 +158,7 @@ describe('CalendarIdentityEditDialog', () => {
 
   it('leaves the emoji unchanged when the picker is dismissed without a selection', async () => {
     const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: '🗓️' });
-    dialog.appCalendars.pickedEmoji = null;
+    dialog.emojiPicker.pickedEmoji = null;
 
     await dialog.pickEmoji();
 

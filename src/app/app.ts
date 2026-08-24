@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+} from '@angular/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { RouterOutlet } from '@angular/router';
 
@@ -18,6 +25,7 @@ export class App {
   private readonly documentAppearance = inject(DocumentAppearance);
   private readonly systemTextScale = inject(SystemTextScale);
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
+  private readonly injector = inject(Injector);
 
   constructor() {
     // The selected appearance is applied in one place, for the whole app, whenever it changes. The
@@ -36,9 +44,20 @@ export class App {
     // iCloud in the background), and nothing else re-reads it on the way back in. `refresh()` is
     // debounced (not `force`), so a foreground within `DEVICE_REFRESH_MIN_INTERVAL_MS` of the last
     // check is a no-op.
+    //
+    // ICS subscriptions have no push notification of their own either, so the same foreground
+    // event is what keeps them from silently going stale: `refreshAllDue()` only re-downloads a
+    // subscription once its last success is older than `ICS_AUTO_REFRESH_MAX_AGE_MS`. Loaded
+    // dynamically rather than injected as a field: the ICS pipeline (parsing, HTTP) is otherwise
+    // only reachable through the lazy `calendar-routes` chunk, and a static import here would pull
+    // all of it into the initial bundle that every route pays for on first load.
     const listener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
       if (isActive) {
         void this.deviceCalendarSync.refresh();
+        void import('@app/interactors/calendar/ics-subscription.interactor').then(
+          ({ IcsSubscriptionInteractor }) =>
+            this.injector.get(IcsSubscriptionInteractor).refreshAllDue(),
+        );
       }
     });
     inject(DestroyRef).onDestroy(() => void listener.then((handle) => handle.remove()));
