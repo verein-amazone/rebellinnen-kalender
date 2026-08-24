@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of, type Observable } from 'rxjs';
 
+import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
-import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
+import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import type {
   SupportServiceRegion,
   SupportServiceView,
 } from '@app/interactors/support-services/support-service.vm';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ContentOverviewPage } from './overview.page';
 
@@ -22,6 +25,7 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     ...overrides,
   };
 }
@@ -49,11 +53,30 @@ function service(overrides: Partial<SupportServiceView> = {}): SupportServiceVie
   };
 }
 
-class FakeContentItemsInteractor {
-  items: ContentItemView[] = [];
+class FakeBookmarksInteractor {
+  savedItems: ContentItemView[] = [];
 
-  listAll(): Promise<ContentItemView[]> {
-    return Promise.resolve(this.items);
+  listSavedItems(): Promise<ContentItemView[]> {
+    return Promise.resolve(this.savedItems);
+  }
+
+  toggle(contentItemId: string): Promise<void> {
+    this.savedItems = this.savedItems.filter((item) => item.id !== contentItemId);
+    return Promise.resolve();
+  }
+}
+
+/** Answers sheet opens in the order they are configured; the sheet chrome has its own spec. */
+class StubSheetService {
+  readonly opens: { heading: string; data: unknown }[] = [];
+  results: unknown[] = [];
+
+  open(
+    _content: unknown,
+    config: { heading: string; data?: unknown },
+  ): { closed: Observable<unknown> } {
+    this.opens.push({ heading: config.heading, data: config.data });
+    return { closed: of(this.results.shift()) };
   }
 }
 
@@ -75,21 +98,29 @@ async function setup(
     items?: ContentItemView[];
     services?: SupportServiceView[];
     regions?: SupportServiceRegion[];
+    queryParams?: Record<string, string>;
   } = {},
 ) {
-  const contentItems = new FakeContentItemsInteractor();
-  contentItems.items = options.items ?? [];
+  const bookmarks = new FakeBookmarksInteractor();
+  bookmarks.savedItems = options.items ?? [];
 
   const supportServices = new FakeSupportServicesInteractor();
   supportServices.services = options.services ?? [];
   supportServices.regions = options.regions ?? [];
 
+  const sheets = new StubSheetService();
+
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
-      { provide: ContentItemsInteractor, useValue: contentItems },
+      { provide: BookmarksInteractor, useValue: bookmarks },
       { provide: SupportServicesInteractor, useValue: supportServices },
+      { provide: SheetService, useValue: sheets },
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams ?? {}) } },
+      },
     ],
   });
 
@@ -99,6 +130,9 @@ async function setup(
   return {
     element: fixture.nativeElement as HTMLElement,
     whenStable: () => fixture.whenStable(),
+    bookmarks,
+    bookmarkChanges: TestBed.inject(BookmarkChanges),
+    sheets,
   };
 }
 
@@ -165,29 +199,126 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).toContain('noch keine Anlaufstellen');
   });
 
-  it('switches to Meine Sammlung and shows the debug content listing there', async () => {
+  async function openCollection(element: HTMLElement, whenStable: () => Promise<void>) {
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
+    await whenStable();
+  }
+
+  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
     const { element, whenStable } = await setup({
       items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
 
-    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
-    tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
-    await whenStable();
+    await openCollection(element, whenStable);
 
     const links = [...element.querySelectorAll<HTMLAnchorElement>('a[href^="/content/"]')];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
-      '/content/wi-01?returnTo=%2Fcontent',
+      '/content/wi-01?returnTo=%2Fcontent%3Farea%3Dcollection%26filter%3Dall',
     ]);
     expect(element.textContent).toContain('Was tut dir gut?');
   });
 
-  it('shows a fallback when there is no content yet in Meine Sammlung', async () => {
+  it('shows the empty-collection state when nothing is bookmarked', async () => {
     const { element, whenStable } = await setup({ items: [] });
 
-    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
-    tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
+    await openCollection(element, whenStable);
+
+    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+  });
+
+  it('filters the collection by content type', async () => {
+    const { element, whenStable } = await setup({
+      items: [
+        item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
+        item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
+      ],
+    });
+
+    await openCollection(element, whenStable);
+    expect(element.textContent).toContain('Wissensimpuls');
+    expect(element.textContent).toContain('Eine Rebellin');
+
+    const filterButtons = Array.from(element.querySelectorAll('button[role="radio"]'));
+    const rebellinFilter = filterButtons.find((button) =>
+      button.textContent?.includes('Rebell*in'),
+    );
+    (rebellinFilter as HTMLButtonElement).click();
     await whenStable();
 
-    expect(element.textContent).toContain('Noch keine Inhalte');
+    expect(element.textContent).toContain('Eine Rebellin');
+    expect(element.textContent).not.toContain('Wissensimpuls');
+  });
+
+  it('asks for confirmation before removing an item, then removes it once confirmed', async () => {
+    const { element, whenStable, bookmarks, bookmarkChanges, sheets } = await setup({
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+    });
+    sheets.results = [true];
+
+    await openCollection(element, whenStable);
+    const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Aus Sammlung entfernen'),
+    );
+    (removeButton as HTMLButtonElement).click();
+    await whenStable();
+
+    expect(sheets.opens[0]?.heading).toContain('entfernen');
+    // The fake stands in for `BookmarksInteractor.toggle`, which normally notifies
+    // `BookmarkChanges` itself — the resource only reloads once that happens.
+    bookmarks.savedItems = [];
+    bookmarkChanges.notify();
+    await whenStable();
+
+    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+  });
+
+  it('keeps the item when the removal confirmation is declined', async () => {
+    const { element, whenStable, bookmarks, sheets } = await setup({
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+    });
+    sheets.results = [false];
+
+    await openCollection(element, whenStable);
+    const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Aus Sammlung entfernen'),
+    );
+    (removeButton as HTMLButtonElement).click();
+    await whenStable();
+
+    expect(bookmarks.savedItems).toHaveLength(1);
+    expect(element.textContent).toContain('Was tut dir gut?');
+  });
+
+  it('restores the Meine Sammlung tab and filter from the returnTo query params', async () => {
+    const { element } = await setup({
+      items: [
+        item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
+        item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
+      ],
+      queryParams: { area: 'collection', filter: 'rebellin' },
+    });
+
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    expect(
+      tabs
+        .find((tab) => tab.textContent?.includes('Meine Sammlung'))
+        ?.getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(element.textContent).toContain('Eine Rebellin');
+    expect(element.textContent).not.toContain('Wissensimpuls');
+  });
+
+  it('reloads the collection when a bookmark changes elsewhere', async () => {
+    const { element, whenStable, bookmarks, bookmarkChanges } = await setup({ items: [] });
+
+    await openCollection(element, whenStable);
+    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+
+    bookmarks.savedItems = [item({ id: 'wi-01', title: 'Was tut dir gut?' })];
+    bookmarkChanges.notify();
+    await whenStable();
+
+    expect(element.textContent).toContain('Was tut dir gut?');
   });
 });

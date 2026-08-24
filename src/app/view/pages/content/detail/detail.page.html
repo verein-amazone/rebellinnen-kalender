@@ -4,6 +4,7 @@
       header-actions
       type="button"
       class="rk-icon-button"
+      [class.rk-icon-button-outline-primary]="bookmarked()"
       [attr.aria-pressed]="bookmarked()"
       (click)="toggleBookmark()"
     >
@@ -20,14 +21,20 @@
     <div class="space-y-4 pb-6">
       <!-- The content type is never colour alone: an icon and its own text label always ship
            together. -->
-      <span class="rk-pill text-xs">
-        @if (content.kind === 'rebellin') {
-          <svg lucideUsers class="rk-icon-sm" aria-hidden="true"></svg>
-        } @else {
-          <svg lucideSparkles class="rk-icon-sm" aria-hidden="true"></svg>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="rk-pill text-xs">
+          @if (content.kind === 'rebellin') {
+            <svg lucideUsers class="rk-icon-sm" aria-hidden="true"></svg>
+          } @else {
+            <svg lucideSparkles class="rk-icon-sm" aria-hidden="true"></svg>
+          }
+          <span>{{ typeLabel() }}</span>
+        </span>
+
+        @if (readingTime(); as readingTime) {
+          <span class="text-muted-foreground text-xs">{{ readingTime }}</span>
         }
-        <span>{{ typeLabel() }}</span>
-      </span>
+      </div>
 
       @if (content.imagePath; as imagePath) {
         <img [src]="imagePath" [alt]="content.imageAttribution ?? ''" class="w-full rounded-lg" />
@@ -36,6 +43,33 @@
       <div class="rk-card px-4 py-5">
         <app-markdown-content [markdown]="content.bodyMarkdown" />
       </div>
+
+      @if (relatedSources().length > 0) {
+        <div>
+          <h2 class="text-muted-foreground text-xs font-semibold">Mehr zum Thema</h2>
+          <ul class="mt-2 space-y-2">
+            @for (source of relatedSources(); track source.url) {
+              <li>
+                <a
+                  [href]="source.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="rk-card flex items-start justify-between gap-3 px-4 py-3"
+                >
+                  <span class="min-w-0">
+                    <span class="block truncate text-sm font-semibold">{{ source.title }}</span>
+                    <span class="text-muted-foreground block text-xs">{{ source.publisher }}</span>
+                  </span>
+                  <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                  <span class="sr-only"
+                    >, öffnet {{ source.publisher }} in einem neuen Fenster</span
+                  >
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
   } @else {
     <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
@@ -55,8 +89,10 @@
                 [href]="sourceUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="underline underline-offset-2"
-                >{{ footerContent.sourceLabel ?? sourceUrl }}</a
+                class="inline-flex items-center gap-1 underline underline-offset-2"
+                >{{ footerContent.sourceLabel ?? sourceUrl }}
+                <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                <span class="sr-only">, öffnet in einem neuen Fenster</span></a
               >
             } @else {
               {{ footerContent.sourceLabel }}

@@ -18,6 +18,7 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
+    relatedSources: [],
     ...overrides,
   };
 }
@@ -109,5 +110,29 @@ describe('ContentDetailPage', () => {
     await settle();
 
     expect(button.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('shows an estimated reading time for the body', async () => {
+    const { element } = await setup();
+
+    expect(element.textContent).toContain('Min. Lesezeit');
+  });
+
+  it('shows related sources with their publisher domain when present', async () => {
+    const { element } = await setup({
+      item: item({
+        relatedSources: [{ title: 'Mehr erfahren', url: 'https://www.example.org/artikel' }],
+      }),
+    });
+
+    expect(element.textContent).toContain('Mehr zum Thema');
+    expect(element.textContent).toContain('Mehr erfahren');
+    expect(element.textContent).toContain('example.org');
+  });
+
+  it('omits the related-sources section when there are none', async () => {
+    const { element } = await setup({ item: item({ relatedSources: [] }) });
+
+    expect(element.textContent).not.toContain('Mehr zum Thema');
   });
 });

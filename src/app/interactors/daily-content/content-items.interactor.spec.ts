@@ -59,6 +59,7 @@ describe('ContentItemsInteractor', () => {
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
+      relatedSources: [],
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
@@ -76,6 +77,7 @@ describe('ContentItemsInteractor', () => {
         imageAttribution: null,
         sourceLabel: null,
         sourceUrl: null,
+        relatedSources: [],
       },
     ]);
   });
@@ -95,6 +97,7 @@ describe('ContentItemsInteractor', () => {
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
+      relatedSources: [],
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
@@ -111,6 +114,7 @@ describe('ContentItemsInteractor', () => {
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
+      relatedSources: [],
     });
   });
 });

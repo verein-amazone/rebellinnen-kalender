@@ -1,6 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 
-import type { ContentItemKind, ContentItemRecord } from '../entities/content-item.record';
+import type {
+  ContentItemKind,
+  ContentItemRecord,
+  RelatedSourceRecord,
+} from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor, type SqlValue } from '../gateways/sqlite-database';
 
 /** The database shape of a `content_items` row. */
@@ -14,13 +18,14 @@ interface ContentItemRow {
   readonly image_attribution: string | null;
   readonly source_label: string | null;
   readonly source_url: string | null;
+  readonly related_sources: string | null;
   readonly valid_from: string | null;
   readonly valid_to: string | null;
   readonly eligible_for_daily: number;
 }
 
 const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_attribution,
-  source_label, source_url, valid_from, valid_to, eligible_for_daily`;
+  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily`;
 
 /**
  * Table access for curated content items. No business rules live here — the daily-selection logic
@@ -88,7 +93,7 @@ export class ContentItemDao {
     if (existing === null) {
       await executor.run(
         `INSERT INTO content_items (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         toValues(record),
       );
       return;
@@ -97,7 +102,8 @@ export class ContentItemDao {
     await executor.run(
       `UPDATE content_items
        SET kind = ?, title = ?, teaser = ?, body_markdown = ?, image_path = ?, image_attribution = ?,
-           source_label = ?, source_url = ?, valid_from = ?, valid_to = ?, eligible_for_daily = ?
+           source_label = ?, source_url = ?, related_sources = ?, valid_from = ?, valid_to = ?,
+           eligible_for_daily = ?
        WHERE id = ?`,
       [
         record.kind,
@@ -108,6 +114,7 @@ export class ContentItemDao {
         record.imageAttribution,
         record.sourceLabel,
         record.sourceUrl,
+        serializeRelatedSources(record.relatedSources),
         record.validFrom,
         record.validTo,
         record.eligibleForDaily ? 1 : 0,
@@ -132,6 +139,7 @@ function toValues(record: ContentItemRecord): SqlValue[] {
     record.imageAttribution,
     record.sourceLabel,
     record.sourceUrl,
+    serializeRelatedSources(record.relatedSources),
     record.validFrom,
     record.validTo,
     record.eligibleForDaily ? 1 : 0,
@@ -149,8 +157,17 @@ function toRecord(row: ContentItemRow): ContentItemRecord {
     imageAttribution: row.image_attribution ?? null,
     sourceLabel: row.source_label ?? null,
     sourceUrl: row.source_url ?? null,
+    relatedSources: deserializeRelatedSources(row.related_sources),
     validFrom: row.valid_from ?? null,
     validTo: row.valid_to ?? null,
     eligibleForDaily: row.eligible_for_daily === 1,
   };
+}
+
+function serializeRelatedSources(sources: readonly RelatedSourceRecord[]): string | null {
+  return sources.length === 0 ? null : JSON.stringify(sources);
+}
+
+function deserializeRelatedSources(value: string | null): readonly RelatedSourceRecord[] {
+  return value === null ? [] : (JSON.parse(value) as RelatedSourceRecord[]);
 }

@@ -7,20 +7,35 @@ import {
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideBookmark, LucideBookmarkCheck, LucideSparkles, LucideUsers } from '@lucide/angular';
+import {
+  LucideBookmark,
+  LucideBookmarkCheck,
+  LucideExternalLink,
+  LucideSparkles,
+  LucideUsers,
+} from '@lucide/angular';
 
-import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
+import { estimateReadingTime } from '@app/cross-cutting/helpers/reading-time';
+import type {
+  ContentItemView,
+  RelatedSourceView,
+} from '@app/interactors/daily-content/content-item.vm';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
+/** One related-source link, with its publisher/domain derived for display (#22). */
+export interface RelatedSourceRow {
+  readonly title: string;
+  readonly url: string;
+  readonly publisher: string;
+}
+
 /**
- * The curated content detail screen (#1): title, type, body and a bookmark toggle for one
- * "Wissen & Impulse" piece or Rebell*in.
- *
- * Deliberately minimal — reading time, a "More on this topic" related-sources section, and richer
- * back-context handling are #22's job, not this ticket's.
+ * The curated content detail screen: content-type label, title, estimated reading time, image,
+ * complete body, a "More on this topic" related-sources section, and a bookmark toggle for one
+ * "Wissen & Impulse" piece or Rebell*in (#1, #22).
  */
 @Component({
   selector: 'app-content-detail',
@@ -31,6 +46,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
     MarkdownContentComponent,
     LucideBookmark,
     LucideBookmarkCheck,
+    LucideExternalLink,
     LucideSparkles,
     LucideUsers,
   ],
@@ -69,6 +85,15 @@ export class ContentDetailPage {
     this.item()?.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse',
   );
 
+  protected readonly readingTime = computed(() => {
+    const item = this.item();
+    return item === null ? null : estimateReadingTime(item.bodyMarkdown);
+  });
+
+  protected readonly relatedSources = computed<readonly RelatedSourceRow[]>(() =>
+    (this.item()?.relatedSources ?? []).map(toRelatedSourceRow),
+  );
+
   protected readonly bookmarkActionLabel = computed(() =>
     this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
   );
@@ -94,5 +119,18 @@ export class ContentDetailPage {
     this.data.update((value) =>
       value === undefined ? value : { ...value, bookmarked: !value.bookmarked },
     );
+  }
+}
+
+/** Derives a human-readable publisher/domain label from a related source's URL, e.g. `example.org`. */
+function toRelatedSourceRow(source: RelatedSourceView): RelatedSourceRow {
+  return { ...source, publisher: publisherOf(source.url) };
+}
+
+function publisherOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
   }
 }

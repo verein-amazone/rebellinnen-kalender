@@ -1,6 +1,12 @@
 export const CONTENT_ITEM_KINDS = ['wissensimpulse', 'rebellin'] as const;
 export type ContentItemKind = (typeof CONTENT_ITEM_KINDS)[number];
 
+/** One "More on this topic" link — a title and the URL it points to. */
+export interface RelatedSourceRecord {
+  readonly title: string;
+  readonly url: string;
+}
+
 /**
  * One curated content item — a "Wissen & Impulse" piece or a "Rebell*in" portrait — as it is stored.
  *
@@ -19,6 +25,7 @@ export interface ContentItemRecord {
   readonly imageAttribution: string | null;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
+  readonly relatedSources: readonly RelatedSourceRecord[];
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;

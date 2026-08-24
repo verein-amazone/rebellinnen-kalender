@@ -2,8 +2,13 @@ import { Injectable, signal } from '@angular/core';
 
 const STORAGE_KEY = 'rk.dailyImpulse';
 
-/** How many recently featured items are excluded from the next day's pick. */
-const RECENT_WINDOW = 7;
+/**
+ * How many recently featured items are excluded from the next pick — the highlight cooldown.
+ * One entry is stored per calendar day a fresh pick is made (see `DailyImpulseInteractor`), so
+ * this approximates a 14-day cooldown. Raise this once the catalog has enough content that a
+ * 14-day gap between repeats is no longer needed to feel varied.
+ */
+const HIGHLIGHT_COOLDOWN_DAYS = 14;
 
 export interface DailyImpulsePick {
   readonly day: string;
@@ -41,7 +46,7 @@ export class DailyImpulseStore {
 
   /** Records today's pick and rolls it into the recent-ids window. */
   setPick(day: string, itemId: string): void {
-    const nextRecentIds = [...this.state().recentIds, itemId].slice(-RECENT_WINDOW);
+    const nextRecentIds = [...this.state().recentIds, itemId].slice(-HIGHLIGHT_COOLDOWN_DAYS);
     const next: StoredState = { day, itemId, recentIds: nextRecentIds };
     this.state.set(next);
     this.write(next);

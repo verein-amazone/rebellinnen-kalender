@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { AboutPage } from './about/about.page';
 import { CalendarsPage } from './calendars/calendars.page';
+import { ContentCatalogPage } from './content-catalog/content-catalog.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
 import { ImprintPage } from './imprint/imprint.page';
 import { LicensesPage } from './licenses/licenses.page';
@@ -28,4 +29,5 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },
   { path: 'about', component: AboutPage, title: 'Über die App' },
+  { path: 'content-catalog', component: ContentCatalogPage, title: 'Alle Inhalte (Debug)' },
 ];

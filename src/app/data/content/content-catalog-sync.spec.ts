@@ -92,6 +92,7 @@ describe('ContentCatalogSync', () => {
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
+      relatedSources: [],
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
@@ -106,6 +107,7 @@ describe('ContentCatalogSync', () => {
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
+      relatedSources: [],
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
@@ -138,6 +140,23 @@ describe('ContentCatalogSync', () => {
     await expect(contentItems.findById('reb-01')).resolves.toMatchObject({
       imagePath: '/content/rebellinnen/reb-01.webp',
     });
+  });
+
+  it('defaults related sources to an empty list when the catalog entry omits them', async () => {
+    mockFetch({ version: 1, items: [catalogEntry()] });
+
+    await sync.ensureSynced();
+
+    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources: [] });
+  });
+
+  it('carries related sources through from the catalog entry', async () => {
+    const relatedSources = [{ title: 'Mehr erfahren', url: 'https://example.org/artikel' }];
+    mockFetch({ version: 1, items: [catalogEntry({ relatedSources })] });
+
+    await sync.ensureSynced();
+
+    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources });
   });
 
   it('does nothing and does not update the stored version when the fetch fails', async () => {
