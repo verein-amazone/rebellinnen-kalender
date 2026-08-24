@@ -1,0 +1,64 @@
+<form (submit)="$event.preventDefault(); save()" [attr.aria-busy]="submitting() ? 'true' : null">
+  <label class="rk-label" for="ics-subscription-name">Name</label>
+  <div class="rk-field">
+    <input
+      id="ics-subscription-name"
+      class="rk-input"
+      type="text"
+      autocomplete="off"
+      [attr.maxlength]="maxLength"
+      [value]="name()"
+      [disabled]="submitting()"
+      [attr.aria-invalid]="nameError() === '' ? null : 'true'"
+      [attr.aria-describedby]="nameError() === '' ? null : 'ics-subscription-name-error'"
+      (input)="updateName($any($event.target).value)"
+    />
+  </div>
+  <div aria-live="polite" aria-atomic="true">
+    @if (nameError() !== '') {
+      <p id="ics-subscription-name-error" class="rk-error">{{ nameError() }}</p>
+    }
+  </div>
+
+  <label class="rk-label mt-4" for="ics-subscription-url">Kalender-Link</label>
+  <div class="rk-field">
+    <input
+      id="ics-subscription-url"
+      class="rk-input"
+      type="url"
+      inputmode="url"
+      autocomplete="off"
+      [value]="url()"
+      [disabled]="submitting()"
+      [attr.aria-invalid]="urlError() === '' ? null : 'true'"
+      [attr.aria-describedby]="urlError() === '' ? null : 'ics-subscription-url-error'"
+      (input)="updateUrl($any($event.target).value)"
+    />
+  </div>
+  <div aria-live="polite" aria-atomic="true">
+    @if (urlError() !== '') {
+      <p id="ics-subscription-url-error" class="rk-error">{{ urlError() }}</p>
+    }
+  </div>
+  <p class="text-muted-foreground mt-2 text-sm">
+    Der Link wird verwendet, um den Kalender zu laden — er wird nicht geteilt oder veröffentlicht.
+  </p>
+
+  @if (formError() !== '') {
+    <p role="alert" class="rk-error mt-4">{{ formError() }}</p>
+  }
+
+  <div class="rk-sheet-footer flex-col">
+    <button type="submit" class="rk-button rk-button-primary w-full" [disabled]="submitting()">
+      Kalender hinzufügen
+    </button>
+    <button
+      type="button"
+      class="rk-button rk-button-ghost w-full"
+      [disabled]="submitting()"
+      (click)="cancel()"
+    >
+      Abbrechen
+    </button>
+  </div>
+</form>

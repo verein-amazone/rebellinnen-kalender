@@ -1,8 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, InjectionToken, signal } from '@angular/core';
 
-import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
-import { APP_EVENT_TITLE_MAX_LENGTH } from '@app/interactors/calendar/app-event-editing.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
+
+/** The dialog's colour/emoji-editing calendar name limit; ICS subscription names share it. */
+export const CALENDAR_NAME_MAX_LENGTH = 200;
+
+/**
+ * Opens an emoji picker and resolves the chosen emoji, or `null` when dismissed. Injected rather
+ * than a fixed interactor so this dialog serves both app-owned and ICS calendars.
+ */
+export const EMOJI_PICKER = new InjectionToken<() => Promise<string | null>>('EMOJI_PICKER');
 
 export interface CalendarIdentityEditDialogData {
   readonly name: string;
@@ -63,9 +70,10 @@ export const CALENDAR_COLOR_PALETTE: readonly { readonly hex: string; readonly n
  * dismissed, mirroring `ReminderEditDialog`. Colour is a curated swatch grid rather than a free
  * colour input — with only 30 possible values it stays easy to keep every one legible against the
  * app's surfaces, unlike an arbitrary user-picked hex. Emoji goes through
- * `AppCalendarsInteractor.pickEmoji()`, the same `@independo/capacitor-emoji-picker` flow
- * `ProfileInteractor` already uses for the Today greeting's personal emoji, instead of a free-text
- * field relying on the OS emoji keyboard.
+ * the `EMOJI_PICKER` token, the same `@independo/capacitor-emoji-picker` flow `ProfileInteractor`
+ * already uses for the Today greeting's personal emoji, instead of a free-text field relying on the
+ * OS emoji keyboard. The caller supplies the token per `SheetService.open()` call so both app-owned
+ * and ICS calendars can reuse this one editor without coupling it to either interactor.
  */
 @Component({
   selector: 'app-calendar-identity-edit',
@@ -76,9 +84,9 @@ export const CALENDAR_COLOR_PALETTE: readonly { readonly hex: string; readonly n
 export class CalendarIdentityEditDialog {
   private readonly data = inject(SHEET_DATA) as CalendarIdentityEditDialogData;
   private readonly sheetRef = inject<SheetRef<CalendarIdentityEditResult>>(SheetRef);
-  private readonly appCalendars = inject(AppCalendarsInteractor);
+  private readonly pickEmojiFn = inject(EMOJI_PICKER);
 
-  protected readonly maxLength = APP_EVENT_TITLE_MAX_LENGTH;
+  protected readonly maxLength = CALENDAR_NAME_MAX_LENGTH;
   protected readonly palette = CALENDAR_COLOR_PALETTE;
   protected readonly name = signal(this.data.name);
   protected readonly color = signal(this.data.color ?? CALENDAR_COLOR_PALETTE[0].hex);
@@ -93,7 +101,7 @@ export class CalendarIdentityEditDialog {
   }
 
   protected async pickEmoji(): Promise<void> {
-    const emoji = await this.appCalendars.pickEmoji();
+    const emoji = await this.pickEmojiFn();
     if (emoji !== null) {
       this.emoji.set(emoji);
     }

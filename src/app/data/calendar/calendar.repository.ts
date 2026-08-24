@@ -544,6 +544,26 @@ export class CalendarRepository {
     return this.icsSubscriptions.list();
   }
 
+  /**
+   * Enables or disables an ICS subscription: its source and its single calendar together, since
+   * `occurrencesInRange`/the source filters gate on both.
+   */
+  async setIcsSubscriptionEnabled(
+    subscriptionId: string,
+    enabled: boolean,
+    context: CalendarContext,
+  ): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await this.sources.updateSourceEnabled(subscriptionId, enabled, context.nowUtc, tx);
+      await this.sources.updateCalendarEnabled(
+        icsCalendarRowId(subscriptionId),
+        enabled,
+        context.nowUtc,
+        tx,
+      );
+    });
+  }
+
   /** Creates the source, its single calendar and the subscription row in one unit of work. */
   async createIcsSubscription(
     source: CalendarSourceRecord,

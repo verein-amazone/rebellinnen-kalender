@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import { OccurrenceDao } from '@app/data/daos/occurrence.dao';
+import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
 import {
   IcsDownloadError,
   IcsHttpGateway,
@@ -17,6 +18,14 @@ import {
   IcsSubscriptionNameInvalidError,
   IcsUrlInvalidError,
 } from './ics-subscription.interactor';
+
+class FakeEmojiPickerGateway {
+  result: string | null = '🌻';
+
+  pickEmoji(): Promise<string | null> {
+    return Promise.resolve(this.result);
+  }
+}
 
 const FEED = [
   'BEGIN:VCALENDAR',
@@ -57,17 +66,20 @@ describe('IcsSubscriptionInteractor', () => {
   let repository: CalendarRepository;
   let occurrences: OccurrenceDao;
   let subscriptions: IcsSubscriptionDao;
+  let emojiPicker: FakeEmojiPickerGateway;
 
   beforeEach(() => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
     http = new FakeIcsHttpGateway();
+    emojiPicker = new FakeEmojiPickerGateway();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: IcsHttpGateway, useValue: http },
+        { provide: EmojiPickerGateway, useValue: emojiPicker },
       ],
     });
 
@@ -247,5 +259,96 @@ describe('IcsSubscriptionInteractor', () => {
     await expect(
       occurrences.listInRange('2026-10-01T00:00:00Z', '2026-11-15T00:00:00Z'),
     ).resolves.toEqual([]);
+  });
+
+  it('updateIdentity changes the calendar name, colour and emoji', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    await interactor.updateIdentity(subscriptionId, {
+      name: 'Vereinstermine',
+      color: '#336699',
+      emoji: '🗓️',
+    });
+
+    const rows = await repository.listIcsSubscriptions();
+    const calendar = await repository.listCalendarsOfSource(subscriptionId);
+    expect(calendar[0]).toMatchObject({ name: 'Vereinstermine', color: '#336699', emoji: '🗓️' });
+    expect(rows).toHaveLength(1);
+  });
+
+  it('updateIdentity rejects a blank name, leaving the previous identity untouched', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    await expect(
+      interactor.updateIdentity(subscriptionId, { name: '  ', color: null, emoji: null }),
+    ).rejects.toBeInstanceOf(IcsSubscriptionNameInvalidError);
+
+    const calendar = await repository.listCalendarsOfSource(subscriptionId);
+    expect(calendar[0].name).toBe('Verein');
+  });
+
+  it('setEnabled(false) disables both the source and its calendar together', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    await interactor.setEnabled(subscriptionId, false);
+
+    const source = await repository.findSource(subscriptionId);
+    const calendar = await repository.listCalendarsOfSource(subscriptionId);
+    expect(source!.enabled).toBe(false);
+    expect(calendar[0].enabled).toBe(false);
+  });
+
+  it('setEnabled(true) re-enables a previously disabled subscription', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    await interactor.setEnabled(subscriptionId, false);
+
+    await interactor.setEnabled(subscriptionId, true);
+
+    const source = await repository.findSource(subscriptionId);
+    const calendar = await repository.listCalendarsOfSource(subscriptionId);
+    expect(source!.enabled).toBe(true);
+    expect(calendar[0].enabled).toBe(true);
+  });
+
+  it('resolves the emoji the picker returns', async () => {
+    emojiPicker.result = '🌻';
+
+    await expect(interactor.pickEmoji()).resolves.toBe('🌻');
+  });
+
+  it('resolves null when the picker is dismissed without a selection', async () => {
+    emojiPicker.result = null;
+
+    await expect(interactor.pickEmoji()).resolves.toBeNull();
+  });
+
+  it('listForManagement lists every ics subscription joined with its calendar and state', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    const rows = await interactor.listForManagement();
+
+    expect(rows).toEqual([
+      {
+        id: subscriptionId,
+        name: 'Verein',
+        color: null,
+        emoji: null,
+        enabled: true,
+        state: 'ok',
+        lastError: null,
+      },
+    ]);
+  });
+
+  it('listForManagement reports an error subscription with its last error message', async () => {
+    http.result = 'error';
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    const rows = await interactor.listForManagement();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].id).toBe(subscriptionId);
+    expect(rows[0].state).toBe('error');
+    expect(rows[0].lastError).not.toBeNull();
   });
 });

@@ -7,6 +7,9 @@ import {
 } from '@app/data/calendar/calendar.repository';
 import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
 import { normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
+import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
+import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
 import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
 
 export { IcsUrlInvalidError } from '@app/data/calendar/ics/ics-url';
@@ -25,8 +28,20 @@ export class IcsSubscriptionNameInvalidError extends Error {
 
 export type IcsRefreshOutcome = 'updated' | 'unchanged' | 'failed';
 
+/** One ICS subscription as the calendar-management screen lists it. */
+export interface IcsSubscriptionRow {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string | null;
+  readonly emoji: string | null;
+  readonly enabled: boolean;
+  readonly state: CalendarSourceState;
+  readonly lastError: string | null;
+}
+
 /**
- * The lifecycle of ICS subscriptions: add, refresh, remove.
+ * The lifecycle of ICS subscriptions: add, refresh, remove, and — for the management screen —
+ * renaming/recolouring, enabling/disabling and listing.
  *
  * A subscription is a read-only calendar source of its own. A refresh only replaces data after
  * download, parse and normalization all succeeded — otherwise the last valid offline copy stays
@@ -37,6 +52,8 @@ export type IcsRefreshOutcome = 'updated' | 'unchanged' | 'failed';
 export class IcsSubscriptionInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly http = inject(IcsHttpGateway);
+  private readonly emojiPicker = inject(EmojiPickerGateway);
+  private readonly sources = inject(CalendarSourceDao);
 
   /**
    * Adds a subscription and loads it once. Throws `IcsUrlInvalidError` for an unusable link; a
@@ -167,6 +184,58 @@ export class IcsSubscriptionInteractor {
   /** Removes the subscription with its source, calendar, normalized data and derived rows. */
   async remove(subscriptionId: string): Promise<void> {
     await this.repository.removeIcsSubscription(subscriptionId);
+  }
+
+  /** Renames the subscription's calendar or changes its colour/emoji identity. */
+  async updateIdentity(
+    subscriptionId: string,
+    identity: { name: string; color: string | null; emoji: string | null },
+  ): Promise<void> {
+    const trimmedName = validatedName(identity.name);
+    await this.repository.updateCalendarIdentity(
+      icsCalendarRowId(subscriptionId),
+      { name: trimmedName, color: identity.color, emoji: identity.emoji },
+      this.context(),
+    );
+  }
+
+  /** Enables or disables the subscription; its source and calendar flip together. */
+  async setEnabled(subscriptionId: string, enabled: boolean): Promise<void> {
+    await this.repository.setIcsSubscriptionEnabled(subscriptionId, enabled, this.context());
+  }
+
+  /** Opens the emoji picker; resolves `null` when the user dismisses it without a selection. */
+  pickEmoji(): Promise<string | null> {
+    return this.emojiPicker.pickEmoji();
+  }
+
+  /** Lists every ICS subscription joined with its calendar identity, for the management screen. */
+  async listForManagement(): Promise<IcsSubscriptionRow[]> {
+    const [sources, calendars, subscriptions] = await Promise.all([
+      this.sources.listSources(),
+      this.sources.listCalendars(),
+      this.repository.listIcsSubscriptions(),
+    ]);
+
+    const calendarBySourceId = new Map(calendars.map((calendar) => [calendar.sourceId, calendar]));
+    const subscriptionById = new Map(
+      subscriptions.map((subscription) => [subscription.id, subscription]),
+    );
+
+    return sources
+      .filter((source) => source.type === 'ics')
+      .map((source) => {
+        const calendar = calendarBySourceId.get(source.id);
+        return {
+          id: source.id,
+          name: calendar?.name ?? source.name,
+          color: calendar?.color ?? null,
+          emoji: calendar?.emoji ?? null,
+          enabled: source.enabled,
+          state: source.state,
+          lastError: subscriptionById.get(source.id)?.lastError ?? null,
+        };
+      });
   }
 
   private context(): CalendarContext {

@@ -3,9 +3,16 @@ import { provideRouter } from '@angular/router';
 import { App } from '@app/app';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
 
 class FakeDeviceCalendarSyncInteractor {
   refresh(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+class FakeIcsSubscriptionInteractor {
+  refreshAllDue(): Promise<void> {
     return Promise.resolve();
   }
 }
@@ -23,6 +30,7 @@ describe('App', () => {
       providers: [
         provideRouter([]),
         { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
+        { provide: IcsSubscriptionInteractor, useClass: FakeIcsSubscriptionInteractor },
       ],
     }).compileComponents();
   });

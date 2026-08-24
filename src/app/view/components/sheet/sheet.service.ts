@@ -79,6 +79,7 @@ export class SheetService {
         { provide: SHEET_CONFIG, useValue: resolved },
         { provide: SHEET_CONTENT, useValue: content },
         { provide: SHEET_DATA, useValue: config.data },
+        ...(config.providers ?? []),
       ],
     });
 
