@@ -22,3 +22,4 @@ publicHoistPattern:
 # community fix) and https://github.com/jepiqueau/jeep-sqlite/issues/52 (request for 1.14 support).
 overrides:
   sql.js: 1.12.0
+  uuid@<11.1.1: '>=11.1.1'
