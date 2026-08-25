@@ -28,6 +28,12 @@
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Weitere Kalender</h2>
       <ul class="rk-list">
+        <li>
+          <a routerLink="/settings/calendars/curated" class="rk-row">
+            <span class="rk-row-label">Amazone & Partnerkalender</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
         @if (isNativePlatform) {
           <li>
             <a routerLink="/settings/calendars/device" class="rk-row">

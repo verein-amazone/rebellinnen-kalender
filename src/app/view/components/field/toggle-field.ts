@@ -23,6 +23,8 @@ export class ToggleField implements FormCheckboxControl {
   /** Used to derive the error message's id, so keep it unique on the page. */
   readonly id = input.required<string>();
   readonly label = input.required<string>();
+  /** Secondary line under the label, e.g. explaining what a curated calendar source contains. */
+  readonly description = input<string | null>(null);
 
   /** Required by `FormCheckboxControl`; bound to the field's value by `[formField]`. */
   readonly checked = model<boolean>(false);

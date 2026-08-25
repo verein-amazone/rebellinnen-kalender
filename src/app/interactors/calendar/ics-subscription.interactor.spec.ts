@@ -340,6 +340,54 @@ describe('IcsSubscriptionInteractor', () => {
     ]);
   });
 
+  it('listForManagement excludes curated subscriptions seeded from the catalog', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    await repository.createIcsSubscription(
+      {
+        id: 'curated-1',
+        type: 'ics',
+        name: 'Feiertage Österreich',
+        enabled: true,
+        state: 'ok',
+        createdAt: '2026-08-01T09:00:00.000Z',
+        updatedAt: '2026-08-01T09:00:00.000Z',
+      },
+      {
+        id: 'ics-cal:curated-1',
+        sourceId: 'curated-1',
+        name: 'Feiertage Österreich',
+        color: '#1565C0',
+        emoji: '🇦🇹',
+        enabled: true,
+        writable: false,
+        externalId: null,
+        nativeSourceId: null,
+        nativeSourceName: null,
+        createdAt: '2026-08-01T09:00:00.000Z',
+        updatedAt: '2026-08-01T09:00:00.000Z',
+      },
+      {
+        id: 'curated-1',
+        url: 'https://www.wien.gv.at/spezial/daten/ics/feiertage.ics',
+        allowInsecure: false,
+        etag: null,
+        lastModified: null,
+        lastSuccessAt: null,
+        lastAttemptAt: null,
+        lastError: null,
+        activeRevisionId: null,
+        rawIcs: null,
+        createdAt: '2026-08-01T09:00:00.000Z',
+        updatedAt: '2026-08-01T09:00:00.000Z',
+        curatedId: 'at-public-holidays',
+      },
+    );
+
+    const rows = await interactor.listForManagement();
+
+    expect(rows.map((row) => row.id)).toEqual([subscriptionId]);
+  });
+
   it('listForManagement reports an error subscription with its last error message', async () => {
     http.result = 'error';
     const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');

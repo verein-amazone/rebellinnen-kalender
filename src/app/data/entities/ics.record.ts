@@ -20,6 +20,8 @@ export interface IcsSubscriptionRecord {
   readonly rawIcs: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
+  /** The curated catalog entry this subscription was seeded from, or `null` for a user-added one. */
+  readonly curatedId: string | null;
 }
 
 /** One normalized master of the active revision — read-only, replaced only by a valid revision. */

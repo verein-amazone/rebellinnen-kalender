@@ -1,5 +1,10 @@
 <label class="rk-choice">
-  <span class="rk-choice-text">{{ label() }}</span>
+  <span class="rk-choice-text">
+    {{ label() }}
+    @if (description(); as text) {
+      <span class="rk-choice-description">{{ text }}</span>
+    }
+  </span>
   <input
     [id]="id()"
     type="checkbox"

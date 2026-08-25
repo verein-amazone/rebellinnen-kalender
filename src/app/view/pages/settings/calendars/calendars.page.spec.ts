@@ -144,4 +144,11 @@ describe('CalendarsPage, navigation to sub-pages', () => {
     const link = element.querySelector('a[href="/settings/calendars/ics"]');
     expect(link?.textContent).toContain('Abonnierte Kalender');
   });
+
+  it('always links to the curated-calendars screen', async () => {
+    const { element } = await setup({ platform: 'web' });
+
+    const link = element.querySelector('a[href="/settings/calendars/curated"]');
+    expect(link?.textContent).toContain('Amazone & Partnerkalender');
+  });
 });

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { Temporal } from 'temporal-polyfill';
 
 import {
@@ -6,6 +6,7 @@ import {
   type OccurrenceFilter,
   type RangeOccurrence,
 } from '@app/data/calendar/calendar.repository';
+import { CuratedCalendarSync } from '@app/data/calendar/curated/curated-calendar-sync';
 
 import type { CalendarOccurrence } from './calendar-occurrence.vm';
 
@@ -19,6 +20,8 @@ export type { OccurrenceFilter } from '@app/data/calendar/calendar.repository';
 @Injectable({ providedIn: 'root' })
 export class CalendarOccurrencesInteractor {
   private readonly repository = inject(CalendarRepository);
+  private readonly curatedCalendarSync = inject(CuratedCalendarSync);
+  private readonly injector = inject(Injector);
 
   /**
    * All visible occurrences touching the days `fromDay`…`toDay` (inclusive, device zone),
@@ -29,6 +32,18 @@ export class CalendarOccurrencesInteractor {
     toDay: string,
     filter?: OccurrenceFilter,
   ): Promise<CalendarOccurrence[]> {
+    // Curated sources (#2) must show up the first time any calendar-showing surface renders, not
+    // only after a visit to Settings — cheap after the first call (a local JSON fetch and a
+    // version compare), so it belongs on the shared read path rather than on every screen.
+    const { createdSubscriptionIds } = await this.curatedCalendarSync.ensureSynced();
+    if (createdSubscriptionIds.length > 0) {
+      const { IcsSubscriptionInteractor } = await import('./ics-subscription.interactor');
+      const icsSubscriptions = this.injector.get(IcsSubscriptionInteractor);
+      for (const subscriptionId of createdSubscriptionIds) {
+        await icsSubscriptions.refresh(subscriptionId, { force: true });
+      }
+    }
+
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const rangeStartUtc = Temporal.PlainDate.from(fromDay)
       .toZonedDateTime(timeZone)

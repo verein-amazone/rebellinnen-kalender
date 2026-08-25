@@ -17,10 +17,11 @@ interface SubscriptionRow {
   readonly raw_ics: string | null;
   readonly created_at: string;
   readonly updated_at: string;
+  readonly curated_id: string | null;
 }
 
 const COLUMNS = `id, url, allow_insecure, etag, last_modified, last_success_at, last_attempt_at,
-  last_error, active_revision_id, raw_ics, created_at, updated_at`;
+  last_error, active_revision_id, raw_ics, created_at, updated_at, curated_id`;
 
 /**
  * Table access for ICS subscriptions. The URL is sensitive; this DAO stores and returns it, and
@@ -51,12 +52,25 @@ export class IcsSubscriptionDao {
     return row ? toRecord(row) : null;
   }
 
+  async findByCuratedId(
+    curatedId: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<IcsSubscriptionRecord | null> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions WHERE curated_id = ?`,
+      [curatedId],
+    );
+
+    const row = rows[0];
+    return row ? toRecord(row) : null;
+  }
+
   async insert(
     record: IcsSubscriptionRecord,
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.url,
@@ -70,6 +84,7 @@ export class IcsSubscriptionDao {
         record.rawIcs,
         record.createdAt,
         record.updatedAt,
+        record.curatedId,
       ],
     );
   }
@@ -139,5 +154,6 @@ function toRecord(row: SubscriptionRow): IcsSubscriptionRecord {
     rawIcs: row.raw_ics ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    curatedId: row.curated_id ?? null,
   };
 }
