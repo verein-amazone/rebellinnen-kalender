@@ -9,6 +9,7 @@ import { ADD_CALENDAR_NATIVE_SOURCE } from './008-add-calendar-native-source';
 import { ADD_OCCURRENCE_DESCRIPTION } from './009-add-occurrence-description';
 import { CREATE_CONTENT_ITEMS } from './010-create-content-items';
 import { ADD_RELATED_SOURCES } from './011-add-related-sources';
+import { ADD_ICS_CURATED_ID } from './012-add-ics-curated-id';
 import type { Migration } from './migration';
 
 /**
@@ -30,6 +31,7 @@ export const MIGRATIONS: readonly Migration[] = [
   ADD_OCCURRENCE_DESCRIPTION,
   CREATE_CONTENT_ITEMS,
   ADD_RELATED_SOURCES,
+  ADD_ICS_CURATED_ID,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

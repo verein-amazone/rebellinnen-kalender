@@ -107,6 +107,7 @@ export class IcsSubscriptionInteractor {
         rawIcs: null,
         createdAt: context.nowUtc,
         updatedAt: context.nowUtc,
+        curatedId: null,
       },
     );
 
@@ -223,7 +224,9 @@ export class IcsSubscriptionInteractor {
     );
 
     return sources
-      .filter((source) => source.type === 'ics')
+      .filter(
+        (source) => source.type === 'ics' && subscriptionById.get(source.id)?.curatedId == null,
+      )
       .map((source) => {
         const calendar = calendarBySourceId.get(source.id);
         return {

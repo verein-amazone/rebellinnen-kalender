@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { AboutPage } from './about/about.page';
 import { CalendarsPage } from './calendars/calendars.page';
+import { CuratedCalendarsPage } from './calendars/curated/curated-calendars.page';
 import { DeviceCalendarsPage } from './calendars/device/device-calendars.page';
 import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
 import { ContentCatalogPage } from './content-catalog/content-catalog.page';
@@ -26,6 +27,11 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'motion', component: MotionPage, title: 'Bewegung & Animationen' },
   { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
+  {
+    path: 'calendars/curated',
+    component: CuratedCalendarsPage,
+    title: 'Amazone & Partnerkalender',
+  },
   { path: 'calendars/device', component: DeviceCalendarsPage, title: 'Gerätekalender' },
   { path: 'calendars/ics', component: IcsCalendarsPage, title: 'Abonnierte Kalender' },
   { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },

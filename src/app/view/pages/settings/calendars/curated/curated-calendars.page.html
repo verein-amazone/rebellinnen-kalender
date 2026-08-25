@@ -1,0 +1,69 @@
+<app-focused-screen heading="Amazone & Partnerkalender" fallbackLink="/settings/calendars">
+  <div class="space-y-6">
+    <p class="text-muted-foreground text-sm">
+      Diese Kalender stehen dir bereits eingerichtet zur Verfügung. Du kannst sie ein- oder
+      ausschalten und Farbe & Symbol anpassen — ihre Inhalte selbst sind schreibgeschützt und werden
+      von Verein Amazone und Partnerorganisationen gepflegt.
+    </p>
+
+    @if (curatedResource.value(); as sources) {
+      @if (sources.length > 0) {
+        <ul class="rk-list">
+          @for (source of sources; track source.id) {
+            <!-- `.rk-row` on the `<li>`, not a single control: the identity button and the enable
+                 toggle are separate tap targets. The description lives on the toggle itself
+                 (`.rk-choice-description`), so it reads as part of the switch, not a stray caption. -->
+            <li class="rk-row items-center gap-2">
+              <button
+                type="button"
+                class="rk-icon-button shrink-0"
+                [attr.aria-label]="'Kalender ' + source.name + ' bearbeiten'"
+                (click)="
+                  editCuratedIdentity(source.id, {
+                    name: source.name,
+                    color: source.color,
+                    emoji: source.emoji,
+                  })
+                "
+              >
+                <app-calendar-avatar [color]="source.color" [emoji]="source.emoji" />
+              </button>
+              <app-toggle-field
+                [id]="'curated-calendar-' + source.id"
+                [label]="source.name"
+                [description]="source.description"
+                class="min-w-0 flex-1"
+                [checked]="source.enabled"
+                (checkedChange)="toggleCurated(source.id, $event)"
+              />
+            </li>
+            <!-- The retry action sits with the error/stale text it belongs to, not on the row. -->
+            @if (source.state === 'error' || source.state === 'stale') {
+              <div class="flex items-center justify-between gap-2 px-4 py-2">
+                @if (source.state === 'error' && source.lastError !== null) {
+                  <p class="text-muted-foreground text-sm">{{ source.lastError }}</p>
+                } @else if (source.state === 'stale') {
+                  <p class="text-muted-foreground text-sm">
+                    Konnte zuletzt nicht aktualisiert werden. Angezeigte Daten können veraltet sein.
+                  </p>
+                } @else {
+                  <span></span>
+                }
+                <button
+                  type="button"
+                  class="rk-button rk-button-ghost shrink-0"
+                  [attr.aria-label]="'Erneut versuchen: ' + source.name"
+                  (click)="retryCurated(source.id)"
+                >
+                  Erneut versuchen
+                </button>
+              </div>
+            }
+          }
+        </ul>
+      } @else {
+        <p class="text-muted-foreground text-sm">Derzeit sind keine Kalender verfügbar.</p>
+      }
+    }
+  </div>
+</app-focused-screen>

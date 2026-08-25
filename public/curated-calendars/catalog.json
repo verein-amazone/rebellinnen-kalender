@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "at-public-holidays",
+      "name": "Feiertage Österreich",
+      "description": "Gesetzliche Feiertage in Österreich.",
+      "url": "webcal://www.wien.gv.at/spezial/daten/ics/feiertage.ics",
+      "color": "#1565C0",
+      "emoji": "🇦🇹"
+    }
+  ]
+}
