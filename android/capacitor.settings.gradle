@@ -17,6 +17,9 @@ project(':capacitor-text-zoom').projectDir = new File('../node_modules/.pnpm/@ca
 include ':capawesome-capacitor-accessibility-preferences'
 project(':capawesome-capacitor-accessibility-preferences').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-accessibility-preferences@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-accessibility-preferences/android')
 
+include ':capawesome-capacitor-app-icon'
+project(':capawesome-capacitor-app-icon').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-app-icon@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-app-icon/android')
+
 include ':ebarooni-capacitor-calendar'
 project(':ebarooni-capacitor-calendar').projectDir = new File('../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.3.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar/android')
 

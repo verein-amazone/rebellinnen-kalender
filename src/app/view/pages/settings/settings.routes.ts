@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { AboutPage } from './about/about.page';
+import { AppIconPage } from './app-icon/app-icon.page';
 import { CalendarsPage } from './calendars/calendars.page';
 import { CuratedCalendarsPage } from './calendars/curated/curated-calendars.page';
 import { DeviceCalendarsPage } from './calendars/device/device-calendars.page';
@@ -24,6 +25,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'profile', component: ProfilePage, title: 'Profil' },
   { path: 'theme', component: ThemePage, title: 'Farbthema' },
   { path: 'text-size', component: TextSizePage, title: 'Textgröße' },
+  { path: 'app-icon', component: AppIconPage, title: 'App-Symbol' },
   { path: 'motion', component: MotionPage, title: 'Bewegung & Animationen' },
   { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
