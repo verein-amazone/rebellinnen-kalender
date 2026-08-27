@@ -24,7 +24,7 @@ include ':ebarooni-capacitor-calendar'
 project(':ebarooni-capacitor-calendar').projectDir = new File('../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.3.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar/android')
 
 include ':independo-capacitor-emoji-picker'
-project(':independo-capacitor-emoji-picker').projectDir = new File('../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.2.0_@capacitor+core@8.5.0/node_modules/@independo/capacitor-emoji-picker/android')
+project(':independo-capacitor-emoji-picker').projectDir = new File('../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.0_@capacitor+core@8.5.0/node_modules/@independo/capacitor-emoji-picker/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.5.0/node_modules/capacitor-native-settings/android')
