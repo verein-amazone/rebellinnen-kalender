@@ -38,8 +38,11 @@ export class NewEventPage {
     }
 
     await this.eventEditing.create(result.draft);
+    // Replaces rather than pushes: the form is finished and must not be reachable again by the
+    // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.
     await this.router.navigate(['/calendar'], {
       queryParams: { day: deviceLocalDay(result.draft.start) },
+      replaceUrl: true,
     });
   }
 }

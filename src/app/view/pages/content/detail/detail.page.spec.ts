@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
@@ -48,7 +48,9 @@ class FakeBookmarksInteractor {
   }
 }
 
-async function setup(config: { item?: ContentItemView | null; bookmarked?: boolean } = {}) {
+async function setup(
+  config: { item?: ContentItemView | null; bookmarked?: boolean; returnTo?: string } = {},
+) {
   const contentItems = new FakeContentItemsInteractor();
   contentItems.item = config.item === undefined ? item() : config.item;
 
@@ -66,14 +68,51 @@ async function setup(config: { item?: ContentItemView | null; bookmarked?: boole
     ],
   });
 
+  const navigateByUrl = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigateByUrl = navigateByUrl;
+
   const fixture = TestBed.createComponent(ContentDetailPage);
   fixture.componentRef.setInput('id', contentItems.item?.id ?? 'unknown');
+  if (config.returnTo !== undefined) {
+    fixture.componentRef.setInput('returnTo', config.returnTo);
+  }
   await fixture.whenStable();
 
-  return { element: fixture.nativeElement as HTMLElement, settle: () => fixture.whenStable() };
+  const element = fixture.nativeElement as HTMLElement;
+
+  return {
+    element,
+    navigateByUrl,
+    settle: () => fixture.whenStable(),
+    // The scaffold's own dismiss button, identified by its fixed position as the header's first
+    // `.rk-icon-button` — the bookmark toggle is a projected header action and comes after it.
+    dismiss: () => element.querySelector<HTMLButtonElement>('header .rk-icon-button')!.click(),
+  };
 }
 
 describe('ContentDetailPage', () => {
+  it('returns to the content overview when no origin was passed in', async () => {
+    const { dismiss, settle, navigateByUrl } = await setup();
+
+    dismiss();
+    await settle();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/content', { replaceUrl: true });
+  });
+
+  it('returns to the origin the link carried in ?returnTo=', async () => {
+    // The same item is reachable from Today, from Meine Sammlung and from the debug catalog, so
+    // the origin travels in the URL rather than being read back out of the browser history.
+    const { dismiss, settle, navigateByUrl } = await setup({
+      returnTo: '/settings/content-catalog',
+    });
+
+    dismiss();
+    await settle();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/settings/content-catalog', { replaceUrl: true });
+  });
+
   it('shows the title, type label and body of the item', async () => {
     const { element } = await setup();
 

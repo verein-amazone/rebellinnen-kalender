@@ -187,7 +187,10 @@ describe('NewEventPage, create', () => {
       end: { kind: 'date', value: '2026-09-02', timeZone: null },
       rrule: null,
     });
-    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-09-01' } });
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+      queryParams: { day: '2026-09-01' },
+      replaceUrl: true,
+    });
   });
 
   it('creates a timed appointment and navigates to the day the user picked', async () => {
@@ -214,7 +217,10 @@ describe('NewEventPage, create', () => {
       end: { kind: 'zoned', value: '2026-09-02T19:30:00', timeZone: deviceZone },
       rrule: null,
     });
-    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-09-02' } });
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+      queryParams: { day: '2026-09-02' },
+      replaceUrl: true,
+    });
   });
 
   it('does not create anything and does not navigate while the title is empty', async () => {
@@ -234,23 +240,22 @@ describe('NewEventPage, create', () => {
 });
 
 describe('NewEventPage, cancel', () => {
-  it('discards the entered data and falls back to the calendar when there is no in-app history', async () => {
+  it('discards the entered data and returns to the calendar', async () => {
     const page = await setup();
-    // No prior navigation happened in this test, so lastSuccessfulNavigation() has no previous one.
 
     await page.type('event-form-title', 'Halb ausgefüllt');
     await page.clickCancel();
 
     expect(page.eventEditing.createCalls).toEqual([]);
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar');
-    expect(page.locationBack).not.toHaveBeenCalled();
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
   });
 
-  it("prefers in-app history back over the calendar fallback, matching the scaffold's own dismiss", async () => {
+  it('leaves the browser history alone even when there is in-app history to walk back', async () => {
     const page = await setup();
     // `lastSuccessfulNavigation` is a getter returning a signal, not a plain method — and not one of
     // the properties `vi.spyOn`'s typings recognise as a get accessor on `Router`, so it is stubbed
-    // directly instead.
+    // directly instead. The scaffold used to prefer `location.back()` in exactly this situation,
+    // which is what let the abandoned form stay in the history and be walked back into.
     Object.defineProperty(page.router, 'lastSuccessfulNavigation', {
       configurable: true,
       get: () => () => ({ previousNavigation: {} }),
@@ -260,7 +265,7 @@ describe('NewEventPage, cancel', () => {
     await page.clickCancel();
 
     expect(page.eventEditing.createCalls).toEqual([]);
-    expect(page.locationBack).toHaveBeenCalledOnce();
-    expect(page.navigateByUrl).not.toHaveBeenCalled();
+    expect(page.locationBack).not.toHaveBeenCalled();
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
   });
 });

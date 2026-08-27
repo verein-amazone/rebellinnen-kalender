@@ -209,6 +209,8 @@ async function setup(inputs: {
 
   const navigate = vi.fn().mockResolvedValue(true);
   TestBed.inject(Router).navigate = navigate;
+  const navigateByUrl = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigateByUrl = navigateByUrl;
 
   const fixture = TestBed.createComponent(EventDetailPage);
   fixture.componentRef.setInput('id', inputs.id);
@@ -224,6 +226,7 @@ async function setup(inputs: {
     sheets,
     announcer,
     navigate,
+    navigateByUrl,
     settle: () => fixture.whenStable(),
     button(label: string): HTMLButtonElement | undefined {
       return Array.from(fixture.nativeElement.querySelectorAll('button')).find((candidate) =>
@@ -440,7 +443,10 @@ describe('EventDetailPage, edit', () => {
 
     expect(eventEditing.updateAllCalls).toEqual([{ itemId: 'item-1', changes }]);
     expect(announcer.announcements).toContain('Termin gespeichert');
-    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-08-10' } });
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+      queryParams: { day: '2026-08-10' },
+      replaceUrl: true,
+    });
   });
 
   it('navigates to the new day when the save moves the appointment to a different date', async () => {
@@ -460,7 +466,10 @@ describe('EventDetailPage, edit', () => {
 
     expect(eventEditing.updateAllCalls).toEqual([{ itemId: 'item-1', changes }]);
     // Not '2026-08-10' (the occurrence's pre-edit day) — the day the user actually moved it to.
-    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-08-15' } });
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+      queryParams: { day: '2026-08-15' },
+      replaceUrl: true,
+    });
   });
 
   it('moves focus to the edit heading when entering edit mode', async () => {
@@ -475,6 +484,20 @@ describe('EventDetailPage, edit', () => {
     const heading = element.querySelector('h2');
     expect(heading?.textContent).toContain('Termin bearbeiten');
     expect(document.activeElement).toBe(heading);
+  });
+
+  it("returns to the calendar on the occurrence's own day when the back-arrow is used", async () => {
+    // The calendar overview keeps the day the user was looking at in `?day=`. A bare `/calendar`
+    // would drop them back on today instead of where they came from, so the back target carries it.
+    const { button, settle, navigateByUrl } = await setup({
+      id: 'occ-1',
+      occurrence: occurrence({ startDay: '2026-08-10' }),
+    });
+
+    button('Zurück')?.click();
+    await settle();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/calendar?day=2026-08-10', { replaceUrl: true });
   });
 
   it('returns focus to the „Bearbeiten“ button when the header back-arrow cancels edit mode', async () => {
@@ -543,7 +566,10 @@ describe('EventDetailPage, edit', () => {
         expect(eventEditing.updateAllCalls).toEqual([{ itemId: 'series-1', changes }]);
       }
 
-      expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-08-10' } });
+      expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+        queryParams: { day: '2026-08-10' },
+        replaceUrl: true,
+      });
     });
   }
 
@@ -585,7 +611,10 @@ describe('EventDetailPage, delete', () => {
     expect(sheets.opens[0]?.heading).toContain('löschen');
     expect(eventEditing.deleteItemCalls).toEqual(['item-1']);
     expect(announcer.announcements).toContain('Termin gelöscht');
-    expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-08-10' } });
+    expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+      queryParams: { day: '2026-08-10' },
+      replaceUrl: true,
+    });
   });
 
   it('does nothing when the delete confirmation is declined', async () => {
@@ -631,7 +660,10 @@ describe('EventDetailPage, delete', () => {
         expect(eventEditing.deleteItemCalls).toEqual(['series-1']);
       }
 
-      expect(navigate).toHaveBeenCalledWith(['/calendar'], { queryParams: { day: '2026-08-10' } });
+      expect(navigate).toHaveBeenCalledWith(['/calendar'], {
+        queryParams: { day: '2026-08-10' },
+        replaceUrl: true,
+      });
     });
   }
 

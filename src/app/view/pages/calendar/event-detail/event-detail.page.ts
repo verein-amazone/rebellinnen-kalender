@@ -151,6 +151,16 @@ export class EventDetailPage {
    * navigation would otherwise abandon it silently). A second tap, once `editing` is already `false`,
    * falls through to the scaffold's default back navigation.
    */
+  /**
+   * Where the back-arrow goes. The calendar overview keeps the day being looked at in `?day=`, so
+   * a bare `/calendar` would drop the user on today rather than where they opened the appointment
+   * from. Until the occurrence has loaded there is no day to return to.
+   */
+  protected readonly backLink = computed(() => {
+    const day = this.occurrence()?.startDay;
+    return day === undefined ? '/calendar' : `/calendar?day=${day}`;
+  });
+
   protected readonly handleBeforeDismiss = (): boolean => {
     if (!this.editing()) {
       return false;
@@ -310,6 +320,8 @@ export class EventDetailPage {
   }
 
   private async navigateToOccurrenceDay(day: string): Promise<void> {
-    await this.router.navigate(['/calendar'], { queryParams: { day } });
+    // Replaces rather than pushes: the appointment the user just saved or deleted must not be
+    // reachable again by the platform back gesture. Same reasoning as `FocusedScreenScaffold`.
+    await this.router.navigate(['/calendar'], { queryParams: { day }, replaceUrl: true });
   }
 }

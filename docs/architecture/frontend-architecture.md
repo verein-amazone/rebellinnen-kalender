@@ -96,6 +96,18 @@ action. Its `dismissal` input picks the semantics: `back` (an arrow — the user
 came) for details and settings subpages, `close` (a cross) for creation and editing screens, where a
 back arrow would suggest that entered data is kept.
 
+**Dismissing navigates to an explicit target and replaces the current history entry.** The target is
+`returnTo` when the caller passed one, `fallbackLink` otherwise, so every focused screen declares
+where leaving it lands. The scaffold deliberately does not call `Location.back()`: a history walk
+combined with a pushed dismiss navigation makes the two screens point at each other, and the user
+alternates between them forever. Replacing instead of pushing also keeps the history from growing,
+so the platform back gesture leaves a screen rather than re-entering the one just left. The same
+applies to a page navigating away after finishing its own task (saving an appointment, deleting
+one) — those use `replaceUrl: true` for the same reason.
+
+A screen reachable from several places carries its origin in a `?returnTo=` query param rather than
+reading it back out of the history; the content detail screen is the example.
+
 #### Page state and navigation
 
 **State that must survive navigation goes in the URL** — as a route parameter or a query parameter,

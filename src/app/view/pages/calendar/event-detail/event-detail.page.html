@@ -1,4 +1,8 @@
-<app-focused-screen heading="Termin" fallbackLink="/calendar" [beforeDismiss]="handleBeforeDismiss">
+<app-focused-screen
+  heading="Termin"
+  [fallbackLink]="backLink()"
+  [beforeDismiss]="handleBeforeDismiss"
+>
   <!--
     Each slot-projected element (`header-actions`, `footer`) is its own top-level `@if`, a direct
     child of `app-focused-screen` — not nested inside the big loading/found/editing `@if` below.
