@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./logo.png" alt="Rebell*innen Kalender logo" width="240">
+  <img src="./resources/app-icons/klassisch.png" alt="Rebell*innen Kalender app icon" width="240">
 </p>
 
 # Rebell\*innen Kalender
@@ -57,6 +57,9 @@ The application follows a layered architecture with the dependency direction
 
 Adding or editing a curated Wissensimpulse/Rebell\*in item (catalog entry, image conversion,
 licensing)? See [docs/content-authoring.md](./docs/content-authoring.md).
+
+Where the app icon above comes from, how the native assets are generated and how to add another
+icon? See [docs/app-icon.md](./docs/app-icon.md).
 
 ## Tech stack
 
