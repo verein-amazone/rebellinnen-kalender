@@ -38,7 +38,7 @@ import { DateTimeField } from './date-time-field';
 export type AppEventFormMode = 'create' | 'edit';
 
 /**
- * What the form emits on an explicit save — never on an input change. The shape follows `mode`, so
+ * What the form emits on an explicit save - never on an input change. The shape follows `mode`, so
  * a consumer can hand the payload straight to `AppEventEditingInteractor.create()` (create) or one
  * of its `update*()` methods (edit) without reshaping it.
  */
@@ -57,7 +57,7 @@ interface EventFormModel {
   /** `HH:mm`, required unless `allDay` is set. */
   readonly startTime: string;
   /**
-   * `YYYY-MM-DD`, always required and independent of `date` — an overnight span (22:00 one day
+   * `YYYY-MM-DD`, always required and independent of `date` - an overnight span (22:00 one day
    * through 02:00 the next) or a multi-day all-day appointment is a normal, directly editable end
    * date rather than hidden bookkeeping.
    */
@@ -84,9 +84,9 @@ function blankModel(): EventFormModel {
  * and by the detail page's edit mode (#19).
  *
  * A pure presenter: it never injects `AppEventEditingInteractor`, never persists and never
- * navigates. It only ever emits on `save`, in response to an explicit tap — never as a side
- * effect of an input change — so a consumer that never taps save is guaranteed nothing happened.
- * There is no cancel output: the form itself renders no buttons — the `<form>` element carries a
+ * navigates. It only ever emits on `save`, in response to an explicit tap - never as a side
+ * effect of an input change - so a consumer that never taps save is guaranteed nothing happened.
+ * There is no cancel output: the form itself renders no buttons - the `<form>` element carries a
  * stable `id="event-form"` so a submit button living in the surrounding screen's header chrome can
  * trigger it remotely (the standard HTML `form="event-form"` attribute), and cancelling is entirely
  * the surrounding screen's concern (the scaffold's close/back affordance).
@@ -95,7 +95,7 @@ function blankModel(): EventFormModel {
  * `docs/architecture/frontend-architecture.md`), so the form loads its own choices instead of every
  * caller repeating that fetch.
  *
- * Recurrence is out of scope here — the form always writes `rrule: null` and edits always go through
+ * Recurrence is out of scope here - the form always writes `rrule: null` and edits always go through
  * `AppEventChanges`, which has no `rrule`/scope concept either; the recurrence-scope decision (this
  * occurrence / this and following / all) belongs to the presenter that owns save, per the brief for
  * #19.
@@ -115,7 +115,7 @@ export class EventForm {
   readonly initialOccurrence = input<CalendarOccurrence | null>(null);
   /**
    * Edit mode's note prefill. `CalendarOccurrence` (`calendar-occurrence.vm.ts`) has no `note` field
-   * — it is a list/agenda read model — so the note has to be supplied separately by whatever already
+   * - it is a list/agenda read model - so the note has to be supplied separately by whatever already
    * reads the full record for the detail page.
    */
   readonly initialNote = input<string | null>(null);
@@ -138,7 +138,7 @@ export class EventForm {
 
   /**
    * On a fresh install there is no app calendar yet (creating one is issue #20, "Kalender
-   * verwalten") — `listWritable()` resolves to an empty array rather than erroring, so this can only
+   * verwalten") - `listWritable()` resolves to an empty array rather than erroring, so this can only
    * be told apart from "still loading" once the resource has actually settled. Without this check the
    * form silently renders a required picker with nothing to choose, which is a dead end: `calendarId`
    * can never become valid, so save can never succeed and nothing tells the user why.
@@ -149,10 +149,10 @@ export class EventForm {
 
   /**
    * `linkedSignal`, not a plain `signal`, because the initial value has to come from `mode`/
-   * `initialOccurrence`/`initialNote` — inputs that are not necessarily set yet while this class's
+   * `initialOccurrence`/`initialNote` - inputs that are not necessarily set yet while this class's
    * fields are being initialized. `linkedSignal`'s computation runs lazily, the same as `computed`,
    * so it only reads those inputs once the field system actually needs a value (after Angular has
-   * resolved the bindings) — and it keeps the user's edits until one of those inputs actually
+   * resolved the bindings) - and it keeps the user's edits until one of those inputs actually
    * changes, instead of recomputing on every change detection.
    */
   protected readonly model = linkedSignal<EventFormModel>(() => {
@@ -207,7 +207,7 @@ export class EventForm {
       required(schemaPath.endDate, { message: 'Bitte wähle ein Enddatum.' });
 
       // A date-only order check, so a multi-day all-day appointment cannot end before it starts
-      // either — the more precise same-day check below only ever runs for a timed appointment.
+      // either - the more precise same-day check below only ever runs for a timed appointment.
       validate(schemaPath.endDate, ({ valueOf }) => {
         const date = valueOf(schemaPath.date);
         const endDate = valueOf(schemaPath.endDate);
@@ -275,7 +275,7 @@ export class EventForm {
    * The picker always has a value once there is anything to pick: a create-mode form with an empty
    * `calendarId` defaults to the first writable calendar as soon as the list resolves, rather than
    * asking the user to make an otherwise-pointless choice among app calendars they cannot tell
-   * apart yet. Edit mode never runs this — `calendarId` there comes from the occurrence being
+   * apart yet. Edit mode never runs this - `calendarId` there comes from the occurrence being
    * edited and the field is disabled.
    */
   private readonly applyDefaultCalendar = effect(() => {
@@ -291,7 +291,7 @@ export class EventForm {
   });
 
   /**
-   * `endDate` is a normal, independently editable field — but changing `date` should still carry an
+   * `endDate` is a normal, independently editable field - but changing `date` should still carry an
    * overnight span along with it (22:00 one day through 02:00 the next stays a 4-hour span, not
    * collapse to 0 or go negative), the same way it did back when the end date was hidden bookkeeping.
    * Tracks the previous `date` by hand because an `effect` only ever sees the current value.
@@ -320,7 +320,7 @@ export class EventForm {
 
   /**
    * Changing `startTime` should carry the same shift into `endDate`/`endTime`, so the appointment's
-   * duration stays what it was, instead of leaving the end pinned while the start moves — the same
+   * duration stays what it was, instead of leaving the end pinned while the start moves - the same
    * "carry along" behaviour `shiftEndDateWithStart` already gives `date`. The delta is the plain
    * clock difference (never wrapped at midnight): applying the identical delta to both start and end
    * always preserves the span between them, regardless of which literal delta is chosen, so there is
@@ -355,7 +355,7 @@ export class EventForm {
   /**
    * Whether an external save button (living in the surrounding screen's header, wired to this form
    * via `form="event-form"`) should be enabled. Public and unprefixed so a parent template can read
-   * it through a `#`-reference on `<app-event-form>` — Angular only allows a parent template to
+   * it through a `#`-reference on `<app-event-form>` - Angular only allows a parent template to
    * access public members of a child.
    */
   readonly canSubmit = computed(() => this.form().dirty());
@@ -405,7 +405,7 @@ function modelFromOccurrence(
   const start = toDeviceParts(occurrence.start, deviceZone);
   const end = occurrence.end !== null ? toDeviceParts(occurrence.end, deviceZone) : null;
   // An all-day occurrence's stored end is the exclusive day after the last day it covers (see
-  // `toEndValue`) — the end-date picker shows the last day the appointment actually covers, one
+  // `toEndValue`) - the end-date picker shows the last day the appointment actually covers, one
   // day before that.
   const endDate = occurrence.allDay
     ? end !== null
@@ -441,7 +441,7 @@ function toStartValue(model: EventFormModel, deviceZone: string): TemporalValue 
 function toEndValue(model: EventFormModel, deviceZone: string): TemporalValue {
   if (model.allDay) {
     // Storage's end is the exclusive day after the last day covered, so a same-day all-day
-    // appointment (`endDate === date`) still stores tomorrow — a multi-day one stores the day
+    // appointment (`endDate === date`) still stores tomorrow - a multi-day one stores the day
     // after its own `endDate`.
     const end = Temporal.PlainDate.from(model.endDate).add({ days: 1 });
     return { kind: 'date', value: end.toString(), timeZone: null };

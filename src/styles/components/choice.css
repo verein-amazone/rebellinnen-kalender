@@ -3,7 +3,7 @@
  *
  * The control stays a native <input>. Native radios already give roving tabindex, arrow-key
  * navigation with wrap-around, Home/End, "option 2 of 4" position announcements and forced-colors
- * rendering — correctly, on every platform. `accent-color` in ../base.css themes them without
+ * rendering - correctly, on every platform. `accent-color` in ../base.css themes them without
  * `appearance: none`, which is what makes keeping the native control affordable.
  */
 

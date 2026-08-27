@@ -17,7 +17,7 @@
       <span class="rk-skeleton block h-3 w-4/5"></span>
     </div>
   } @else if (item(); as content) {
-    <!-- The whole card is one link — one action (open the item), so its accessible name (kind,
+    <!-- The whole card is one link - one action (open the item), so its accessible name (kind,
          title, teaser, the "Mehr lesen" hint) already states enough context for what will open. -->
     <a [routerLink]="['/content', content.id]" [queryParams]="{ returnTo: '/today' }" class="block">
       <!-- The content type is never colour alone: an icon and its own text label always ship

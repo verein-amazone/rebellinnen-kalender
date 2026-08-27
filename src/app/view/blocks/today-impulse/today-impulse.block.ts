@@ -11,7 +11,7 @@ import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-imp
  * Rebell*in, the whole card a single link into the full item. Loaded and resolved to view state
  * here, the same split `TodayClosingBlock` uses, so `today.page.html` stays a thin shell.
  *
- * No bookmark toggle here — bookmarking lives on the detail view only, so this card has exactly
+ * No bookmark toggle here - bookmarking lives on the detail view only, so this card has exactly
  * one action (open the item) rather than two competing tap targets.
  *
  * Falls back to the page's original "Heute gibt es noch keinen Tagesimpuls." copy when nothing is

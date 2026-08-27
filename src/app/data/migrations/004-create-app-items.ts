@@ -11,7 +11,7 @@ import type { Migration } from './migration';
  * rows can tell which revision they were generated from.
  *
  * An `app_item_exceptions` row is the deliberate difference of one occurrence, keyed by the series
- * and the occurrence's **original** start — its identity even after being moved. `status` is either
+ * and the occurrence's **original** start - its identity even after being moved. `status` is either
  * `override` (the nullable replacement fields apply on top of the master; NULL inherits) or
  * `cancelled` (the occurrence does not happen). Exceptions are authoritative; generated occurrence
  * rows never are.

@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ChoiceRow } from './choice-row';
 
 /**
- * A group of two options, the way a settings page uses them. Grouping is the browser's job — these
+ * A group of two options, the way a settings page uses them. Grouping is the browser's job - these
  * tests check that the markup lets it do that, not that we reimplemented it.
  */
 @Component({

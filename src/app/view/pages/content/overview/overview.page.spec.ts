@@ -265,7 +265,7 @@ describe('ContentOverviewPage', () => {
 
     expect(sheets.opens[0]?.heading).toContain('entfernen');
     // The fake stands in for `BookmarksInteractor.toggle`, which normally notifies
-    // `BookmarkChanges` itself — the resource only reloads once that happens.
+    // `BookmarkChanges` itself - the resource only reloads once that happens.
     bookmarks.savedItems = [];
     bookmarkChanges.notify();
     await whenStable();

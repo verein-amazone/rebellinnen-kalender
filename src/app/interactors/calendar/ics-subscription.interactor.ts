@@ -40,11 +40,11 @@ export interface IcsSubscriptionRow {
 }
 
 /**
- * The lifecycle of ICS subscriptions: add, refresh, remove, and — for the management screen —
+ * The lifecycle of ICS subscriptions: add, refresh, remove, and - for the management screen -
  * renaming/recolouring, enabling/disabling and listing.
  *
  * A subscription is a read-only calendar source of its own. A refresh only replaces data after
- * download, parse and normalization all succeeded — otherwise the last valid offline copy stays
+ * download, parse and normalization all succeeded - otherwise the last valid offline copy stays
  * and the source is flagged. The subscription URL is sensitive; every log- or UI-facing string
  * uses its redacted form.
  */

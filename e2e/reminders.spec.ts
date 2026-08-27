@@ -7,7 +7,7 @@ type Page = import('@playwright/test').Page;
  * The „Nicht vergessen“ list is the first feature with a database behind it, so this is also where
  * the SQLite setup is verified end to end: on the web it runs through `jeep-sqlite` and IndexedDB,
  * which a unit test cannot reach. Every test starts with an empty database, because Playwright gives
- * each one its own browser context — so entries are always created through the UI.
+ * each one its own browser context - so entries are always created through the UI.
  */
 test.describe('the „Nicht vergessen“ list', () => {
   /**
@@ -40,7 +40,7 @@ test.describe('the „Nicht vergessen“ list', () => {
   }
 
   /**
-   * The entry texts in the order they are shown — one list, open entries first. The label span rather
+   * The entry texts in the order they are shown - one list, open entries first. The label span rather
    * than the row: the entry's text also sits in the accessible names of the row's own controls.
    */
   function texts(page: Page) {
@@ -138,7 +138,7 @@ test.describe('the „Nicht vergessen“ list', () => {
 
   /**
    * A regression guard with a specific history: `cdkDrag` puts a `transform` on every row, which makes
-   * the row its own stacking context, and the menu panel ended up painted underneath the row below —
+   * the row its own stacking context, and the menu panel ended up painted underneath the row below -
    * which then swallowed the tap. The failure looked like the entry jumping to the other section.
    */
   test('reorders inside the completed section without leaving it', async ({ page }) => {
@@ -162,7 +162,7 @@ test.describe('the „Nicht vergessen“ list', () => {
    * The other half of that history: rendering the rows through an `ng-template` made Angular treat a
    * reordered row as removed and re-created, so a leave animation ran on a row that was staying and
    * left it at `opacity: 0`. The animations are gone now, and the row still has to survive the move
-   * fully visible — which is what would break again if a row stopped being moved and started being
+   * fully visible - which is what would break again if a row stopped being moved and started being
    * re-created.
    */
   test('keeps a reordered row fully visible', async ({ page }) => {
@@ -403,7 +403,7 @@ test.describe('the „Nicht vergessen“ list', () => {
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeVisible();
 
     // The only dismissal a finger has: there is no pointer to move away, and no Escape key.
-    // The reminder list's own heading — the page `<h1>` is visually hidden and cannot take a tap.
+    // The reminder list's own heading - the page `<h1>` is visually hidden and cannot take a tap.
     await page.getByRole('heading', { name: 'Nicht vergessen' }).click();
 
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toHaveCount(0);

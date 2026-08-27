@@ -3,7 +3,7 @@
  *
  * This is the one control that leaves the native rendering behind: `appearance: none` plus a drawn
  * circle, because the platform square cannot be reshaped and the round tick is what makes a checklist
- * read as a checklist. Everything that matters stays native — it is still an `<input
+ * read as a checklist. Everything that matters stays native - it is still an `<input
  * type="checkbox">`, so the role, the checked state, Space, and the label association are the
  * browser's, not ours.
  *

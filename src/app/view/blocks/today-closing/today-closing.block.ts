@@ -13,7 +13,7 @@ import type { TodayClosingState } from '@app/interactors/today/today-closing-sta
 import { TodayClosingMessage } from '@app/view/components/today-closing-message/today-closing-message';
 
 /**
- * The Today page's closing footer, loaded and resolved to text here — the only place in the feature
+ * The Today page's closing footer, loaded and resolved to text here - the only place in the feature
  * that talks to the reminders and calendar interactors, so the presentational component underneath
  * stays a plain leaf and `selectTodayClosingState` stays a pure, interactor-free function.
  */
@@ -32,7 +32,7 @@ export class TodayClosingBlock {
 
   protected readonly data = resource({
     // Reloads on a day change as well as any reminder write, even though only the reminders
-    // themselves came from the write — the occurrences are cheap to re-read and this keeps the
+    // themselves came from the write - the occurrences are cheap to re-read and this keeps the
     // loader a single, simple params function instead of two independently reloading resources.
     params: () => ({
       today: this.currentDay.day(),

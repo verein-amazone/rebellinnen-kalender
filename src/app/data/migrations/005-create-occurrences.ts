@@ -3,10 +3,10 @@ import type { Migration } from './migration';
 /**
  * The materialized occurrence layer and its coverage tracking (#29).
  *
- * `occurrences` holds one row per concrete instance across all source types — the single table
+ * `occurrences` holds one row per concrete instance across all source types - the single table
  * every range query reads. Rows are **derived and disposable**: deleting and rebuilding them must
  * always be possible from the canonical app items, the normalized ICS data, or a fresh device
- * query. That is why the table has no foreign keys and no timestamps of its own — it is a cache,
+ * query. That is why the table has no foreign keys and no timestamps of its own - it is a cache,
  * and the unit of work that rebuilds it owns its consistency.
  *
  * `start_utc`/`end_utc` (end exclusive) are the computed keys for interval-overlap queries;
@@ -14,7 +14,7 @@ import type { Migration } from './migration';
  * the occurrence's identity inside its series; `start_*` its effective time after overrides.
  *
  * `source_coverage` records the window a source's rows currently cover and which recurrence
- * engine generated them, and is written in the same transaction as the rows — coverage never
+ * engine generated them, and is written in the same transaction as the rows - coverage never
  * claims data that did not commit.
  */
 export const CREATE_OCCURRENCES: Migration = {

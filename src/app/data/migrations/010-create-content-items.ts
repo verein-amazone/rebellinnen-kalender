@@ -9,12 +9,12 @@ import type { Migration } from './migration';
  * `Ausspielungszeitraum` field. Both `NULL` means evergreen. `eligible_for_daily` mirrors the
  * source's own "daily-impulse eligible" flag.
  *
- * `bookmarks`: one row per bookmarked item, keyed by the item itself — a user either has bookmarked
+ * `bookmarks`: one row per bookmarked item, keyed by the item itself - a user either has bookmarked
  * an item or has not, so there is nothing else to store per bookmark beyond when it happened.
  *
  * Unlike every other table, `content_items` is never seeded here. The curated catalog is editorial
  * content that changes far more often than the schema does, so it ships as a versioned JSON asset
- * (`public/content/catalog.json`) that `ContentCatalogSync` reconciles into this table at runtime —
+ * (`public/content/catalog.json`) that `ContentCatalogSync` reconciles into this table at runtime -
  * see that file for why a schema migration is the wrong tool for content that isn't shipped in the
  * app binary's code.
  */

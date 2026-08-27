@@ -33,7 +33,7 @@ type Tab = (typeof DESTINATIONS)[number]['tab'];
 /**
  * App shell: the routed page plus the bottom navigation.
  *
- * Which destination is active — and whether the bottom navigation is shown at all — is derived
+ * Which destination is active - and whether the bottom navigation is shown at all - is derived
  * from the deepest activated route's `data.tab`. A route that declares a tab is a primary
  * destination; a route without one is a focused screen (detail, creation, settings) and the bottom
  * navigation stays hidden, so the focused screen owns the whole viewport.
@@ -51,7 +51,7 @@ export class MainNavigationScaffold {
   private readonly pageFocus = inject(PageFocus);
   private readonly injector = inject(Injector);
 
-  /** Drives the scroll-position correction below — see the effect in the constructor. */
+  /** Drives the scroll-position correction below - see the effect in the constructor. */
   private readonly keyboardVisible = inject(KeyboardVisibility).visible;
 
   /** The scroll region itself, to correct its scroll position once the keyboard closes again. */
@@ -81,7 +81,7 @@ export class MainNavigationScaffold {
 
     // The keyboard closing does not undo the scroll the platform applied to keep the focused field
     // clear of it: the scroll region's own height grows back, but its `scrollTop` stays where it
-    // was, which now overshoots the content and leaves the shell — bottom navigation included —
+    // was, which now overshoots the content and leaves the shell - bottom navigation included -
     // stranded above a blank gap. Clamping back to the region's real scroll range fixes that
     // without fighting a scroll position the user set on purpose while the keyboard was still open.
     effect(() => {
@@ -107,8 +107,8 @@ export class MainNavigationScaffold {
    * Decide what happens to focus once the new screen has rendered.
    *
    * Moving between two primary destinations means the user is operating the bottom navigation, so
-   * focus stays where it is and the new page is only announced. Every other navigation — opening a
-   * focused screen, closing one, or the initial load — replaces the context entirely, so focus
+   * focus stays where it is and the new page is only announced. Every other navigation - opening a
+   * focused screen, closing one, or the initial load - replaces the context entirely, so focus
    * moves to the new screen's title.
    */
   private handleNavigation(): void {

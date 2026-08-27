@@ -116,7 +116,7 @@ export function materializeAppItem(
 }
 
 /**
- * Whether the rule actually produces an occurrence at this exact original start — verified with a
+ * Whether the rule actually produces an occurrence at this exact original start - verified with a
  * one-second probe window around it rather than trusted blindly, so a stale exception left over
  * from a since-changed rule is not resurrected just because its override moved it into view.
  */
@@ -235,7 +235,7 @@ function buildRow(input: RowInput): OccurrenceRecord {
     provenance: input.provenance,
     itemKind: item.kind,
     // The ICS pipeline reuses this materializer with a fabricated `AppItemRecord` shape (see
-    // `icsItemAsSeries`) whose `id` is not a real app item — only genuine `app` rows carry identity.
+    // `icsItemAsSeries`) whose `id` is not a real app item - only genuine `app` rows carry identity.
     itemId: input.branding.sourceType === 'app' ? item.id : null,
     title: input.overrides?.title ?? item.title,
     location: input.overrides ? (input.overrides.location ?? item.location) : item.location,
@@ -300,7 +300,7 @@ function lastTouchedDay(start: ResolvedPoint, end: ResolvedPoint, deviceZone: st
 }
 
 /**
- * Carries the master's duration over to a (possibly moved) start — used here for overrides and by
+ * Carries the master's duration over to a (possibly moved) start - used here for overrides and by
  * the editing interactor when a continuation series starts at a new occurrence.
  */
 export function shiftEnd(
@@ -344,7 +344,7 @@ export function shiftEnd(
   }
 }
 
-/** The generated instance formatted back into the master's own temporal kind — its identity. */
+/** The generated instance formatted back into the master's own temporal kind - its identity. */
 function formatInKind(zoned: Temporal.ZonedDateTime, masterStart: TemporalValue): string {
   switch (masterStart.kind) {
     case 'date':

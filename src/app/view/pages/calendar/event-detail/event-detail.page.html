@@ -1,7 +1,11 @@
-<app-focused-screen heading="Termin" fallbackLink="/calendar" [beforeDismiss]="handleBeforeDismiss">
+<app-focused-screen
+  heading="Termin"
+  [fallbackLink]="backLink()"
+  [beforeDismiss]="handleBeforeDismiss"
+>
   <!--
     Each slot-projected element (`header-actions`, `footer`) is its own top-level `@if`, a direct
-    child of `app-focused-screen` — not nested inside the big loading/found/editing `@if` below.
+    child of `app-focused-screen` - not nested inside the big loading/found/editing `@if` below.
     Angular only projects into a named `ng-content select` when EVERY `@if` between the element and
     the component boundary has exactly one node at its root (NG8011); nesting it inside the shared
     branch (which has several sibling nodes) silently drops it into the default slot instead.

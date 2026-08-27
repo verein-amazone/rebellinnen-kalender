@@ -22,14 +22,14 @@ const DATABASE_NAME = 'rebellinnen-kalender';
 /**
  * Seeds one writable app calendar straight into the SQLite database, bypassing the UI.
  *
- * `Kalender verwalten` (issue #20) has no screen yet to add an app calendar — it is still a stub
- * — so the appointment create/edit form's calendar picker has nothing to offer without this, and
+ * `Kalender verwalten` (issue #20) has no screen yet to add an app calendar - it is still a stub
+ * - so the appointment create/edit form's calendar picker has nothing to offer without this, and
  * every save is blocked by its `required` validator. This writes through
  * `window.Capacitor.Plugins.CapacitorSQLite`, the very plugin singleton `SqliteGateway` calls on
  * the web (`src/app/data/gateways/capacitor-sqlite.ts`), so it lands in the app's own open
  * connection rather than a second one.
  *
- * Ends on `/today`, having proven the database round-trips before writing to it — see
+ * Ends on `/today`, having proven the database round-trips before writing to it - see
  * {@link ensureDatabaseReady}. Callers navigate on from there.
  */
 export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promise<SeededCalendar> {
@@ -65,7 +65,7 @@ export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promis
       });
 
       // Without `autoSave` (see `web-sqlite-store.ts` for why it is off), nothing persists these
-      // rows to IndexedDB on its own — `SqliteGateway` normally does that itself after a write. A
+      // rows to IndexedDB on its own - `SqliteGateway` normally does that itself after a write. A
       // caller navigating on with `page.goto()` is a full browser navigation, not an in-app route
       // change, so it reloads the connection from IndexedDB and would otherwise lose this seed.
       await plugin.saveToStore({ database: databaseName });
@@ -77,7 +77,7 @@ export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promis
 }
 
 /**
- * Seeds a connected device source with one calendar, straight into SQLite — the same way
+ * Seeds a connected device source with one calendar, straight into SQLite - the same way
  * `seedAppCalendar` stands in for the (still screen-less on iOS/Android-free CI) native connection
  * flow. Used to render `CalendarsPage`'s "connected" state without a real OS calendar, which the
  * web build has no access to at all.
@@ -128,7 +128,7 @@ export async function seedDeviceCalendar(page: Page, name = 'Familie'): Promise<
 export interface SeedOccurrenceOptions {
   /**
    * For a real, editable app appointment prefer the actual create flow (`seedAppCalendar` plus the
-   * "Neuer Termin" form) — this is for rendering a read-only or native-editable detail view where
+   * "Neuer Termin" form) - this is for rendering a read-only or native-editable detail view where
    * the underlying data never needs to be genuinely editable, only shaped like each source type.
    */
   readonly sourceType: 'app' | 'device' | 'ics';
@@ -146,7 +146,7 @@ export interface SeedOccurrenceOptions {
   readonly recurring?: boolean;
   /**
    * Bucket the occurrence under an already-seeded source/calendar (e.g. `seedDeviceCalendar`)
-   * instead of creating a fresh throwaway pair — needed to test enabling/disabling a specific
+   * instead of creating a fresh throwaway pair - needed to test enabling/disabling a specific
    * calendar in `CalendarsPage` and seeing its occurrences appear or disappear.
    */
   readonly existingCalendar?: SeededCalendar;
@@ -159,12 +159,12 @@ export interface SeededOccurrence {
 }
 
 /**
- * Seeds one read-only occurrence — a device or an ICS one — straight into the `occurrences` table.
+ * Seeds one read-only occurrence - a device or an ICS one - straight into the `occurrences` table.
  *
  * There is no way to reach either through the UI at all: device sync needs a real OS calendar
  * (unavailable on web/CI) and ICS subscriptions are issue #21. `occurrences` is documented as a
  * disposable, derived cache with no foreign keys (`005-create-occurrences.ts`), which is exactly
- * what makes writing a row directly safe — nothing here needs to look like real recurrence-engine
+ * what makes writing a row directly safe - nothing here needs to look like real recurrence-engine
  * output, only like a row `capabilitiesFor()` (`src/app/data/calendar/source-capabilities.ts`)
  * reads the same way a real one would.
  */
@@ -211,7 +211,7 @@ export async function seedOccurrence(
       // makes the detail page's edit/delete handlers no-op (`occurrence.itemId === null` is their
       // guard against exactly a missing item), so a real id is needed to exercise those flows.
       const itemId = sourceType === 'app' ? `e2e-item-${crypto.randomUUID()}` : null;
-      // A standalone app occurrence's id must be exactly `app:${itemId}` — that is the convention
+      // A standalone app occurrence's id must be exactly `app:${itemId}` - that is the convention
       // `standaloneRow()` (`occurrence-materializer.ts`) uses, and edit/delete rewrite the row by
       // deleting exactly that id (`CalendarRepository.deleteItem`/`updateItem`) before reinserting
       // it; a mismatched id would leave a stale row an edit or delete cannot ever touch.
@@ -319,12 +319,12 @@ export async function seedOccurrence(
  * straight through the plugin.
  *
  * Nothing on `/calendar` says this reliably: its empty-state text ("Keine Termine an diesem Tag.")
- * is the occurrences resource's *initial* value, rendered before the query resolves, not after —
+ * is the occurrences resource's *initial* value, rendered before the query resolves, not after -
  * so waiting for it proves nothing about the database. A round trip through the „Nicht vergessen“
  * list does: adding an entry and seeing it rendered can only happen once a write has gone through
  * the same connection and come back out again, and reminders.spec.ts already leans on that flow
  * being reliable. Racing a raw plugin call against the app's own still-in-flight `open()` sequence
- * is what produces "Datenbank konnte nicht geöffnet werden" and "no transaction is active" — this
+ * is what produces "Datenbank konnte nicht geöffnet werden" and "no transaction is active" - this
  * sidesteps that by waiting for the app to reach a *provably* idle, already-open connection first.
  */
 async function ensureDatabaseReady(page: Page): Promise<void> {

@@ -115,7 +115,7 @@ test.describe('application shell', () => {
   /**
    * WCAG 2.2 SC 2.4.2: every view needs a title that describes it. Angular's default
    * `TitleStrategy` writes the route's `title` to `document.title`, so this only holds as long as
-   * every route declares one — a new route without it silently keeps the previous screen's title.
+   * every route declares one - a new route without it silently keeps the previous screen's title.
    * Give a new route a `title` and add it here.
    */
   test('gives every route its own document title', async ({ page }) => {

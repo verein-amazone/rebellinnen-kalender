@@ -10,10 +10,10 @@ view has to satisfy see [Accessibility](./accessibility.md).
 
 The application has three primary layers plus one supporting area:
 
-1. **View / Presenters** (`view/`) — everything the user sees and interacts with.
-2. **Interactors** (`interactors/`) — application use cases and business rules.
-3. **Data** (`data/`) — persistence and external data-source access.
-4. **Cross-cutting** (`cross-cutting/`) — shared technical utilities and UI/device infrastructure.
+1. **View / Presenters** (`view/`) - everything the user sees and interacts with.
+2. **Interactors** (`interactors/`) - application use cases and business rules.
+3. **Data** (`data/`) - persistence and external data-source access.
+4. **Cross-cutting** (`cross-cutting/`) - shared technical utilities and UI/device infrastructure.
 
 ## Dependency direction
 
@@ -74,7 +74,7 @@ view/pages/calendar/
 
 Add a `.page.css` file only when a page actually needs styles that Tailwind utilities cannot
 express; do not create empty ones. A visual pattern that more than one screen uses is not a page
-style — it belongs in `src/styles/components/` as an `rk-*` class. See
+style - it belongs in `src/styles/components/` as an `rk-*` class. See
 [Design system](./design-system.md).
 
 Because several groups have an `overview` page, class names and selectors are qualified by their
@@ -83,7 +83,7 @@ group (`CalendarOverviewPage` / `app-calendar-overview`) while file and folder n
 #### Primary destinations and focused screens
 
 A route declares `data: { tab: 'today' | 'calendar' | 'content' }` when it is one of the three
-primary destinations. Every other route is a **focused screen** — a detail, creation or settings
+primary destinations. Every other route is a **focused screen** - a detail, creation or settings
 screen that owns the whole viewport.
 
 `MainNavigationScaffold` reads the deepest activated route's `data.tab` and uses it for both
@@ -92,13 +92,25 @@ rendered at all. Adding a focused screen therefore requires nothing beyond leavi
 route.
 
 Focused screens use `FocusedScreenScaffold`, which provides the shared header and a single dismiss
-action. Its `dismissal` input picks the semantics: `back` (an arrow — the user returns the way they
+action. Its `dismissal` input picks the semantics: `back` (an arrow - the user returns the way they
 came) for details and settings subpages, `close` (a cross) for creation and editing screens, where a
 back arrow would suggest that entered data is kept.
 
+**Dismissing navigates to an explicit target and replaces the current history entry.** The target is
+`returnTo` when the caller passed one, `fallbackLink` otherwise, so every focused screen declares
+where leaving it lands. The scaffold deliberately does not call `Location.back()`: a history walk
+combined with a pushed dismiss navigation makes the two screens point at each other, and the user
+alternates between them forever. Replacing instead of pushing also keeps the history from growing,
+so the platform back gesture leaves a screen rather than re-entering the one just left. The same
+applies to a page navigating away after finishing its own task (saving an appointment, deleting
+one) - those use `replaceUrl: true` for the same reason.
+
+A screen reachable from several places carries its origin in a `?returnTo=` query param rather than
+reading it back out of the history; the content detail screen is the example.
+
 #### Page state and navigation
 
-**State that must survive navigation goes in the URL** — as a route parameter or a query parameter,
+**State that must survive navigation goes in the URL** - as a route parameter or a query parameter,
 never in a component field that a re-created page would lose. The selected calendar day, an active
 filter or a chosen view mode are route state, not component state.
 
@@ -118,14 +130,14 @@ targets.
   `LiveAnnouncer`. Moving focus there would throw a keyboard user out of the bottom navigation they
   are operating.
 
-Component-level announcements follow different rules — see
+Component-level announcements follow different rules - see
 [Announcements](./accessibility.md#announcements). The one thing not to do is announce the same
 event through both a template live region and the `LiveAnnouncer`.
 
 #### Safe areas
 
 The app draws edge to edge: `index.html` sets `viewport-fit=cover`, which is also what makes
-`env(safe-area-inset-*)` return real values on iOS — without it they are all `0px` and every inset
+`env(safe-area-inset-*)` return real values on iOS - without it they are all `0px` and every inset
 silently does nothing.
 
 Use the `.safe-top` / `.safe-bottom` / `.safe-x` utilities from `src/styles/base.css`. Put them on
@@ -144,13 +156,13 @@ Who applies what:
 #### Page transitions
 
 Provided by the router's `withViewTransitions()`. The animation is a short cross-fade defined in
-`src/styles/base.css` — the screens are unrelated, so a directional slide would imply a spatial
+`src/styles/base.css` - the screens are unrelated, so a directional slide would imply a spatial
 relationship that does not exist. View transition pseudo-elements sit outside the document tree, so
 the reduced-motion rules have to disable them explicitly; see the same file.
 
 **The feature is not registered on iOS.** WKWebView repaints the whole page while snapshotting it,
 which shows up as a brief dim or flicker instead of an animation. Skipping only the animation via
-`onViewTransitionCreated` does not help, because the snapshot is what causes the artefact — so
+`onViewTransitionCreated` does not help, because the snapshot is what causes the artefact - so
 `app.config.ts` leaves the feature out entirely there, using `supportsViewTransitions()` from
 `cross-cutting/infrastructure/device-platform.ts`, and navigation cuts straight to the new screen.
 
@@ -158,7 +170,7 @@ which shows up as a brief dim or flicker instead of an animation. Skipping only 
 
 CDK behaviour that needs CSS does not bring it along. `@angular/cdk/a11y-prebuilt.css` is imported
 in `src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
-element — without it the announcements are rendered as visible page content.
+element - without it the announcements are rendered as visible page content.
 `@angular/cdk/overlay-prebuilt.css` is imported for the same reason: it positions and stacks the
 overlay container that sheets render into, and without it a sheet renders as ordinary content at the
 end of `<body>`. Import the matching prebuilt stylesheet whenever a new CDK feature is adopted.
@@ -181,13 +193,13 @@ flag that adds the danger colour plus an icon. It closes with `true`/`false`, an
 or the backdrop) yields `undefined`, which callers treat as declined.
 
 The modal _chrome_ is not here: it is the `app-sheet` primitive in `view/components/sheet/`, opened
-through `SheetService`. What lives in `view/dialogs/` is the content a sheet renders — a presenter
+through `SheetService`. What lives in `view/dialogs/` is the content a sheet renders - a presenter
 like any other, which injects `SheetRef` to close itself with a result. See
 [Design system](./design-system.md).
 
 ### Scaffolds (`view/scaffolds/`)
 
-Page-level layout and navigation structure. Simple layout/navigation glue only — no business logic
+Page-level layout and navigation structure. Simple layout/navigation glue only - no business logic
 or data access.
 
 ```
@@ -198,12 +210,12 @@ view/scaffolds/main-navigation/
 
 Two scaffolds exist:
 
-- `main-navigation` — the app shell: the routed page plus the bottom navigation.
-- `focused-screen` — the header, back action and focus handling shared by all focused screens.
+- `main-navigation` - the app shell: the routed page plus the bottom navigation.
+- `focused-screen` - the header, back action and focus handling shared by all focused screens.
 
 The shell is a **fixed `h-dvh` frame with exactly one scroll region**: `<main>` carries
 `.rk-scroll-region` and is the only element that scrolls, so the bottom navigation sits outside it
-and stays reachable. This matters at large text sizes, where the content is several viewports tall —
+and stays reachable. This matters at large text sizes, where the content is several viewports tall -
 with a scrolling document the tab bar ends up hundreds of pixels below the fold. A focused screen's
 header is `sticky` inside that region for the same reason.
 
@@ -214,7 +226,7 @@ what lets padding and chrome react to the root font size. See
 ### Blocks (`view/blocks/`)
 
 Reusable feature-level compositions of UI elements. Create a block when the same composition is used
-in the same way in more than one page, scaffold or dialog — or when one page would otherwise carry
+in the same way in more than one page, scaffold or dialog - or when one page would otherwise carry
 several unrelated features' state at once, which is why `reminder-list` is a block: the Today page
 composes it next to a greeting, an impulse and the day's appointments.
 
@@ -242,15 +254,15 @@ here. The `rk-` / `app-` prefixes are the visible marker of which is which.
 primitive is built to.
 
 One documented exception to "no interactor injection": `EventForm`'s calendar picker (#19) injects
-`AppCalendarsInteractor`. It is a dedicated read-model built specifically for that picker — not a
-general-purpose DAO — so every create/edit form gets one shared load of the writable calendars
+`AppCalendarsInteractor`. It is a dedicated read-model built specifically for that picker - not a
+general-purpose DAO - so every create/edit form gets one shared load of the writable calendars
 instead of each caller re-fetching and re-shaping the same list itself. See
 [Design system § Field components](./design-system.md#field-components--viewcomponentsfield) for the
 components this backs.
 
 ## Interactors (`interactors/`)
 
-Stateless Angular services representing application use cases. Group them by domain, not by page —
+Stateless Angular services representing application use cases. Group them by domain, not by page -
 for example `interactors/daily-content/`, `interactors/saved-content/`, `interactors/calendar/`,
 `interactors/settings/` (examples, not required folders).
 
@@ -263,7 +275,7 @@ Rules:
 - Interactors **must not** contain view state, navigate, open dialogs, show toasts, or inject Angular
   components / UI contexts. Pass contextual values as method parameters.
 
-A separate view model is not required for every record — use a `*.vm.ts` type only when the shape
+A separate view model is not required for every record - use a `*.vm.ts` type only when the shape
 exposed by an interactor meaningfully differs from the persisted record or combines multiple sources.
 Persisted records must not be imported directly into templates when that exposes persistence details.
 
@@ -282,7 +294,7 @@ this.items.reload();
 `reload()` keeps the previous value while the new one loads, so a list does not blink through its
 empty state. The cache stays in the view on purpose: interactors are stateless, and `data/stores/` is
 for small scalars rather than a signal cache over a table. Promote it into the data layer when a
-second screen needs the same list — and amend
+second screen needs the same list - and amend
 [data-persistence.md](./data-persistence.md) when you do.
 
 ## Data layer (`data/`)
@@ -290,15 +302,15 @@ second screen needs the same list — and amend
 Owns persistence and external data-source access. See
 [data-persistence.md](./data-persistence.md) for the full detail. In short:
 
-- `data/entities/` — persisted record types (`*.record.ts`).
-- `data/daos/` — thin, table-oriented SQLite access (`*.dao.ts`), no business rules.
-- `data/migrations/` — versioned schema changes.
-- `data/stores/` — small persisted values that do not belong in relational tables.
-- `data/gateways/` — wrappers around external data sources. `sqlite.gateway.ts` owns the database
+- `data/entities/` - persisted record types (`*.record.ts`).
+- `data/daos/` - thin, table-oriented SQLite access (`*.dao.ts`), no business rules.
+- `data/migrations/` - versioned schema changes.
+- `data/stores/` - small persisted values that do not belong in relational tables.
+- `data/gateways/` - wrappers around external data sources. `sqlite.gateway.ts` owns the database
   connection, the transactions and the migration run; `native-calendar.gateway.ts` owns the device
   calendar; `ics-http.gateway.ts` owns ICS downloads. Plugin and parser types stay inside their
   gateway or module, and callers depend on plugin-free contracts instead.
-- `data/calendar/` — the calendar domain's data machinery: `calendar.repository.ts` (see below),
+- `data/calendar/` - the calendar domain's data machinery: `calendar.repository.ts` (see below),
   the recurrence materializer (sole importer of `rrule-temporal`), the ICS parser/normalizer (sole
   importer of `ical.js`) and the device-instance normalizer.
 
@@ -312,20 +324,20 @@ inside single transactions, and it is the only calendar surface interactors talk
 
 Only create cross-cutting code when it is actually shared.
 
-- `infrastructure/` — stateless wrappers around technical UI/device capabilities (navigation helpers,
+- `infrastructure/` - stateless wrappers around technical UI/device capabilities (navigation helpers,
   opening system settings, sharing, UI messages, other device APIs initiated by presenters). The
   native calendar is an intentional exception: because it is a queryable data source, its wrapper
   lives in `data/gateways/`, not here.
   `local-day.ts` belongs here too: it wraps the clock plus the app-lifecycle events that tell it when
   to look again, and exposes the local day as a `YYYY-MM-DD` signal. A key rather than a `Date`, so it
-  emits once per day change instead of on every check — a screen can make it a `resource` parameter
+  emits once per day change instead of on every check - a screen can make it a `resource` parameter
   and be reloaded at midnight without watching for it.
-- `contexts/` — readonly, application-wide state exposed to components via signals. Contexts may be
+- `contexts/` - readonly, application-wide state exposed to components via signals. Contexts may be
   injected only into components/presenters; interactors and data-layer classes must not inject them.
   Prefer local component state for page-specific concerns.
-- `helpers/`, `pipes/`, `directives/`, `validators/` — reusable technical utilities. They must not
+- `helpers/`, `pipes/`, `directives/`, `validators/` - reusable technical utilities. They must not
   conceal data-layer access or upward dependencies.
-- `markdown/` — the internal Markdown renderer that wraps the `marked` library. See
+- `markdown/` - the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
 
 ## Theming and appearance
@@ -338,11 +350,11 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 
 1. `--rk-*` holds the raw values. Each colour theme is one static block selected by the `data-theme`
    attribute on `<html>`; the default theme is additionally bound to `:root`. The theme blocks all
-   have equal specificity, so their **source order** is what decides which one wins — keep
+   have equal specificity, so their **source order** is what decides which one wins - keep
    `:root, [data-theme='amazone']` first, and never set raw values outside a theme block.
 2. `@theme inline { … }` maps them into Tailwind's namespaces, so `bg-background`, `text-foreground`,
    `border-border`, `font-display` and `rounded-lg` all resolve through the custom properties.
-   `inline` is required — it keeps the `var()` references in the generated utilities, which is what
+   `inline` is required - it keeps the `var()` references in the generated utilities, which is what
    makes changing `data-theme` at runtime recolour the whole app without rebuilding anything.
 3. A plain `@theme { … }` holds the static scale values that never change at runtime and therefore
    need no reference kept: `--spacing-touch`, `--spacing-row`, `--breakpoint-tablet` and
@@ -358,7 +370,7 @@ OS scale instead of stacking on top of it. iOS already reaches 3.12x on its own,
 app step onto it would produce unusable sizes.
 
 The ladder is five steps ending at **2x**, Apple's Larger Text floor and the largest size the layout
-stays genuinely usable at — the original three stopped at 1.125x. It deliberately does not follow the
+stays genuinely usable at - the original three stopped at 1.125x. It deliberately does not follow the
 OS all the way to 3.12x, so a user at the very largest system size who picks an explicit option gets
 smaller text than they had. Leaving the setting on "Systemeinstellung", which is the default, keeps
 the full OS range, and the layout is verified at 300% for exactly that reason.
@@ -368,7 +380,7 @@ The two platforms disagree, so neither can be trusted to scale the app on its ow
 - **iOS** WKWebView ignores Dynamic Type completely. The root font size stays at 16px wherever the
   Larger Text slider is, so without this the app has no OS text scaling at all.
 - **Android** WebView applies the system font scale as `WebSettings.textZoom`, which scales computed
-  font sizes but **not** lengths — text grows while padding, gaps and heights stay put, which is how
+  font sizes but **not** lengths - text grows while padding, gaps and heights stay put, which is how
   content ends up overlapping.
 
 `cross-cutting/infrastructure/system-text-scale.ts` is the gateway that resolves both: it resets
@@ -380,7 +392,7 @@ those plugin types exist.
 
 Neither platform fires a change event, so the value is re-read on `appStateChange` when the app
 becomes active. It is read once more during bootstrap via `provideAppInitializer`, awaited, because
-applying the scale after the first paint would show the app at the wrong size for a frame — and the
+applying the scale after the first paint would show the app at the wrong size for a frame - and the
 `textZoom` reset does not survive a restart.
 
 Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
@@ -426,7 +438,7 @@ APIs stay inside `MarkdownRenderer` and must not leak into components or feature
 
 ### Why DOMPurify for sanitization
 
-Sanitization is delegated to DOMPurify — a widely used, audited HTML sanitizer — rather than to
+Sanitization is delegated to DOMPurify - a widely used, audited HTML sanitizer - rather than to
 hand-written escaping or ad-hoc URL checks, which are error-prone. DOMPurify expresses the allowed
 subset declaratively (`ALLOWED_TAGS`, `ALLOWED_ATTR`, `ALLOWED_URI_REGEXP`), so the restriction lives
 in data, not in bespoke string manipulation. Angular's own sanitizer still runs at the `[innerHTML]`
@@ -447,7 +459,7 @@ level-one and level-four-plus headings, for example, survive as plain text rathe
   Angular's `[innerHTML]` binding in the component. `bypassSecurityTrustHtml` is never used.
 - Links keep their `href` only for the allow-listed schemes `https:` and `http:` (relative and
   anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
-  `ALLOWED_URI_REGEXP`. Any other scheme — for example `javascript:`, `data:` or `mailto:` — has its
+  `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
   `href` removed, leaving only the link text.
 
 ### Rule for feature code

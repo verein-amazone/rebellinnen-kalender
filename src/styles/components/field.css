@@ -11,7 +11,7 @@
  * The accessibility contract every form honours:
  *   - every `.rk-input` has its own `<label for>`; a placeholder is not a label
  *   - the `.rk-error` sits inside a wrapper that carries `aria-live="polite" aria-atomic="true"`
- *     and is *always* in the DOM — an element that appears at the same moment as its text is
+ *     and is *always* in the DOM - an element that appears at the same moment as its text is
  *     frequently not announced at all
  *   - `aria-invalid` and `aria-describedby` are bound only once the field has been touched, so a
  *     pristine form is not announced as a wall of errors
@@ -35,7 +35,7 @@
 
     /*
      * A filled field keeps the emphasised outline, so a completed form reads at a glance. This
-     * relies on the input always carrying a `placeholder` attribute — with none,
+     * relies on the input always carrying a `placeholder` attribute - with none,
      * `:placeholder-shown` never matches and every empty field would look filled.
      */
     &:has(.rk-input:not(:placeholder-shown)) {

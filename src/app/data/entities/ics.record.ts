@@ -3,7 +3,7 @@ import type { TemporalValue } from './temporal-value';
 
 /**
  * One ICS subscription: authoritative configuration plus the retained snapshot of the last valid
- * download. `url` is sensitive — it may carry an access token — and must never appear in full in
+ * download. `url` is sensitive - it may carry an access token - and must never appear in full in
  * logs or error state; `rawIcs` is the last successful document, kept so derived data can be
  * rebuilt offline.
  */
@@ -24,7 +24,7 @@ export interface IcsSubscriptionRecord {
   readonly curatedId: string | null;
 }
 
-/** One normalized master of the active revision — read-only, replaced only by a valid revision. */
+/** One normalized master of the active revision - read-only, replaced only by a valid revision. */
 export interface IcsItemRecord {
   readonly subscriptionId: string;
   readonly uid: string;

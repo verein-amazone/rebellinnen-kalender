@@ -4,8 +4,8 @@ import { seedAppCalendar, seedDeviceCalendar, seedOccurrence } from './support/c
 
 /**
  * Functional coverage for #19 (view and manage appointments): creating, editing and deleting an
- * app-owned appointment, viewing a read-only one, and — flagged as still missing in #29's notes,
- * since nothing opened a sheet in a real browser before #19 — a full sheet interaction: focus
+ * app-owned appointment, viewing a read-only one, and - flagged as still missing in #29's notes,
+ * since nothing opened a sheet in a real browser before #19 - a full sheet interaction: focus
  * trapped inside while open, Escape closes it, focus returns to the opener, and the page behind
  * does not scroll.
  *
@@ -21,7 +21,7 @@ test.describe('appointments', () => {
     // Matches the real entry point (the agenda's „Neuer Termin" link, which always carries a
     // `?day=`): the form prefills date/end-date from it, same as `NewEventPage.day`.
     await page.goto('/calendar/event/new?day=2026-08-10');
-    // The only writable calendar is auto-selected (see `EventForm.applyDefaultCalendar`) — no
+    // The only writable calendar is auto-selected (see `EventForm.applyDefaultCalendar`) - no
     // picker interaction needed.
     await expect(page.getByRole('button').filter({ hasText: 'Testkalender' })).toBeVisible();
     await page.getByLabel('Titel').fill('Vereinstreffen');
@@ -115,7 +115,7 @@ test.describe('appointments', () => {
     // Focus lands on the sheet's own heading (see sheet.html's `cdkFocusInitial`), inside the panel.
     await expect(sheet.getByRole('heading', { name: 'Termin löschen?' })).toBeFocused();
 
-    // The shell behind is inert while the sheet is open — Tab and a pointer cannot reach it.
+    // The shell behind is inert while the sheet is open - Tab and a pointer cannot reach it.
     await expect(page.locator('app-root')).toHaveAttribute('inert', '');
 
     // The app's own scroll region is <main> (see large-text.spec.ts), covered by the sheet's
@@ -162,14 +162,14 @@ test.describe('appointments', () => {
 /**
  * Functional coverage for #20 (manage the app calendar and device calendars). The device
  * connection flow itself (requesting OS permission) has no web equivalent and cannot run under
- * Playwright, so these scenarios seed an already-connected device source straight into SQLite —
- * the same workaround `seedAppCalendar`/`seedOccurrence` already use for #19 — and exercise
+ * Playwright, so these scenarios seed an already-connected device source straight into SQLite -
+ * the same workaround `seedAppCalendar`/`seedOccurrence` already use for #19 - and exercise
  * everything reachable from there: the identity-edit sheet (this issue's own comment asked
  * whichever of #18/#19/#20 landed first to add the first real colour/emoji-picker sheet coverage)
  * and per-calendar enable/disable.
  *
  * The "Gerätekalender" section itself (connect prompt, calendar list, disconnect) is gated to
- * iOS/Android (`DevicePlatformService`, see `CalendarsPage`) — Playwright always reports platform
+ * iOS/Android (`DevicePlatformService`, see `CalendarsPage`) - Playwright always reports platform
  * `'web'`, so it never renders here and those scenarios are skipped; `CalendarsPage`'s and
  * `DeviceCalendarsInteractor`'s unit tests cover them instead.
  */
@@ -188,7 +188,7 @@ test.describe('calendar management', () => {
     await sheet.getByLabel('Name').fill('Vereinstermine');
     // The radio is visually hidden (`sr-only`) inside its swatch-circle `<label>`; real touch input
     // taps the label and the browser forwards it to the input. Playwright's own hit-testing at the
-    // clipped input's exact box is what's unreliable here, not the app — so this drives the
+    // clipped input's exact box is what's unreliable here, not the app - so this drives the
     // `change` event directly, the same way the emoji-click dispatch below tests our wiring rather
     // than a third party's hit-testing.
     await sheet.getByRole('radio', { name: 'Grün', exact: true }).evaluate((el) => {
@@ -196,7 +196,7 @@ test.describe('calendar management', () => {
       el.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    // The emoji field opens the real `@independo/capacitor-emoji-picker` web fallback — a genuine
+    // The emoji field opens the real `@independo/capacitor-emoji-picker` web fallback - a genuine
     // `<emoji-picker>` custom element in its own `role="dialog"` sheet (`WebEmojiPickerPresenter`).
     // Driving its own internal UI (search, category tabs) belongs to that package's own test suite,
     // not this app's; dispatching the `emoji-click` event it listens for exercises our integration
@@ -249,7 +249,7 @@ test.describe('calendar management', () => {
     await page.goto('/calendar?day=2026-09-10');
     await expect(page.getByRole('link', { name: /Familientreffen/ })).toHaveCount(0);
 
-    // The cached occurrence is only hidden, not gone — its detail is still reachable directly.
+    // The cached occurrence is only hidden, not gone - its detail is still reachable directly.
     await page.goto(`/calendar/event/${occurrenceId}`);
     await expect(page.getByRole('heading', { name: 'Familientreffen' })).toBeVisible();
   });

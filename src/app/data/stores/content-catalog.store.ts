@@ -10,7 +10,7 @@ const EMPTY_STATE: StoredState = { version: null };
 
 /**
  * Remembers the version of `public/content/catalog.json` last reconciled into `content_items` by
- * `ContentCatalogSync`, so a version match skips the diff-and-write work on every app open — a
+ * `ContentCatalogSync`, so a version match skips the diff-and-write work on every app open - a
  * cheap local JSON fetch, not the reconciliation itself, is the only cost of a no-op check.
  *
  * A small persisted scalar, like `DailyImpulseStore`, so it lives in `localStorage`.

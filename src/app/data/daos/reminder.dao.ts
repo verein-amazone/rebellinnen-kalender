@@ -129,7 +129,7 @@ export class ReminderDao {
    * without reading every row.
    *
    * The `IS NULL` test cannot be a bound parameter, so the two variants are two literal statements
-   * picked by the flag — no value is ever interpolated.
+   * picked by the flag - no value is ever interpolated.
    */
   async selectPositionRange(completed: boolean): Promise<PositionRange> {
     const rows = await this.database.query<{

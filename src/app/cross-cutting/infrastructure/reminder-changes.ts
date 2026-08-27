@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 /**
- * A version counter bumped every time a reminder is written — added, ticked, reopened, renamed,
+ * A version counter bumped every time a reminder is written - added, ticked, reopened, renamed,
  * moved or removed.
  *
  * The reminders list holds its own state in `ReminderListBlock`'s `resource()`; this is what lets

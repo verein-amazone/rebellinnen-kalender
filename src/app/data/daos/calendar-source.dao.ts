@@ -127,7 +127,7 @@ export class CalendarSourceDao {
     ]);
   }
 
-  /** Deletes the source row only — dependent rows are the deleting unit of work's business. */
+  /** Deletes the source row only - dependent rows are the deleting unit of work's business. */
   async deleteSource(id: string, executor: SqliteExecutor = this.database): Promise<void> {
     await executor.run(`DELETE FROM calendar_sources WHERE id = ?`, [id]);
   }

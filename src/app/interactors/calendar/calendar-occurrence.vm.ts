@@ -1,6 +1,6 @@
 import type { TemporalValue } from '@app/data/entities/temporal-value';
 
-/** What the occurrence's source allows — capabilities follow ownership, never per-row flags. */
+/** What the occurrence's source allows - capabilities follow ownership, never per-row flags. */
 export interface CalendarOccurrenceActions {
   readonly editableInApp: boolean;
   readonly deletableInApp: boolean;
@@ -8,7 +8,7 @@ export interface CalendarOccurrenceActions {
 }
 
 /**
- * One concrete occurrence as a screen renders it. Views consume this — and only this — for every
+ * One concrete occurrence as a screen renders it. Views consume this - and only this - for every
  * calendar surface; recurrence, ICS and native-calendar mechanics stay below the interactor.
  */
 export interface CalendarOccurrence {
@@ -32,7 +32,7 @@ export interface CalendarOccurrence {
   readonly end: TemporalValue | null;
   readonly startUtc: string;
   readonly endUtc: string;
-  /** The device-zone days the occurrence touches — what day-based views bucket by. */
+  /** The device-zone days the occurrence touches - what day-based views bucket by. */
   readonly startDay: string;
   readonly endDay: string;
   readonly actions: CalendarOccurrenceActions;

@@ -5,7 +5,7 @@ The app's visual primitives: what they are, where they live, and the rules they 
 This document covers the _how_. For where the UI layers sit relative to interactors and the data
 layer, see [Frontend architecture](./frontend-architecture.md). For the conformance target, the
 order of preference between native HTML, Angular Aria and the CDK, and what a primitive owes beyond
-its appearance, see [Accessibility](./accessibility.md) — the touch-first and scaling-safe rules
+its appearance, see [Accessibility](./accessibility.md) - the touch-first and scaling-safe rules
 below are the two chapters of it that live here.
 
 ## The hybrid rule
@@ -35,7 +35,7 @@ src/styles.css                       barrel: tailwind, CDK stylesheets, then the
 src/styles/fonts.css                 self-hosted @font-face
 src/styles/theme.css                 tokens, themes, custom variants
 src/styles/base.css                  element defaults and shared utilities
-src/styles/components.css            barrel — imports only
+src/styles/components.css            barrel - imports only
 src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
 src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
 src/styles/components/choice.css     .rk-choice*
@@ -72,7 +72,7 @@ files are imported. Overriding a primitive at the call site is always safe.
 
 - **`@layer components`** is the default for a named visual pattern. It sorts below utilities, which
   is what makes call-site overrides work.
-- **`@utility`** only when the rule must be `@apply`-able. `@apply` accepts _utilities only_ — it
+- **`@utility`** only when the rule must be `@apply`-able. `@apply` accepts _utilities only_ - it
   cannot reference a class defined in `@layer components`. That is why `rk-control-base` and
   `rk-icon` are utilities, and why `.rk-list` repeats the surface declarations instead of
   `@apply rk-card`.
@@ -85,13 +85,13 @@ files are imported. Overriding a primitive at the call site is always safe.
 
 Three groups, all in `src/styles/theme.css`:
 
-1. **`--rk-*` raw values** — one static block per colour theme, selected by `data-theme` on `<html>`.
+1. **`--rk-*` raw values** - one static block per colour theme, selected by `data-theme` on `<html>`.
    The theme blocks all have equal specificity, so **source order alone decides the winner**: keep
    `:root, [data-theme='amazone']` first, and never set raw values outside a theme block.
-2. **`@theme inline`** — maps the raw values into Tailwind's namespaces. `inline` is required: it
+2. **`@theme inline`** - maps the raw values into Tailwind's namespaces. `inline` is required: it
    keeps the `var()` in the generated utilities, which is what lets changing `data-theme` recolour
    the app at runtime.
-3. **plain `@theme`** — static scale values that never change at runtime, so there is no reference
+3. **plain `@theme`** - static scale values that never change at runtime, so there is no reference
    worth keeping: `--spacing-touch`, `--spacing-row`, `--breakpoint-tablet`, `--container-row`, `--container-compact`.
 
 Colour values never live in TypeScript.
@@ -104,7 +104,7 @@ legible as text on both `card` and `background` and carries its foreground when 
 Two constraints worth knowing before changing them:
 
 - Amazone's `--rk-primary` is itself red and its `background` is a mid teal, which forces its status
-  colours quite dark. Orange is unavailable — it collides with `--rk-accent`.
+  colours quite dark. Orange is unavailable - it collides with `--rk-accent`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
   how `--rk-primary` already behaves there.
 
@@ -122,27 +122,27 @@ generates the whole variant family for free.
 
 Two custom variants:
 
-- **`hoverable:`** — `(hover: hover) and (pointer: fine)`. Use this instead of bare `hover:`. On a
+- **`hoverable:`** - `(hover: hover) and (pointer: fine)`. Use this instead of bare `hover:`. On a
   touch device a hover state sticks after a tap and the control stays visibly lit until the user taps
   somewhere else.
-- **`motion-reduced:`** — mirrors how `base.css` resolves motion: the in-app override wins, and the
+- **`motion-reduced:`** - mirrors how `base.css` resolves motion: the in-app override wins, and the
   device preference applies only when the user has not explicitly chosen `standard`.
 
 ## Touch-first interaction
 
 The app runs in a WebView on a phone. Nothing on the device has a mouse, so an interaction that needs
-one is not a degraded experience — it is unreachable. The rules:
+one is not a degraded experience - it is unreachable. The rules:
 
 **Hover is an enhancement, never a requirement.** On touch, `:hover` is applied on tap and there is no
 "pointer left" event to clear it, so the element stays lit until the user taps somewhere else. Hence
 the `hoverable:` custom variant in `theme.css`, gated on `(hover: hover) and (pointer: fine)`: a
-finger never receives those styles at all. `(pointer: fine)` is part of the condition on purpose —
+finger never receives those styles at all. `(pointer: fine)` is part of the condition on purpose -
 long-press on some Android versions makes `(hover: hover)` match. Use `active:` for the feedback that
 matters on touch; it clears itself on release.
 
 **Every action needs a plain tap path.** No hover-to-reveal controls, no long press, no right click, no
 double tap, no drag as the only way to get something done. The reminder rows put their actions behind a
-visible `⋯` trigger for exactly this reason — a swipe-to-delete would be invisible and undiscoverable,
+visible `⋯` trigger for exactly this reason - a swipe-to-delete would be invisible and undiscoverable,
 and a screen reader user could not perform it at all. The same rows can be dragged into a new order,
 and „Nach oben“ / „Nach unten“ sit in that menu so the drag stays an accelerator rather than the way.
 
@@ -153,7 +153,7 @@ at a large text size does not clip. Icon buttons get it from `rk-control-base`.
 never zooms back out, leaving the app magnified and scrolling in both directions. `base.css` floors
 `input`, `textarea` and `select` at `max(1rem, 16px)`.
 
-**Keep the platform's own gestures intact.** No `user-scalable=no` or `maximum-scale` in the viewport —
+**Keep the platform's own gestures intact.** No `user-scalable=no` or `maximum-scale` in the viewport -
 pinch-zoom is an accessibility feature. `touch-action: manipulation` on interactive elements drops the
 300ms double-tap-to-zoom wait without taking anything else away. Use `dvh` rather than `vh`, because
 `vh` ignores the dynamic browser chrome and cuts content off.
@@ -162,44 +162,44 @@ pinch-zoom is an accessibility feature. `touch-action: manipulation` on interact
 resize handles are invisible on a phone: if something needs explaining, it needs visible text.
 
 Playwright runs desktop Chromium, so it cannot catch a sticky hover. The safeguard is the variant, not
-a test — review any new `hover:` in a diff.
+a test - review any new `hover:` in a diff.
 
 ## Scaling-safe rules
 
 Every primitive is built for a root font size far larger than the default, because the OS text-size
 preference drives it (`--rk-os-scale`, see
 [OS text scaling](./frontend-architecture.md#os-text-scaling)). The in-app ladder stops at 2x, but
-the device setting does not — iOS reaches 3.12x — so the primitives have to hold up past the ladder.
+the device setting does not - iOS reaches 3.12x - so the primitives have to hold up past the ladder.
 These rules are what keep the layout usable there:
 
 1. **`min-h-*`, never `h-*`** on anything containing text. A fixed height clips a wrapped label.
-2. **rem for spacing.** Tailwind's default spacing scale is already rem — do not switch it to px.
+2. **rem for spacing.** Tailwind's default spacing scale is already rem - do not switch it to px.
    Border widths are the exception: they are not text and must not scale.
 3. **No `whitespace-nowrap`.** No `truncate` or `line-clamp` without a route to the full text.
 4. **`min-w-0` on text-bearing flex children.** Without it a flex child refuses to shrink below its
    content width and overflows instead of wrapping.
 5. **Icons in `em`**, so they track the label they sit next to (`rk-icon`, `rk-icon-sm`). An icon
-   that should track the _root_ instead — a fixed navigation glyph, say — stays on `size-*`, which
+   that should track the _root_ instead - a fixed navigation glyph, say - stays on `size-*`, which
    is rem-based and therefore already scaling-safe.
 6. **Intrinsic sizing over breakpoints.** `grid-cols-[repeat(auto-fit,minmax(18rem,1fr))]` reflows on
    its own; a breakpoint never will.
 7. **Long words must be breakable.** `src/styles/base.css` sets `hyphens: auto` and
-   `overflow-wrap: anywhere` on `body`. German compounds are wider than a phone column once scaled —
-   "Systemeinstellung" overflowed a 320px screen by 226px at 300% — and one unbreakable word makes
+   `overflow-wrap: anywhere` on `body`. German compounds are wider than a phone column once scaled -
+   "Systemeinstellung" overflowed a 320px screen by 226px at 300% - and one unbreakable word makes
    the whole screen scroll sideways. `anywhere` rather than `break-word`: only `anywhere` shrinks the
    min-content width, which is what lets a flex or grid child give up the space.
 8. **One scroll region, chrome outside it.** The shell is a fixed `h-dvh` frame and `.rk-scroll-region`
-   is the only element that scrolls. Vertical scrolling at 2x and beyond is expected — the content
-   genuinely is several viewports tall, and reflow asks for exactly that — but the tab bar must not
+   is the only element that scrolls. Vertical scrolling at 2x and beyond is expected - the content
+   genuinely is several viewports tall, and reflow asks for exactly that - but the tab bar must not
    scroll away with it.
 9. **Decoration may be capped in pixels, text never.** Past `--container-compact` the tab bar's icon,
    its active indicator, the row and choice padding and the focused-screen dismiss button switch to
    fixed pixel sizes. That is what buys the space back: at 3x the tab bar went from 216px to 107px
    and the header from 193px to 109px on a 375x667 screen. Capping a **label** the same way would be
-   defeating the setting, and is what Apple screens for — see the `.rk-tab` comment for the line
+   defeating the setting, and is what Apple screens for - see the `.rk-tab` comment for the line
    between the two.
 
-### Media queries cannot react to text size — container queries can
+### Media queries cannot react to text size - container queries can
 
 `rem` inside `@media` resolves against the **browser default** font size, not the root font size. It
 never moves when the app scales its text. `rem` inside `@container` resolves against the **actual**
@@ -223,7 +223,7 @@ threshold would have stacked rows on a 375px device out of the box.
 
 ## Primitives
 
-### Buttons — `button.css`
+### Buttons - `button.css`
 
 `.rk-button` plus `.rk-button-primary` / `-secondary` / `-ghost` / `-danger`, and `.rk-icon-button`
 for square label-less actions, with `.rk-icon-button-primary` as its filled variant for the one action
@@ -235,30 +235,30 @@ secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for
 secondary action; the Playwright contrast loop will catch a regression either way.
 
 Accessibility contract: an icon button needs an `aria-label` or an `.sr-only` span, and its icon is
-always `aria-hidden`. The focus ring comes from the global `:focus-visible` rule in `base.css` —
+always `aria-hidden`. The focus ring comes from the global `:focus-visible` rule in `base.css` -
 primitives must not set their own `outline`. Disabled uses the `disabled` attribute so the control is
 genuinely inert; an `<a>` has no disabled state, so render a `<button>` instead.
 
-### Card, list and row — `card.css`
+### Card, list and row - `card.css`
 
 `.rk-card` is a surface. `.rk-list` is a grouped list of rows and is the query container.
 `.rk-row` is one row, with `.rk-row-label` and `.rk-row-value` inside it.
 
 These are presentational only. Semantics stay in the template: a grouped list is a `<ul>` of `<li>`,
 and `.rk-row` goes on the `<a>` or `<button>` _inside_ the `<li>` so the whole row is one target. A row
-that holds several controls instead of being one — as in `reminder-list`, where a checkbox and a menu
-trigger share it — puts `.rk-row` on the `<li>` and says so in a comment.
+that holds several controls instead of being one - as in `reminder-list`, where a checkbox and a menu
+trigger share it - puts `.rk-row` on the `<li>` and says so in a comment.
 
 `.rk-list` clips to its corner radius, which also clips anything hanging out of a row. Add
 `overflow-visible` at the call site where a row opens a menu.
 
-### Round checkbox — `check.css`
+### Round checkbox - `check.css`
 
 `.rk-check` is the tick control for a checklist: a drawn circle instead of the platform square, with
 the checkmark built from two rotated borders in `em` so it scales with its label.
 
 This is the one place the design system uses `appearance: none`, because a native checkbox cannot be
-reshaped. What stays native is everything that carries meaning — it is still an
+reshaped. What stays native is everything that carries meaning - it is still an
 `<input type="checkbox">`, so the role, the checked state, Space and the label association come from
 the browser. Under `forced-colors: active` the rule hands the rendering back to the platform, so a
 high-contrast user sees their own control rather than our two colours.
@@ -266,9 +266,9 @@ high-contrast user sees their own control rather than our two colours.
 The completion state is never carried by this control alone: the row also strikes its text through, and
 the control's accessible name states the action it will perform.
 
-### Choice row — `choice.css` + `app-choice-row`
+### Choice row - `choice.css` + `app-choice-row`
 
-A radio option as a card row. The control is a **native `<input type="radio">`** — native radio
+A radio option as a card row. The control is a **native `<input type="radio">`** - native radio
 groups already provide roving tabindex, arrow keys with wrap, Home/End, "option 2 of 4" position
 announcements and forced-colors rendering, correctly, on every platform. `accent-color` in
 `base.css` themes them without `appearance: none`, which is what makes keeping the native control
@@ -277,12 +277,12 @@ affordable. Angular Aria ships listbox, menu, tabs and tree but deliberately no 
 The component exists to hold markup that would otherwise be repeated per screen, and to slot
 trailing content such as the theme page's colour swatch. Put the options in a `<fieldset>` with a
 `<legend>` and give them all the same `name`. The description sits inside the same `<label>`, so it
-becomes part of the accessible name — which reads correctly and avoids generating ids.
+becomes part of the accessible name - which reads correctly and avoids generating ids.
 
-### Menu — `menu.css` + `ngMenu` (Angular Aria)
+### Menu - `menu.css` + `ngMenu` (Angular Aria)
 
 `.rk-menu` is the panel, `.rk-menu-item` a full-width item, `.rk-menu-item-danger` its destructive
-variant. Behaviour comes from `@angular/aria/menu` — roles, arrow keys, typeahead, Escape, and the
+variant. Behaviour comes from `@angular/aria/menu` - roles, arrow keys, typeahead, Escape, and the
 `data-visible` attribute these rules hide the closed panel with. Positioning is the call site's job
 (`absolute` plus an anchor), so a row decides where its menu opens.
 
@@ -293,7 +293,7 @@ Two things a call site has to get right, both learned the hard way in `reminder-
 - On a `<button>` trigger, `preventDefault()` Enter and Space. The directive already opens on those
   keys, and the browser's synthesised click would immediately close the menu again.
 
-### Field, input and error — `field.css`
+### Field, input and error - `field.css`
 
 First used by the „Nicht vergessen“ list: the inline add row and the edit sheet (#14).
 
@@ -308,29 +308,29 @@ The contract every form honours:
 
 - every `.rk-input` has its own `<label for>`; a placeholder is not a label
 - the `.rk-error` sits inside a wrapper carrying `aria-live="polite" aria-atomic="true"` that is
-  **always in the DOM** — an element appearing at the same moment as its text is frequently not
+  **always in the DOM** - an element appearing at the same moment as its text is frequently not
   announced at all
 - `aria-invalid` and `aria-describedby` bind only once the field has been touched
 - the error is always text; the red border is a redundant cue, never the only one
 
-#### Field components — `view/components/field/`
+#### Field components - `view/components/field/`
 
 #19 built the first real multi-field form (the create/edit appointment form, `EventForm`) against
 `.rk-field` and, with it, the first Angular components that implement the contract above so a
 consumer never hand-rolls the markup: `app-text-field`, `app-textarea-field`,
 `app-radio-group-field` and `app-all-day-toggle-field`. All four bind to a `@angular/forms/signals`
 `Field` (via a `[field]`/`[formField]` input), read `touched()`/`invalid()`/`errors()` off the
-field's state, and render the always-in-the-DOM `aria-live` error wrapper themselves — a consumer
+field's state, and render the always-in-the-DOM `aria-live` error wrapper themselves - a consumer
 just points one at a `schemaPath` and a `label`/`legend`.
 
 `app-radio-group-field` is generic over its option type and is shared by more than the calendar
-picker — the recurrence-scope dialog uses it too — so a new set of mutually exclusive choices bound
+picker - the recurrence-scope dialog uses it too - so a new set of mutually exclusive choices bound
 to a Signal Forms field should reach for it before writing another `<fieldset>` by hand.
 
 Add a new field component here, not a new one-off template, whenever a screen needs a control shape
 these four do not yet cover.
 
-### Reorderable list — `reorder.css` + `@angular/cdk/drag-drop`
+### Reorderable list - `reorder.css` + `@angular/cdk/drag-drop`
 
 `.rk-drag-handle` and `.rk-reorder-list`, plus the styling for the
 CDK's own `.cdk-drag-preview` and `.cdk-drag-animating`.
@@ -340,8 +340,8 @@ behaviour is a pointer drag is a control with no keyboard behaviour, so the reac
 in the row's menu instead. `touch-none` sits on the handle alone: on the rest of the row a finger has
 to keep scrolling the page, and a tap on the checkbox has to stay a tap.
 
-A list that holds two kinds of row — the reminder list shows open entries first and completed ones
-after them, in one `<ul>` with no heading between — keeps them apart with `cdkDropListSortPredicate`
+A list that holds two kinds of row - the reminder list shows open entries first and completed ones
+after them, in one `<ul>` with no heading between - keeps them apart with `cdkDropListSortPredicate`
 rather than with two drop lists. The predicate refuses a position outside the dragged row's own group,
 so the gap never opens on the wrong side of the boundary and a drag can never do what only the checkbox
 may do. The list is never connected to another one either: no `cdkDropListGroup`, no
@@ -354,7 +354,7 @@ Three structural constraints, all learned the hard way:
 
 - **`cdkDrag` puts a `transform` on every row, so every row is its own stacking context.** A `z-index`
   inside a row can no longer rise above the row below it, and a menu that opens downwards is painted
-  underneath the next row — which then swallows the taps meant for the menu. `reorder.css` lifts the
+  underneath the next row - which then swallows the taps meant for the menu. `reorder.css` lifts the
   row holding an open panel with `:has(.rk-menu[data-visible='true'])`.
 - **The rows must be real children of their `<ul>` in the template.** Rendering them through a shared
   `<ng-template>` and `ngTemplateOutlet` makes Angular re-create a row that only moved, so the row
@@ -362,7 +362,7 @@ Three structural constraints, all learned the hard way:
   does nothing at all. Write the row once, inside the `@for` that is inside the `<ul>`.
 - **Use the CDK's default placeholder, not a `cdkDragPlaceholder` template.** The default is a clone of
   the row being dragged, so the gap is exactly as tall as the row that left it. A hand-written
-  placeholder has to guess a height and guesses wrong the moment an entry wraps at a large text size —
+  placeholder has to guess a height and guesses wrong the moment an entry wraps at a large text size -
   the whole list then jumps as the drag begins. Style the clone by hiding its children with
   `visibility: hidden` (which keeps their space) and drawing the outline _inside_ the box, since a
   border would add its own width to a box that has to stay the row's height.
@@ -374,38 +374,38 @@ as an item because it sorts by document position. Anything added back here has t
 real drag, not just against a screenshot. An enter animation must also not fade: text at partial
 opacity is text below its contrast ratio, and axe catches it mid-flight.
 
-What remains is the drag's own motion — `.cdk-drag-animating` and the shuffle of the rows the dragged
-one passes — and it is CSS for the reason `sheet.css` records: `base.css` neutralises motion by forcing
+What remains is the drag's own motion - `.cdk-drag-animating` and the shuffle of the rows the dragged
+one passes - and it is CSS for the reason `sheet.css` records: `base.css` neutralises motion by forcing
 `animation-duration` and `transition-duration` to 0.01ms, and the Web Animations API ignores that
 entirely. The CDK writes transforms and leaves the timing to CSS, so it is covered.
 `@angular/animations` is not installed and is not needed for any of this.
 
-### Shell frame — `screen.css`
+### Shell frame - `screen.css`
 
 `.rk-scroll-region` is the app's single scrolling element and the query container every screen
 resolves `@container` against. `.rk-screen-body` and `.rk-screen-header-bar` carry the padding around
 a focused screen's content and header; both trim past `--container-compact`, and the header's
-dismiss button is capped there too — it is label-less, so its glyph carries no text to scale.
+dismiss button is capped there too - it is label-less, so its glyph carries no text to scale.
 
-### Tab bar — `navigation.css`
+### Tab bar - `navigation.css`
 
 `.rk-tab-bar` (the query container), `.rk-tab-list`, `.rk-tab`, `.rk-tab-icon`, `.rk-tab-indicator`.
 Because the bar sits outside the scroll region, its height is a fixed cost on every screen, so past
 `--container-compact` the icon, indicator and padding go to fixed pixels while the labels keep
-scaling. Active state is signalled three ways — `aria-current`, bold weight and the indicator — never
+scaling. Active state is signalled three ways - `aria-current`, bold weight and the indicator - never
 by colour alone.
 
-### Sheet — `sheet.css` + `app-sheet` + `SheetService`
+### Sheet - `sheet.css` + `app-sheet` + `SheetService`
 
 A modal sheet in two modes: `bottom` (content height, the Material bottom-sheet shape) and `full`
-(near full height, for forms). The panel always spans the full width — the CDK overlay pane is a flex
+(near full height, for forms). The panel always spans the full width - the CDK overlay pane is a flex
 container, so `app-sheet` carries `w-full` to stretch in it.
 
 Its header and body own their horizontal inset as `max(1rem, env(safe-area-inset-*))` rather than
 using `.safe-x`: that utility sets `padding-left`/`-right` outright, so on an element that also needs
 `px-4` it would replace the padding with a 0 inset in portrait.
 
-Sheet actions are stacked and full width — one action per line, in `.rk-sheet-footer flex-col`. Both
+Sheet actions are stacked and full width - one action per line, in `.rk-sheet-footer flex-col`. Both
 real dialogs (`confirmation`, `reminder-edit`) do this; a side-by-side pair reads as two equal choices
 and squeezes the verbs at large text sizes.
 
@@ -433,12 +433,12 @@ It is built on the CDK overlay rather than `CdkDialog`, so everything a modal ow
 explicitly in `sheet.service.ts`: the dialog role and accessible name, the focus trap, `inert` on the
 app shell, blocked page scrolling, Escape, the backdrop, and focus restoration with a fallback to the
 page heading for when the opener has been destroyed by a navigation. `@angular/cdk/overlay-prebuilt.css`
-is imported in `src/styles.css` and is not optional — without it the sheet renders as ordinary
+is imported in `src/styles.css` and is not optional - without it the sheet renders as ordinary
 content at the end of `<body>`.
 
 The animation is plain CSS `@keyframes` on purpose. `base.css` neutralises motion by forcing
 `animation-duration` to 0.01ms on descendants of `<html>`, and the Web Animations API ignores that
-entirely — an `Element.animate()` sheet would keep sliding for users who asked it not to.
+entirely - an `Element.animate()` sheet would keep sliding for users who asked it not to.
 
 Not in v1: drag-to-dismiss, snap points, and a pinned footer region. `.rk-sheet-footer` exists for
 content to use, but in v1 it scrolls with the body.
@@ -462,7 +462,7 @@ knowing, because both look like bugs and are not:
 Playwright covers what jsdom cannot: colour contrast per theme, and a horizontal-overflow canary at
 200% text on every route. Add a route to both loops when you add a screen. Two states have no URL and
 therefore need their own case rather than a loop entry: an open menu and an open sheet (contrast), and
-a list that actually has content (overflow — an empty list never exercises its rows).
+a list that actually has content (overflow - an empty list never exercises its rows).
 
 DAO specs run the handwritten SQL against Node's built-in `node:sqlite` through
 `data/gateways/sqlite-database.testing.ts`, so the SQL is tested without the Capacitor plugin, which

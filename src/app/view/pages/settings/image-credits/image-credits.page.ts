@@ -5,7 +5,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 
 /**
  * "Bildnachweise" (#11): every image bundled with the app, credited from
- * `public/image-attributions.json` — the central attribution data source (see that file's
+ * `public/image-attributions.json` - the central attribution data source (see that file's
  * neighbouring `public/content/README.md`). Loaded as a local asset, so this works offline; the
  * source and licence links only resolve while a connection is available.
  */

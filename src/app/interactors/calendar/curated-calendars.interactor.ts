@@ -22,7 +22,7 @@ export interface CuratedCalendarRow {
 /**
  * The curated calendar sources shipped with the app (Amazone and partner calendars, e.g. Austrian
  * public holidays, #2): fixed by `curated-calendars/catalog.json`, users may only enable/disable
- * them and change their colour/emoji — never add or remove one.
+ * them and change their colour/emoji - never add or remove one.
  *
  * A curated source is a read-only ICS subscription like any other, just seeded from the catalog and
  * correlated with it via `curatedId`; this interactor composes `IcsSubscriptionInteractor` for the

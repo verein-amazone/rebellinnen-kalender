@@ -25,7 +25,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<!-- @ebarooni/capacitor-calendar (#20 device-calendar connection): requestFullCalendarAccess()
-	     is the only permission call the app makes, so only the full-access key is needed — write-only
+	     is the only permission call the app makes, so only the full-access key is needed - write-only
 	     and Reminders access are never requested. NSCalendarsUsageDescription is the pre-iOS-17
 	     fallback key; both are required together per the plugin's setup instructions. -->
 	<key>NSCalendarsUsageDescription</key>

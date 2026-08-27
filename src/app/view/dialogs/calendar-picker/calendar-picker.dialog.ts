@@ -11,9 +11,9 @@ export interface CalendarPickerDialogData {
 }
 
 /**
- * Picks one writable calendar to create or move an appointment into — the app's own calendars and,
+ * Picks one writable calendar to create or move an appointment into - the app's own calendars and,
  * since #20, any enabled writable device calendar. Closes with the chosen id as soon as a row is
- * tapped — there is no separate confirm step, matching the platform calendar picker this is
+ * tapped - there is no separate confirm step, matching the platform calendar picker this is
  * modelled on. Dismissing through Escape or the backdrop yields `undefined`, which the trigger
  * treats as "unchanged".
  */

@@ -10,14 +10,14 @@ import { devicePlatform } from './device-platform';
  *
  * This is the only place the accessibility and text-zoom plugins are used, so no Capacitor type
  * reaches an interactor or a view. `1` means "default size" and is what every caller sees until the
- * real value is known — and on the web, where the browser does not expose the setting at all.
+ * real value is known - and on the web, where the browser does not expose the setting at all.
  *
  * Two platform problems are handled here:
  *
  * 1. iOS WKWebView ignores Dynamic Type completely: the root font size stays at 16px no matter where
  *    the Larger Text slider is. Reading `fontScale` and applying it in CSS is what closes that gap.
  * 2. Android WebView applies the system font scale as `textZoom`, which scales computed font sizes
- *    but not lengths, so text grows while padding, gaps and heights stay put — that is how content
+ *    but not lengths, so text grows while padding, gaps and heights stay put - that is how content
  *    ends up overlapping. Resetting `textZoom` to 1 takes ownership of scaling: with the root font
  *    size doing the work instead, the rem-based spacing scale grows along with the text.
  *

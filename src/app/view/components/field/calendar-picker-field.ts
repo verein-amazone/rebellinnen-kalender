@@ -13,13 +13,13 @@ import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 /**
  * A settings-style row that opens `CalendarPickerDialog` as a sheet, instead of the inline radios
- * `RadioGroupField` would render — there is only ever one choice worth seeing at a glance here, so
+ * `RadioGroupField` would render - there is only ever one choice worth seeing at a glance here, so
  * the picker stays out of the way until asked for, matching the platform calendar app.
  */
 @Component({
   selector: 'app-calendar-picker-field',
   // `id` is a plain `@Input`, so a static `id="…"` in a consumer's template also reflects onto
-  // this host element by default — duplicating the id the inner `<button>` needs. `[attr.id]: null`
+  // this host element by default - duplicating the id the inner `<button>` needs. `[attr.id]: null`
   // strips it back off the host once host bindings apply.
   host: { class: 'block', '[attr.id]': 'null' },
   imports: [CalendarAvatar, LucideChevronRight],

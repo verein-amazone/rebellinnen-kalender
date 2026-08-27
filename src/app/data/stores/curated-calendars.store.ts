@@ -10,7 +10,7 @@ const EMPTY_STATE: StoredState = { version: null };
 
 /**
  * Remembers the version of `curated-calendars/catalog.json` last reconciled into `ics_subscriptions`
- * by `CuratedCalendarSync`, so a version match skips the reconciliation work on every app open — a
+ * by `CuratedCalendarSync`, so a version match skips the reconciliation work on every app open - a
  * cheap local JSON fetch, not the reconciliation itself, is the only cost of a no-op check.
  *
  * A small persisted scalar, like `ContentCatalogStore`, so it lives in `localStorage`.

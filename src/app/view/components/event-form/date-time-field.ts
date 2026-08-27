@@ -15,13 +15,13 @@ import { Temporal } from 'temporal-polyfill';
 
 /**
  * The appointment's date and time, collapsed to a one-line summary that expands to "Starts"/"Ends"/
- * "All-day" rows on tap — inspired by the platform calendar app's own date row. Both a timed
+ * "All-day" rows on tap - inspired by the platform calendar app's own date row. Both a timed
  * appointment and an all-day one have independently editable start and end dates, so an overnight
  * span (22:00 one day through 02:00 the next) or a multi-day all-day appointment are both normal
  * edits, not hidden bookkeeping.
  *
  * The date and time pickers stay native `<input type="date">`/`<input type="time">`, styled as
- * compact pills with `.rk-field`/`.rk-input` — per the accessibility order of preference, native
+ * compact pills with `.rk-field`/`.rk-input` - per the accessibility order of preference, native
  * HTML beats a custom picker, and it is what the rest of the form already uses.
  */
 @Component({
@@ -72,7 +72,7 @@ export class DateTimeField {
     const start = this.startTimeState().value();
     const endDate = this.endDateState().value();
     const end = this.endTimeState().value();
-    // The end date only earns its own mention in the summary once it differs from the start date —
+    // The end date only earns its own mention in the summary once it differs from the start date -
     // the overwhelming majority of appointments start and end the same day.
     const endPart =
       endDate !== '' && endDate !== date
@@ -81,7 +81,7 @@ export class DateTimeField {
     const timePart = start === '' && end === '' ? '' : `${start}–${endPart}`;
 
     // A deep link to the create screen (no `?day=` prefill) leaves every field blank, which would
-    // otherwise give this button empty accessible text — it still has to announce what it opens.
+    // otherwise give this button empty accessible text - it still has to announce what it opens.
     return [datePart, timePart].filter((part) => part !== '').join(' · ') || 'Datum wählen';
   });
 
@@ -90,7 +90,7 @@ export class DateTimeField {
   }
 
   /**
-   * Turning Ganztägig off has to leave the time fields usable, not blank — an appointment that was
+   * Turning Ganztägig off has to leave the time fields usable, not blank - an appointment that was
    * saved as all-day never had a start/end time to restore, the same situation a brand-new
    * appointment starts from. Mirrors `EventForm`'s own create-mode default: "now", rounded up to the
    * next quarter hour, with the end an hour later.

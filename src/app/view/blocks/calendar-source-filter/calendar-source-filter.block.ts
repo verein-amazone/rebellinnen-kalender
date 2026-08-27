@@ -5,10 +5,10 @@ import type { CalendarFilterOption } from '@app/interactors/calendar/calendar-fi
 
 /**
  * The Calendar view's source filter (#18): one toggle chip per calendar, identified by colour,
- * emoji and name — the same identity `app-occurrence-card` and the calendars settings page show.
+ * emoji and name - the same identity `app-occurrence-card` and the calendars settings page show.
  *
  * Pressed state is signalled three ways, never by colour alone: `aria-pressed`, the check icon, and
- * bold text — the same rule the tab bar's active state follows.
+ * bold text - the same rule the tab bar's active state follows.
  */
 @Component({
   selector: 'app-calendar-source-filter',

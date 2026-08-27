@@ -5,13 +5,13 @@
     @apply bg-background text-foreground font-sans antialiased;
 
     /*
-     * German compounds — "Systemeinstellung", "Bewegung & Animationen", "Kalenderabonnement" — are
+     * German compounds - "Systemeinstellung", "Bewegung & Animationen", "Kalenderabonnement" - are
      * longer than a phone column once the text is scaled up, and a word that cannot break makes the
      * whole screen scroll sideways.
      *
      * `hyphens: auto` breaks them at real syllable boundaries (it needs the `lang` on <html>, which
      * index.html sets to `de`). `overflow-wrap: anywhere` is the fallback for what the hyphenation
-     * dictionary does not know — URLs, names, abbreviations. `anywhere` rather than `break-word`
+     * dictionary does not know - URLs, names, abbreviations. `anywhere` rather than `break-word`
      * on purpose: only `anywhere` also shrinks the element's min-content width, which is what lets a
      * flex or grid child actually give up the space instead of overflowing its track.
      */
@@ -27,7 +27,7 @@
   }
 
   /* Heading sizes as element defaults, so pages do not repeat them. A screen that needs a
-     different size overrides it at the call site — the focused-screen header does, because its
+     different size overrides it at the call site - the focused-screen header does, because its
      h1 sits in a compact bar. */
   h1 {
     @apply text-2xl;
@@ -49,7 +49,7 @@
 
   /*
    * Headings are focused programmatically after navigation (see PageFocus) so reading starts at
-   * the screen's title, but they are not interactive and are never in the tab order — a visible
+   * the screen's title, but they are not interactive and are never in the tab order - a visible
    * ring on them only reads as "this heading is a control". WCAG 2.4.7 covers focusable UI
    * components; a `tabindex="-1"` reading target is not one.
    */
@@ -84,7 +84,7 @@
 
   /*
    * Text entry never renders below 16px. Below that, iOS zooms the page in when the field takes focus
-   * — and it does not zoom back out afterwards, so the app is left magnified and scrolling in both
+   * - and it does not zoom back out afterwards, so the app is left magnified and scrolling in both
    * directions. 16px is the threshold WKWebView uses, and it is reachable from two directions here:
    * the "Klein" text size is 14px, and the OS scale in `--rk-os-scale` can be below 1 as well.
    *
@@ -149,7 +149,7 @@
  *
  * View transition pseudo-elements live outside the document tree, so the `*` rules below do not
  * reach them and they need their own rule in each case.
- * `[data-motion='standard']` deliberately has no rule — choosing it means opting out of the
+ * `[data-motion='standard']` deliberately has no rule - choosing it means opting out of the
  * device preference, so the media query below must not apply.
  */
 [data-motion='reduced'] *,

@@ -22,6 +22,16 @@
             <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
+        <!-- No value here: the active icon is owned by the OS and only readable asynchronously,
+             which this list of synchronous rows has no place for. -->
+        @if (isNativePlatform) {
+          <li>
+            <a routerLink="/settings/app-icon" class="rk-row">
+              <span class="rk-row-label">App-Symbol</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
+        }
         <li>
           <a routerLink="/settings/text-size" class="rk-row">
             <span class="rk-row-label">Textgröße</span>

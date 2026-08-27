@@ -17,10 +17,10 @@ import { SupportServiceAvatar } from '@app/view/components/support-service-avata
 const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'chat'];
 
 /**
- * One Anlaufstelle as a self-contained, non-tappable card (#24) — only its buttons act.
+ * One Anlaufstelle as a self-contained, non-tappable card (#24) - only its buttons act.
  *
  * Each entry authors its own list of contact actions (`phone`/`sms`/`website`/`chat`) with an
- * exact `uri` and button label already decided in the catalog data — this component renders
+ * exact `uri` and button label already decided in the catalog data - this component renders
  * whatever it's given rather than inferring the action from a raw phone number at render time
  * (a short number like `147` and a full `+43…` number need different `tel:` handling, which the
  * content author already resolved; see `docs/content-authoring.md`).

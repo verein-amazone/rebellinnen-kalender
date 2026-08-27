@@ -4,7 +4,7 @@ import { CapacitorHttp } from '@capacitor/core';
 import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
 
 /**
- * Kept small on purpose: a subscribed calendar is text, not an archive. A genuine **byte** limit —
+ * Kept small on purpose: a subscribed calendar is text, not an archive. A genuine **byte** limit -
  * `string.length` counts UTF-16 code units, which under-counts every multi-byte UTF-8 character
  * (an umlaut-heavy German feed would slip past a code-unit check well over this size).
  */
@@ -34,13 +34,13 @@ export type IcsDownloadResult =
   | { readonly status: 'not-modified' };
 
 /**
- * Downloads ICS documents — the only place subscription HTTP happens.
+ * Downloads ICS documents - the only place subscription HTTP happens.
  *
  * On device the request goes through `CapacitorHttp`, which runs natively and is therefore not
  * subject to WebView CORS: arbitrary user-provided calendar servers do not send CORS headers. In
  * the browser (`ng serve`, e2e) plain `fetch` is used. Conditional requests send `If-None-Match`/
  * `If-Modified-Since`, so an unchanged feed costs one 304 and no body. Errors never contain the
- * full URL — it may embed an access token.
+ * full URL - it may embed an access token.
  */
 @Injectable({ providedIn: 'root' })
 export class IcsHttpGateway {
@@ -75,7 +75,7 @@ export class IcsHttpGateway {
 
     const body = typeof response.data === 'string' ? response.data : String(response.data ?? '');
     // The plugin has no streaming API, so this only rejects a body already fully downloaded and
-    // buffered in memory — a real streaming cutoff exists only on the fetch path below.
+    // buffered in memory - a real streaming cutoff exists only on the fetch path below.
     assertSizeInBytes(body);
 
     return {
@@ -125,13 +125,13 @@ export class IcsHttpGateway {
 
 /**
  * Reads the response body as a stream and aborts as soon as it exceeds the limit, instead of
- * buffering an arbitrarily large body first and only then checking its size — the one path here
+ * buffering an arbitrarily large body first and only then checking its size - the one path here
  * that can actually enforce the limit during the download rather than after it.
  */
 async function readWithLimit(response: Response): Promise<string> {
   const reader = response.body?.getReader();
   if (reader === undefined) {
-    // No streaming body in this environment (e.g. an older browser) — fall back to buffering.
+    // No streaming body in this environment (e.g. an older browser) - fall back to buffering.
     const body = await response.text();
     assertSizeInBytes(body);
     return body;

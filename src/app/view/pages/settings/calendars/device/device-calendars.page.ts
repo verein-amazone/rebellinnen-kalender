@@ -46,7 +46,7 @@ export class DeviceCalendarsPage {
 
   /**
    * Set only after an explicit connect attempt, since a denied permission leaves no source row in
-   * the database at all — there is nothing in `deviceResource` to tell "never tried" and "just
+   * the database at all - there is nothing in `deviceResource` to tell "never tried" and "just
    * denied" apart otherwise.
    */
   protected readonly lastPermission = signal<DeviceCalendarPermission | null>(null);
@@ -73,7 +73,7 @@ export class DeviceCalendarsPage {
   }
 
   /**
-   * The device never reports an emoji of its own, so its avatar doubles as the picker trigger —
+   * The device never reports an emoji of its own, so its avatar doubles as the picker trigger -
    * unlike name/colour, which come from the OS and are read-only here.
    */
   protected async pickDeviceCalendarEmoji(calendarId: string): Promise<void> {

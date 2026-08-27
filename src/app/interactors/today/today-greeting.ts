@@ -21,7 +21,7 @@ const GREETING_TEXT: Record<GreetingId, string> = {
   evening: 'Guten Abend',
 };
 
-/** The German greeting text for a bucket, without the name — the caller appends that itself. */
+/** The German greeting text for a bucket, without the name - the caller appends that itself. */
 export function greetingText(id: GreetingId): string {
   return GREETING_TEXT[id];
 }

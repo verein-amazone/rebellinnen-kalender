@@ -13,8 +13,8 @@ export interface CalendarFilterOption {
 /**
  * The Calendar view's source-filter chips' data source (#18).
  *
- * Lists every calendar that can ever produce a visible occurrence — an enabled calendar of an
- * enabled source, across every source type — so a disabled or disconnected source never grows a
+ * Lists every calendar that can ever produce a visible occurrence - an enabled calendar of an
+ * enabled source, across every source type - so a disabled or disconnected source never grows a
  * stale filter chip. This mirrors the gating `CalendarRepository.occurrencesInRange` already
  * applies, without `AppCalendarsInteractor.listWritable()`'s picker-only writable restriction.
  */

@@ -11,7 +11,7 @@ class StubPage {}
 @Component({
   imports: [FocusedScreenScaffold],
   template: `
-    <app-focused-screen heading="Termin" [beforeDismiss]="beforeDismiss()">
+    <app-focused-screen heading="Termin" [returnTo]="returnTo()" [beforeDismiss]="beforeDismiss()">
       <button header-actions type="button">Kopfzeilen-Aktion</button>
       @if (withFooter()) {
         <button footer #focusedScreenFooter type="button">Fußzeilen-Aktion</button>
@@ -22,11 +22,12 @@ class StubPage {}
 })
 class HostPage {
   readonly withFooter = signal(false);
+  readonly returnTo = signal<string | null>(null);
   readonly beforeDismiss = signal<(() => boolean) | undefined>(undefined);
 }
 
 describe('FocusedScreenScaffold', () => {
-  async function setUp(startUrl = '/detail') {
+  async function setUp(...urls: readonly string[]) {
     await TestBed.configureTestingModule({
       imports: [HostPage],
       providers: [
@@ -38,7 +39,9 @@ describe('FocusedScreenScaffold', () => {
     }).compileComponents();
 
     const router = TestBed.inject(Router);
-    await router.navigateByUrl(startUrl);
+    for (const url of urls.length > 0 ? urls : ['/detail']) {
+      await router.navigateByUrl(url);
+    }
 
     const fixture = TestBed.createComponent(HostPage);
     await fixture.whenStable();
@@ -58,7 +61,7 @@ describe('FocusedScreenScaffold', () => {
 
     expect(element.textContent).not.toContain('Fußzeilen-Aktion');
     expect(element.querySelectorAll('header').length).toBe(1);
-    // Only the header's own border/background chrome should exist — no second sticky bar.
+    // Only the header's own border/background chrome should exist - no second sticky bar.
     expect(element.querySelectorAll('.sticky').length).toBe(1);
   });
 
@@ -96,17 +99,49 @@ describe('FocusedScreenScaffold', () => {
     fixture.componentInstance.beforeDismiss.set(() => false);
     await fixture.whenStable();
 
-    // The initial navigation to `startUrl` in `setUp` is this fixture's only navigation, so
-    // `lastSuccessfulNavigation()?.previousNavigation` is null and the scaffold falls back to
-    // `navigateByUrl` rather than `location.back()` — see `FocusedScreenScaffold.dismiss()`.
     const navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
 
-    // The dismiss button is the scaffold's own, not the projected header action — grab it by its
-    // fixed position as the header's first button.
-    const dismissButton = element.querySelector<HTMLButtonElement>('header .rk-icon-button')!;
-    dismissButton.click();
+    dismiss(element);
     await fixture.whenStable();
 
-    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today');
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+  });
+
+  it('dismisses to the fallback link instead of walking the history back', async () => {
+    // Two navigations, so `lastSuccessfulNavigation()?.previousNavigation` is set: the scaffold
+    // used to prefer `location.back()` here, which is exactly what produced the back-button loop.
+    const { fixture, element } = await setUp('/today', '/detail');
+
+    const navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    const backSpy = vi.spyOn(TestBed.inject(Location), 'back');
+
+    dismiss(element);
+    await fixture.whenStable();
+
+    expect(backSpy).not.toHaveBeenCalled();
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+  });
+
+  it('dismisses to returnTo when the caller supplied one', async () => {
+    const { fixture, element } = await setUp();
+    fixture.componentInstance.returnTo.set('/settings/content-catalog');
+    await fixture.whenStable();
+
+    const navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+
+    dismiss(element);
+    await fixture.whenStable();
+
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/settings/content-catalog', {
+      replaceUrl: true,
+    });
   });
 });
+
+/**
+ * Clicks the scaffold's own dismiss button, not the projected header action - it is identified by
+ * its fixed position as the header's first `.rk-icon-button`.
+ */
+function dismiss(element: HTMLElement): void {
+  element.querySelector<HTMLButtonElement>('header .rk-icon-button')!.click();
+}

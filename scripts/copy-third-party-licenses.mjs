@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Angular's `extractLicenses` build option (angular.json, production configuration) writes
-// `3rdpartylicenses.txt` next to `dist/rebellinnen-kalender/browser/`, not inside it — but
+// `3rdpartylicenses.txt` next to `dist/rebellinnen-kalender/browser/`, not inside it - but
 // `browser/` is the only directory that ships as `webDir` to Capacitor and is the app's own web
 // root at runtime. `LegalContentGateway.fetchThirdPartyLicenses()` fetches it from there, so a
 // build without this copy step ships an app whose "Open-Source-Lizenzen" screen 404s. Run as the

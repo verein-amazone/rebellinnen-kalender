@@ -2,7 +2,7 @@
  * A dropdown menu attached to a row action.
  *
  * Behaviour, roles and keyboard support come from `ngMenu`/`ngMenuItem`/`ngMenuTrigger`
- * (@angular/aria) — these rules are only the panel and its items. The menu stays in the DOM and is
+ * (@angular/aria) - these rules are only the panel and its items. The menu stays in the DOM and is
  * hidden through the `data-visible` attribute the directive maintains, which is also what lets it be
  * styled without asking the component for open state.
  *

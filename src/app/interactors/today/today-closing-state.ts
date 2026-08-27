@@ -20,8 +20,8 @@ export interface TodayClosingStateInput {
  * Pure and stateless on purpose: the block that calls this supplies `nowUtc` explicitly, so a test
  * never has to mock a clock, and the result is exactly reproducible from its inputs.
  *
- * Priority follows the issue's invariant — the page must never say the day is done while an open
- * reminder or a still-upcoming appointment exists — so those two are checked first, ahead of every
+ * Priority follows the issue's invariant - the page must never say the day is done while an open
+ * reminder or a still-upcoming appointment exists - so those two are checked first, ahead of every
  * "everything is settled" state.
  */
 export function selectTodayClosingState(input: TodayClosingStateInput): TodayClosingState {
@@ -34,7 +34,7 @@ export function selectTodayClosingState(input: TodayClosingStateInput): TodayClo
 
   if (nextAppointment !== null) {
     // Mixed with open reminders: the headline leads with the reminder count and the appointment
-    // moves to the supporting line, matching the issue's own mixed-state example — never both
+    // moves to the supporting line, matching the issue's own mixed-state example - never both
     // facts crammed into the headline, and never the reminder left unmentioned.
     return {
       id: 'appointment-later',
@@ -100,7 +100,7 @@ function isFuture(occurrence: CalendarOccurrence, today: string, nowUtc: string)
 }
 
 /**
- * Which supporting-line key states the next appointment's time — separate all-day variants exist
+ * Which supporting-line key states the next appointment's time - separate all-day variants exist
  * because an all-day appointment has no clock time to state ("beginnt um 00:00" would be wrong).
  */
 function appointmentSupportingLineKey(openReminderCount: number, allDay: boolean): string {

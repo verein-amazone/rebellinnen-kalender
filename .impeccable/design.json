@@ -280,7 +280,7 @@
   ],
   "narrative": {
     "northStar": "The Print Kalender, Rebuilt as Touch",
-    "overview": "The app is a digital continuation of an existing physical Rebell*innen Kalender, and the visual system reads that way: a chunky, rounded, poster-like display face (Fredoka) over a plain, legible body face (Inter), warm-but-bold color blocks, and the dotted notebook-grid background (.dotted-bg) lifted directly from the print design. Nothing in the system is decorative for its own sake — every primitive exists because a real screen (Today, appointments, Nicht vergessen, Anlaufstellen) needed it, and the component set stays deliberately small: buttons, cards/rows, fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.\n\nThe system is four swappable palettes (amazone default, warm/Sonnenuntergang, nacht/Mitternacht, lila/Lavendel) over one shared shape, type and spacing language — recoloring the app is a data-theme attribute swap, never a second set of components. Everything is built for a thumb on glass: no bare hover: anywhere in the codebase, min-h-touch (48px) on every interactive target, 16px-minimum form text, and a text-size ladder (small 14px through xxlarge 32px) that reflows components rather than clipping them — container queries, not media queries, drive that reflow because only a container query reacts to root-font-size growth.",
+    "overview": "The app is a digital continuation of an existing physical Rebell*innen Kalender, and the visual system reads that way: a chunky, rounded, poster-like display face (Fredoka) over a plain, legible body face (Inter), warm-but-bold color blocks, and the dotted notebook-grid background (.dotted-bg) lifted directly from the print design. Nothing in the system is decorative for its own sake - every primitive exists because a real screen (Today, appointments, Nicht vergessen, Anlaufstellen) needed it, and the component set stays deliberately small: buttons, cards/rows, fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.\n\nThe system is four swappable palettes (amazone default, warm/Sonnenuntergang, nacht/Mitternacht, lila/Lavendel) over one shared shape, type and spacing language - recoloring the app is a data-theme attribute swap, never a second set of components. Everything is built for a thumb on glass: no bare hover: anywhere in the codebase, min-h-touch (48px) on every interactive target, 16px-minimum form text, and a text-size ladder (small 14px through xxlarge 32px) that reflows components rather than clipping them - container queries, not media queries, drive that reflow because only a container query reacts to root-font-size growth.",
     "keyCharacteristics": [
       "Chunky rounded display type (Fredoka) paired with a plain, highly legible UI/body face (Inter)",
       "Four complete, swappable color themes sharing one token structure, not one static palette",
@@ -291,12 +291,12 @@
     "rules": [
       {
         "name": "The No Color-Only Signal Rule",
-        "body": "In every theme, danger is deliberately much darker than primary — on amazone specifically, the brand primary is itself red, which would collide with the conventional \"danger\" red if the two weren't kept clearly apart. Every destructive action pairs its color with an explicit verb, an icon, and a confirmation step — never color alone.",
+        "body": "In every theme, danger is deliberately much darker than primary - on amazone specifically, the brand primary is itself red, which would collide with the conventional \"danger\" red if the two weren't kept clearly apart. Every destructive action pairs its color with an explicit verb, an icon, and a confirmation step - never color alone.",
         "section": "colors"
       },
       {
         "name": "The Theme-Complete Rule",
-        "body": "A color is never hard-coded outside theme.css. Adding a fifth theme means adding one [data-theme='…'] block there (plus registering its id in the settings interactor) — no other file, and no TypeScript, holds a color value.",
+        "body": "A color is never hard-coded outside theme.css. Adding a fifth theme means adding one [data-theme='…'] block there (plus registering its id in the settings interactor) - no other file, and no TypeScript, holds a color value.",
         "section": "colors"
       },
       {
@@ -319,14 +319,14 @@
       "Do keep every color value inside theme.css's per-theme blocks; a theme is complete or it doesn't exist (The Theme-Complete Rule).",
       "Do gate hover styles behind hoverable: and use active: for the state that actually matters on a touch screen.",
       "Do use container queries (18rem/13rem thresholds), not media queries, for any layout rule that must react to the in-app text-size setting.",
-      "Do reserve shadow-lg for content that has actually left the page's normal stacking layer (an open menu, a dragged row) — not for ordinary resting cards or fields.",
+      "Do reserve shadow-lg for content that has actually left the page's normal stacking layer (an open menu, a dragged row) - not for ordinary resting cards or fields.",
       "Do pair danger with an explicit verb, icon and confirmation step; never let color alone carry a destructive action.",
       "Do keep a native <input type=\"checkbox\">/radio under any reskinned control (check, toggle, choice) so forced-colors mode, Space/Enter and screen-reader semantics keep working."
     ],
     "donts": [
-      "Don't write a bare hover: utility anywhere — it sticks after a tap on touch and never clears.",
+      "Don't write a bare hover: utility anywhere - it sticks after a tap on touch and never clears.",
       "Don't give an interactive element a fixed h-*/w-*; use min-h-touch/min-w-touch so a wrapped label at a large text size never clips.",
-      "Don't introduce a shadow on a resting surface (card, row, field, sheet panel) — depth there comes from the flat card/background color pairing, never a drop shadow.",
+      "Don't introduce a shadow on a resting surface (card, row, field, sheet panel) - depth there comes from the flat card/background color pairing, never a drop shadow.",
       "Don't add a fifth radius value outside the sm/md/lg/xl scale derived from --rk-radius."
     ]
   }

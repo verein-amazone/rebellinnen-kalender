@@ -4,7 +4,7 @@
 # Dependabot's job (see .github/dependabot.yml).
 #
 # Requires the repository setting "Allow GitHub Actions to create and approve pull requests"
-# (Settings → Actions → General → Workflow permissions) — without it the final step fails with
+# (Settings → Actions → General → Workflow permissions) - without it the final step fails with
 # "GitHub Actions is not permitted to create or approve pull requests".
 #
 # Known limitation: PRs created with the default GITHUB_TOKEN do not trigger the CI workflow.

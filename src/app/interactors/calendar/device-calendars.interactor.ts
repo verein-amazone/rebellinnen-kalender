@@ -24,13 +24,13 @@ export interface DeviceCalendarRow {
 /**
  * The calendars of one native account/source (iCloud, a Google account, Exchange, …), the
  * management screen's subheading grouping. `nativeSourceId` is `null` when the platform reported
- * no account for any calendar in the group — the calendars still need somewhere to render.
+ * no account for any calendar in the group - the calendars still need somewhere to render.
  */
 export interface DeviceCalendarGroup {
   readonly nativeSourceId: string | null;
   readonly nativeSourceName: string | null;
   readonly calendars: readonly DeviceCalendarRow[];
-  /** Whether every calendar in the group is enabled — the group's own "select all" state. */
+  /** Whether every calendar in the group is enabled - the group's own "select all" state. */
   readonly allEnabled: boolean;
 }
 
@@ -44,7 +44,7 @@ export interface DeviceCalendarsSnapshot {
  * The calendar-management screen's data source for the device-calendars section: connecting,
  * listing (grouped by native account/source), enabling/disabling individual calendars or a whole
  * account's worth at once, and disconnecting. Permission and cache refreshing stay
- * `DeviceCalendarSyncInteractor`'s job — this interactor delegates to it rather than duplicating
+ * `DeviceCalendarSyncInteractor`'s job - this interactor delegates to it rather than duplicating
  * that flow.
  */
 @Injectable({ providedIn: 'root' })
@@ -121,7 +121,7 @@ export class DeviceCalendarsInteractor {
 
   /**
    * Changes one device calendar's emoji. The device never reports an emoji of its own, so this is
-   * the only way a device calendar gets one — unlike its name/colour, which come from the OS.
+   * the only way a device calendar gets one - unlike its name/colour, which come from the OS.
    */
   async setCalendarEmoji(calendarId: string, emoji: string): Promise<void> {
     await this.repository.setCalendarEmoji(calendarId, emoji, this.context());
@@ -146,8 +146,8 @@ export class DeviceCalendarsInteractor {
   }
 
   /**
-   * Opts out of the device source locally. This cannot revoke the OS permission — only the system
-   * settings can — so the app keeps the cached rows around, disabled, until the user connects again.
+   * Opts out of the device source locally. This cannot revoke the OS permission - only the system
+   * settings can - so the app keeps the cached rows around, disabled, until the user connects again.
    */
   async disconnect(): Promise<void> {
     await this.repository.disconnectDeviceSource(DEVICE_SOURCE_ID, this.context());

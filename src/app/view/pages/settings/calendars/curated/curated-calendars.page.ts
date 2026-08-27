@@ -15,10 +15,10 @@ import {
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 /**
- * „Amazone & Partnerkalender“: the curated calendars shipped with the app (#2) — Amazone events,
+ * „Amazone & Partnerkalender“: the curated calendars shipped with the app (#2) - Amazone events,
  * partner organisations, Austrian public holidays. Mirrors `IcsCalendarsPage`, since a curated
  * source is a read-only ICS subscription underneath, minus the parts that don't apply to a fixed
- * list: no "add by link" and no delete, since the catalog — not the user — decides which sources
+ * list: no "add by link" and no delete, since the catalog - not the user - decides which sources
  * exist.
  *
  * Uses `resource()` and reloads after every write, per the frontend-architecture convention; there

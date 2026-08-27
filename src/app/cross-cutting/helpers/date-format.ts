@@ -5,11 +5,11 @@ import localeDe from '@angular/common/locales/de';
  * German date labels, built on Angular's own formatting mechanism (`formatDate`, the function
  * behind `DatePipe`) so TS-composed labels and template pipes can never disagree. Templates that
  * format a single value use `DatePipe` directly; these helpers exist for labels that are composed
- * in code — grid cell names, live-region announcements, the period header.
+ * in code - grid cell names, live-region announcements, the period header.
  *
  * The UI language is German regardless of the device locale, so the locale is pinned rather than
  * injected. Registered here as well as in `app.config.ts`, because the helpers must work wherever
- * they are imported — including specs that never build the application config.
+ * they are imported - including specs that never build the application config.
  */
 registerLocaleData(localeDe);
 
@@ -55,7 +55,7 @@ export function formatWeekRangeLabel(fromDay: string, toDay: string): string {
 
 /**
  * The wall-clock time („09:30", the predefined `shortTime` format) of a UTC instant. Formats in the
- * device zone by default; `timeZone` takes what `DatePipe` takes — an offset such as `'+0200'` —
+ * device zone by default; `timeZone` takes what `DatePipe` takes - an offset such as `'+0200'` -
  * and exists for deterministic tests.
  */
 export function formatTimeOfDay(utcInstant: string, timeZone?: string): string {

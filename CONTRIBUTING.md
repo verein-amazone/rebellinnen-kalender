@@ -3,7 +3,7 @@
 Thanks for getting involved.
 
 This repository is an open planning and development space for the first version of the Rebell\*innen
-Kalender. Not everything is decided yet — that is exactly what the
+Kalender. Not everything is decided yet - that is exactly what the
 [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues), comments and feedback are
 for.
 

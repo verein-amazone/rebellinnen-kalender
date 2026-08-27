@@ -1,7 +1,7 @@
 /*
  * Renders the sanitized output of `MarkdownRenderer` (see `cross-cutting/markdown/`). Tailwind's
  * preflight strips list markers and all block spacing by default, so without this the curated
- * editorial content — which regularly uses paragraphs and bullet lists — collapses into
+ * editorial content - which regularly uses paragraphs and bullet lists - collapses into
  * indistinguishable, unmarked lines. Only the tags `MarkdownRenderer`'s allow-list can ever produce
  * need a rule here.
  */
@@ -33,7 +33,7 @@
 
   /*
    * A Rebell*in's own quoted words, transcribed from the source material as a standalone
-   * `> ...` paragraph — set apart in size and weight rather than by colour alone, so the
+   * `> ...` paragraph - set apart in size and weight rather than by colour alone, so the
    * distinction survives both themes and a colour-blind reading.
    */
   .rk-markdown-content blockquote {

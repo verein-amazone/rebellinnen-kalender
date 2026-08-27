@@ -8,7 +8,7 @@ import { SheetService } from './sheet.service';
 
 /**
  * The CDK decides whether an element can take focus partly from its geometry, and in jsdom every
- * box is zero by zero — so the sheet's heading would always be judged unfocusable and the focus
+ * box is zero by zero - so the sheet's heading would always be judged unfocusable and the focus
  * trap would give up before focusing anything. Ignoring visibility lets the rest of the wiring be
  * exercised here; that the heading really is focusable in a laid-out page is an e2e concern.
  */
@@ -68,7 +68,7 @@ describe('SheetService', () => {
 
     /*
      * The service only ever queries the shell in the document, so a plain element is a truer stand-in
-     * than a component fixture — it makes the test independent of what host tag TestBed picks.
+     * than a component fixture - it makes the test independent of what host tag TestBed picks.
      */
     shell = document.createElement('app-root');
     shell.innerHTML = '<main><h1>Heute</h1></main><button type="button">Öffnen</button>';

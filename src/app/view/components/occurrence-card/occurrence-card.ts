@@ -5,8 +5,8 @@ import { RouterLink } from '@angular/router';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 
 /**
- * One appointment as a tappable card, linking to its detail screen. Every list of appointments —
- * the calendar's day agenda, the Today screen — renders occurrences through this component, so they
+ * One appointment as a tappable card, linking to its detail screen. Every list of appointments -
+ * the calendar's day agenda, the Today screen - renders occurrences through this component, so they
  * cannot drift apart in how a time, an all-day entry or a calendar name is shown.
  */
 @Component({
@@ -18,10 +18,10 @@ import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occu
 })
 export class OccurrenceCard {
   readonly occurrence = input.required<CalendarOccurrence>();
-  /** The day this card is shown under — a spanning occurrence reads differently mid-span. */
+  /** The day this card is shown under - a spanning occurrence reads differently mid-span. */
   readonly day = input.required<string>();
   /**
-   * Passed to `DatePipe`, so an offset such as `'+0200'` — for deterministic tests. Left unset,
+   * Passed to `DatePipe`, so an offset such as `'+0200'` - for deterministic tests. Left unset,
    * times render in the device zone, which is the right zone everywhere else.
    */
   readonly timeZone = input<string>();
@@ -30,7 +30,7 @@ export class OccurrenceCard {
   private readonly isEndDay = computed(() => this.occurrence().endDay === this.day());
 
   /**
-   * A day the occurrence covers but neither starts nor ends on has no meaningful time to show —
+   * A day the occurrence covers but neither starts nor ends on has no meaningful time to show -
    * this is true both for a genuinely all-day occurrence and for a day a multi-day timed one
    * merely passes through.
    */
@@ -39,7 +39,7 @@ export class OccurrenceCard {
   );
 
   /** A timed occurrence that started on an earlier day has a real end time worth showing on the
-   * day it ends — just not a start time, since it did not start today. */
+   * day it ends - just not a start time, since it did not start today. */
   protected readonly endsToday = computed(
     () => !this.occurrence().allDay && this.isEndDay() && !this.isStartDay(),
   );

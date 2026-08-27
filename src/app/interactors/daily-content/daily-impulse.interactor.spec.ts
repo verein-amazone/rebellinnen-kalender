@@ -28,7 +28,7 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
 
 class FakeContentItemDao {
   eligible: ContentItemRecord[] = [];
-  /** Every record ever seen, independent of `eligible`'s current contents — `findById` looks a
+  /** Every record ever seen, independent of `eligible`'s current contents - `findById` looks a
    * stable pick up by id regardless of whether it is still in today's eligible pool. */
   private readonly all = new Map<string, ContentItemRecord>();
 
@@ -102,7 +102,7 @@ describe('DailyImpulseInteractor', () => {
 
     const first = await interactor.featuredItem('2027-02-05');
 
-    // The pool shrinks to just the other item — the stable pick must still win. `findById` is what
+    // The pool shrinks to just the other item - the stable pick must still win. `findById` is what
     // resolves the stable pick, so as long as its record still exists the exact pool contents here
     // don't matter.
     dao.eligible = records.filter((entry) => entry.id !== first?.id);

@@ -78,7 +78,7 @@ if [[ -n "$summary_markdown_path" ]]; then
     if [[ -n "$(git status --porcelain)" ]]; then
       echo "In-range npm updates applied and native projects synced (\`pnpm update\` + \`cap sync\`)."
     else
-      echo "Everything already up to date within the declared ranges — no changes."
+      echo "Everything already up to date within the declared ranges - no changes."
     fi
     echo
     echo "### Outdated before"
@@ -87,7 +87,7 @@ if [[ -n "$summary_markdown_path" ]]; then
     echo "${outdated_before:-none}"
     echo '```'
     echo
-    echo "### Still outdated after (majors — handled by Dependabot)"
+    echo "### Still outdated after (majors - handled by Dependabot)"
     echo
     echo '```text'
     echo "${outdated_after:-none}"

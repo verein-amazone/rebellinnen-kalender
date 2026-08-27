@@ -6,7 +6,7 @@ import { ProfileInteractor } from '@app/interactors/settings/profile.interactor'
 
 /**
  * The Today page's header greeting: a time-of-day greeting, the stored name if there is one, and
- * the personal emoji — tapping it opens the emoji picker directly from here, per the issue.
+ * the personal emoji - tapping it opens the emoji picker directly from here, per the issue.
  *
  * The greeting hour is read at evaluation time rather than tracked by a dedicated clock signal;
  * `LocalDay.day()` is read only to give the `computed` a recompute trigger on a day change, the

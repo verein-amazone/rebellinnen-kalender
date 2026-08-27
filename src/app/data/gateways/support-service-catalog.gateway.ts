@@ -8,11 +8,11 @@ const ACTION_TYPES = ['phone', 'sms', 'website', 'chat'] as const;
 export type SupportServiceActionType = (typeof ACTION_TYPES)[number];
 
 /**
- * One contact action for a support service — a `tel:`/`sms:`/`https:` URI plus the label and
+ * One contact action for a support service - a `tel:`/`sms:`/`https:` URI plus the label and
  * (for `phone`/`sms`) the human-readable number to show alongside it. `uri` is the exact value
  * to hand to the OS/browser: phone-number formatting (short numbers vs. `+43…` E.164 numbers vs.
  * `0800` numbers) is a content-authoring decision baked into the catalog data, not something the
- * app infers at runtime — see `docs/content-authoring.md`.
+ * app infers at runtime - see `docs/content-authoring.md`.
  */
 export interface SupportServiceCatalogAction {
   readonly type: SupportServiceActionType;
@@ -21,7 +21,7 @@ export interface SupportServiceCatalogAction {
   readonly displayValue?: string;
 }
 
-/** One curated support-service entry — see `public/support-services/catalog.json`. */
+/** One curated support-service entry - see `public/support-services/catalog.json`. */
 export interface SupportServiceCatalogItem {
   readonly id: string;
   readonly region: string;
@@ -32,7 +32,7 @@ export interface SupportServiceCatalogItem {
   readonly icon: string;
   /** Hex colour tinting the badge behind `icon`. */
   readonly color: string;
-  /** A real organisation logo, once its usage rights are cleared — see `docs/content-authoring.md`. */
+  /** A real organisation logo, once its usage rights are cleared - see `docs/content-authoring.md`. */
   readonly logoPath?: string;
   readonly actions: readonly SupportServiceCatalogAction[];
 }
@@ -41,12 +41,12 @@ export interface SupportServiceCatalogItem {
  * Reads the static support-services catalog shown under Content → Anlaufstellen (#24).
  *
  * Ships as a plain bundled asset, like `LegalContentGateway`'s licence files: the catalog has no
- * per-item state to persist (no bookmarking, no read history), so — unlike the daily-impulse
- * catalog — there is no SQLite sync layer, just a fetch.
+ * per-item state to persist (no bookmarking, no read history), so - unlike the daily-impulse
+ * catalog - there is no SQLite sync layer, just a fetch.
  */
 @Injectable({ providedIn: 'root' })
 export class SupportServiceCatalogGateway {
-  /** Empty on any failure — a missing/unreachable/malformed file must never break the page. */
+  /** Empty on any failure - a missing/unreachable/malformed file must never break the page. */
   async fetchCatalog(): Promise<readonly SupportServiceCatalogItem[]> {
     try {
       const response = await fetch(CATALOG_URL);

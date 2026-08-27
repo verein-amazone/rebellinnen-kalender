@@ -42,7 +42,7 @@ import {
 /**
  * The appointment detail screen: a read view built from `CalendarOccurrence`, an in-place edit
  * mode built on `EventForm`, delete, and the recurring-scope decision for both. No second route for
- * editing — `editing` just swaps which half of the template is shown.
+ * editing - `editing` just swaps which half of the template is shown.
  *
  * Every mutation ends the same way: announce the outcome through the `LiveAnnouncer` (navigating
  * away leaves nothing else to announce it) and return to the occurrence's day in the calendar, per
@@ -75,7 +75,7 @@ export class EventDetailPage {
 
   /**
    * The edit view's heading and the read view's „Bearbeiten“ button, for moving focus explicitly
-   * when `editing` flips. Neither exists until its half of the `@if` in the template is rendered —
+   * when `editing` flips. Neither exists until its half of the `@if` in the template is rendered -
    * `viewChild` (not `.required`) reflects that as `undefined` until then, which is also why the
    * lookup is a signal rather than a one-off `ElementRef` grabbed in `ngAfterViewInit`.
    */
@@ -85,9 +85,9 @@ export class EventDetailPage {
   /**
    * Looked up by type, not by a `#eventForm` template reference: the header's checkmark button and
    * `<app-event-form>` live in separate `@if` blocks (each has to have a single root node for content
-   * projection into the scaffold's `headerActions`/`footer` slots to work — see the template), so a
+   * projection into the scaffold's `headerActions`/`footer` slots to work - see the template), so a
    * template reference declared on the form would not be visible from the button's own block.
-   * `viewChild` has no such scoping restriction — it searches the whole view.
+   * `viewChild` has no such scoping restriction - it searches the whole view.
    */
   private readonly eventFormComponent = viewChild(EventForm);
   protected readonly canSubmitEdit = computed(
@@ -105,7 +105,7 @@ export class EventDetailPage {
 
   /**
    * The full record's note, for a consumer whose `CalendarOccurrence` (a list/agenda read model)
-   * has no `note` field — both this page's read view and `EventForm`'s edit-mode prefill need it.
+   * has no `note` field - both this page's read view and `EventForm`'s edit-mode prefill need it.
    * Only runs for app-owned occurrences: `params` stays `undefined` for device/ICS ones, which
    * skips the loader entirely rather than calling it with a meaningless id.
    */
@@ -151,6 +151,16 @@ export class EventDetailPage {
    * navigation would otherwise abandon it silently). A second tap, once `editing` is already `false`,
    * falls through to the scaffold's default back navigation.
    */
+  /**
+   * Where the back-arrow goes. The calendar overview keeps the day being looked at in `?day=`, so
+   * a bare `/calendar` would drop the user on today rather than where they opened the appointment
+   * from. Until the occurrence has loaded there is no day to return to.
+   */
+  protected readonly backLink = computed(() => {
+    const day = this.occurrence()?.startDay;
+    return day === undefined ? '/calendar' : `/calendar?day=${day}`;
+  });
+
   protected readonly handleBeforeDismiss = (): boolean => {
     if (!this.editing()) {
       return false;
@@ -235,13 +245,13 @@ export class EventDetailPage {
       // `openForEditing` only refreshes the device cache; this page's own `occurrenceResource` still
       // holds whatever it loaded before the user left for the OS calendar app, so it has to be
       // reloaded explicitly once the handoff resolves. If the user moved the occurrence, this can
-      // legitimately end up not finding it again — a device occurrence id embeds its start instant —
+      // legitimately end up not finding it again - a device occurrence id embeds its start instant -
       // and the "nicht gefunden" read view is the correct, if imperfect, outcome; it is still better
       // than silently showing stale data.
       this.occurrenceResource.reload();
     } catch {
       // Covers a rejected native prompt: the user cancelled, the platform does not support it, or
-      // permission was revoked in between. There is nothing to recover — just tell the user rather
+      // permission was revoked in between. There is nothing to recover - just tell the user rather
       // than leaving an unhandled rejection and no feedback at all.
       this.announcer.announce('Der Termin konnte nicht in der Kalender-App geöffnet werden.');
     }
@@ -310,6 +320,8 @@ export class EventDetailPage {
   }
 
   private async navigateToOccurrenceDay(day: string): Promise<void> {
-    await this.router.navigate(['/calendar'], { queryParams: { day } });
+    // Replaces rather than pushes: the appointment the user just saved or deleted must not be
+    // reachable again by the platform back gesture. Same reasoning as `FocusedScreenScaffold`.
+    await this.router.navigate(['/calendar'], { queryParams: { day }, replaceUrl: true });
   }
 }

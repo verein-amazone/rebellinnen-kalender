@@ -44,7 +44,7 @@ export class CalendarsPage {
     loader: () => this.appCalendars.listWritable(),
   });
 
-  /** Only ever one row today — there is no "add another app calendar" flow yet. */
+  /** Only ever one row today - there is no "add another app calendar" flow yet. */
   protected readonly appCalendar = computed(
     () =>
       this.appCalendarsResource.value()?.find((calendar) => calendar.sourceType !== 'device') ??

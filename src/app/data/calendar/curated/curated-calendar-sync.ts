@@ -30,10 +30,10 @@ export interface Catalog {
  * disappears: a calendar source carries a live subscription and possible user customisation
  * (colour, emoji, enabled state), so removing it because a line dropped out of the JSON would be a
  * surprising, hard-to-reverse action for a no-accounts v0.1 app. It also never overwrites an
- * existing source's identity — the catalog's `color`/`emoji`/`name` are only ever applied once, the
+ * existing source's identity - the catalog's `color`/`emoji`/`name` are only ever applied once, the
  * first time a source is seeded.
  *
- * Called lazily — never from an app initializer — matching this repo's existing rule that the
+ * Called lazily - never from an app initializer - matching this repo's existing rule that the
  * database connection opens on first use, not at boot.
  */
 @Injectable({ providedIn: 'root' })
@@ -46,7 +46,7 @@ export class CuratedCalendarSync {
    * Several callers (Today, the calendar views, the management screen, a retry) can call
    * `ensureSynced()` around the same time. Without serializing them, two concurrent calls can both
    * see the same not-yet-synced version, both find no existing row for a catalog entry and both
-   * create one — the version is only marked synced once the whole reconciliation has committed.
+   * create one - the version is only marked synced once the whole reconciliation has committed.
    * Every concurrent caller therefore awaits the same in-flight reconciliation instead of starting
    * its own.
    */
@@ -57,7 +57,7 @@ export class CuratedCalendarSync {
 
   /**
    * Fetches the catalog and creates any missing curated sources. Returns the parsed catalog (even
-   * when nothing needed reconciling — callers need its entries for descriptions) and the ids of
+   * when nothing needed reconciling - callers need its entries for descriptions) and the ids of
    * subscriptions created by this call, so the caller can trigger their first download.
    */
   async ensureSynced(): Promise<{
@@ -161,7 +161,7 @@ export class CuratedCalendarSync {
     return created;
   }
 
-  /** `null` on any failure — a missing/unreachable/malformed asset must never break the app. */
+  /** `null` on any failure - a missing/unreachable/malformed asset must never break the app. */
   private async fetchCatalog(): Promise<Catalog | null> {
     try {
       const response = await fetch(CATALOG_URL);

@@ -11,24 +11,24 @@ export interface RadioGroupOption<T> {
 }
 
 /**
- * A `<fieldset>` of native radios bound to one Signal Forms field — the generic composer behind the
+ * A `<fieldset>` of native radios bound to one Signal Forms field - the generic composer behind the
  * calendar picker and the recurrence-scope picker (#19).
  *
  * The control stays a native `<input type="radio">`: grouping, arrow-key navigation and position
  * announcements come from the platform, not from us (see
  * `docs/architecture/design-system.md#choice-row--choicecss--app-choice-row`). Every radio binds the
  * *same* `[formField]`; Signal Forms gives them the same `name` attribute, so a plain repeated
- * binding is enough to make them one group — no `name` input needed here.
+ * binding is enough to make them one group - no `name` input needed here.
  *
  * `T extends string`: `@angular/forms/signals` compares a radio's native (always-string) `value`
  * against the field's model value with `===` to decide whether it is checked, so only string-valued
- * fields can bind through repeated `[formField]` this way. A boolean choice — an on/off setting —
+ * fields can bind through repeated `[formField]` this way. A boolean choice - an on/off setting -
  * is a custom `FormCheckboxControl` instead; see `toggle-field.ts`.
  */
 @Component({
   selector: 'app-radio-group-field',
   // `id` is a plain `@Input`, so a static `id="…"` in a consumer's template also reflects onto
-  // this host element by default — duplicating the id the error paragraph's `aria-describedby`
+  // this host element by default - duplicating the id the error paragraph's `aria-describedby`
   // points at. `[attr.id]: null` strips it back off the host once host bindings apply.
   host: { class: 'block', '[attr.id]': 'null' },
   imports: [FormField],

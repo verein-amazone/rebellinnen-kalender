@@ -2,7 +2,7 @@
  * A list whose rows the user can rearrange.
  *
  * Dragging is never the only way to move a row: every list using these classes also offers the move
- * in its row menu, so the gesture stays an accelerator. The handle is therefore decoration — it is a
+ * in its row menu, so the gesture stays an accelerator. The handle is therefore decoration - it is a
  * <span aria-hidden="true">, not a button, because a control that only responds to a pointer drag
  * would be a control with no keyboard behaviour.
  *
@@ -37,7 +37,7 @@
 
   /*
    * `cdkDrag` puts a `transform` on every row it manages, and a transformed element is its own
-   * stacking context — so a `z-index` inside a row can no longer rise above the row below it, and a
+   * stacking context - so a `z-index` inside a row can no longer rise above the row below it, and a
    * menu opening downwards ends up painted underneath the next row, which then swallows the taps
    * meant for it. Lifting the row that has an open panel is what puts the panel back on top; the
    * lists themselves are ordered against each other at the call site.
@@ -49,7 +49,7 @@
   /*
    * The gap the row will land in.
    *
-   * This is the CDK's default placeholder — a clone of the row being dragged — rather than a template
+   * This is the CDK's default placeholder - a clone of the row being dragged - rather than a template
    * of our own, so its height is the dragged row's height by construction. A hand-written placeholder
    * has to guess, and guesses wrong as soon as an entry wraps onto a second line at a large text size:
    * the rest of the list then jumps the moment the drag starts.
@@ -79,7 +79,7 @@
 
   /*
    * The settle after the finger lets go, and the shuffle of the rows the dragged one passes. Both are
-   * the CDK's own motion, driven by classes it sets itself while a drag is in progress — without them
+   * the CDK's own motion, driven by classes it sets itself while a drag is in progress - without them
    * a drop jumps rather than lands.
    */
   .cdk-drag-animating,

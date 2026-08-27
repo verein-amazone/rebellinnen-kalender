@@ -126,7 +126,7 @@ export class IcsItemDao {
     );
   }
 
-  /** Clears one subscription's normalized data — only ever inside a revision swap or removal. */
+  /** Clears one subscription's normalized data - only ever inside a revision swap or removal. */
   async deleteOfSubscription(
     subscriptionId: string,
     executor: SqliteExecutor = this.database,

@@ -13,7 +13,7 @@ import type { CalendarOccurrence } from './calendar-occurrence.vm';
 export type { OccurrenceFilter } from '@app/data/calendar/calendar.repository';
 
 /**
- * The unified read side of the calendar: every view — Today, day, week, month, agenda — asks this
+ * The unified read side of the calendar: every view - Today, day, week, month, agenda - asks this
  * interactor for the occurrences of a local-day range and renders what it gets. Stateless; the
  * screen holds the result in a `resource()`.
  */
@@ -33,7 +33,7 @@ export class CalendarOccurrencesInteractor {
     filter?: OccurrenceFilter,
   ): Promise<CalendarOccurrence[]> {
     // Curated sources (#2) must show up the first time any calendar-showing surface renders, not
-    // only after a visit to Settings — cheap after the first call (a local JSON fetch and a
+    // only after a visit to Settings - cheap after the first call (a local JSON fetch and a
     // version compare), so it belongs on the shared read path rather than on every screen.
     const { createdSubscriptionIds } = await this.curatedCalendarSync.ensureSynced();
     if (createdSubscriptionIds.length > 0) {

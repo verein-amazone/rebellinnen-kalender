@@ -40,8 +40,8 @@ export class SqliteGateway implements SqliteDatabase {
 
   /**
    * Serializes statements and transactions on the single shared connection. Without it, a plain
-   * `run()` issued while a transaction is open would join that transaction — and commit or roll
-   * back with it — instead of being its own unit of work.
+   * `run()` issued while a transaction is open would join that transaction - and commit or roll
+   * back with it - instead of being its own unit of work.
    */
   private lock: Promise<unknown> = Promise.resolve();
 
@@ -77,7 +77,7 @@ export class SqliteGateway implements SqliteDatabase {
       try {
         const result = await work(transactionExecutorFor(database));
         await database.execute('COMMIT;', false);
-        // One store write per transaction, after the commit — an aborted transaction must never
+        // One store write per transaction, after the commit - an aborted transaction must never
         // reach IndexedDB.
         await this.persistWebStore();
         return result;
@@ -168,7 +168,7 @@ function toUpgradeStatement(migration: Migration): capSQLiteVersionUpgrade {
 
 /**
  * The executor handed to a `transaction()` callback. Its statements run with the plugin's automatic
- * per-statement transaction switched off — they belong to the explicit BEGIN the gateway opened.
+ * per-statement transaction switched off - they belong to the explicit BEGIN the gateway opened.
  */
 function transactionExecutorFor(database: SQLiteDBConnection): SqliteExecutor {
   return {

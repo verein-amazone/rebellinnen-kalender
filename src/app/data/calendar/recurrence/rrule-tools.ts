@@ -15,7 +15,7 @@ export function withoutEndBound(rrule: string): string {
 }
 
 /**
- * Ends a rule just before the given occurrence, in the rule's own temporal kind — the
+ * Ends a rule just before the given occurrence, in the rule's own temporal kind - the
  * „this and following“ split truncates the old series with exactly this.
  *
  * UNTIL is written as a UTC instant for zoned starts (as RFC 5545 requires when DTSTART carries a

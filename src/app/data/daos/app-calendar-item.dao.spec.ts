@@ -50,7 +50,7 @@ describe('AppCalendarItemDao', () => {
     database.migrate(MIGRATIONS);
 
     // The in-memory engine enforces the declared foreign keys, so the calendar the items point to
-    // has to exist — closer to the truth than switching the checks off.
+    // has to exist - closer to the truth than switching the checks off.
     await database.run(
       `INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at)
        VALUES ('source-1', 'app', 'App', 1, 'ok', '2026-08-01T09:00:00.000Z', '2026-08-01T09:00:00.000Z')`,

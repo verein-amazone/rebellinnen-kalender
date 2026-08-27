@@ -210,7 +210,7 @@ export class AppCalendarItemDao {
   }
 
   /**
-   * Deletes every exception at or after the given original start — the tail a
+   * Deletes every exception at or after the given original start - the tail a
    * „this and following“ edit removes from the old series. Original starts of one series share one
    * temporal kind, so their ISO strings compare in time order.
    */

@@ -9,9 +9,9 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 
 /**
  * The „Neuer Termin“ screen: `EventForm` in create mode, wired to
- * `AppEventEditingInteractor.create()`. A pure presenter — it holds no business logic beyond
+ * `AppEventEditingInteractor.create()`. A pure presenter - it holds no business logic beyond
  * picking where to navigate back to; the form itself never persists or navigates. Cancelling is the
- * scaffold's own `dismissal="close"` (X) affordance — nothing was persisted, so there is nothing this
+ * scaffold's own `dismissal="close"` (X) affordance - nothing was persisted, so there is nothing this
  * page needs to do beyond what the scaffold's default dismiss already does.
  */
 @Component({
@@ -38,8 +38,11 @@ export class NewEventPage {
     }
 
     await this.eventEditing.create(result.draft);
+    // Replaces rather than pushes: the form is finished and must not be reachable again by the
+    // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.
     await this.router.navigate(['/calendar'], {
       queryParams: { day: deviceLocalDay(result.draft.start) },
+      replaceUrl: true,
     });
   }
 }
