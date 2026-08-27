@@ -6,7 +6,7 @@ import { LegalContentInteractor } from '@app/interactors/settings/legal-content.
 import { LicensesPage } from './licenses.page';
 
 class FakeLegalContentInteractor {
-  text: string | null = 'Package X — MIT';
+  text: string | null = 'Package X - MIT';
 
   thirdPartyLicenses(): Promise<string | null> {
     return Promise.resolve(this.text);
@@ -30,9 +30,9 @@ async function setup(config: { text?: string | null } = {}) {
 
 describe('LicensesPage', () => {
   it('shows the bundled third-party licence text', async () => {
-    const { element } = await setup({ text: 'Package X — MIT' });
+    const { element } = await setup({ text: 'Package X - MIT' });
 
-    expect(element.textContent).toContain('Package X — MIT');
+    expect(element.textContent).toContain('Package X - MIT');
   });
 
   it('shows a fallback when the licence file is unavailable', async () => {

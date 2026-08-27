@@ -1,7 +1,7 @@
 <div ngTabs>
   <!-- `py-2` here reproduces the space `.rk-screen-header-bar` reserves on a focused screen, so
        switching between this tab and a focused screen (e.g. event detail) doesn't shift where
-       scrollable content starts — the same pattern `today.page.html`/the calendar overview use.
+       scrollable content starts - the same pattern `today.page.html`/the calendar overview use.
        Unlike those pages there is no per-screen icon action to fill this row with, so the tabs
        themselves live here instead of behind a separate blank spacer.
 
@@ -28,7 +28,7 @@
     <!-- `visible()` drives `[class.hidden]` by hand: `ngTabPanel` sets `inert` on the hidden panel
          (removing it from the accessibility tree and from tab order) but deliberately leaves visual
          hiding to the consumer. `ngTabContent` defers the panel's content until it's selected once,
-         then keeps it mounted — the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
+         then keeps it mounted - the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
     <div
       ngTabPanel
       value="services"
@@ -98,7 +98,7 @@
       <ng-template ngTabContent>
         <div class="space-y-4">
           <p class="text-muted-foreground">
-            Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier — so hast du deine
+            Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
             persönlichen Fundstücke immer griffbereit.
           </p>
 

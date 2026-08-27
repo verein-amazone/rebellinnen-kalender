@@ -7,7 +7,7 @@ interface CalendarMaintenanceState {
 }
 
 /**
- * Remembers the device zone the derived calendar rows were computed in. Not a preference — a
+ * Remembers the device zone the derived calendar rows were computed in. Not a preference - a
  * bookkeeping scalar the maintenance check compares against the current zone to decide whether
  * `date` and `floating` rows must be rebuilt.
  */

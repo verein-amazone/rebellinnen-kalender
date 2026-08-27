@@ -23,7 +23,7 @@
 
 /*
  * Hover only means something with a fine pointer. On touch the hover state sticks after a tap, so
- * the design system has no bare `hover:` styles — use `hoverable:` and `active:` instead.
+ * the design system has no bare `hover:` styles - use `hoverable:` and `active:` instead.
  */
 @custom-variant hoverable (@media (hover: hover) and (pointer: fine));
 
@@ -97,35 +97,35 @@
   /* The minimum interactive target: 48px at the default root size. Every size here is in rem, so
      it grows with the root font size instead of pinning a control to a physical size. */
   --spacing-touch: 3rem;
-  /* A list row — a touch target plus breathing room. */
+  /* A list row - a touch target plus breathing room. */
   --spacing-row: 3.5rem;
 
   /* The only breakpoint. Phone is the unprefixed default; this is the tablet tier. Note that a
      media query never reacts to the root font size, so breakpoints cannot respond to text
-     scaling — that is what the container queries in ./components/*.css are for. */
+     scaling - that is what the container queries in ./components/*.css are for. */
   --breakpoint-tablet: 40rem;
 
   /*
    * Width below which a row must stack its label, value and chevron instead of keeping them on one
-   * line. 18rem is 288px at the default root size — narrower than any phone, so a row never stacks
+   * line. 18rem is 288px at the default root size - narrower than any phone, so a row never stacks
    * at normal text size, not even on a 375px device. Once the root font size grows past roughly
    * 1.25x it exceeds the available width and the row stacks, which is the point.
    *
    * CSS cannot interpolate a custom property into a container query condition, so ./components
-   * repeats the literal. Changing it here means changing it there too — the value lives here
+   * repeats the literal. Changing it here means changing it there too - the value lives here
    * because it is what makes the `@max-row:` variant available at call sites.
    */
   --container-row: 18rem;
 
   /*
    * Width below which the chrome around the content switches to its compact form: fixed-pixel
-   * icons, indicators and paddings instead of rem-based ones. Text is never capped — only the
+   * icons, indicators and paddings instead of rem-based ones. Text is never capped - only the
    * decoration around it.
    *
    * 13rem is 208px at the default root size, so it is far below any phone width and only ever
-   * matches because `rem` grows with the root font size. It starts matching at 2x — the top of the
-   * ladder — on both a 375px and a 412px screen, and never below it. Like `--container-row`, the
-   * literal is repeated in ./components — keep them in sync.
+   * matches because `rem` grows with the root font size. It starts matching at 2x - the top of the
+   * ladder - on both a 375px and a 412px screen, and never below it. Like `--container-row`, the
+   * literal is repeated in ./components - keep them in sync.
    */
   --container-compact: 13rem;
 }
@@ -135,7 +135,7 @@
   --rk-radius: 0.625rem;
 }
 
-/* Amazone — the default. Also bound to :root so the app renders correctly before the stored
+/* Amazone - the default. Also bound to :root so the app renders correctly before the stored
    preference has been applied to <html>. */
 :root,
 [data-theme='amazone'] {
@@ -162,7 +162,7 @@
   --rk-dot-color: rgb(21 25 95 / 0.12);
   /* Amazone's background is a mid teal, so status colours have to be dark to stay legible on it as
      well as on the near-white card. Danger is also deliberately much darker than
-     `--rk-primary` (#de2c27), which is itself red — see the note on destructive actions below. */
+     `--rk-primary` (#de2c27), which is itself red - see the note on destructive actions below. */
   --rk-danger: #761512;
   --rk-danger-foreground: #fffdf6;
   --rk-success: #0a4434;
@@ -171,7 +171,7 @@
   --rk-warning-foreground: #fffdf6;
 }
 
-/* Warm — "Sonnenuntergang". */
+/* Warm - "Sonnenuntergang". */
 [data-theme='warm'] {
   --rk-background: #f7f3ee;
   --rk-foreground: #2a1f14;
@@ -202,7 +202,7 @@
   --rk-warning-foreground: #fffdf9;
 }
 
-/* Nacht — "Mitternacht". */
+/* Nacht - "Mitternacht". */
 [data-theme='nacht'] {
   --rk-background: #0e1240;
   --rk-foreground: #d8e8ec;
@@ -235,7 +235,7 @@
   --rk-warning-foreground: #0e1240;
 }
 
-/* Lila — "Lavendel". */
+/* Lila - "Lavendel". */
 [data-theme='lila'] {
   --rk-background: #ede0f8;
   --rk-foreground: #2d1b69;
@@ -287,7 +287,7 @@
  * The ladder stops at 2x, which is Apple's Larger Text floor and the largest size the layout stays
  * genuinely usable at. It does not reach as high as iOS itself can (3.12x): a user at the very
  * largest system size who picks an explicit option therefore gets a smaller text than they had.
- * Leaving the setting on "Systemeinstellung" — the default — keeps the full OS range.
+ * Leaving the setting on "Systemeinstellung" - the default - keeps the full OS range.
  *
  * `[data-text-size='…']` and `:root` have the same specificity, so the override blocks must stay
  * after `:root` in source order. That is why this block is at the end of the file.

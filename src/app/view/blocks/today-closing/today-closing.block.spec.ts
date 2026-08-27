@@ -73,9 +73,9 @@ async function setup(config: {
 
   // The block reads the wall clock directly (`new Date().toISOString()`) to decide whether an
   // occurrence is still upcoming, so the fixtures' fixed `today`/occurrence times only stay
-  // "future" relative to a pinned clock — otherwise this suite silently breaks once the real date
+  // "future" relative to a pinned clock - otherwise this suite silently breaks once the real date
   // passes 2026-08-11.
-  // Only `Date` is faked — timers stay real so `fixture.whenStable()` still resolves.
+  // Only `Date` is faked - timers stay real so `fixture.whenStable()` still resolves.
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(`${today}T12:00:00Z`));
   occurrences.byRange.set(`${today}|${today}`, config.todayOccurrences ?? []);

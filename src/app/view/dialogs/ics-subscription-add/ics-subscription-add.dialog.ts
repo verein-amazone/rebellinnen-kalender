@@ -17,7 +17,7 @@ export interface IcsSubscriptionAddResult {
 /**
  * Adds a read-only calendar subscription by link, opened from `CalendarsPage`.
  *
- * Closes with the interactor's result once `add()` resolves — even when the first refresh failed,
+ * Closes with the interactor's result once `add()` resolves - even when the first refresh failed,
  * since the subscription still exists and is already visible with its error state; that is not a
  * form failure. Only the two validation errors `add()` can throw before ever touching the network
  * (`IcsSubscriptionNameInvalidError`, `IcsUrlInvalidError`) map to a field's inline error and keep

@@ -7,7 +7,7 @@
  */
 
 @layer components {
-  /* A raised surface. Content-height by definition — never give it a height. */
+  /* A raised surface. Content-height by definition - never give it a height. */
   .rk-card {
     @apply bg-card text-card-foreground rounded-lg;
   }
@@ -17,7 +17,7 @@
    * corner radius. The containment turns this into the query container for the row rule below.
    *
    * The surface declarations are repeated rather than `@apply rk-card`, because `@apply` only
-   * accepts utilities and `.rk-card` deliberately is not one — as a utility it would sort into the
+   * accepts utilities and `.rk-card` deliberately is not one - as a utility it would sort into the
    * utilities layer and start winning against `bg-*` at the call site.
    */
   .rk-list {
@@ -28,12 +28,12 @@
   .rk-row {
     @apply min-h-row flex items-center gap-3 px-4 py-3;
     /* A disabled row (e.g. the calendar picker while editing) otherwise looks identical to an
-       active one — nothing tells a tap it did nothing on purpose. */
+       active one - nothing tells a tap it did nothing on purpose. */
     @apply disabled:pointer-events-none disabled:opacity-60;
   }
 
   /*
-   * A row fills its list edge to edge, so the default ring — drawn 2px outside the element — lands
+   * A row fills its list edge to edge, so the default ring - drawn 2px outside the element - lands
    * outside `.rk-list` and its `overflow-hidden` clips it away entirely. Draw the ring inside the
    * row instead, and let the outer rows carry the list's own corner radius so the ring follows the
    * rounded corners rather than being cut off by them.
@@ -66,7 +66,7 @@
    * browser default and never moves, while `rem` in a container query resolves against the real
    * root font size.
    *
-   * The 18rem literal mirrors `--container-row` in ../theme.css — CSS cannot interpolate a custom
+   * The 18rem literal mirrors `--container-row` in ../theme.css - CSS cannot interpolate a custom
    * property into a query condition, so the two have to be kept in sync by hand.
    */
   @container (max-width: 18rem) {
@@ -78,7 +78,7 @@
   /*
    * Further up the text-size ladder the row padding and the minimum row height stop being breathing
    * room and start being the reason a list of six entries no longer fits on any screen. Both are
-   * decoration rather than content, so they drop to fixed pixels — the wrapped label is what decides
+   * decoration rather than content, so they drop to fixed pixels - the wrapped label is what decides
    * the row height by then, and 48px is still a valid touch target. The 13rem literal mirrors
    * `--container-compact` in ../theme.css.
    */

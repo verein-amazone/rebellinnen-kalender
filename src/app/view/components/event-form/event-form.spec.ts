@@ -129,7 +129,7 @@ async function setup(inputs: {
     settle: () => fixture.whenStable(),
     // Plain `#id` is safe here: `app-text-field`/`app-textarea-field` suppress reflecting their
     // `id` @Input onto the host element (`[attr.id]: null` in each component's `host` object), so
-    // only the inner `<input>`/`<textarea>` carries the id — no duplicate for `querySelector` to
+    // only the inner `<input>`/`<textarea>` carries the id - no duplicate for `querySelector` to
     // trip over.
     field(id: string): HTMLInputElement | HTMLTextAreaElement {
       return element.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`)!;
@@ -340,7 +340,7 @@ describe('EventForm, edit mode', () => {
   });
 
   it("preserves an overnight occurrence's end date across a save that never touches the time fields", async () => {
-    // 22:00 one day through 02:00 the next — the form has no field for the end date, so this is the
+    // 22:00 one day through 02:00 the next - the form has no field for the end date, so this is the
     // case that used to be silently rewritten to end before it starts (#19 final review, finding 4).
     const overnight = timedOccurrence({
       start: { kind: 'zoned', value: '2026-08-10T22:00:00', timeZone: deviceZone },
@@ -402,7 +402,7 @@ describe('EventForm, edit mode', () => {
     });
     await form.expandDateTime();
 
-    // Start moves from 09:00 to 09:30 — the original 90-minute span (09:00–10:30) should carry
+    // Start moves from 09:00 to 09:30 - the original 90-minute span (09:00–10:30) should carry
     // forward, landing the end at 11:00, not stay pinned at 10:30.
     await form.type('event-form-date-time-start-time', '09:30');
     await form.submit();

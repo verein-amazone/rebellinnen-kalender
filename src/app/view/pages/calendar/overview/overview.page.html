@@ -1,8 +1,8 @@
 <!-- Pinned: the period nav and the Woche/Monat switcher stay put while the agenda below scrolls
      under them, the same `sticky top-0` pattern `focused-screen.scaffold.html`'s header uses. A
-     background is required — without one the scrolling content behind would show through. `safe-top`
+     background is required - without one the scrolling content behind would show through. `safe-top`
      sits here rather than on the shell's `<main>` (see that comment) so this header's own background
-     — not whatever scrolls underneath it — fills the notch area. -->
+     - not whatever scrolls underneath it - fills the notch area. -->
 <div class="bg-background safe-top sticky top-0 z-10">
   <!-- `py-2` here and `pt-4` on the scrollable block below reproduce the space
        `.rk-screen-header-bar` + `.rk-screen-body` reserve on a focused screen, so switching between

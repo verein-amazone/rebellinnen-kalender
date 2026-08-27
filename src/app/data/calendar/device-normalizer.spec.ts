@@ -9,7 +9,7 @@ function instance(overrides: Partial<DeviceEventInstance> = {}): DeviceEventInst
     location: null,
     description: null,
     // Matches what the gateway actually produces (`utcInstantFromEpochMilliseconds`), not
-    // `Date#toISOString()` — the normalizer stores this string verbatim as the occurrence's
+    // `Date#toISOString()` - the normalizer stores this string verbatim as the occurrence's
     // start_utc/end_utc, so it must already be in the format range queries compare against.
     startUtc: '2026-08-10T08:00:00Z',
     endUtc: '2026-08-10T09:00:00Z',

@@ -19,8 +19,8 @@ export interface SqliteExecutor {
  * The database as everything above the gateway sees it.
  *
  * `transaction()` runs the callback as one atomic unit of work: every statement issued through the
- * given executor commits together or not at all. Transactions are serialized — the database is a
- * single shared connection — so inside the callback only the passed executor may be used; calling
+ * given executor commits together or not at all. Transactions are serialized - the database is a
+ * single shared connection - so inside the callback only the passed executor may be used; calling
  * the database directly from within would deadlock on the serialization lock.
  */
 export interface SqliteDatabase extends SqliteExecutor {
@@ -28,7 +28,7 @@ export interface SqliteDatabase extends SqliteExecutor {
 }
 
 /**
- * Thrown when the database cannot be opened at all — a failed migration, a missing plugin, a corrupt
+ * Thrown when the database cannot be opened at all - a failed migration, a missing plugin, a corrupt
  * file. It carries no plugin detail, so callers can surface it without leaking Capacitor types.
  */
 export class SqliteUnavailableError extends Error {

@@ -8,7 +8,7 @@ import { OccurrenceCard } from '@app/view/components/occurrence-card/occurrence-
 
 /**
  * The Today page's own appointments section: today's occurrences, a link to the full Calendar, and
- * „Neuer Termin" — a day-scoped sibling of `CalendarAgendaBlock`, not a reuse of it, because the page
+ * „Neuer Termin" - a day-scoped sibling of `CalendarAgendaBlock`, not a reuse of it, because the page
  * already shows the date once in its header and a second, full-date `h2` here would repeat it.
  */
 @Component({

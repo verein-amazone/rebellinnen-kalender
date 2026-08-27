@@ -7,7 +7,7 @@ import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 import type { ContentItemView } from './content-item.vm';
 
 /**
- * Looks up a single curated content item by id, for the content detail screen — the read path
+ * Looks up a single curated content item by id, for the content detail screen - the read path
  * views take instead of injecting `ContentItemDao` directly.
  */
 @Injectable({ providedIn: 'root' })
@@ -21,7 +21,7 @@ export class ContentItemsInteractor {
     return record === null ? null : toView(record);
   }
 
-  /** Every content item, ordered by kind then id — for the debug content listing. */
+  /** Every content item, ordered by kind then id - for the debug content listing. */
   async listAll(): Promise<ContentItemView[]> {
     await this.catalogSync.ensureSynced();
     return (await this.contentItems.listAll()).map(toView);

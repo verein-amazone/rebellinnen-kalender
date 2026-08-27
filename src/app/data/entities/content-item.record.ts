@@ -1,14 +1,14 @@
 export const CONTENT_ITEM_KINDS = ['wissensimpulse', 'rebellin'] as const;
 export type ContentItemKind = (typeof CONTENT_ITEM_KINDS)[number];
 
-/** One "More on this topic" link — a title and the URL it points to. */
+/** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceRecord {
   readonly title: string;
   readonly url: string;
 }
 
 /**
- * One curated content item — a "Wissen & Impulse" piece or a "Rebell*in" portrait — as it is stored.
+ * One curated content item - a "Wissen & Impulse" piece or a "Rebell*in" portrait - as it is stored.
  *
  * `validFrom`/`validTo` are ISO dates (`YYYY-MM-DD`); both `null` marks the item evergreen. An item
  * with only one of the two bounds set is open-ended on the other side. `eligibleForDaily` mirrors the

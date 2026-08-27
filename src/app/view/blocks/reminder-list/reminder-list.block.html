@@ -7,7 +7,7 @@
   </div>
 } @else if (items.status() === 'loading') {
   <!--
-    Only the very first load — see the `status()` note in ../../../../styles/components/skeleton.css.
+    Only the very first load - see the `status()` note in ../../../../styles/components/skeleton.css.
     A tick/reorder/add reloads this resource too, and must keep showing the current rows while that
     happens in the background rather than collapsing to this placeholder, or the list's height drops
     to one line and the page loses its scroll position.
@@ -36,7 +36,7 @@
       <!--
         One list, open entries first and completed ones after them. They are still two groups as far
         as moving goes: `sortPredicate` refuses a position outside the dragged row's own group, so a
-        drag can rearrange but never complete or reopen an entry — ticking the checkbox is the one way
+        drag can rearrange but never complete or reopen an entry - ticking the checkbox is the one way
         across, and it is a plain tap.
       -->
       <ul
@@ -53,7 +53,7 @@
             lists card.css describes: a row carries the checkbox with its label and the menu trigger,
             so there is no single control that could own the whole row. `relative` anchors the menu.
 
-            No enter or leave animation on purpose — see the header of reorder.css: both fought the
+            No enter or leave animation on purpose - see the header of reorder.css: both fought the
             drag, which owns this element's `transform` and reads the list by document position.
           -->
           <li class="rk-row relative" cdkDrag [cdkDragData]="row.item">
@@ -158,7 +158,7 @@
     <!--
       The last row of the card: an invitation, opening the same sheet `edit()` uses rather than
       growing an inline field here. The list sits in the page's own scroll region, not a sheet's
-      own — a field that grew and focused in place there fought the keyboard for scroll position
+      own - a field that grew and focused in place there fought the keyboard for scroll position
       (the row above it appearing after a submit pushed the still-focused field behind the
       keyboard, and closing the keyboard again did not reliably give the scroll position back). The
       sheet already owns exactly that problem correctly for editing an entry; adding one reuses it
@@ -168,7 +168,7 @@
       <!--
         The label stays visible on the left, and the control is an icon button in the same column as
         a row's menu trigger, so the card has one line of actions rather than two competing shapes.
-        The visible text is `aria-hidden` because the button already carries it as its name — read
+        The visible text is `aria-hidden` because the button already carries it as its name - read
         twice it would sound like two separate things.
       -->
       <div class="rk-row">

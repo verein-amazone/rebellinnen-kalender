@@ -490,7 +490,7 @@ describe('CalendarRepository', () => {
       repository.extendCoverageForRange('2028-01-20T00:00:00Z', '2028-02-20T00:00:00Z', CONTEXT),
     ).rejects.toThrow();
 
-    // Coverage and rows both roll back together — the old window stays in force, never a wider
+    // Coverage and rows both roll back together - the old window stays in force, never a wider
     // one with nothing materialized inside it.
     await expect(occurrences.findCoverage('source-1')).resolves.toEqual(before);
   });

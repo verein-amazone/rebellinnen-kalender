@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { seedAppCalendar, seedOccurrence } from './support/calendar-seed';
 
 /**
- * The in-app ladder tops out at 2x, Apple's Larger Text floor — but leaving the setting on
+ * The in-app ladder tops out at 2x, Apple's Larger Text floor - but leaving the setting on
  * "Systemeinstellung" keeps the full OS range, and iOS reaches 3.12x. So both sizes are checked.
  *
  * A page that scrolls sideways is the clearest sign that something is pinned to a fixed width or
@@ -62,7 +62,7 @@ test.describe('large text', () => {
   }
 
   /**
-   * The loop above renders Today with an empty list, so the row layout itself is never under test —
+   * The loop above renders Today with an empty list, so the row layout itself is never under test -
    * and a row is where user-entered text meets two icon buttons. The narrowest viewport plus a German
    * compound nobody would type but everybody has seen is exactly the case the row has to survive.
    */
@@ -99,7 +99,7 @@ test.describe('large text', () => {
   });
 
   /**
-   * The loop above never opens an appointment (there is nothing to open until one is seeded — see
+   * The loop above never opens an appointment (there is nothing to open until one is seeded - see
    * `e2e/support/calendar-seed.ts`), so its detail read view, its in-place edit view, and the two
    * sheets calendar delete/edit can now open (`ConfirmationDialog`, `RecurrenceScopeDialog`) are
    * otherwise untested at large text. A long title is what exercises row/heading wrapping, the same
@@ -149,7 +149,7 @@ test.describe('large text', () => {
       await page.getByRole('button', { name: 'Bearbeiten' }).click();
       await checkNoOverflow('detail edit view');
 
-      // No "Abbrechen" button any more — the header back-arrow cancels edit mode (see
+      // No "Abbrechen" button any more - the header back-arrow cancels edit mode (see
       // `EventDetailPage.handleBeforeDismiss`).
       await page.getByRole('button', { name: 'Zurück' }).click();
       await page.getByRole('button', { name: 'Löschen' }).click();
@@ -194,7 +194,7 @@ test.describe('large text', () => {
   });
 
   /**
-   * Vertical scrolling at these sizes is expected — the content genuinely is several viewports tall.
+   * Vertical scrolling at these sizes is expected - the content genuinely is several viewports tall.
    * What must not happen is the chrome scrolling away with it: the shell is a fixed frame with a
    * single scroll region, so the bottom navigation stays on screen no matter how far the user has
    * scrolled.
@@ -208,7 +208,7 @@ test.describe('large text', () => {
     // The document itself never scrolls; only the region inside the frame does. Read before any
     // geometry query (`boundingBox`/`toBeInViewport`/`getBoundingClientRect`) touches the page: for
     // content several viewports tall, each of those forces a layout pass that leaves Chromium's own
-    // `documentElement.scrollHeight` stale on every read afterwards — confirmed by hand against this
+    // `documentElement.scrollHeight` stale on every read afterwards - confirmed by hand against this
     // exact page, not a real overflow. Reading it first, in the same `evaluate` as the scroll,
     // sidesteps that entirely.
     const documentOverflow = await page.evaluate(() => {

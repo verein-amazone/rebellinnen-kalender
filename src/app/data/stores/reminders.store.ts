@@ -12,7 +12,7 @@ const STORAGE_KEY = 'rk.reminders';
  * Persists the preferences of the „Nicht vergessen“ list.
  *
  * Three scalar values read on every startup, so they live in `localStorage` rather than in SQLite,
- * exactly like the appearance preferences. The entries themselves stay in the database — a store is
+ * exactly like the appearance preferences. The entries themselves stay in the database - a store is
  * not where a table-backed list belongs.
  *
  * Every read is validated: stored values may come from an older app version or from a manually

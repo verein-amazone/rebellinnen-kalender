@@ -384,7 +384,7 @@ describe('EventDetailPage, actions by capability', () => {
     await settle();
 
     // The page's own `occurrenceResource` only reflects what was loaded before the handoff unless
-    // reloaded explicitly — `openForEditing` refreshes the device cache, not this resource.
+    // reloaded explicitly - `openForEditing` refreshes the device cache, not this resource.
     expect(occurrencesInteractor.calls.length).toBeGreaterThan(callsBeforeHandoff);
   });
 
@@ -465,7 +465,7 @@ describe('EventDetailPage, edit', () => {
     await emitFormSave({ mode: 'edit', changes });
 
     expect(eventEditing.updateAllCalls).toEqual([{ itemId: 'item-1', changes }]);
-    // Not '2026-08-10' (the occurrence's pre-edit day) — the day the user actually moved it to.
+    // Not '2026-08-10' (the occurrence's pre-edit day) - the day the user actually moved it to.
     expect(navigate).toHaveBeenCalledWith(['/calendar'], {
       queryParams: { day: '2026-08-15' },
       replaceUrl: true,
@@ -510,7 +510,7 @@ describe('EventDetailPage, edit', () => {
     await settle();
 
     // The header back-arrow's accessible name is "Zurück" (a visually hidden span); while editing,
-    // it exits edit mode instead of leaving the screen — see `handleBeforeDismiss`.
+    // it exits edit mode instead of leaving the screen - see `handleBeforeDismiss`.
     button('Zurück')?.click();
     await settle();
 

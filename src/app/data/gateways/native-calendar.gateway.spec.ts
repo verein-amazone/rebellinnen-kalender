@@ -112,7 +112,7 @@ describe('NativeCalendarGateway', () => {
     );
 
     // `Date#toISOString()` would produce `…T08:00:00.000Z`; occurrence rows compare these strings
-    // lexicographically against Temporal-formatted instants, which never carry the `.000` — the two
+    // lexicographically against Temporal-formatted instants, which never carry the `.000` - the two
     // formats must match exactly or a device row's range boundary silently shifts.
     expect(instances).toEqual([
       {

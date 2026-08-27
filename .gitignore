@@ -718,5 +718,5 @@ __screenshots__/
 
 tmp
 
-# impeccable design-review hook's local cache — config.json (ignore rules) is versioned, this isn't
+# impeccable design-review hook's local cache - config.json (ignore rules) is versioned, this isn't
 .impeccable/hook.cache.json

@@ -4,7 +4,7 @@ import { CalendarPermissionScope } from '@ebarooni/capacitor-calendar';
 import { utcInstantFromEpochMilliseconds } from '../calendar/utc-instant';
 import { CAPACITOR_CALENDAR } from './capacitor-calendar';
 
-/** The read permission as the app reasons about it — no plugin types above this line. */
+/** The read permission as the app reasons about it - no plugin types above this line. */
 export type DeviceCalendarPermission = 'granted' | 'denied' | 'prompt';
 
 /** One calendar as the operating system reports it. */
@@ -53,12 +53,12 @@ export interface DeviceEventInstance {
 const DEFAULT_ALERT_MINUTES_BEFORE_START = 15;
 
 /**
- * The device calendar boundary — the only importer of `@ebarooni/capacitor-calendar`.
+ * The device calendar boundary - the only importer of `@ebarooni/capacitor-calendar`.
  *
  * iOS EventKit and the Android Calendar Provider stay authoritative; this gateway only reads.
  * Instances are translated to plugin-free shapes here, including the platform difference that iOS
  * repeats one event id for every instance of a series while Android instances carry their own
- * times — which is why identity above this gateway always includes the occurrence start.
+ * times - which is why identity above this gateway always includes the occurrence start.
  */
 @Injectable({ providedIn: 'root' })
 export class NativeCalendarGateway {
@@ -116,12 +116,12 @@ export class NativeCalendarGateway {
   }
 
   /**
-   * Writes a new standalone event straight into a writable device calendar — a direct OS write,
+   * Writes a new standalone event straight into a writable device calendar - a direct OS write,
    * never a canonical app record. The caller refreshes the device cache afterwards so the new
    * event shows up without waiting for the next automatic sync.
    *
-   * Sets one native alert `DEFAULT_ALERT_MINUTES_BEFORE_START` before the start — negative minutes
-   * mean "before" in the plugin's convention — so an appointment created here behaves like one
+   * Sets one native alert `DEFAULT_ALERT_MINUTES_BEFORE_START` before the start - negative minutes
+   * mean "before" in the plugin's convention - so an appointment created here behaves like one
    * created directly in the OS calendar app, which always gets a default reminder. There is no form
    * field for this yet; it is a fixed default until one exists.
    */

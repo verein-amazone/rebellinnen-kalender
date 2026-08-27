@@ -3,7 +3,7 @@ import type { Migration } from './migration';
 /**
  * The first schema version: the „Nicht vergessen“ list.
  *
- * `completed_at` is the single source of truth for the completion state — `NULL` means open. A
+ * `completed_at` is the single source of truth for the completion state - `NULL` means open. A
  * separate boolean column could disagree with the timestamp, so there is none.
  *
  * The index mirrors the one ordering the list is ever read in (see `ReminderDao.listAll`).

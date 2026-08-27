@@ -20,7 +20,7 @@ export interface AppIconSnapshot {
 /**
  * The name each icon is registered under natively: the `activity-alias` name in
  * `AndroidManifest.xml` and the asset-catalog name in `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`.
- * The default icon has no name — it is the one `resetIcon()` returns to and the one
+ * The default icon has no name - it is the one `resetIcon()` returns to and the one
  * `getCurrentIcon()` reports as `null`.
  */
 const NATIVE_NAMES: Record<AppIconId, string | null> = {

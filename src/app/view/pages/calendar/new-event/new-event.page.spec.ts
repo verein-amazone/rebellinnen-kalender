@@ -127,7 +127,7 @@ async function setup(day?: string) {
       await fixture.whenStable();
     },
     /**
-     * There is no cancel button of this page's own any more — cancelling is entirely the scaffold's
+     * There is no cancel button of this page's own any more - cancelling is entirely the scaffold's
      * own `dismissal="close"` (X) affordance, whose accessible name is the visually hidden
      * "Schließen" span.
      */
@@ -252,7 +252,7 @@ describe('NewEventPage, cancel', () => {
 
   it('leaves the browser history alone even when there is in-app history to walk back', async () => {
     const page = await setup();
-    // `lastSuccessfulNavigation` is a getter returning a signal, not a plain method — and not one of
+    // `lastSuccessfulNavigation` is a getter returning a signal, not a plain method - and not one of
     // the properties `vi.spyOn`'s typings recognise as a get accessor on `Router`, so it is stubbed
     // directly instead. The scaffold used to prefer `location.back()` in exactly this situation,
     // which is what let the abandoned form stay in the history and be walked back into.

@@ -4,7 +4,7 @@
  * It sits outside the scroll region (see ./screen.css), so it stays reachable no matter how long
  * the content is. That makes its height a fixed cost taken off every screen: at 3x text the
  * rem-based version measured 216px of a 667px viewport. The compact form below gives most of that
- * back by pinning the decoration — icon, active indicator, padding — to physical pixels once the
+ * back by pinning the decoration - icon, active indicator, padding - to physical pixels once the
  * text has grown past roughly 2x. The labels keep scaling; they are the part that carries meaning.
  */
 
@@ -28,7 +28,7 @@
 
   /*
    * A tab reaches the edge of the bar, which itself sits at the edge of the shell's clipped frame,
-   * so the default ring — drawn 2px outside the element — is cut off along the outer edges of the
+   * so the default ring - drawn 2px outside the element - is cut off along the outer edges of the
    * first and last tab. Draw it inside instead, where the whole ring stays visible.
    */
   .rk-tab:focus-visible {
@@ -39,7 +39,7 @@
     @apply size-6;
   }
 
-  /* The active destination's second, non-colour indicator — bold weight is the first. */
+  /* The active destination's second, non-colour indicator - bold weight is the first. */
   .rk-tab-indicator {
     @apply bg-accent h-1 w-6 rounded-full;
   }
@@ -48,7 +48,7 @@
    * The compact form. The 13rem literal mirrors `--container-compact` in ../theme.css; CSS cannot
    * interpolate a custom property into a query condition, so the two are kept in sync by hand.
    *
-   * The minimum target stays at 48px, which is the floor a touch target may not go below — and in
+   * The minimum target stays at 48px, which is the floor a touch target may not go below - and in
    * practice the wrapped label makes every tab far taller than that at these text sizes.
    */
   @container (max-width: 13rem) {

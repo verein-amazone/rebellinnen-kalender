@@ -75,7 +75,7 @@
     <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
   }
 
-  <!-- Its own top-level `@if`, a direct child of `app-focused-screen` — nesting it inside the
+  <!-- Its own top-level `@if`, a direct child of `app-focused-screen` - nesting it inside the
        `item(); as content` branch above (which has sibling nodes) would silently drop the
        projection instead of rendering it (NG8011), per `FocusedScreenScaffold`'s own contract. -->
   @if (item(); as footerContent) {

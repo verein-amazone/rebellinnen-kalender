@@ -1,5 +1,5 @@
 /*
- * Visual primitives. Keep this file an import barrel — put actual rules in ./components/*.css.
+ * Visual primitives. Keep this file an import barrel - put actual rules in ./components/*.css.
  *
  * Everything here is a plain CSS class, not an Angular component. The split is deliberate and is
  * the rule for the whole design system: a purely visual pattern is an `rk-*` class in this

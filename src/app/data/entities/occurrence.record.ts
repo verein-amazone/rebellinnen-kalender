@@ -16,7 +16,7 @@ export const OCCURRENCE_PROVENANCES = [
 export type OccurrenceProvenance = (typeof OCCURRENCE_PROVENANCES)[number];
 
 /**
- * One concrete calendar occurrence as the views consume it — derived, disposable, rebuildable.
+ * One concrete calendar occurrence as the views consume it - derived, disposable, rebuildable.
  * Never the only representation of app-owned or ICS data.
  *
  * `id` is the source-scoped occurrence key (for example `app:<series>#<originalStart>`), stable
@@ -24,7 +24,7 @@ export type OccurrenceProvenance = (typeof OCCURRENCE_PROVENANCES)[number];
  * `startUtc`/`endUtc` are computed sort/query keys (`endUtc` exclusive); `startLocalDay`/
  * `endLocalDay` are the device-zone days the occurrence touches, which is how all-day rows are
  * bucketed. Rows for `date`/`floating` values are computed in the device zone at materialization
- * time — legitimate because a zone change triggers a rebuild.
+ * time - legitimate because a zone change triggers a rebuild.
  */
 export interface OccurrenceRecord {
   readonly id: string;
@@ -56,7 +56,7 @@ export interface OccurrenceRecord {
 }
 
 /**
- * Which range of time a source's derived rows currently cover — materialization coverage for app
+ * Which range of time a source's derived rows currently cover - materialization coverage for app
  * and ICS sources, fetch coverage for device sources. Derived and disposable like the rows it
  * describes. `engineVersion` records which recurrence engine generated the rows.
  */

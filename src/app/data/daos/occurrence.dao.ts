@@ -123,7 +123,7 @@ export class OccurrenceDao {
     await executor.run(`DELETE FROM occurrences WHERE series_id = ?`, [seriesId]);
   }
 
-  /** Deletes the series tail from a split point on — original starts share one temporal kind. */
+  /** Deletes the series tail from a split point on - original starts share one temporal kind. */
   async deleteOfSeriesFrom(
     seriesId: string,
     originalStart: string,
@@ -139,7 +139,7 @@ export class OccurrenceDao {
     await executor.run(`DELETE FROM occurrences WHERE source_id = ?`, [sourceId]);
   }
 
-  /** Removes one source's rows overlapping a range — the swap a device refresh replaces. */
+  /** Removes one source's rows overlapping a range - the swap a device refresh replaces. */
   async deleteOfSourceInRange(
     sourceId: string,
     rangeStartUtc: string,
@@ -178,7 +178,7 @@ export class OccurrenceDao {
     return row ? toRecord(row) : null;
   }
 
-  /** Cached device instances — the rows a device-zone change repairs locally, without a refetch. */
+  /** Cached device instances - the rows a device-zone change repairs locally, without a refetch. */
   async listOfSourceType(
     sourceType: OccurrenceRecord['sourceType'],
     executor: SqliteExecutor = this.database,
@@ -192,7 +192,7 @@ export class OccurrenceDao {
   }
 
   /**
-   * Rewrites only the local-day bucketing columns of one row — used to repair cached device rows
+   * Rewrites only the local-day bucketing columns of one row - used to repair cached device rows
    * after a device timezone change, where the underlying UTC instants are still correct and only
    * their day assignment needs to move.
    */

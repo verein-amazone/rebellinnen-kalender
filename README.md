@@ -63,8 +63,8 @@ icon? See [docs/app-icon.md](./docs/app-icon.md).
 
 ## Tech stack
 
-- [Angular](https://angular.dev) 22 — standalone, zoneless, strict, signals-first
-- [Capacitor](https://capacitorjs.com) 8 — native iOS and Android
+- [Angular](https://angular.dev) 22 - standalone, zoneless, strict, signals-first
+- [Capacitor](https://capacitorjs.com) 8 - native iOS and Android
 - [Tailwind CSS](https://tailwindcss.com) 4
 - Angular CDK, Angular Aria, [Lucide](https://lucide.dev) icons
 - [`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite) for local persistence

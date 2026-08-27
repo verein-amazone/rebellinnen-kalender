@@ -14,7 +14,7 @@ export class ProfileInteractor {
   private readonly store = inject(ProfileStore);
   private readonly emojiPicker = inject(EmojiPickerGateway);
 
-  /** The name field's `maxlength` — exposed so views never import the data-layer constant. */
+  /** The name field's `maxlength` - exposed so views never import the data-layer constant. */
   readonly nameMaxLength = NAME_MAX_LENGTH;
 
   readonly name = computed(() => this.store.preferences().name);

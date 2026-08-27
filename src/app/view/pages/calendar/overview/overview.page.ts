@@ -93,10 +93,10 @@ export class CalendarOverviewPage {
     loader: () => this.calendarFilters.listFilterable(),
   });
 
-  /** Empty means "nothing hidden yet" — every filterable calendar is visible by default. */
+  /** Empty means "nothing hidden yet" - every filterable calendar is visible by default. */
   protected readonly hiddenCalendarIds = signal<ReadonlySet<string>>(new Set());
 
-  /** Every filterable calendar is hidden — the agenda swaps its empty state for an explanation. */
+  /** Every filterable calendar is hidden - the agenda swaps its empty state for an explanation. */
   protected readonly allSourcesHidden = computed(() => {
     const calendars = this.filterableCalendars.value() ?? [];
 
@@ -105,7 +105,7 @@ export class CalendarOverviewPage {
 
   /**
    * The loaded range: the visible week, or the month's full grid including its edge days. Value
-   * equality on purpose — selecting another day inside the same range must not look like a change,
+   * equality on purpose - selecting another day inside the same range must not look like a change,
    * or the resource below would reload on every tap.
    */
   private readonly range = computed(
@@ -123,10 +123,10 @@ export class CalendarOverviewPage {
 
   /**
    * The source filter (#18) is applied here, client-side, rather than by re-querying with
-   * `OccurrenceFilter` — the full range is already loaded, so narrowing it is a synchronous
+   * `OccurrenceFilter` - the full range is already loaded, so narrowing it is a synchronous
    * recompute. Round-tripping through the resource on every toggle used to flash the agenda empty
    * mid-reload (the resource clears `value()` while its loader runs), which collapsed the list's
-   * height and reset the scroll position — exactly the "layout jumps to the top" bug this avoids.
+   * height and reset the scroll position - exactly the "layout jumps to the top" bug this avoids.
    */
   protected readonly loadedOccurrences = computed<readonly CalendarOccurrence[]>(() => {
     const all = this.occurrences.value() ?? [];

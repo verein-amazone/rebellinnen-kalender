@@ -37,7 +37,7 @@ export class ReminderTextInvalidError extends Error {
 /**
  * The „Nicht vergessen“ list: a flat set of entries that are either open or done.
  *
- * Deliberately not a task manager — no dates and no priorities. The order is the user's own: open
+ * Deliberately not a task manager - no dates and no priorities. The order is the user's own: open
  * entries first, completed ones below, and inside each section whatever arrangement was last
  * dragged. The preferences only decide where an entry *enters* a section, so nothing here rearranges
  * a list somebody sorted by hand.
@@ -106,7 +106,7 @@ export class ReminderListInteractor {
 
   /**
    * Moves an entry to `toIndex` inside its own section, counted over the entries the screen is
-   * showing. The two sections never mix — a completed entry only moves among completed ones.
+   * showing. The two sections never mix - a completed entry only moves among completed ones.
    *
    * The neighbours are taken from the visible entries, so an entry hidden by the day-change rule can
    * end up numerically between two visible ones. Nobody sees it, and switching the rule off only

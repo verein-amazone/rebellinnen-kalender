@@ -1,7 +1,7 @@
 import type { CalendarSourceType } from '../entities/calendar-source.record';
 
 /**
- * What the app may do with an occurrence, derived from its source's ownership — never stored
+ * What the app may do with an occurrence, derived from its source's ownership - never stored
  * per row, so the rules cannot drift apart from the data.
  */
 export interface SourceCapabilities {
@@ -14,7 +14,7 @@ export interface SourceCapabilities {
 
 /**
  * Capabilities follow ownership: the app owns its items, the OS owns device items, an ICS feed is
- * read-only. `calendarWritable` only matters for device calendars — a read-only device calendar
+ * read-only. `calendarWritable` only matters for device calendars - a read-only device calendar
  * offers no action at all.
  */
 export function capabilitiesFor(

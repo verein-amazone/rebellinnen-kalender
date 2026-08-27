@@ -142,7 +142,7 @@ describe('parseIcsCalendar', () => {
       'BEGIN:VEVENT',
       'UID:broken@verein',
       'SUMMARY:Broken',
-      // No DTSTART — collectEvent throws for this component specifically.
+      // No DTSTART - collectEvent throws for this component specifically.
       'END:VEVENT',
     ]);
 

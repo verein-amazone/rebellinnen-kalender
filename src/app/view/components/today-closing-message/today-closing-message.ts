@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 
 /**
- * The Today page's closing footer: one headline, an optional supporting line, and — only for the
- * "an appointment is still coming" state — a quiet link to it.
+ * The Today page's closing footer: one headline, an optional supporting line, and - only for the
+ * "an appointment is still coming" state - a quiet link to it.
  *
  * Deliberately not `.rk-card`: the issue calls for plain text on the existing background, not
  * another prominent bordered card. The appointment link is the one allowed exception, and even that

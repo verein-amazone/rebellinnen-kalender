@@ -1,13 +1,13 @@
 import type { ContentItemKind } from '@app/data/entities/content-item.record';
 
-/** One "More on this topic" link — a title and the URL it points to. */
+/** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceView {
   readonly title: string;
   readonly url: string;
 }
 
 /**
- * A curated content item as a view needs it — everything `ContentItemRecord` carries, kept as its
+ * A curated content item as a view needs it - everything `ContentItemRecord` carries, kept as its
  * own type so `view/**` never imports the data-layer record directly (enforced by the `view/**` →
  * `data/**` ESLint boundary).
  */

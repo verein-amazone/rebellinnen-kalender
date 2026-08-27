@@ -23,7 +23,7 @@ and versioned migrations.
 ### The database gateway
 
 `data/gateways/sqlite.gateway.ts` is the only file that imports the plugin. Everything above it
-depends on the `SqliteDatabase` contract in `sqlite-database.ts` — `query()` and `run()`, plus a
+depends on the `SqliteDatabase` contract in `sqlite-database.ts` - `query()` and `run()`, plus a
 `SqliteUnavailableError` and the `SQLITE_DATABASE` token DAOs inject. Two consequences worth knowing:
 
 - **The connection opens lazily on first use, not from an app initializer.** Nothing in the first
@@ -36,8 +36,8 @@ depends on the `SqliteDatabase` contract in `sqlite-database.ts` — `query()` a
 
 The contract also exposes `transaction<T>(work)`: the callback receives a `SqliteExecutor` (the same
 `query`/`run` surface) and everything issued through it commits together or not at all. The gateway
-implements this with plain `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` statements — identical behaviour on
-iOS, Android and `jeep-sqlite` — with the plugin's automatic per-statement transaction switched off
+implements this with plain `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` statements - identical behaviour on
+iOS, Android and `jeep-sqlite` - with the plugin's automatic per-statement transaction switched off
 inside, and serializes statements and transactions on the single shared connection. Two rules follow:
 
 - **Inside a `transaction()` callback, only the passed executor may be used.** Calling the database
@@ -59,9 +59,9 @@ Two things to keep in mind:
   it was built against, and a newer `sql-wasm.wasm` next to that older glue fails to instantiate
   with a `LinkError`. pnpm hoists jeep-sqlite's own `sql.js` (`publicHoistPattern`) for the
   `angular.json` asset copy, and an override in `pnpm-workspace.yaml` keeps it on the newest
-  version that actually links — currently 1.12.0, because jeep-sqlite's declared `^1.11.0` range
+  version that actually links - currently 1.12.0, because jeep-sqlite's declared `^1.11.0` range
   wrongly admits 1.13+. Re-test on every jeep-sqlite upgrade (the reminders e2e specs catch a
-  mismatch) and drop the override once upstream rebuilds its glue — tracked upstream in
+  mismatch) and drop the override once upstream rebuilds its glue - tracked upstream in
   [jeep-sqlite#50](https://github.com/jepiqueau/jeep-sqlite/issues/50) (same `LinkError`, same
   override as the community fix) and
   [jeep-sqlite#52](https://github.com/jepiqueau/jeep-sqlite/issues/52) (sql.js 1.14 support).
@@ -70,8 +70,8 @@ Two things to keep in mind:
   replaces the plugin's jeep-sqlite web implementation with `@sqlite.org/sqlite-wasm` + OPFS.
   When that ships: bump the plugin, remove the jeep-sqlite wiring in `web-sqlite-store.ts`, and
   delete the `publicHoistPattern`/`overrides` block plus the `sql-wasm.wasm` asset entry. (A
-  repo-local fallback design for the same replacement — main-thread `kvvfs` behind the
-  `SQLITE_DATABASE` token — was sketched on 2026-08-07 and can be built if #694 stalls for good.)
+  repo-local fallback design for the same replacement - main-thread `kvvfs` behind the
+  `SQLITE_DATABASE` token - was sketched on 2026-08-07 and can be built if #694 stalls for good.)
 - `sql-wasm.wasm` is copied by **every** build (see `angular.json`). CI runs the e2e suite against
   the production bundle served statically, so the production web build must be able to open a
   database too. There is still no web product; the asset also ships in the native bundles, which is
@@ -130,21 +130,21 @@ SQLite/table access.
 
 All schema changes are **versioned migrations** under `data/migrations/`: one file per version
 (`001-create-reminders.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
-the highest `toVersion`. Never mutate an existing shipped migration — a device that already applied
+the highest `toVersion`. Never mutate an existing shipped migration - a device that already applied
 it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
 Add a new migration instead.
 
 Applying them is the plugin's job, not ours: the gateway hands the registry to
 `addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is
 supported on every platform, applies each upgrade in a transaction (with a backup on native), and
-reports the same number through `getVersion()` — a hand-rolled `user_version` loop would duplicate
+reports the same number through `getVersion()` - a hand-rolled `user_version` loop would duplicate
 that bookkeeping and could disagree with it.
 
 ## Transaction boundaries
 
 A single logical unit of work (for example, a multi-table write for one use case) runs inside one
-`transaction()` call. Transaction control belongs at the boundary that represents the unit of work —
-the service that coordinates several DAOs — not buried inside unrelated DAO methods. DAOs stay
+`transaction()` call. Transaction control belongs at the boundary that represents the unit of work -
+the service that coordinates several DAOs - not buried inside unrelated DAO methods. DAOs stay
 transaction-agnostic: a DAO method takes an optional trailing `SqliteExecutor` parameter defaulting
 to the injected database, so the same method works standalone and inside a transaction.
 
@@ -161,20 +161,20 @@ records:
 
 `reminders`, the first table, follows these and adds one decision worth repeating: the completion
 state is the `completed_at` timestamp alone (`NULL` means open). A second boolean column could
-disagree with the timestamp, so there is none. The list is read in exactly one order —
+disagree with the timestamp, so there is none. The list is read in exactly one order -
 `ORDER BY (completed_at IS NULL) DESC, position ASC, created_at ASC`, i.e. open entries first, each
-section in the order the user arranged, with `created_at` only breaking a tie — and the table's only
+section in the order the user arranged, with `created_at` only breaking a tie - and the table's only
 index mirrors that.
 
 ### Manual order
 
 `position` is a `REAL`, not an integer rank. Moving an entry between two others writes the midpoint of
-their positions, so a reorder is a **single-row `UPDATE`** — and a single statement is already atomic,
+their positions, so a reorder is a **single-row `UPDATE`** - and a single statement is already atomic,
 which is why dragging a row does not need transaction support that does not exist. An entry entering a
 section gets one step (1000) beyond the end it enters at.
 
 Fractional positions can only be halved so many times before two doubles round to the same value. When
-the gap between the neighbours falls below `1e-6` the interactor renumbers that section instead —
+the gap between the neighbours falls below `1e-6` the interactor renumbers that section instead -
 still in one statement, built as `SET position = CASE id WHEN ? THEN ? … END` by
 `ReminderDao.reassignPositions`. Reaching that point takes roughly fifty drops into the same shrinking
 gap; writing it as a loop of updates would have been the only part of the feature that could be
@@ -186,7 +186,7 @@ position belonging to the section it just left.
 
 **Hiding completed entries at the day change is an interactor rule, not SQL.** `completed_at` is a UTC
 instant while the cutoff is local midnight, and SQLite's `localtime` modifier resolves against the host
-process' zone — which is not the same on the native plugin and in the `jeep-sqlite` build — and cannot
+process' zone - which is not the same on the native plugin and in the `jeep-sqlite` build - and cannot
 be bound as a parameter. It is also a product rule driven by a preference, and DAOs hold no business
 rules. Hidden entries are only filtered out of the list; the rows stay in the database.
 
@@ -194,7 +194,7 @@ rules. Hidden entries are only filtered out of the list; the rows stay in the da
 
 The calendar (#29) combines three source types behind one read model. The dependency chain is
 `interactors/calendar/*` → `data/calendar/calendar.repository.ts` → DAOs, gateways and the
-recurrence machinery. The repository is the calendar's unit-of-work boundary — the deliberate
+recurrence machinery. The repository is the calendar's unit-of-work boundary - the deliberate
 exception to „repositories are not introduced automatically“: it coordinates several DAOs, the
 recurrence engine, the native calendar gateway and the ICS pipeline, and every method that changes
 derived rows runs inside one transaction.
@@ -206,7 +206,7 @@ derived rows runs inside one transaction.
   per-occurrence overrides or cancellations keyed by the occurrence's **original start**);
   `ics_subscriptions` (configuration plus the raw text and HTTP validators of the last valid
   download).
-- **Derived but retained:** `ics_items`/`ics_item_exceptions` — the normalized form of the active
+- **Derived but retained:** `ics_items`/`ics_item_exceptions` - the normalized form of the active
   ICS revision. Only a fully validated new revision may replace them; a failed refresh never
   touches them.
 - **Derived and disposable:** `occurrences` and `source_coverage`. One row per concrete instance
@@ -238,7 +238,7 @@ derived rows without touching canonical data.
 ## Native calendar gateway boundary
 
 The device calendar is read through `data/gateways/native-calendar.gateway.ts` wrapping
-[`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) — the only file
+[`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) - the only file
 importing it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
 views. Permissions are only ever requested from the explicit „connect device calendars“ action,
 never on startup.
@@ -269,34 +269,34 @@ subscription explicitly opts into `http`.
 
 ## Stores
 
-`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table — the
+`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table - the
 appearance preferences (`appearance.store.ts`) and the preferences of the „Nicht vergessen“ list
 (`reminders.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 
 `reminders.store.ts` is the one to look at for the boundary: it holds where a new or completed entry
-enters its section and whether completed entries disappear at the day change — three scalars. The
+enters its section and whether completed entries disappear at the day change - three scalars. The
 entries themselves stay in SQLite.
 
 Stores expose their state as signals and **validate on read**: a stored value may come from an older
 app version or from a manually edited storage entry, so an unrecognised value falls back to the
 documented default instead of reaching the rest of the app.
 
-`localStorage` access throws in some privacy modes, so it is never touched directly — reads and
+`localStorage` access throws in some privacy modes, so it is never touched directly - reads and
 writes are guarded, and a lost preference is preferable to a broken app.
 
 A store is **not** where a table-backed list belongs. The screen that shows one holds it in a
 `resource()` and reloads after each write (see
 [frontend-architecture.md](./frontend-architecture.md)); interactors stay stateless. When a second
-consumer of the same list appears, that cache can be promoted into the data layer — and this
+consumer of the same list appears, that cache can be promoted into the data layer - and this
 document amended.
 
 ## Future synchronization
 
 The design keeps future sync possible through clean boundaries and stable IDs (client-generated
 UUIDs, separated external identifiers). We deliberately do **not** implement synchronization
-infrastructure now — no sync tables, outboxes, or tombstones — because there is no backend and adding
+infrastructure now - no sync tables, outboxes, or tombstones - because there is no backend and adding
 that machinery prematurely would add cost without value. It can be introduced later behind the data
 layer (for example via a repository combining local records with a sync source) without changing
 interactors or views.

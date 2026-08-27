@@ -1,5 +1,5 @@
 /**
- * One credited image as a view needs it — kept as its own type so `view/**` never imports the
+ * One credited image as a view needs it - kept as its own type so `view/**` never imports the
  * data-layer gateway type directly (enforced by the `view/**` → `data/**` ESLint boundary).
  */
 export interface ImageCreditView {

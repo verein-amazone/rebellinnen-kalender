@@ -27,7 +27,7 @@ const RANGE_BUFFER_DAYS = 1;
  * The OS stays authoritative: this interactor only decides *when* to read (connect, app
  * foreground, calendar screen, explicit refresh) and hands the result to the repository, which
  * swaps the affected range transactionally. Permission loss and native failures flag the source
- * and keep the cached rows — stale data beats an empty calendar offline.
+ * and keep the cached rows - stale data beats an empty calendar offline.
  */
 @Injectable({ providedIn: 'root' })
 export class DeviceCalendarSyncInteractor {
@@ -75,7 +75,7 @@ export class DeviceCalendarSyncInteractor {
       permission = await this.gateway.checkReadPermission();
     } catch {
       // The web build has no native implementation at all (`@ebarooni/capacitor-calendar` is
-      // iOS/Android only) and an automatic trigger — app foreground, opening the calendar screen —
+      // iOS/Android only) and an automatic trigger - app foreground, opening the calendar screen -
       // can call `refresh()` on it with a source already seeded/connected. The previous cache stays;
       // the source just shows as failing rather than throwing an unhandled rejection.
       await this.repository.setSourceState(DEVICE_SOURCE_ID, 'error', context);

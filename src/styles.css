@@ -1,4 +1,4 @@
-/* Global stylesheet. Keep this file an import barrel — put actual rules in ./styles/*.css. */
+/* Global stylesheet. Keep this file an import barrel - put actual rules in ./styles/*.css. */
 
 @import 'tailwindcss';
 /* Defines .cdk-visually-hidden, which the CDK LiveAnnouncer relies on. Without it the announcer's

@@ -10,7 +10,7 @@ import { CalendarMaintenanceStore } from '@app/data/stores/calendar-maintenance.
  * instants computed in the old zone) and a recurrence-engine upgrade (coverage rows are stamped
  * with the version that generated them). `ensureConsistency()` is cheap when nothing changed and
  * is meant to run on app start and on resume. Rebuilding never touches canonical app items or the
- * retained ICS data — that is the whole point of derived rows.
+ * retained ICS data - that is the whole point of derived rows.
  */
 @Injectable({ providedIn: 'root' })
 export class CalendarMaintenanceInteractor {
@@ -27,7 +27,7 @@ export class CalendarMaintenanceInteractor {
       await this.repository.rebuildAllDerived(context);
     }
     if (zoneChanged) {
-      // rebuildAllDerived deliberately skips device sources — the cache can only be refilled by a
+      // rebuildAllDerived deliberately skips device sources - the cache can only be refilled by a
       // native query, which may be unavailable right now. Its local-day columns still need to
       // move to the new zone, and that much can be done locally from the stored UTC instants.
       await this.repository.recomputeDeviceLocalDays(context);

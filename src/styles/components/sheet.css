@@ -11,8 +11,8 @@
   }
 
   /*
-   * The panel. This is the one place a height constraint is correct — the sheet must not grow past
-   * the screen — and the body below scrolls instead. The inset keeps it clear of the notch.
+   * The panel. This is the one place a height constraint is correct - the sheet must not grow past
+   * the screen - and the body below scrolls instead. The inset keeps it clear of the notch.
    */
   .rk-sheet-panel {
     @apply bg-card text-card-foreground flex w-full flex-col rounded-t-xl;
@@ -35,7 +35,7 @@
   }
 
   /*
-   * Purely a visual affordance. The sheet is not draggable in v1 — the close button and Escape are
+   * Purely a visual affordance. The sheet is not draggable in v1 - the close button and Escape are
    * the dismissal paths, and both work with a keyboard and with a screen reader.
    */
   .rk-sheet-grabber {
@@ -57,7 +57,7 @@
    * The only scrolling region. `overscroll-contain` stops the scroll from chaining to the page
    * behind once the body hits its end. The safe-area inset lives here rather than on
    * `.rk-sheet-footer`, because not every sheet's content has one (e.g. a picker that closes on
-   * tap) — this is the one wrapper every sheet's content always sits inside.
+   * tap) - this is the one wrapper every sheet's content always sits inside.
    */
   .rk-sheet-body {
     @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
@@ -84,7 +84,7 @@
 
 /*
  * Plain CSS animations on purpose. base.css neutralises motion by forcing `animation-duration` to
- * 0.01ms on descendants of <html>, and the Web Animations API ignores that entirely — so an
+ * 0.01ms on descendants of <html>, and the Web Animations API ignores that entirely - so an
  * `Element.animate()` sheet would keep sliding for users who asked it not to. The overlay container
  * is a child of <body>, so those existing rules already reach this panel.
  *

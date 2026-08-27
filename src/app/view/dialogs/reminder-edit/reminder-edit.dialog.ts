@@ -12,7 +12,7 @@ export interface ReminderEditDialogData {
  * Changes the text of one „Nicht vergessen“ entry.
  *
  * Closes with the new text, or with `undefined` when the change is cancelled or the sheet is
- * dismissed — so cancelling leaves the entry exactly as it was.
+ * dismissed - so cancelling leaves the entry exactly as it was.
  */
 @Component({
   selector: 'app-reminder-edit',

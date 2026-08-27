@@ -130,7 +130,7 @@ async function setup(items: Reminder[] = []) {
     reminderChanges,
     settle: () => fixture.whenStable(),
     /** The drop output is called directly: jsdom gives every element zero size, so a real CDK
-     *  pointer drag cannot be simulated — and the gesture itself is the CDK's own tested surface. */
+     *  pointer drag cannot be simulated - and the gesture itself is the CDK's own tested surface. */
     async dropRow(entries: Reminder[], previousIndex: number, currentIndex: number) {
       const component = fixture.componentInstance as unknown as {
         drop(event: {
@@ -142,7 +142,7 @@ async function setup(items: Reminder[] = []) {
       await component.drop({ previousIndex, currentIndex, container: { data: entries } });
       await fixture.whenStable();
     },
-    /** Whether the CDK may put the entry at that index — the guard that keeps a drag in its group. */
+    /** Whether the CDK may put the entry at that index - the guard that keeps a drag in its group. */
     mayDropAt(item: Reminder, index: number) {
       const component = fixture.componentInstance as unknown as {
         sortPredicate(index: number, drag: { data: Reminder }): boolean;
@@ -155,7 +155,7 @@ async function setup(items: Reminder[] = []) {
         span.textContent?.trim(),
       ),
     rows: () => Array.from(element.querySelectorAll('li')),
-    /** Opens the add sheet — a stub, so this just triggers `openAdd()`, not a real overlay. */
+    /** Opens the add sheet - a stub, so this just triggers `openAdd()`, not a real overlay. */
     async openAdd() {
       await this.clickByText('button', 'Punkt hinzufügen');
     },

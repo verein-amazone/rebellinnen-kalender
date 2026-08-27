@@ -12,7 +12,7 @@ import { ContentCatalogStore } from '../stores/content-catalog.store';
 
 const CATALOG_URL = '/content/catalog.json';
 
-/** One curated item as it ships in the catalog asset — everything except its derived image path. */
+/** One curated item as it ships in the catalog asset - everything except its derived image path. */
 export interface CatalogEntry {
   readonly id: string;
   readonly kind: ContentItemKind;
@@ -22,7 +22,7 @@ export interface CatalogEntry {
   readonly imageAttribution: string | null;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
-  /** "More on this topic" links (#22). Optional — omitted on entries that ship without any. */
+  /** "More on this topic" links (#22). Optional - omitted on entries that ship without any. */
   readonly relatedSources?: readonly RelatedSourceRecord[];
   readonly validFrom: string | null;
   readonly validTo: string | null;
@@ -37,13 +37,13 @@ export interface Catalog {
 /**
  * Reconciles the curated content catalog (`public/content/catalog.json`) into `content_items`.
  *
- * Editorial content changes far more often than the app's schema does, so — unlike every other
- * table — `content_items` is not seeded by a migration (see `010-create-content-items.ts`).
+ * Editorial content changes far more often than the app's schema does, so - unlike every other
+ * table - `content_items` is not seeded by a migration (see `010-create-content-items.ts`).
  * Instead the catalog ships as a versioned JSON asset, bundled with the app like any other static
  * file, and this reconciles the database to match it: every call is cheap once caught up (a local
  * JSON fetch and a version comparison), and only a version bump triggers the diff-and-write work.
  *
- * Called lazily from the content interactors — never from an app initializer — matching this
+ * Called lazily from the content interactors - never from an app initializer - matching this
  * repo's existing rule that the database connection opens on first use, not at boot.
  */
 @Injectable({ providedIn: 'root' })
@@ -79,13 +79,13 @@ export class ContentCatalogSync {
     });
   }
 
-  /** A removed catalog item takes its bookmark with it — nothing else in `bookmarks` points at it. */
+  /** A removed catalog item takes its bookmark with it - nothing else in `bookmarks` points at it. */
   private async removeItem(id: string, tx: SqliteExecutor): Promise<void> {
     await this.bookmarks.remove(id, tx);
     await this.contentItems.delete(id, tx);
   }
 
-  /** `null` on any failure — a missing/unreachable/malformed asset must never break the app. */
+  /** `null` on any failure - a missing/unreachable/malformed asset must never break the app. */
   private async fetchCatalog(): Promise<Catalog | null> {
     try {
       const response = await fetch(CATALOG_URL);
@@ -114,7 +114,7 @@ function toRecord(entry: CatalogEntry): ContentItemRecord {
   return { ...entry, relatedSources: entry.relatedSources ?? [], imagePath: imagePathFor(entry) };
 }
 
-/** Every catalog entry has a matching bundled image at this path — see `public/content/README`. */
+/** Every catalog entry has a matching bundled image at this path - see `public/content/README`. */
 function imagePathFor(entry: CatalogEntry): string {
   const dir = entry.kind === 'rebellin' ? 'rebellinnen' : 'wissensimpulse';
   return `/content/${dir}/${entry.id}.webp`;

@@ -22,7 +22,7 @@ export interface WritableAppCalendar {
  *
  * Writable calendars come from two source types: the app's own calendars, always writable because
  * capabilities follow ownership (see `source-capabilities.ts`), and enabled, writable device
- * calendars — a create writes straight into the OS calendar (see
+ * calendars - a create writes straight into the OS calendar (see
  * `AppEventEditingInteractor.create`), never a canonical app record. This is the only interactor
  * the picker may use; views must never inject `CalendarSourceDao` directly.
  */
@@ -33,7 +33,7 @@ export class AppCalendarsInteractor {
   private readonly emojiPicker = inject(EmojiPickerGateway);
 
   /**
-   * Lists the picker's choices, first creating the app's own calendar source if none exists yet —
+   * Lists the picker's choices, first creating the app's own calendar source if none exists yet -
    * so a fresh install never shows an empty picker. This runs here rather than from an app
    * initializer: a `provideAppInitializer` write races the SQLite plugin's own startup and can hang
    * bootstrap before the plugin is ready to accept queries, where a component-triggered read/write

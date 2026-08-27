@@ -4,14 +4,14 @@ import type { Migration } from './migration';
  * ICS subscriptions and their normalized read-only calendar data (#29).
  *
  * `ics_subscriptions` is authoritative configuration plus the retained snapshot of the last valid
- * download: the URL (sensitive — it may carry access tokens; it is never logged in full, see
+ * download: the URL (sensitive - it may carry access tokens; it is never logged in full, see
  * `redactIcsUrl`), HTTP cache metadata for conditional requests, refresh bookkeeping, and the raw
  * ICS text of the last successful revision so derived data can be rebuilt offline after parser or
  * engine fixes.
  *
  * `ics_items`/`ics_item_exceptions` are the normalized representation of the active revision:
  * recurring masters with their RFC 5545 rule, plus overrides (RECURRENCE-ID) and cancellations
- * (EXDATE) keyed by the occurrence's original start. They are derived from the feed but retained —
+ * (EXDATE) keyed by the occurrence's original start. They are derived from the feed but retained -
  * only a fully validated new revision may replace them, so a failed refresh can never take the
  * offline copy away.
  */

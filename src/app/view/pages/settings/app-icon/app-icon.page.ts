@@ -8,8 +8,8 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 /**
  * „App-Symbol“: picks the icon the app shows on the home screen (#9).
  *
- * Unlike the other appearance settings this one is not backed by a store — the operating system
- * owns the active icon — so it uses `resource()` and reloads after every write, the same convention
+ * Unlike the other appearance settings this one is not backed by a store - the operating system
+ * owns the active icon - so it uses `resource()` and reloads after every write, the same convention
  * the device-calendar screen follows.
  */
 @Component({

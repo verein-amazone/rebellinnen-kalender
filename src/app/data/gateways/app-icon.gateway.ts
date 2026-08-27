@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { APP_ICON_PLUGIN } from './app-icon-plugin';
 
 /**
- * The device's launcher icon — the only importer of `@capawesome/capacitor-app-icon`.
+ * The device's launcher icon - the only importer of `@capawesome/capacitor-app-icon`.
  *
  * The icon names are the ones registered natively: the `activity-alias` names in
  * `android/app/src/main/AndroidManifest.xml` and the asset-catalog names in

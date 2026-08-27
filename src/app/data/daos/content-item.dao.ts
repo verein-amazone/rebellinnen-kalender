@@ -28,7 +28,7 @@ const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_attri
   source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily`;
 
 /**
- * Table access for curated content items. No business rules live here — the daily-selection logic
+ * Table access for curated content items. No business rules live here - the daily-selection logic
  * that picks *which* eligible item to feature belongs to `select-daily-impulse`, not this DAO.
  */
 @Injectable({ providedIn: 'root' })

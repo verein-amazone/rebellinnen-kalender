@@ -25,7 +25,7 @@ export interface CalendarIdentityEditResult {
 
 /**
  * The curated colour swatches offered in the identity editor, grouped by hue (reds/pinks,
- * purples/indigo, blues/teals, greens/yellow, oranges/browns/neutrals) — the same 30-colour set the
+ * purples/indigo, blues/teals, greens/yellow, oranges/browns/neutrals) - the same 30-colour set the
  * approved prototype design uses. Every swatch gets a distinct German name for the radio's
  * accessible name; the hex alone is not a usable label for assistive technology.
  */
@@ -63,12 +63,12 @@ export const CALENDAR_COLOR_PALETTE: readonly { readonly hex: string; readonly n
 ];
 
 /**
- * Changes a calendar's name, colour and emoji — the app calendar's own identity editor, opened from
+ * Changes a calendar's name, colour and emoji - the app calendar's own identity editor, opened from
  * `CalendarsPage`.
  *
  * Closes with the new identity, or `undefined` when the change is cancelled or the sheet is
  * dismissed, mirroring `ReminderEditDialog`. Colour is a curated swatch grid rather than a free
- * colour input — with only 30 possible values it stays easy to keep every one legible against the
+ * colour input - with only 30 possible values it stays easy to keep every one legible against the
  * app's surfaces, unlike an arbitrary user-picked hex. Emoji goes through
  * the `EMOJI_PICKER` token, the same `@independo/capacitor-emoji-picker` flow `ProfileInteractor`
  * already uses for the Today greeting's personal emoji, instead of a free-text field relying on the

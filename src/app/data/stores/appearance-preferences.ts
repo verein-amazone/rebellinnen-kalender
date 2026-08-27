@@ -12,7 +12,7 @@ export type ThemeId = (typeof THEME_IDS)[number];
 
 /**
  * The text-size ladder. `system` follows the device, every other id is an absolute override that
- * replaces the device value. It stops at 2x — Apple's Larger Text floor — rather than following the
+ * replaces the device value. It stops at 2x - Apple's Larger Text floor - rather than following the
  * OS all the way to 3.12x, which the layout does not stay usable at.
  *
  * The scale factors live in `src/styles/theme.css`; these ids are only the keys into it.

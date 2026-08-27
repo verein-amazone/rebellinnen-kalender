@@ -12,19 +12,19 @@
  *
  * What it writes per icon:
  *
- * - `ios/App/App/Assets.xcassets/<catalog>.appiconset/` — one flat 1024px PNG, full-bleed. iOS
+ * - `ios/App/App/Assets.xcassets/<catalog>.appiconset/` - one flat 1024px PNG, full-bleed. iOS
  *   applies its own corner mask, so the artwork stays edge to edge.
- * - `android/.../mipmap-<density>/<name>.png` — the legacy (pre-API-26) square launcher icon,
+ * - `android/.../mipmap-<density>/<name>.png` - the legacy (pre-API-26) square launcher icon,
  *   also full-bleed.
- * - `android/.../mipmap-<density>/<name>_round.png` — the legacy round icon: the artwork inside the
+ * - `android/.../mipmap-<density>/<name>_round.png` - the legacy round icon: the artwork inside the
  *   adaptive safe zone on a solid disc, so nothing is clipped.
- * - `android/.../mipmap-<density>/<name>_foreground.png` — the adaptive foreground: transparent
+ * - `android/.../mipmap-<density>/<name>_foreground.png` - the adaptive foreground: transparent
  *   canvas with the artwork scaled into the 72dp-of-108dp safe zone. Everything outside that zone
  *   can be cropped by the launcher mask, which would otherwise cut the spikes off the artwork.
- * - `android/.../mipmap-anydpi-v26/<name>.xml` and `<name>_round.xml` — the adaptive icon, pairing
+ * - `android/.../mipmap-anydpi-v26/<name>.xml` and `<name>_round.xml` - the adaptive icon, pairing
  *   that foreground with a solid background colour sampled from the source's own corners, so the
  *   padding is invisible.
- * - `public/app-icons/<id>.webp` — the preview shown on the „App-Symbol“ settings screen.
+ * - `public/app-icons/<id>.webp` - the preview shown on the „App-Symbol“ settings screen.
  *
  * Adding a fourth icon means dropping a square PNG into `resources/app-icons/`, adding an entry to
  * `ICONS` below, registering an `activity-alias` in `AndroidManifest.xml`, adding the catalog name
@@ -45,7 +45,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
  * icon has to keep the names the untouched parts of the native projects already reference:
  * `AppIcon` in the Xcode target and `@mipmap/ic_launcher` in `AndroidManifest.xml`.
  *
- * iOS alternate catalogs must not start with `AppIcon` — the system fails to resolve them on device.
+ * iOS alternate catalogs must not start with `AppIcon` - the system fails to resolve them on device.
  */
 const ICONS = [
   { id: 'klassisch', source: 'klassisch.png', catalog: 'AppIcon', resource: 'ic_launcher' },

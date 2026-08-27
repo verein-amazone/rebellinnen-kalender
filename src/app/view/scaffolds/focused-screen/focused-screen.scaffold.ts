@@ -13,9 +13,9 @@ import { Router } from '@angular/router';
 /**
  * How the screen is dismissed.
  *
- * - `back` — the screen was navigated into and the user returns the way they came (details,
+ * - `back` - the screen was navigated into and the user returns the way they came (details,
  *   settings subpages). Rendered as a back arrow.
- * - `close` — the screen is a self-contained task the user leaves without completing it (creating
+ * - `close` - the screen is a self-contained task the user leaves without completing it (creating
  *   or editing). Rendered as a close cross, because a back arrow would suggest that whatever was
  *   entered is kept.
  */
@@ -29,8 +29,8 @@ export type FocusedScreenDismissal = 'back' | 'close';
  * navigation while one is open. Every focused screen uses this scaffold so dismissal behaviour
  * stays identical everywhere. Focus is handled centrally by `PageFocus` on navigation, not here.
  *
- * Dismissing always navigates to an explicitly declared target — `returnTo` when the caller passed
- * one, `fallbackLink` otherwise — and replaces the current history entry rather than pushing a new
+ * Dismissing always navigates to an explicitly declared target - `returnTo` when the caller passed
+ * one, `fallbackLink` otherwise - and replaces the current history entry rather than pushing a new
  * one. It deliberately does not walk the browser history: a history-based back combined with a
  * pushed dismiss navigation makes the two screens point at each other, and the user is stuck
  * alternating between them (a deep-linked settings subpage, or any detail screen opened with
@@ -50,7 +50,7 @@ export class FocusedScreenScaffold {
   /** Where dismissing goes: the screen's parent, unless `returnTo` overrides it. */
   readonly fallbackLink = input<string>('/today');
   /**
-   * Where dismissing goes when the caller knows better than the static parent — a detail screen
+   * Where dismissing goes when the caller knows better than the static parent - a detail screen
    * reached from several places carries the origin in a `?returnTo=` query param and passes it
    * here, so leaving it returns to the list the user actually came from.
    */

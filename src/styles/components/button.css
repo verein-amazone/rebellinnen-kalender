@@ -55,17 +55,17 @@
     @apply hoverable:bg-muted active:bg-muted;
   }
 
-  /* Destructive actions. Never the only signal — pair it with an explicit verb, an icon and a
+  /* Destructive actions. Never the only signal - pair it with an explicit verb, an icon and a
      confirmation step. See the note in theme.css. */
   .rk-button-danger {
     @apply bg-danger text-danger-foreground;
     @apply hoverable:brightness-95 active:brightness-90;
   }
 
-  /* A destructive action that shouldn't carry primary-button weight — an outline in the danger
+  /* A destructive action that shouldn't carry primary-button weight - an outline in the danger
      colour rather than a fill, so it reads as "available but not the default path". Still pair it
      with an explicit verb, an icon and a confirmation step. Same shell as a field (`field.css`):
-     `border-2` and `bg-input-background`, not `bg-transparent` — `text-danger` alone doesn't clear
+     `border-2` and `bg-input-background`, not `bg-transparent` - `text-danger` alone doesn't clear
      4.5:1 against `bg-background` in every theme, and a danger-tinted surface only made that worse
      (mixing a dark colour into the page background lowers its luminance, closing the gap further);
      the field surface is close to white in every theme and keeps the pairing safely above 4.5:1. */
@@ -84,7 +84,7 @@
   }
 
   /*
-   * The filled variant, for the one action a compact row exists to perform — submitting the text
+   * The filled variant, for the one action a compact row exists to perform - submitting the text
    * that was just typed. Same corner radius as every other control; only the fill sets it apart.
    */
   .rk-icon-button-primary {
@@ -93,7 +93,7 @@
   }
 
   /* An outline variant in the primary colour, for an action worth more affordance than the plain
-     ghost `.rk-icon-button` but not filled like `.rk-icon-button-primary` — e.g. a header action
+     ghost `.rk-icon-button` but not filled like `.rk-icon-button-primary` - e.g. a header action
      that isn't the screen's main call to action. Primary, not secondary/muted, colour: a dim
      outline reads as disabled, which this control is not. `border-2` matches the field shell's
      border weight (`field.css`). */

@@ -22,13 +22,13 @@ export class CalendarAgendaBlock {
   readonly occurrences = input.required<readonly CalendarOccurrence[]>();
   /** Passed through to the cards' `DatePipe`; unset means device zone. For deterministic tests. */
   readonly timeZone = input<string>();
-  /** True when the source filter (#18) has hidden every calendar — takes over the empty state. */
+  /** True when the source filter (#18) has hidden every calendar - takes over the empty state. */
   readonly sourcesHidden = input(false);
 
   protected readonly dayLabel = computed(() => formatDayLong(this.day()));
 
   /**
-   * All-day entries and spans that cover the whole day come first, then the timed ones — a stable
+   * All-day entries and spans that cover the whole day come first, then the timed ones - a stable
    * partition, not a sort: within each group the interactor's chronological order is kept as-is.
    */
   protected readonly entries = computed<readonly CalendarOccurrence[]>(() => {

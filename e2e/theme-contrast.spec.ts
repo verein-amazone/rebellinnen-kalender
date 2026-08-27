@@ -37,7 +37,7 @@ test.describe('colour contrast per theme', () => {
     }
 
     /**
-     * The loop above walks paths, and neither a menu nor a sheet has one — so those two are the screen
+     * The loop above walks paths, and neither a menu nor a sheet has one - so those two are the screen
      * states it cannot reach. Together they cover the danger colour on a card and the sheet's field,
      * label and action buttons.
      */
@@ -66,7 +66,7 @@ test.describe('colour contrast per theme', () => {
      * #19's appointment screens and dialogs, none of which the path loop above reaches: the
      * three `actions` combinations a detail read view can render (app-owned, a writable device
      * event, a read-only one), the in-place edit view, the "Neuer Termin" form, and the two sheets
-     * calendar delete/edit can now open — `ConfirmationDialog` and `RecurrenceScopeDialog`.
+     * calendar delete/edit can now open - `ConfirmationDialog` and `RecurrenceScopeDialog`.
      */
     test(`${theme} has sufficient contrast on appointment screens`, async ({ page }) => {
       await selectTheme(page, theme);
@@ -93,7 +93,7 @@ test.describe('colour contrast per theme', () => {
       await page.getByRole('button', { name: 'Bearbeiten' }).click();
       await checkContrast();
 
-      // No "Abbrechen" button any more — the header back-arrow cancels edit mode (see
+      // No "Abbrechen" button any more - the header back-arrow cancels edit mode (see
       // `EventDetailPage.handleBeforeDismiss`).
       await page.getByRole('button', { name: 'Zurück' }).click();
       await page.getByRole('button', { name: 'Löschen' }).click();

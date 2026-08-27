@@ -18,7 +18,7 @@ export type TodayClosingStateId = (typeof TODAY_CLOSING_STATES)[number];
  * The Today page's closing footer, reduced to what it needs to render: which state applies, the
  * message-key(s) to resolve into copy, and the occurrence(s) a supporting line refers to.
  *
- * Copy text is deliberately not part of this shape — `headlineKey`/`supportingLineKey` are looked
+ * Copy text is deliberately not part of this shape - `headlineKey`/`supportingLineKey` are looked
  * up in the copy pool separately, so the state-selection rules stay testable without depending on
  * exact wording.
  */

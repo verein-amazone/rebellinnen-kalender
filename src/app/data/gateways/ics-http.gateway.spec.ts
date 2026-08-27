@@ -93,7 +93,7 @@ describe('IcsHttpGateway (web/fetch path)', () => {
       new Response(
         new ReadableStream<Uint8Array>({
           start(controller) {
-            // Left open (no close()) — a still-downloading body, so the reader's cancel() below
+            // Left open (no close()) - a still-downloading body, so the reader's cancel() below
             // actually reaches the underlying source's cancel algorithm instead of a no-op on an
             // already-closed stream.
             controller.enqueue(oversized);
@@ -114,7 +114,7 @@ describe('IcsHttpGateway (web/fetch path)', () => {
   });
 
   it('measures the byte limit precisely, not the UTF-16 code-unit count', async () => {
-    // Each 'ü' is one UTF-16 code unit but two UTF-8 bytes — a code-unit-based check would let
+    // Each 'ü' is one UTF-16 code unit but two UTF-8 bytes - a code-unit-based check would let
     // roughly double the intended byte budget through.
     const nearLimitChars = Math.floor(ICS_MAX_BYTES / 2) + 10;
     const oversizedText = 'ü'.repeat(nearLimitChars);

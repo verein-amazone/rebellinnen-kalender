@@ -41,7 +41,7 @@ const COLLECTION_FILTERS: readonly { readonly id: CollectionFilter; readonly lab
   { id: 'rebellin', label: 'Rebell*in' },
 ];
 
-/** One saved item as the Meine Sammlung card needs it — its reading time precomputed once. */
+/** One saved item as the Meine Sammlung card needs it - its reading time precomputed once. */
 interface SavedItemRow {
   readonly item: ContentItemView;
   readonly readingTime: string;
@@ -49,11 +49,11 @@ interface SavedItemRow {
 
 /**
  * The Content home (#24): a switch between Anlaufstellen (support services) and Meine Sammlung
- * (My Collection, #23) — every bookmarked item, filterable by content type, reactive to bookmark
+ * (My Collection, #23) - every bookmarked item, filterable by content type, reactive to bookmark
  * toggles made elsewhere (the detail view) via `BookmarkChanges`.
  *
  * The area switch uses `@angular/aria/tabs` (`Tabs`/`TabList`/`Tab`/`TabPanel`) rather than a
- * hand-rolled `role="tab"` set — it's the APG tab pattern (arrow-key navigation, `aria-selected`,
+ * hand-rolled `role="tab"` set - it's the APG tab pattern (arrow-key navigation, `aria-selected`,
  * `aria-controls` linking each tab to its panel, `inert` on the hidden panel) implemented and kept
  * current by Angular itself, ahead of custom ARIA in the project's a11y order of preference.
  */
@@ -102,7 +102,7 @@ export class ContentOverviewPage {
       : 'all',
   );
 
-  /** The `returnTo` a Meine Sammlung item's link carries into the detail view — see above. */
+  /** The `returnTo` a Meine Sammlung item's link carries into the detail view - see above. */
   protected readonly collectionReturnTo = computed(
     () => `/content?area=collection&filter=${this.collectionFilter()}`,
   );
@@ -133,7 +133,7 @@ export class ContentOverviewPage {
     this.collectionFilter.set(filter);
   }
 
-  /** Confirms before removing — a saved item is easy to lose track of, unlike bookmarking one. */
+  /** Confirms before removing - a saved item is easy to lose track of, unlike bookmarking one. */
   protected confirmUnsave(item: ContentItemView): void {
     const data: ConfirmationDialogData = {
       message: `„${item.title}“ wird aus deiner Sammlung entfernt.`,
@@ -171,7 +171,7 @@ export class ContentOverviewPage {
     () => this.selectedRegion() ?? this.regions()[0]?.id ?? null,
   );
   /** `effectiveRegion` is only ever `null` before `regions()` has loaded, when the filter and list
-   *  are hidden anyway — this gives the template a plain `string` to bind without an inline `??`. */
+   *  are hidden anyway - this gives the template a plain `string` to bind without an inline `??`. */
   protected readonly selectedRegionId = computed(() => this.effectiveRegion() ?? '');
 
   protected readonly filteredServices = computed(() => {

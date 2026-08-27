@@ -7,7 +7,7 @@ import { devicePlatform } from './device-platform';
  * Whether the on-screen keyboard is currently open.
  *
  * Native only: `@capacitor/keyboard`'s web implementation throws on `addListener` rather than
- * being a harmless no-op, so the browser build must not call it at all — `visible` simply stays
+ * being a harmless no-op, so the browser build must not call it at all - `visible` simply stays
  * `false` there, which is what it does not need anyway.
  */
 @Injectable({ providedIn: 'root' })

@@ -58,7 +58,7 @@ export class ContentDetailPage {
 
   readonly id = input.required<string>();
   /**
-   * Optional `?returnTo=` query param overriding where the back action goes — the same item is
+   * Optional `?returnTo=` query param overriding where the back action goes - the same item is
    * reachable from Today, from „Meine Sammlung“ and from the debug catalog, so each link says
    * where leaving should land. Passed straight to the scaffold, which owns dismissal. Bound
    * automatically by the router's component input binding, same as `id`.

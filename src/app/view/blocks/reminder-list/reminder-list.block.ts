@@ -57,11 +57,11 @@ export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
  * app.
  *
  * Open and completed entries are two lists rather than one, and the two are deliberately not
- * connected: dragging can rearrange a section but never complete or reopen an entry — the checkbox
+ * connected: dragging can rearrange a section but never complete or reopen an entry - the checkbox
  * stays the only way across. Dragging is also never the only way to move a row; the same moves sit in
  * the row's menu, which is what makes them reachable by tap and by keyboard.
  *
- * Adding opens the same sheet `edit()` does, with an empty draft — see `openAdd()`.
+ * Adding opens the same sheet `edit()` does, with an empty draft - see `openAdd()`.
  */
 @Component({
   selector: 'app-reminder-list',
@@ -114,7 +114,7 @@ export class ReminderListBlock {
   protected readonly isEmpty = computed(() => this.entries().length === 0);
 
   /**
-   * One list, with the open entries first and the completed ones after them — no headings between.
+   * One list, with the open entries first and the completed ones after them - no headings between.
    *
    * That the open entries come first and are contiguous is the data layer's guarantee, not something
    * re-established here: the list is read in exactly that order (see `ReminderDao.listAll`). The group
@@ -338,7 +338,7 @@ export class ReminderListBlock {
   /**
    * Every reload drops the hand-made order: the list that arrives is the one to show. Also the one
    * place every write funnels through, so it doubles as the notification the Today page's closing
-   * message — a sibling block with no other view of this list — reacts to.
+   * message - a sibling block with no other view of this list - reacts to.
    */
   protected reload(): void {
     this.ordered.set(null);

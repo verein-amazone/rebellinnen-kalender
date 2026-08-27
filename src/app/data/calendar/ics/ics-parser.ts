@@ -5,7 +5,7 @@ import type { TemporalValue } from '../../entities/temporal-value';
 import { utcInstantFromEpochMilliseconds } from '../utc-instant';
 
 /**
- * Why a feed cannot be used at all — as opposed to a single component that is just skipped. A
+ * Why a feed cannot be used at all - as opposed to a single component that is just skipped. A
  * stable code (rather than only the English message) is what lets a caller resolve this to a
  * translated, user-facing string later without parsing prose.
  */
@@ -30,14 +30,14 @@ export interface ParsedIcsCalendar {
   readonly exceptions: readonly IcsItemExceptionRecord[];
   /**
    * One entry per component that could not be normalized and was skipped instead of failing the
-   * whole feed — surfaced so the caller can log or eventually show a "n entries could not be
+   * whole feed - surfaced so the caller can log or eventually show a "n entries could not be
    * read" notice, instead of silently losing data with no trace.
    */
   readonly warnings: readonly string[];
 }
 
 /**
- * Parses and normalizes one ICS document — the only importer of `ical.js`.
+ * Parses and normalizes one ICS document - the only importer of `ical.js`.
  *
  * Recurring masters keep their RRULE text verbatim; EXDATEs become cancellation exceptions and
  * VEVENTs with a RECURRENCE-ID become overrides, both keyed by the occurrence's original start.
@@ -159,7 +159,7 @@ function collectEvent(
   }
 }
 
-/** A short, log-safe description of a skipped component — never the full event content. */
+/** A short, log-safe description of a skipped component - never the full event content. */
 function describeSkippedEvent(vevent: ICAL.Component, cause: unknown): string {
   const uid = vevent.getFirstPropertyValue('uid');
   const reason = cause instanceof Error ? cause.message : String(cause);
@@ -175,7 +175,7 @@ function readRrule(vevent: ICAL.Component): string | null {
 
 /**
  * An ICAL time in the app's lossless temporal form. Times whose TZID the runtime does not know
- * become floating — showing the event at its wall time beats dropping it.
+ * become floating - showing the event at its wall time beats dropping it.
  */
 function toTemporal(time: ICAL.Time): TemporalValue {
   if (time.isDate) {

@@ -20,7 +20,7 @@ export function devicePlatform(): DevicePlatform {
 /**
  * iOS renders the router's view transitions badly: instead of animating, the screen briefly dims
  * or flickers, because WKWebView repaints the whole page while snapshotting it. Skipping only the
- * animation is not enough — the snapshot is what causes the artefact — so the feature is left out
+ * animation is not enough - the snapshot is what causes the artefact - so the feature is left out
  * entirely there and navigation simply cuts to the new screen.
  */
 export function supportsViewTransitions(): boolean {
@@ -29,7 +29,7 @@ export function supportsViewTransitions(): boolean {
 
 /**
  * The injectable form of `devicePlatform()`, for components that branch on the platform and need a
- * fake in tests — a plain function call can't be substituted through `TestBed`, unlike a provider.
+ * fake in tests - a plain function call can't be substituted through `TestBed`, unlike a provider.
  * Bootstrap-time code still calls `devicePlatform()` directly; this exists for everything after.
  */
 @Injectable({ providedIn: 'root' })

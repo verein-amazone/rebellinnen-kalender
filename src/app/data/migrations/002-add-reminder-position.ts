@@ -4,7 +4,7 @@ import type { Migration } from './migration';
  * Gives every entry a manual position, so the list order is the user's and not the clock's.
  *
  * The position is a `REAL` on purpose. Dropping an entry between two others writes the midpoint of
- * their positions, which is a single-row `UPDATE` — and a single statement is already atomic, so the
+ * their positions, which is a single-row `UPDATE` - and a single statement is already atomic, so the
  * database contract needs no transaction support for a reorder. Renumbering a whole section is the
  * rare fallback and is written as one statement too (see `ReminderDao.reassignPositions`).
  *

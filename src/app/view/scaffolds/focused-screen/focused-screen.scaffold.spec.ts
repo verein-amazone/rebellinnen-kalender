@@ -61,7 +61,7 @@ describe('FocusedScreenScaffold', () => {
 
     expect(element.textContent).not.toContain('Fußzeilen-Aktion');
     expect(element.querySelectorAll('header').length).toBe(1);
-    // Only the header's own border/background chrome should exist — no second sticky bar.
+    // Only the header's own border/background chrome should exist - no second sticky bar.
     expect(element.querySelectorAll('.sticky').length).toBe(1);
   });
 
@@ -139,7 +139,7 @@ describe('FocusedScreenScaffold', () => {
 });
 
 /**
- * Clicks the scaffold's own dismiss button, not the projected header action — it is identified by
+ * Clicks the scaffold's own dismiss button, not the projected header action - it is identified by
  * its fixed position as the header's first `.rk-icon-button`.
  */
 function dismiss(element: HTMLElement): void {

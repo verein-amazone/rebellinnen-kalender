@@ -40,7 +40,7 @@ export function normalizeIcsUrl(raw: string, options: { allowInsecure: boolean }
 
 /**
  * The only form of a subscription URL that may ever be logged or displayed: origin plus the last
- * few characters of the path — enough to recognise the calendar, never enough to fetch it.
+ * few characters of the path - enough to recognise the calendar, never enough to fetch it.
  */
 export function redactIcsUrl(raw: string): string {
   try {

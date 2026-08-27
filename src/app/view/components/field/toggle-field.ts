@@ -8,7 +8,7 @@ import type {
 /**
  * A reusable on/off switch for a single boolean field, e.g. `<app-toggle-field [formField]="…" />`.
  *
- * The control stays a native `<input type="checkbox">` — `role="switch"` only changes how the
+ * The control stays a native `<input type="checkbox">` - `role="switch"` only changes how the
  * accessible role and state are announced, which every major screen reader supports for this
  * pattern (it is the same technique Angular Material's own slide toggle uses). Space/Enter,
  * `checked`, and label association therefore all stay the browser's, not ours.

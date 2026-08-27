@@ -66,7 +66,7 @@ function createPlugin(): CapacitorSQLitePlugin & PluginStub {
 }
 
 /**
- * jsdom cannot define the `jeep-sqlite` element, and the stubbed plugin does not need it — the web
+ * jsdom cannot define the `jeep-sqlite` element, and the stubbed plugin does not need it - the web
  * branch is otherwise exercised as it is on `ng serve`, including `saveToStore`.
  */
 @Injectable()

@@ -1,7 +1,7 @@
 import type { Migration } from './migration';
 
 /**
- * Calendar sources and their calendars — the top of the calendar schema (#29).
+ * Calendar sources and their calendars - the top of the calendar schema (#29).
  *
  * A **source** is where calendar data comes from: the app's own database (`app`), the operating
  * system's calendar store (`device`), or a subscribed ICS feed (`ics`). A **calendar** is one
@@ -13,7 +13,7 @@ import type { Migration } from './migration';
  * failed, cached data still shown), `error` (never had valid data or repeatedly failing), or
  * `permission-lost` (device access was revoked; the cache is kept but flagged).
  *
- * Foreign keys are declared for documentation but not relied upon — the plugin does not guarantee
+ * Foreign keys are declared for documentation but not relied upon - the plugin does not guarantee
  * `PRAGMA foreign_keys` on every platform, so cascading cleanups are explicit statements in the
  * unit of work that deletes a source.
  */

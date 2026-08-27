@@ -50,7 +50,7 @@ export interface OccurrenceFilter {
 
 /**
  * One occurrence as the unified range query returns it: the derived row joined with everything a
- * view needs to render it without knowing the source — calendar identity, capabilities derived
+ * view needs to render it without knowing the source - calendar identity, capabilities derived
  * from ownership, and whether the source's data is currently trustworthy.
  */
 export interface RangeOccurrence extends OccurrenceRecord {
@@ -73,7 +73,7 @@ export function icsCalendarRowId(subscriptionId: string): string {
  * Interactors call one repository method per unit of work and never touch the calendar DAOs
  * directly: every method that changes derived rows runs inside one transaction, so the UI can
  * never observe a half-replaced occurrence set. Coverage rows are written in the same transaction
- * as the rows they describe — coverage never claims data that did not commit.
+ * as the rows they describe - coverage never claims data that did not commit.
  *
  * Introduced deliberately (architecture docs: repositories are not automatic): the calendar domain
  * coordinates several DAOs, a recurrence engine, the native calendar gateway and the ICS pipeline,
@@ -140,7 +140,7 @@ export class CalendarRepository {
   }
 
   /**
-   * One occurrence by id, joined the same way as `occurrencesInRange` — for a detail view opened
+   * One occurrence by id, joined the same way as `occurrencesInRange` - for a detail view opened
    * from a range list or a deep link. `null` when the row is gone or orphaned (its source or
    * calendar no longer exists); disabled sources/calendars are not filtered out here, unlike the
    * range query, since a detail view opened directly is not browsing a list of visible rows.
@@ -162,7 +162,7 @@ export class CalendarRepository {
     return this.toRangeOccurrence(row, source, calendar);
   }
 
-  /** Joins a derived row with its source and calendar — the shape every calendar view consumes. */
+  /** Joins a derived row with its source and calendar - the shape every calendar view consumes. */
   private toRangeOccurrence(
     row: OccurrenceRecord,
     source: CalendarSourceRecord,
@@ -190,7 +190,7 @@ export class CalendarRepository {
   /**
    * „All occurrences“ (or a standalone edit): rewrites the master and rebuilds its rows.
    * Exceptions whose original occurrence the changed rule no longer generates are dropped
-   * deliberately — an override of a Tuesday cannot survive a series that now runs on Fridays.
+   * deliberately - an override of a Tuesday cannot survive a series that now runs on Fridays.
    */
   async updateItem(record: AppItemRecord, context: CalendarContext): Promise<void> {
     await this.database.transaction(async (tx) => {
@@ -347,7 +347,7 @@ export class CalendarRepository {
     );
   }
 
-  /** Changes one calendar's emoji only — its name and colour are untouched. */
+  /** Changes one calendar's emoji only - its name and colour are untouched. */
   async setCalendarEmoji(
     calendarId: string,
     emoji: string | null,
@@ -370,7 +370,7 @@ export class CalendarRepository {
 
   /**
    * Enables or disables every calendar of one source that shares a given native account/source
-   * (`nativeSourceId`, `null` included) in one transaction — the management screen's per-account
+   * (`nativeSourceId`, `null` included) in one transaction - the management screen's per-account
    * "select all" toggle. The calendar source's own `enabled` flag is untouched.
    */
   async setCalendarsEnabledByNativeSource(
@@ -391,7 +391,7 @@ export class CalendarRepository {
   /**
    * Opts out of the device source locally: it and its calendars stop being enabled, so their
    * occurrences disappear from every range query immediately. This does not and cannot revoke the
-   * OS permission — only the OS settings can do that — so a later `connect()` re-enables it.
+   * OS permission - only the OS settings can do that - so a later `connect()` re-enables it.
    */
   async disconnectDeviceSource(sourceId: string, context: CalendarContext): Promise<void> {
     await this.database.transaction(async (tx) => {
@@ -430,7 +430,7 @@ export class CalendarRepository {
     });
   }
 
-  /** Marks a source's data quality without touching its rows — cached data stays visible. */
+  /** Marks a source's data quality without touching its rows - cached data stays visible. */
   async setSourceState(
     sourceId: string,
     state: CalendarSourceState,
@@ -581,7 +581,7 @@ export class CalendarRepository {
    * Activates a fully validated new revision in one transaction: the previous normalized items,
    * exceptions and derived rows are replaced, the raw document and HTTP cache metadata stored, and
    * the source goes back to `ok`. Nothing here runs unless download, parse and normalization all
-   * succeeded — a failed refresh can never reach this method, which is what preserves the last
+   * succeeded - a failed refresh can never reach this method, which is what preserves the last
    * valid offline copy.
    */
   async activateIcsRevision(
@@ -692,7 +692,7 @@ export class CalendarRepository {
   /**
    * Widens the materialization window when a queried range approaches a coverage edge, and
    * rebuilds the affected app and ICS sources into the wider window from their retained canonical
-   * or normalized data — no re-download. Device coverage is not touched here: only a native
+   * or normalized data - no re-download. Device coverage is not touched here: only a native
    * refresh can fill it. Cheap when nothing is near an edge (one coverage read per source).
    */
   async extendCoverageForRange(
@@ -733,7 +733,7 @@ export class CalendarRepository {
           : coverage.windowEndUtc,
       };
 
-      // The widened window and the rows it materializes must commit together — otherwise an
+      // The widened window and the rows it materializes must commit together - otherwise an
       // interruption between two separate transactions could leave coverage permanently claiming
       // a span with no rows in it, and nothing would ever notice or repair that.
       if (source.type === 'app') {
@@ -747,7 +747,7 @@ export class CalendarRepository {
   /**
    * Deletes and rebuilds every derived row that can be rebuilt locally: app sources from their
    * canonical items, ICS sources from their retained normalized data. The device cache is left
-   * alone — it can only be refilled by the native provider, and offline it is all there is.
+   * alone - it can only be refilled by the native provider, and offline it is all there is.
    * Canonical data is never touched (the repair path after engine upgrades or zone changes).
    */
   async rebuildAllDerived(context: CalendarContext): Promise<void> {
@@ -763,7 +763,7 @@ export class CalendarRepository {
   /**
    * Repairs the cached device rows' local-day columns after a device timezone change. The
    * underlying `start_utc`/`end_utc` are still correct absolute instants; only which device-zone
-   * day they land on changes, so this recomputes locally instead of requiring a native refresh —
+   * day they land on changes, so this recomputes locally instead of requiring a native refresh -
    * which may not even be possible offline or with permission lost.
    */
   async recomputeDeviceLocalDays(context: CalendarContext): Promise<void> {
@@ -857,7 +857,7 @@ export class CalendarRepository {
   }
 
   /**
-   * Replaces the derived rows of one app item — standalone or series — inside the source's
+   * Replaces the derived rows of one app item - standalone or series - inside the source's
    * covered window. Called after every write to the item or its exceptions.
    */
   async rematerializeItem(itemId: string, context: CalendarContext): Promise<void> {
@@ -955,7 +955,7 @@ export class CalendarRepository {
 
   /**
    * Drops exceptions the changed rule can no longer anchor. Only original starts inside the
-   * covered window can be verified against the generated set; anything outside it is kept — it
+   * covered window can be verified against the generated set; anything outside it is kept - it
    * will be judged when the window reaches it.
    */
   private async pruneIncompatibleExceptions(

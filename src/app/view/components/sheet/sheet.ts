@@ -33,7 +33,7 @@ let nextId = 0;
 @Component({
   selector: 'app-sheet',
   // The CDK overlay pane is a flex container, and a flex child does not stretch on the main axis on
-  // its own — without this the panel is only as wide as its widest line instead of the full screen.
+  // its own - without this the panel is only as wide as its widest line instead of the full screen.
   host: { class: 'block w-full' },
   imports: [NgComponentOutlet, LucideX],
   templateUrl: './sheet.html',
@@ -55,7 +55,7 @@ export class Sheet {
     /*
      * The trap is created by hand rather than with the `cdkTrapFocus` directive for two reasons: we
      * want focus to enter only once the panel has been laid out, and the directive's auto-capture
-     * restores focus on destroy, which SheetService already does — and does better, because it can
+     * restores focus on destroy, which SheetService already does - and does better, because it can
      * fall back to the page heading when the opener is gone.
      */
     afterNextRender(() => {

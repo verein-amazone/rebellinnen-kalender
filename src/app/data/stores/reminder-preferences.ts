@@ -16,7 +16,7 @@ export interface ReminderPreferences {
   readonly completedItemPlacement: ReminderPlacementId;
   /**
    * Whether a completed entry disappears once the local day it was completed on is over. It is only
-   * hidden — the row stays in the database.
+   * hidden - the row stays in the database.
    */
   readonly hideCompletedAtDayChange: boolean;
 }

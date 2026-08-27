@@ -15,7 +15,7 @@ export type CompletedVisibilityId = 'hide' | 'keep';
 /**
  * Reading and changing the preferences of the „Nicht vergessen“ list.
  *
- * These only decide where an entry enters a section and how long a completed one stays visible — the
+ * These only decide where an entry enters a section and how long a completed one stays visible - the
  * order itself belongs to the user and lives with the entries. The interactor owns the option lists
  * including their German labels, so the wording is the same wherever the choices appear.
  */

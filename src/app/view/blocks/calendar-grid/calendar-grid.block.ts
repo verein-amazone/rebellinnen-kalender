@@ -23,7 +23,7 @@ interface DayCell {
   readonly day: string;
   readonly dayNumber: number;
   readonly inShownMonth: boolean;
-  /** „5. Mittwoch, 5. August 2026, 2 Termine" — day number first, matching the visible label. */
+  /** „5. Mittwoch, 5. August 2026, 2 Termine" - day number first, matching the visible label. */
   readonly srLabel: string;
   readonly colors: readonly string[];
 }
@@ -40,14 +40,14 @@ const KEY_STEPS: Record<string, number> = {
 };
 
 /**
- * The week strip or month grid. Pure presentation: days and markers come in, a tapped day goes out —
+ * The week strip or month grid. Pure presentation: days and markers come in, a tapped day goes out -
  * loading and selection state stay with the page.
  *
  * For the keyboard the whole grid is a single tab stop with a roving tabindex, the composite-widget
  * half of the APG date-picker pattern: Tab lands on one day, the arrow keys move by day and by week,
  * Home/End jump inside the week, Enter/Space select. Up to 42 cells as individual tab stops would
  * make reaching anything behind the grid a chore. The cells stay plain `<button>`s rather than an
- * ARIA `grid`, because each cell already names its full date — row/column semantics would add
+ * ARIA `grid`, because each cell already names its full date - row/column semantics would add
  * table-navigation announcements without adding information.
  */
 @Component({

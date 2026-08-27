@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 const THIRD_PARTY_LICENSES_URL = '/3rdpartylicenses.txt';
 const IMAGE_ATTRIBUTIONS_URL = '/image-attributions.json';
 
-/** One image's licence, source and attribution — see `public/image-attributions.json`. */
+/** One image's licence, source and attribution - see `public/image-attributions.json`. */
 export interface ImageAttribution {
   readonly path: string;
   readonly title: string;
@@ -24,11 +24,11 @@ export interface ImageAttribution {
  * (`LicensesPage`, `ImageCreditsPage`): the third-party licence file Angular's
  * `extractLicenses` build option generates into the bundled app (see `angular.json`'s production
  * configuration), and the curated image attribution data. Both ship as plain files alongside the
- * app, so they load and work fully offline — no network request ever leaves the device.
+ * app, so they load and work fully offline - no network request ever leaves the device.
  */
 @Injectable({ providedIn: 'root' })
 export class LegalContentGateway {
-  /** `null` on any failure — a missing/unreachable file must never break the settings page. */
+  /** `null` on any failure - a missing/unreachable file must never break the settings page. */
   async fetchThirdPartyLicenses(): Promise<string | null> {
     try {
       const response = await fetch(THIRD_PARTY_LICENSES_URL);
@@ -38,7 +38,7 @@ export class LegalContentGateway {
     }
   }
 
-  /** Empty on any failure — same reasoning as `fetchThirdPartyLicenses`. */
+  /** Empty on any failure - same reasoning as `fetchThirdPartyLicenses`. */
   async fetchImageAttributions(): Promise<readonly ImageAttribution[]> {
     try {
       const response = await fetch(IMAGE_ATTRIBUTIONS_URL);

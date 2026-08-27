@@ -251,7 +251,7 @@ describe('materializeAppItem', () => {
 
     const { occurrences } = materializeAppItem(item(), [cancelledOutside], context());
 
-    // Nothing to remove — the occurrence was never generated for this window in the first place.
+    // Nothing to remove - the occurrence was never generated for this window in the first place.
     expect(
       occurrences.every((occurrence) => occurrence.originalStart !== '2026-11-23T18:00:00'),
     ).toBe(true);

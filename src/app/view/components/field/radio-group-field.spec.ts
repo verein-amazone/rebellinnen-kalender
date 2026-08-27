@@ -74,7 +74,7 @@ describe('RadioGroupField', () => {
     // `id` is a plain @Input, so a static `id="…"` in the consumer's template would otherwise
     // reflect onto this host element by default. Nothing inside currently uses the raw `id` as an
     // element id (only `${id}-error` does, on the error paragraph), but the host must not carry it
-    // either — a consumer or a future template change could collide with it.
+    // either - a consumer or a future template change could collide with it.
     const host = (fixture.nativeElement as HTMLElement).querySelector('app-radio-group-field')!;
     expect(host.hasAttribute('id')).toBe(false);
   });
@@ -110,7 +110,7 @@ describe('RadioGroupField', () => {
   it('shows the error and binds aria-invalid/aria-describedby only once touched', async () => {
     const { fixture, inputs, liveRegion } = await setup();
 
-    // The model starts as '', which `required` already rejects — blurring without picking an
+    // The model starts as '', which `required` already rejects - blurring without picking an
     // option is what reveals that, matching how a user would tab past the group untouched.
     inputs[0].dispatchEvent(new Event('blur'));
     await fixture.whenStable();

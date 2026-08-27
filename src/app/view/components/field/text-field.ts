@@ -6,7 +6,7 @@ import { FormField } from '@angular/forms/signals';
  * A single-line `.rk-field` bound to a Signal Forms field: text, date or time.
  *
  * These three share one component because they share the exact same markup and accessibility
- * contract, and only differ in the native `type` attribute — a separate component per `type` would
+ * contract, and only differ in the native `type` attribute - a separate component per `type` would
  * just be the same template copied three times. See `docs/architecture/design-system.md#field-input-and-error`
  * for the contract this reproduces: a real `<label for>`, an error wrapper that is always in the
  * DOM (`aria-live="polite" aria-atomic="true"`), and `aria-invalid`/`aria-describedby` bound only
@@ -15,7 +15,7 @@ import { FormField } from '@angular/forms/signals';
 @Component({
   selector: 'app-text-field',
   // `id` is a plain `@Input`, so a static `id="…"` in a consumer's template also reflects onto
-  // this host element by default — duplicating the id the inner `<input>` needs for `<label for>`.
+  // this host element by default - duplicating the id the inner `<input>` needs for `<label for>`.
   // `[attr.id]: null` strips it back off the host once Angular applies host bindings.
   host: { class: 'block', '[attr.id]': 'null' },
   imports: [FormField],

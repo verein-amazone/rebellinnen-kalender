@@ -1,7 +1,7 @@
 const WORDS_PER_MINUTE = 200;
 
 /**
- * Estimated reading time label for a Markdown body — word count over an average adult reading
+ * Estimated reading time label for a Markdown body - word count over an average adult reading
  * speed, rounded up to whole minutes. Markdown syntax characters (`#`, `*`, `-`, `[]()`) are cheap
  * to read and contribute negligible noise to a word-count estimate, so the raw source is counted
  * as-is rather than stripped first.

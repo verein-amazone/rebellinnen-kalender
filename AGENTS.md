@@ -19,7 +19,7 @@ before changing application code:
   project-locally. **Use it instead of recalling Angular APIs from memory:** `get_best_practices`
   before writing Angular code, `search_documentation` for the current spelling of an API, an Angular
   Aria pattern, a CDK primitive or a router/forms detail. The docs deliberately keep Angular
-  examples short for this reason — the MCP server is the up-to-date source, not the prose.
+  examples short for this reason - the MCP server is the up-to-date source, not the prose.
 
 ## Angular conventions
 
@@ -74,13 +74,13 @@ that bite most often:
 - **Style a native element; do not wrap it.** `rk-*` classes and attribute directives go on a real
   `<button>` or `<a>`. A custom-element host loses focusability, Enter/Space, `disabled` and form
   participation, and ARIA does not give them back.
-- **The accessible name must contain the visible label**, ideally starting with it — Voice Control
+- **The accessible name must contain the visible label**, ideally starting with it - Voice Control
   users say what they see. Icon-only controls name the action; the icon is `aria-hidden="true"`.
   `placeholder` is never the only label.
 - **Bind ARIA state to the same signal as the visible state.** `aria-expanded`, `aria-pressed`,
   `aria-current`, `aria-invalid` must never live in a second place.
 - **Announce once.** A visible change uses a template `role="status"` / `aria-live="polite"` region;
-  a change from outside the template uses the CDK `LiveAnnouncer` — never both for one event.
+  a change from outside the template uses the CDK `LiveAnnouncer` - never both for one event.
   `PageFocus` already owns navigation focus and announcements; pages do not manage either.
 - **Form controls need a real `<label for>`**, plus `aria-invalid` and `aria-describedby` on error.
   `ng-invalid` and a red border are not error reporting.

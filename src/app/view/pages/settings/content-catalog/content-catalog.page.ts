@@ -8,7 +8,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 /**
  * Developer-only listing of every curated content item, for clicking through the full catalog
  * without needing it featured on Today or bookmarked into My Collection. Not a user-facing
- * feature — kept under Settings → Entwicklung rather than the Content tab it used to live in.
+ * feature - kept under Settings → Entwicklung rather than the Content tab it used to live in.
  */
 @Component({
   selector: 'app-settings-content-catalog',

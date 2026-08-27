@@ -145,7 +145,7 @@ describe('CalendarGridBlock', () => {
     expect(host.selected()).toBe('2026-08-09');
   });
 
-  it('keeps exactly one cell in the tab order — the selected day', async () => {
+  it('keeps exactly one cell in the tab order - the selected day', async () => {
     const { buttons } = await setup({ view: 'month', selectedDay: '2026-08-15' });
 
     const tabbable = buttons().filter((b) => b.tabIndex === 0);

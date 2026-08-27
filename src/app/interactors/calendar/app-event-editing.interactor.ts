@@ -60,7 +60,7 @@ export class AppEventEditingInteractor {
 
   /**
    * The full canonical record behind an item, for a consumer that needs a field the read-model
-   * (`CalendarOccurrence`) does not carry — currently the note, for the detail page's read view and
+   * (`CalendarOccurrence`) does not carry - currently the note, for the detail page's read view and
    * its edit-mode prefill. Kept here rather than exposing `CalendarRepository` to views, per the
    * architecture's DAO/repository-injection boundary.
    */
@@ -69,7 +69,7 @@ export class AppEventEditingInteractor {
   }
 
   /**
-   * Creates a standalone item or a new series and returns its id — unless `calendarId` names a
+   * Creates a standalone item or a new series and returns its id - unless `calendarId` names a
    * writable device calendar, in which case the appointment is written straight into the OS
    * calendar via `createDeviceEvent` instead. `EventForm` never sets `rrule` on a draft, so a
    * device destination never has to represent recurrence the plugin write does not accept.
@@ -104,7 +104,7 @@ export class AppEventEditingInteractor {
   /**
    * Writes a standalone event directly into the OS calendar and refreshes the device cache so it
    * appears immediately, instead of waiting for the next automatic sync. No canonical app row is
-   * created — the OS is the record from the start, the same as any other device event.
+   * created - the OS is the record from the start, the same as any other device event.
    */
   private async createDeviceEvent(nativeCalendarId: string, draft: AppEventDraft): Promise<string> {
     const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;

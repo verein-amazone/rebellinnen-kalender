@@ -13,7 +13,7 @@ export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
  * Reading and changing the appearance preferences: colour theme, text size and motion.
  *
  * The interactor owns the option lists including their German labels, so every screen that offers
- * these choices renders the same wording. It deliberately owns no colour values — theme previews
+ * these choices renders the same wording. It deliberately owns no colour values - theme previews
  * are rendered by setting `data-theme` on a preview element and letting the token layer do the
  * work.
  */

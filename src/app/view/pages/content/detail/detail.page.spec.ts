@@ -85,7 +85,7 @@ async function setup(
     navigateByUrl,
     settle: () => fixture.whenStable(),
     // The scaffold's own dismiss button, identified by its fixed position as the header's first
-    // `.rk-icon-button` — the bookmark toggle is a projected header action and comes after it.
+    // `.rk-icon-button` - the bookmark toggle is a projected header action and comes after it.
     dismiss: () => element.querySelector<HTMLButtonElement>('header .rk-icon-button')!.click(),
   };
 }

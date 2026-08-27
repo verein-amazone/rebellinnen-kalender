@@ -3,7 +3,7 @@
  *
  * Consumers set `--pill-color` inline (an arbitrary per-instance hex, not a design token, so this
  * can't be a Tailwind colour utility). Text stays the normal foreground colour rather than the
- * calendar's own colour — with a 30-swatch curated palette and two themes, per-swatch text-colour
+ * calendar's own colour - with a 30-swatch curated palette and two themes, per-swatch text-colour
  * contrast can't be guaranteed, so the identity lives in the border and the tint only, never in
  * text contrast. The tint blends toward `--color-card` rather than white, the same `color-mix()`
  * technique `theme.css` uses for the `-subtle` status backgrounds, so it lands correctly in dark
@@ -22,7 +22,7 @@
   }
 
   /*
-   * A support service's colour identity as a square badge (Anlaufstellen, #24 follow-up) — same
+   * A support service's colour identity as a square badge (Anlaufstellen, #24 follow-up) - same
    * "coloured border over a tinted background" technique as `.rk-pill`, so it stays correct in
    * dark mode too, but `rounded-2xl` rather than `rounded-full` so the two identities read as
    * visually distinct contexts (a filter chip vs. a card's lead visual). Consumers set

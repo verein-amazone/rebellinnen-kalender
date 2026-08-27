@@ -88,7 +88,7 @@ describe('TextField', () => {
     const matches = (fixture.nativeElement as HTMLElement).querySelectorAll('#appointment-title');
 
     // A plain @Input `id` reflects onto the host element by default when a consumer writes a
-    // static `id="…"` attribute — duplicating the id the inner <input> needs for `<label for>`.
+    // static `id="…"` attribute - duplicating the id the inner <input> needs for `<label for>`.
     // Exactly one element must carry it, or `#id` lookups (and the label association) break.
     expect(matches).toHaveLength(1);
     expect(matches[0].tagName).toBe('INPUT');

@@ -1,7 +1,7 @@
 import { dependencies } from '../../../../../package.json';
 
 /**
- * Engineering constants for occurrence materialization — deliberately configuration, not product
+ * Engineering constants for occurrence materialization - deliberately configuration, not product
  * limits. The window bounds how far recurrence is expanded ahead of time; navigation beyond it
  * extends the window rather than hitting a wall.
  */
@@ -11,7 +11,7 @@ export const WINDOW_PAST_MONTHS = 6;
 export const WINDOW_FUTURE_MONTHS = 18;
 
 /**
- * When a range query comes this close to a coverage edge, the window is extended — the user is
+ * When a range query comes this close to a coverage edge, the window is extended - the user is
  * clearly navigating there.
  */
 export const WINDOW_EDGE_THRESHOLD_MONTHS = 1;
@@ -34,7 +34,7 @@ export const MAX_RULE_ITERATIONS = 100_000;
  * older engine and triggers a full rebuild.
  *
  * Read directly from `package.json` instead of being hand-typed, so it can never drift from what
- * is actually installed — there is nothing to keep in sync. `rrule-temporal` is still pinned to an
+ * is actually installed - there is nothing to keep in sync. `rrule-temporal` is still pinned to an
  * **exact** version there (no `^`): an engine "version" that were itself a range (`^2.0.2`) would
  * not identify one fixed set of behaviour, which defeats the point of stamping it.
  */

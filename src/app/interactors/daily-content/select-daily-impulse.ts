@@ -3,7 +3,7 @@ import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 export interface SelectDailyImpulseInput {
   /** Items eligible for `today`, as returned by `ContentItemDao.listEligibleForDay`. */
   readonly eligible: readonly ContentItemRecord[];
-  /** Ids shown on recent days, oldest first — excluded from today's pick where possible. */
+  /** Ids shown on recent days, oldest first - excluded from today's pick where possible. */
   readonly recentIds: readonly string[];
   /** Today, `YYYY-MM-DD`. Also seeds the deterministic pick among equally-eligible candidates. */
   readonly today: string;
@@ -11,7 +11,7 @@ export interface SelectDailyImpulseInput {
 
 /**
  * Content with no `validFrom`/`validTo` bound (or open-ended on one side) is treated as if it were
- * eligible for this many days, when computing its selection weight below — long enough that it's
+ * eligible for this many days, when computing its selection weight below - long enough that it's
  * clearly less urgent than a dated item, without ever reaching zero probability.
  */
 const EVERGREEN_WINDOW_DAYS = 90;
@@ -20,19 +20,19 @@ const EVERGREEN_WINDOW_DAYS = 90;
  * Picks the Today page's featured content item from today's eligible items.
  *
  * Pure and stateless: the caller supplies `today` explicitly, so the pick is exactly reproducible
- * from its inputs and needs no clock or `Math.random()` — the "randomness" among eligible
+ * from its inputs and needs no clock or `Math.random()` - the "randomness" among eligible
  * candidates is instead derived from `today` itself, so the same day always resolves to the same
  * item (the store is what keeps that item on screen for the rest of the day) while different days
  * routinely resolve to different ones.
  *
  * `recentIds` (the highlight cooldown, see `DailyImpulseStore`) is excluded first to avoid
- * repeatedly surfacing the same small set of items — unless excluding it would leave nothing, in
+ * repeatedly surfacing the same small set of items - unless excluding it would leave nothing, in
  * which case the exclusion is dropped for this pick rather than returning `null` while eligible
  * content still exists.
  *
  * Among what's left, each item is weighted by how narrow its eligible window is: an item bound to
  * a specific `validFrom`–`validTo` span gets a weight of `1 / windowDays`, so a one-day item is far
- * more likely to be picked than a week-long one, which in turn beats evergreen content — without
+ * more likely to be picked than a week-long one, which in turn beats evergreen content - without
  * ever hard-excluding anything the way a strict "dated beats evergreen" rule would.
  */
 export function selectDailyImpulse(input: SelectDailyImpulseInput): ContentItemRecord | null {
@@ -49,7 +49,7 @@ export function selectDailyImpulse(input: SelectDailyImpulseInput): ContentItemR
   return weightedPick(candidates, today);
 }
 
-/** How many days an item is eligible for — narrower windows get picked more often. */
+/** How many days an item is eligible for - narrower windows get picked more often. */
 function windowDays(item: ContentItemRecord): number {
   if (item.validFrom === null || item.validTo === null) {
     return EVERGREEN_WINDOW_DAYS;
@@ -64,7 +64,7 @@ function windowDays(item: ContentItemRecord): number {
 /**
  * Deterministically picks one item, weighted by `1 / windowDays`: `today` is hashed into a
  * fraction of the total weight, then candidates are walked in order, accumulating weight, until
- * that fraction is reached — the same technique as picking a slice of a pie chart by angle.
+ * that fraction is reached - the same technique as picking a slice of a pie chart by angle.
  */
 function weightedPick(
   candidates: readonly ContentItemRecord[],

@@ -14,7 +14,7 @@ export function deviceCalendarRowId(nativeCalendarId: string): string {
  * Identity is the source-scoped composite of platform, native calendar, native event id and the
  * instance start: iOS repeats one event id for every instance of a series, so the start is what
  * tells instances apart, and the platform prefix keeps identical ids from different worlds apart.
- * Cached rows are never editable app records — provenance is always `device-cached`.
+ * Cached rows are never editable app records - provenance is always `device-cached`.
  */
 export function normalizeDeviceInstances(
   sourceId: string,
@@ -38,7 +38,7 @@ export function normalizeDeviceInstances(
 }
 
 /**
- * The device-zone days a `[startUtc, endUtc)` interval touches — shared by normalization and by
+ * The device-zone days a `[startUtc, endUtc)` interval touches - shared by normalization and by
  * the zone-change repair, which recomputes these columns for already-cached rows without a new
  * native query (the UTC instants stay valid; only their local-day bucketing changes).
  */

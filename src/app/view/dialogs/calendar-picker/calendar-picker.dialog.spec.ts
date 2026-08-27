@@ -19,7 +19,7 @@ const calendarVerein: WritableAppCalendar = {
 };
 
 /**
- * Tested on its own, without the sheet chrome — the chrome has its own spec, and going through
+ * Tested on its own, without the sheet chrome - the chrome has its own spec, and going through
  * `SheetService` here would only add the focus trap and the exit animation that jsdom cannot run.
  */
 async function setup(data: CalendarPickerDialogData) {
