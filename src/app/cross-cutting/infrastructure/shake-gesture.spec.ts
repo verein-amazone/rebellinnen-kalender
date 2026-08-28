@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SHAKE_PLUGIN } from './shake-plugin';
-import { ShakeGateway } from './shake.gateway';
+import { SHAKE_PLUGIN } from '@app/cross-cutting/plugins/shake.plugin';
+import { ShakeGesture } from './shake-gesture';
 
 class StubShakePlugin {
   listeners: (() => void)[] = [];
@@ -33,16 +33,16 @@ class StubShakePlugin {
   }
 }
 
-function setup(): { gateway: ShakeGateway; plugin: StubShakePlugin } {
+function setup(): { gateway: ShakeGesture; plugin: StubShakePlugin } {
   const plugin = new StubShakePlugin();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({ providers: [{ provide: SHAKE_PLUGIN, useValue: plugin }] });
 
-  return { gateway: TestBed.inject(ShakeGateway), plugin };
+  return { gateway: TestBed.inject(ShakeGesture), plugin };
 }
 
-describe('ShakeGateway', () => {
+describe('ShakeGesture', () => {
   // Under jsdom the platform is `web`, where the plugin has no implementation - the gateway is
   // expected to hand back a working no-op rather than let a caller branch on the platform.
   it('is a no-op on the web, without touching the plugin', async () => {

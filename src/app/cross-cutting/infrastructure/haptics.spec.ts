@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HAPTICS_PLUGIN } from './haptics-plugin';
-import { HapticsGateway } from './haptics.gateway';
+import { HAPTICS_PLUGIN } from '@app/cross-cutting/plugins/haptics.plugin';
+import { DeviceHaptics } from './haptics';
 
 class StubHapticsPlugin {
   available = true;
@@ -24,16 +24,16 @@ class StubHapticsPlugin {
   }
 }
 
-function setup(): { gateway: HapticsGateway; plugin: StubHapticsPlugin } {
+function setup(): { gateway: DeviceHaptics; plugin: StubHapticsPlugin } {
   const plugin = new StubHapticsPlugin();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({ providers: [{ provide: HAPTICS_PLUGIN, useValue: plugin }] });
 
-  return { gateway: TestBed.inject(HapticsGateway), plugin };
+  return { gateway: TestBed.inject(DeviceHaptics), plugin };
 }
 
-describe('HapticsGateway', () => {
+describe('DeviceHaptics', () => {
   it('passes the pattern to the plugin as plain events', async () => {
     const { gateway, plugin } = setup();
 

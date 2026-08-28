@@ -2,19 +2,19 @@ import { TestBed } from '@angular/core/testing';
 import type { AppIcon } from '@capawesome/capacitor-app-icon';
 import { describe, expect, it } from 'vitest';
 
-import { APP_ICON_PLUGIN } from './app-icon-plugin';
-import { AppIconGateway } from './app-icon.gateway';
+import { APP_ICON_PLUGIN } from '@app/cross-cutting/plugins/app-icon.plugin';
+import { DeviceAppIcon } from './app-icon';
 
-function setup(plugin: Partial<typeof AppIcon>): AppIconGateway {
+function setup(plugin: Partial<typeof AppIcon>): DeviceAppIcon {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [{ provide: APP_ICON_PLUGIN, useValue: plugin }],
   });
 
-  return TestBed.inject(AppIconGateway);
+  return TestBed.inject(DeviceAppIcon);
 }
 
-describe('AppIconGateway', () => {
+describe('DeviceAppIcon', () => {
   it('reports whether the device supports alternate icons', async () => {
     const gateway = setup({ isAvailable: async () => ({ available: false }) });
 

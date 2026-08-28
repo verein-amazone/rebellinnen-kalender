@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
-import { ShakeGateway } from '@app/data/gateways/shake.gateway';
+import { ShakeGesture } from '@app/cross-cutting/infrastructure/shake-gesture';
 
 /**
  * Shaking the phone as an input. Used on Today to replay the Tagesimpuls greeting, which is a
@@ -9,7 +9,7 @@ import { ShakeGateway } from '@app/data/gateways/shake.gateway';
  */
 @Injectable({ providedIn: 'root' })
 export class ShakeInteractor {
-  private readonly shake = inject(ShakeGateway);
+  private readonly shake = inject(ShakeGesture);
 
   /** Resolves with the function that stops listening again; a no-op where the gesture does not exist. */
   watch(onShake: () => void): Promise<() => void> {

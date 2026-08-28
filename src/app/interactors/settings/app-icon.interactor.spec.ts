@@ -2,11 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
-import { AppIconGateway } from '@app/data/gateways/app-icon.gateway';
+import { DeviceAppIcon } from '@app/cross-cutting/infrastructure/app-icon';
 
 import { AppIconInteractor } from './app-icon.interactor';
 
-class FakeAppIconGateway {
+class FakeDeviceAppIcon {
   available = true;
   currentIcon: string | null = null;
   readonly setIconCalls: string[] = [];
@@ -32,12 +32,12 @@ class FakeAppIconGateway {
 }
 
 function setup(platform: 'ios' | 'android' | 'web' = 'ios') {
-  const gateway = new FakeAppIconGateway();
+  const gateway = new FakeDeviceAppIcon();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
-      { provide: AppIconGateway, useValue: gateway },
+      { provide: DeviceAppIcon, useValue: gateway },
       { provide: DevicePlatformService, useValue: { platform } },
     ],
   });

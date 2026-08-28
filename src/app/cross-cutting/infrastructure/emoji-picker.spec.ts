@@ -1,19 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import type { EmojiPicker } from '@independo/capacitor-emoji-picker';
 
-import { EMOJI_PICKER_PLUGIN } from './emoji-picker-plugin';
-import { EmojiPickerGateway } from './emoji-picker.gateway';
+import { EMOJI_PICKER_PLUGIN } from '@app/cross-cutting/plugins/emoji-picker.plugin';
+import { NativeEmojiPicker } from './emoji-picker';
 
-function setup(plugin: Partial<typeof EmojiPicker>): EmojiPickerGateway {
+function setup(plugin: Partial<typeof EmojiPicker>): NativeEmojiPicker {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [{ provide: EMOJI_PICKER_PLUGIN, useValue: plugin }],
   });
 
-  return TestBed.inject(EmojiPickerGateway);
+  return TestBed.inject(NativeEmojiPicker);
 }
 
-describe('EmojiPickerGateway', () => {
+describe('NativeEmojiPicker', () => {
   it('resolves with the picked emoji', async () => {
     const gateway = setup({ present: async () => ({ emoji: '🌻' }) });
 

@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HapticsGateway, type HapticPulse } from '@app/data/gateways/haptics.gateway';
+import { DeviceHaptics, type HapticPulse } from '@app/cross-cutting/infrastructure/haptics';
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 
 import { HapticsInteractor } from './haptics.interactor';
 
-class FakeHapticsGateway {
+class FakeDeviceHaptics {
   available = true;
   patterns: (readonly HapticPulse[])[] = [];
 
@@ -19,12 +19,12 @@ class FakeHapticsGateway {
   }
 }
 
-function setup(): { interactor: HapticsInteractor; gateway: FakeHapticsGateway } {
-  const gateway = new FakeHapticsGateway();
+function setup(): { interactor: HapticsInteractor; gateway: FakeDeviceHaptics } {
+  const gateway = new FakeDeviceHaptics();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [{ provide: HapticsGateway, useValue: gateway }],
+    providers: [{ provide: DeviceHaptics, useValue: gateway }],
   });
 
   return { interactor: TestBed.inject(HapticsInteractor), gateway };

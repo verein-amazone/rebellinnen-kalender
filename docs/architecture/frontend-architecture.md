@@ -13,7 +13,8 @@ The application has three primary layers plus one supporting area:
 1. **View / Presenters** (`view/`) - everything the user sees and interacts with.
 2. **Interactors** (`interactors/`) - application use cases and business rules.
 3. **Data** (`data/`) - persistence and external data-source access.
-4. **Cross-cutting** (`cross-cutting/`) - shared technical utilities and UI/device infrastructure.
+4. **Cross-cutting** (`cross-cutting/`) - shared technical utilities, UI/device infrastructure, and
+   the Capacitor plugin tokens both other layers wrap.
 
 ## Dependency direction
 
@@ -306,10 +307,13 @@ Owns persistence and external data-source access. See
 - `data/daos/` - thin, table-oriented SQLite access (`*.dao.ts`), no business rules.
 - `data/migrations/` - versioned schema changes.
 - `data/stores/` - small persisted values that do not belong in relational tables.
-- `data/gateways/` - wrappers around external data sources. `sqlite.gateway.ts` owns the database
-  connection, the transactions and the migration run; `native-calendar.gateway.ts` owns the device
-  calendar; `ics-http.gateway.ts` owns ICS downloads. Plugin and parser types stay inside their
-  gateway or module, and callers depend on plugin-free contracts instead.
+- `data/gateways/` - wrappers around external **data sources**. `sqlite.gateway.ts` owns the
+  database connection, the transactions and the migration run; `native-calendar.gateway.ts` owns the
+  device calendar; `ics-http.gateway.ts` owns ICS downloads; the catalog gateways own the bundled
+  JSON assets. Plugin and parser types stay inside their gateway or module, and callers depend on
+  plugin-free contracts instead. A native capability that is _not_ a data source - haptics, the
+  shake gesture, the launcher icon - is not a gateway; it belongs in
+  `cross-cutting/infrastructure/`.
 - `data/calendar/` - the calendar domain's data machinery: `calendar.repository.ts` (see below),
   the recurrence materializer (sole importer of `rrule-temporal`), the ICS parser/normalizer (sole
   importer of `ical.js`) and the device-instance normalizer.
@@ -324,19 +328,28 @@ inside single transactions, and it is the only calendar surface interactors talk
 
 Only create cross-cutting code when it is actually shared.
 
-- `infrastructure/` - stateless wrappers around technical UI/device capabilities (navigation helpers,
-  opening system settings, sharing, UI messages, other device APIs initiated by presenters). The
-  native calendar is an intentional exception: because it is a queryable data source, its wrapper
-  lives in `data/gateways/`, not here.
+- `infrastructure/` - stateless wrappers around technical UI/device capabilities: the launcher icon,
+  haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard,
+  the OS text scale, the app lifecycle, page focus, change notifications. Interactors and presenters
+  both use them. The dividing line against `data/gateways/` is whether the thing is a **data
+  source**: the device calendar is queryable data and therefore a gateway, while haptics are not.
+  `app-lifecycle.ts` is the single owner of "the app came back to the foreground"; nothing else
+  registers an `appStateChange` listener.
   `local-day.ts` belongs here too: it wraps the clock plus the app-lifecycle events that tell it when
   to look again, and exposes the local day as a `YYYY-MM-DD` signal. A key rather than a `Date`, so it
   emits once per day change instead of on every check - a screen can make it a `resource` parameter
   and be reloaded at midnight without watching for it.
-- `contexts/` - readonly, application-wide state exposed to components via signals. Contexts may be
-  injected only into components/presenters; interactors and data-layer classes must not inject them.
-  Prefer local component state for page-specific concerns.
-- `helpers/`, `pipes/`, `directives/`, `validators/` - reusable technical utilities. They must not
-  conceal data-layer access or upward dependencies.
+- `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,
+  and the folder is only created when one does. A context may be injected only into
+  components/presenters; interactors and data-layer classes must not inject them. Prefer local
+  component state for page-specific concerns.
+- `plugins/` - the app's entire native surface: one file per Capacitor plugin package, exporting one
+  `InjectionToken`. Only `data/gateways/**` and `cross-cutting/infrastructure/**` may inject one, and
+  nothing outside this folder may import a plugin package at all. ESLint enforces both. See
+  [`src/app/cross-cutting/plugins/README.md`](../../src/app/cross-cutting/plugins/README.md).
+- `helpers/` - reusable technical utilities. They must not conceal data-layer access or upward
+  dependencies. `pipes/`, `directives/` and `validators/` are the obvious neighbours to add when one
+  is actually needed; they do not exist while they would be empty.
 - `markdown/` - the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
 
@@ -383,15 +396,15 @@ The two platforms disagree, so neither can be trusted to scale the app on its ow
   font sizes but **not** lengths - text grows while padding, gaps and heights stay put, which is how
   content ends up overlapping.
 
-`cross-cutting/infrastructure/system-text-scale.ts` is the gateway that resolves both: it resets
+`cross-cutting/infrastructure/system-text-scale.ts` resolves both: it resets
 Android's `textZoom` to 1 to take ownership of scaling, and exposes the OS factor as a signal, which
 `DocumentAppearance` writes to `--rk-os-scale` on `<html>`. The root font size is
-`calc(16px * var(--rk-os-scale))`, so the rem-based spacing scale grows along with the text. It wraps
-`@capawesome/capacitor-accessibility-preferences` and `@capacitor/text-zoom`, and is the only place
-those plugin types exist.
+`calc(16px * var(--rk-os-scale))`, so the rem-based spacing scale grows along with the text. It is
+the only consumer of the `@capawesome/capacitor-accessibility-preferences` and `@capacitor/text-zoom`
+tokens, so those plugin types exist nowhere else.
 
-Neither platform fires a change event, so the value is re-read on `appStateChange` when the app
-becomes active. It is read once more during bootstrap via `provideAppInitializer`, awaited, because
+Neither platform fires a change event, so the value is re-read through `AppLifecycle` whenever the
+app becomes active. It is read once more during bootstrap via `provideAppInitializer`, awaited, because
 applying the scale after the first paint would show the app at the wrong size for a frame - and the
 `textZoom` reset does not survive a restart.
 
@@ -481,7 +494,8 @@ Forbidden:
 - A page imports `@app/data/daos/content-item.dao` (view → data).
 - An interactor imports `@app/view/pages/today-page/...` (interactor → view).
 - A DAO imports an interactor or a page (data → interactors/view).
-- A Capacitor plugin type appears in an interactor or template instead of behind a gateway.
+- A Capacitor plugin package is imported outside `cross-cutting/plugins/`, or its types appear in an
+  interactor or template instead of staying behind the wrapper that injects the token.
 - Feature code imports `marked` directly instead of using `MarkdownRenderer` /
   `MarkdownContentComponent`.
 

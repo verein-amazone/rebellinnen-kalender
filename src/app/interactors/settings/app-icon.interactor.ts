@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
-import { AppIconGateway } from '@app/data/gateways/app-icon.gateway';
+import { DeviceAppIcon } from '@app/cross-cutting/infrastructure/app-icon';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
 export const APP_ICON_IDS = ['klassisch', 'pixel', 'nacht'] as const;
@@ -45,7 +45,7 @@ const DEFAULT_ICON: AppIconId = 'klassisch';
  */
 @Injectable({ providedIn: 'root' })
 export class AppIconInteractor {
-  private readonly gateway = inject(AppIconGateway);
+  private readonly gateway = inject(DeviceAppIcon);
   private readonly platform = inject(DevicePlatformService);
 
   readonly options: readonly AppIconOption[] = [

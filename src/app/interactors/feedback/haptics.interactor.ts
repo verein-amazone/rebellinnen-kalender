@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
-import { HapticsGateway, type HapticPulse } from '@app/data/gateways/haptics.gateway';
+import { DeviceHaptics, type HapticPulse } from '@app/cross-cutting/infrastructure/haptics';
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 
 /**
@@ -24,7 +24,7 @@ const ARRIVAL_PATTERN: readonly HapticPulse[] = [
  */
 @Injectable({ providedIn: 'root' })
 export class HapticsInteractor {
-  private readonly haptics = inject(HapticsGateway);
+  private readonly haptics = inject(DeviceHaptics);
   private readonly appearance = inject(AppearanceStore);
 
   /** Plays the arrival greeting, unless the user switched haptics off or the device has none. */

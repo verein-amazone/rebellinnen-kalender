@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 
 import { ProfileInteractor } from './profile.interactor';
 
-class FakeEmojiPickerGateway {
+class FakeEmojiPicker {
   result: string | null = '🌻';
 
   pickEmoji(): Promise<string | null> {
@@ -12,13 +12,13 @@ class FakeEmojiPickerGateway {
   }
 }
 
-function setup(): { interactor: ProfileInteractor; emojiPicker: FakeEmojiPickerGateway } {
+function setup(): { interactor: ProfileInteractor; emojiPicker: FakeEmojiPicker } {
   localStorage.clear();
   TestBed.resetTestingModule();
 
-  const emojiPicker = new FakeEmojiPickerGateway();
+  const emojiPicker = new FakeEmojiPicker();
   TestBed.configureTestingModule({
-    providers: [{ provide: EmojiPickerGateway, useValue: emojiPicker }],
+    providers: [{ provide: NativeEmojiPicker, useValue: emojiPicker }],
   });
 
   return { interactor: TestBed.inject(ProfileInteractor), emojiPicker };

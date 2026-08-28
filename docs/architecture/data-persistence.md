@@ -22,7 +22,8 @@ and versioned migrations.
 
 ### The database gateway
 
-`data/gateways/sqlite.gateway.ts` is the only file that imports the plugin. Everything above it
+`data/gateways/sqlite.gateway.ts` is the only file that injects the plugin (the plugin object
+itself is imported once in `cross-cutting/plugins/sqlite.plugin.ts` - see below). Everything above it
 depends on the `SqliteDatabase` contract in `sqlite-database.ts` - `query()` and `run()`, plus a
 `SqliteUnavailableError` and the `SQLITE_DATABASE` token DAOs inject. Two consequences worth knowing:
 
@@ -264,11 +265,27 @@ Writes that would restate what a row already says are skipped throughout the lay
 included - because such a write is indistinguishable from no write to every reader, and re-stamping
 one invalidates caches built on top of it.
 
+## Plugin tokens - `cross-cutting/plugins/`
+
+Every Capacitor plugin package is imported in exactly one file,
+`cross-cutting/plugins/<capability>.plugin.ts`, which hands it on as an Angular `InjectionToken`.
+Two layers inject such a token and no others: `data/gateways/**` for plugins that are a data source,
+and `cross-cutting/infrastructure/**` for plugins that are a device capability. ESLint enforces both
+the package ban and the token ban (specs excepted - substituting a token is what it is for).
+
+The reason is testability. Most of these plugins have no web implementation, so under jsdom every
+call rejects with `"<Plugin>.<method>() is not implemented on web"`, and a directly imported plugin
+object leaves a spec no seam to replace it - not even a component spec that only happens to construct
+the wrapper transitively. The folder also makes the native surface countable: those files are the
+complete list of native capabilities the app depends on.
+`src/app/cross-cutting/plugins/README.md` carries the detail, including why several tokens hold a
+plain forwarding object rather than the plugin itself.
+
 ## Native calendar gateway boundary
 
 The device calendar is read through `data/gateways/native-calendar.gateway.ts` wrapping
 [`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) - the only file
-importing it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
+injecting it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
 views. Permissions are only ever requested from the explicit „connect device calendars“ action,
 never on startup.
 

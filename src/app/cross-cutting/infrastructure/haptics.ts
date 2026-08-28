@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 
-import { HAPTICS_PLUGIN } from './haptics-plugin';
+import { HAPTICS_PLUGIN } from '@app/cross-cutting/plugins/haptics.plugin';
 
 /**
  * One beat of a haptic pattern, in the app's own terms so `@capawesome/capacitor-haptics` types stay
- * behind this gateway.
+ * behind this wrapper.
  */
 export interface HapticPulse {
   /** When the beat plays, in seconds from the start of the pattern. */
@@ -18,14 +18,15 @@ export interface HapticPulse {
 }
 
 /**
- * The device's haptic engine - the only importer of `@capawesome/capacitor-haptics`.
+ * The device's haptic engine, wrapping `@capawesome/capacitor-haptics` (see
+ * `../plugins/haptics.plugin.ts`).
  *
  * Every call swallows its failures. Haptics are decoration: a device without a Taptic Engine, a
  * user who switched system haptics off, or a web browser without the Vibration API must all end up
  * with a silent no-op rather than an error surfacing in a screen that only wanted to say hello.
  */
 @Injectable({ providedIn: 'root' })
-export class HapticsGateway {
+export class DeviceHaptics {
   private readonly plugin = inject(HAPTICS_PLUGIN);
 
   async isAvailable(): Promise<boolean> {

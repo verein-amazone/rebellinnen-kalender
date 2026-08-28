@@ -6,12 +6,12 @@ import {
   inject,
   Injector,
 } from '@angular/core';
-import { App as CapacitorApp } from '@capacitor/app';
 import { RouterOutlet } from '@angular/router';
 
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 
@@ -27,6 +27,7 @@ export class App {
   private readonly systemTextScale = inject(SystemTextScale);
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
   private readonly calendarMaintenance = inject(CalendarMaintenanceInteractor);
+  private readonly lifecycle = inject(AppLifecycle);
   private readonly injector = inject(Injector);
 
   /** Guards the asynchronous refresh chain against resolving into a torn-down injector. */
@@ -44,8 +45,7 @@ export class App {
       });
     });
 
-    // Mirrors `LocalDay`'s own `appStateChange` listener: a device calendar can change while the
-    // app is backgrounded (an edit made in the OS calendar app itself, or synced in from Google/
+    // A device calendar can change while the app is backgrounded (an edit made in the OS calendar app itself, or synced in from Google/
     // iCloud in the background), and nothing else re-reads it on the way back in. `refresh()` is
     // debounced (not `force`), so a foreground within `DEVICE_REFRESH_MIN_INTERVAL_MS` of the last
     // check is a no-op.
@@ -56,17 +56,13 @@ export class App {
     // dynamically rather than injected as a field: the ICS pipeline (parsing, HTTP) is otherwise
     // only reachable through the lazy `calendar-routes` chunk, and a static import here would pull
     // all of it into the initial bundle that every route pays for on first load.
-    const listener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        void this.refreshCalendars();
-      }
-    });
+    const stopWatchingResumes = this.lifecycle.onResume(() => void this.refreshCalendars());
     inject(DestroyRef).onDestroy(() => {
       this.destroyed = true;
-      void listener.then((handle) => handle.remove());
+      stopWatchingResumes();
     });
 
-    // `appStateChange` only fires on the way back in, so the first run has to be started here.
+    // A resume only fires on the way back in, so the first run has to be started here.
     void this.refreshCalendars();
   }
 

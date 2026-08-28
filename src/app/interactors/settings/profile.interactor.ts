@@ -1,18 +1,18 @@
 import { computed, inject, Injectable } from '@angular/core';
 
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { DEFAULT_PROFILE_PREFERENCES, NAME_MAX_LENGTH } from '@app/data/stores/profile-preferences';
 import { ProfileStore } from '@app/data/stores/profile.store';
 
 /**
  * Reading and changing the profile preferences: the name used in the Today greeting and the
  * personal emoji shown next to it. Opening the emoji picker lives here too, so the block that
- * triggers it never talks to `EmojiPickerGateway` directly.
+ * triggers it never talks to `NativeEmojiPicker` directly.
  */
 @Injectable({ providedIn: 'root' })
 export class ProfileInteractor {
   private readonly store = inject(ProfileStore);
-  private readonly emojiPicker = inject(EmojiPickerGateway);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
 
   /** The name field's `maxlength` - exposed so views never import the data-layer constant. */
   readonly nameMaxLength = NAME_MAX_LENGTH;

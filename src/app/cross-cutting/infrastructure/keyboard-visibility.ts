@@ -1,5 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { Keyboard } from '@capacitor/keyboard';
+
+import { KEYBOARD_PLUGIN } from '@app/cross-cutting/plugins/keyboard.plugin';
 
 import { devicePlatform } from './device-platform';
 
@@ -12,6 +13,7 @@ import { devicePlatform } from './device-platform';
  */
 @Injectable({ providedIn: 'root' })
 export class KeyboardVisibility {
+  private readonly plugin = inject(KEYBOARD_PLUGIN);
   private readonly visibleState = signal(false);
 
   readonly visible = this.visibleState.asReadonly();
@@ -21,13 +23,13 @@ export class KeyboardVisibility {
       return;
     }
 
-    const showListener = Keyboard.addListener('keyboardWillShow', () => {
+    const showListener = this.plugin.addListener('keyboardWillShow', () => {
       this.visibleState.set(true);
     });
     // `Did`, not `Will`: the consumer clamps scroll position once this flips back to `false` (see
     // main-navigation.scaffold.ts), which needs the keyboard's own resize/close animation already
     // finished and the layout settled, not just started.
-    const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+    const hideListener = this.plugin.addListener('keyboardDidHide', () => {
       this.visibleState.set(false);
     });
 
