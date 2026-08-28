@@ -1,112 +1,127 @@
-<!-- Pinned: the period nav and the Woche/Monat switcher stay put while the agenda below scrolls
-     under them, the same `sticky top-0` pattern `focused-screen.scaffold.html`'s header uses. A
-     background is required - without one the scrolling content behind would show through. `safe-top`
-     sits here rather than on the shell's `<main>` (see that comment) so this header's own background
-     - not whatever scrolls underneath it - fills the notch area. -->
-<div class="bg-background safe-top sticky top-0 z-10">
-  <!-- `py-2` here and `pt-4` on the scrollable block below reproduce the space
-       `.rk-screen-header-bar` + `.rk-screen-body` reserve on a focused screen, so switching between
-       this tab and a focused screen (e.g. event detail) doesn't shift where scrollable content
-       starts. -->
-  <div class="flex items-center gap-1 px-4 py-2">
-    <!-- Visually hidden: the bottom navigation already shows where the user is. Still the screen's
-         accessible name and the navigation focus target (see PageFocus). -->
-    <h1 class="sr-only">Kalender</h1>
+<div ngTabs>
+  <!-- Pinned: the period nav and the Woche/Monat switcher stay put while the agenda below scrolls
+       under them, the same `sticky top-0` pattern `focused-screen.scaffold.html`'s header uses. A
+       background is required - without one the scrolling content behind would show through.
+       `safe-top` sits here rather than on the shell's `<main>` (see that comment) so this header's
+       own background - not whatever scrolls underneath it - fills the notch area. -->
+  <div class="bg-background safe-top sticky top-0 z-10">
+    <!-- `py-2` here and `pt-4` on the scrollable block below reproduce the space
+         `.rk-screen-header-bar` + `.rk-screen-body` reserve on a focused screen, so switching between
+         this tab and a focused screen (e.g. event detail) doesn't shift where scrollable content
+         starts. -->
+    <div class="flex items-center gap-1 px-4 py-2">
+      <!-- Visually hidden: the bottom navigation already shows where the user is. Still the screen's
+           accessible name and the navigation focus target (see PageFocus). -->
+      <h1 class="sr-only">Kalender</h1>
 
-    <button
-      type="button"
-      class="rk-icon-button"
-      [attr.aria-label]="previousLabel()"
-      (click)="goToPrevious()"
-    >
-      <svg lucideChevronLeft class="rk-icon" aria-hidden="true"></svg>
-    </button>
-    <p class="min-w-0 flex-1 text-center font-semibold">{{ periodLabel() }}</p>
-    <button
-      type="button"
-      class="rk-icon-button"
-      [attr.aria-label]="nextLabel()"
-      (click)="goToNext()"
-    >
-      <svg lucideChevronRight class="rk-icon" aria-hidden="true"></svg>
-    </button>
-    <button type="button" class="rk-button rk-button-ghost" (click)="goToToday()">Heute</button>
-  </div>
-
-  <fieldset class="px-4 pb-2">
-    <legend class="sr-only">Ansicht</legend>
-    <div class="rk-segmented">
-      <label class="rk-segmented-item">
-        <input
-          type="radio"
-          name="calendar-view"
-          value="week"
-          class="sr-only"
-          [checked]="viewMode() === 'week'"
-          (change)="setView('week')"
-        />
-        Woche
-      </label>
-      <label class="rk-segmented-item">
-        <input
-          type="radio"
-          name="calendar-view"
-          value="month"
-          class="sr-only"
-          [checked]="viewMode() === 'month'"
-          (change)="setView('month')"
-        />
-        Monat
-      </label>
-    </div>
-  </fieldset>
-</div>
-
-<div class="space-y-4 px-4 pt-4 pb-6">
-  <!-- On a card surface: the muted weekday and out-of-month text meets contrast on `card`, not on
-       every theme's page background. -->
-  <div class="rk-card p-2">
-    <app-calendar-grid
-      [view]="viewMode()"
-      [selectedDay]="selectedDay()"
-      [today]="today()"
-      [markersByDay]="markersByDay()"
-      (daySelected)="selectDay($event)"
-    />
-  </div>
-
-  @if ((filterableCalendars.value() ?? []).length > 0) {
-    <app-calendar-source-filter
-      [calendars]="filterableCalendars.value() ?? []"
-      [hiddenIds]="hiddenCalendarIds()"
-      (toggled)="toggleCalendar($event)"
-    />
-  }
-
-  @if (occurrences.error()) {
-    <div class="rk-card space-y-3 px-4 py-6 text-center">
-      <p>Die Termine konnten nicht geladen werden.</p>
-      <button type="button" class="rk-button rk-button-ghost" (click)="occurrences.reload()">
-        Erneut versuchen
+      <button
+        type="button"
+        class="rk-icon-button"
+        [attr.aria-label]="previousLabel()"
+        (click)="goToPrevious()"
+      >
+        <svg lucideChevronLeft class="rk-icon" aria-hidden="true"></svg>
       </button>
+      <p class="min-w-0 flex-1 text-center font-semibold">{{ periodLabel() }}</p>
+      <button
+        type="button"
+        class="rk-icon-button"
+        [attr.aria-label]="nextLabel()"
+        (click)="goToNext()"
+      >
+        <svg lucideChevronRight class="rk-icon" aria-hidden="true"></svg>
+      </button>
+      <button type="button" class="rk-button rk-button-ghost" (click)="goToToday()">Heute</button>
     </div>
-  } @else if (occurrences.status() === 'loading') {
-    <!-- Two agenda-row placeholders. -->
-    <div class="space-y-2" aria-hidden="true">
-      <div class="rk-card flex items-center gap-3 px-4 py-3">
-        <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
-        <span class="rk-skeleton block h-4 w-1/2"></span>
-      </div>
-      <div class="rk-card flex items-center gap-3 px-4 py-3">
-        <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
-        <span class="rk-skeleton block h-4 w-1/3"></span>
-      </div>
+
+    <!-- The same APG tab widget the content overview uses: `ngTabList`/`ngTab` supply
+         `role="tablist"`/`role="tab"`, `aria-selected`, `aria-controls` and arrow-key navigation, so
+         `.rk-segmented-item`'s `aria-selected:` styling needs no "is this selected" class binding.
+         The selected tab lives in the `view` query parameter, so a deep link, a reload and the way
+         back from a focused screen all land on the same view. -->
+    <div class="px-4 pb-2">
+      <ul
+        ngTabList
+        aria-label="Ansicht"
+        [selectedTab]="viewMode()"
+        (selectedTabChange)="onViewChange($event)"
+        class="rk-segmented list-none gap-0.5"
+      >
+        <li ngTab value="week" class="rk-segmented-item">Woche</li>
+        <li ngTab value="month" class="rk-segmented-item">Monat</li>
+      </ul>
     </div>
-  } @else {
-    <app-calendar-agenda
-      [day]="selectedDay()"
-      [occurrences]="loadedOccurrences()"
-      [sourcesHidden]="allSourcesHidden()"
-    />
-  }
+  </div>
+
+  <!-- One panel per view, both rendering the same body template: the grid switches on `viewMode()`,
+       and the source filter and agenda below it belong to whichever view is showing. `ngTabPanel`
+       marks the hidden panel `inert`; `visible()` drives both the visual hiding it leaves to the
+       consumer and the `@if`, so only the selected view's agenda is ever built. -->
+  <div ngTabPanel value="week" #weekPanel="ngTabPanel" [class.hidden]="!weekPanel.visible()">
+    <ng-template ngTabContent>
+      @if (weekPanel.visible()) {
+        <ng-container [ngTemplateOutlet]="calendarView" />
+      }
+    </ng-template>
+  </div>
+
+  <div ngTabPanel value="month" #monthPanel="ngTabPanel" [class.hidden]="!monthPanel.visible()">
+    <ng-template ngTabContent>
+      @if (monthPanel.visible()) {
+        <ng-container [ngTemplateOutlet]="calendarView" />
+      }
+    </ng-template>
+  </div>
 </div>
+
+<ng-template #calendarView>
+  <div class="space-y-4 px-4 pt-4 pb-6">
+    <!-- On a card surface: the muted weekday and out-of-month text meets contrast on `card`, not on
+         every theme's page background. -->
+    <div class="rk-card p-2">
+      <app-calendar-grid
+        [view]="viewMode()"
+        [selectedDay]="selectedDay()"
+        [today]="today()"
+        [markersByDay]="markersByDay()"
+        (daySelected)="selectDay($event)"
+      />
+    </div>
+
+    @if ((filterableCalendars.value() ?? []).length > 0) {
+      <app-calendar-source-filter
+        [calendars]="filterableCalendars.value() ?? []"
+        [hiddenIds]="hiddenCalendarIds()"
+        (toggled)="toggleCalendar($event)"
+      />
+    }
+
+    @if (occurrences.error()) {
+      <div class="rk-card space-y-3 px-4 py-6 text-center">
+        <p>Die Termine konnten nicht geladen werden.</p>
+        <button type="button" class="rk-button rk-button-ghost" (click)="occurrences.reload()">
+          Erneut versuchen
+        </button>
+      </div>
+    } @else if (occurrences.status() === 'loading') {
+      <!-- Two agenda-row placeholders. -->
+      <div class="space-y-2" aria-hidden="true">
+        <div class="rk-card flex items-center gap-3 px-4 py-3">
+          <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
+          <span class="rk-skeleton block h-4 w-1/2"></span>
+        </div>
+        <div class="rk-card flex items-center gap-3 px-4 py-3">
+          <span class="rk-skeleton block h-3 w-10 shrink-0"></span>
+          <span class="rk-skeleton block h-4 w-1/3"></span>
+        </div>
+      </div>
+    } @else {
+      <app-calendar-agenda
+        [day]="selectedDay()"
+        [occurrences]="loadedOccurrences()"
+        [sourcesHidden]="allSourcesHidden()"
+        [view]="viewMode()"
+      />
+    }
+  </div>
+</ng-template>

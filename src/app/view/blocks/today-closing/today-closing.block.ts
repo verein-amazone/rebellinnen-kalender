@@ -40,13 +40,26 @@ export class TodayClosingBlock {
     }),
     loader: async ({ params: { today } }) => {
       const tomorrow = Temporal.PlainDate.from(today).add({ days: 1 }).toString();
-      const [reminders, todayOccurrences, tomorrowOccurrences] = await Promise.all([
+
+      // Both days in one range read rather than one call per day: each call runs the whole read
+      // path - curated sync, coverage check, range query - and the two days are adjacent anyway.
+      const [reminders, occurrences] = await Promise.all([
         this.reminders.list(),
-        this.occurrences.listForDays(today, today),
-        this.occurrences.listForDays(tomorrow, tomorrow),
+        this.occurrences.listForDays(today, tomorrow),
       ]);
 
-      return { reminders, todayOccurrences, tomorrowOccurrences, today };
+      // Split the same way every day-based view buckets a range: an entry counts for a day when it
+      // touches it, so one spanning both days appears in both - exactly as two separate day queries
+      // would have returned it.
+      const onDay = (day: string) =>
+        occurrences.filter((entry) => entry.startDay <= day && day <= entry.endDay);
+
+      return {
+        reminders,
+        todayOccurrences: onDay(today),
+        tomorrowOccurrences: onDay(tomorrow),
+        today,
+      };
     },
   });
 
@@ -60,7 +73,6 @@ export class TodayClosingBlock {
       reminders: loaded.reminders,
       todayOccurrences: loaded.todayOccurrences,
       tomorrowOccurrences: loaded.tomorrowOccurrences,
-      today: loaded.today,
       nowUtc: new Date().toISOString(),
     });
   });

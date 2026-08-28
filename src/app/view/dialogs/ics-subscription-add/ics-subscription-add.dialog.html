@@ -33,6 +33,7 @@
       [attr.aria-invalid]="urlError() === '' ? null : 'true'"
       [attr.aria-describedby]="urlError() === '' ? null : 'ics-subscription-url-error'"
       (input)="updateUrl($any($event.target).value)"
+      (blur)="checkUrl()"
     />
   </div>
   <div aria-live="polite" aria-atomic="true">
@@ -49,7 +50,7 @@
   }
 
   <div class="rk-sheet-footer flex-col">
-    <button type="submit" class="rk-button rk-button-primary w-full" [disabled]="submitting()">
+    <button type="submit" class="rk-button rk-button-primary w-full" [disabled]="!canSubmit()">
       Kalender hinzufügen
     </button>
     <button

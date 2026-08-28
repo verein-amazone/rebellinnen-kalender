@@ -78,8 +78,12 @@ async function setup(config: {
   // Only `Date` is faked - timers stay real so `fixture.whenStable()` still resolves.
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(`${today}T12:00:00Z`));
-  occurrences.byRange.set(`${today}|${today}`, config.todayOccurrences ?? []);
-  occurrences.byRange.set(`${tomorrow}|${tomorrow}`, config.tomorrowOccurrences ?? []);
+  // The block reads both days as one range and splits them by `startDay`/`endDay`, so the fixtures
+  // are served together and have to carry the day they belong to.
+  occurrences.byRange.set(`${today}|${tomorrow}`, [
+    ...(config.todayOccurrences ?? []),
+    ...(config.tomorrowOccurrences ?? []),
+  ]);
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({

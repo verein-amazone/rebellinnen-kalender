@@ -10,6 +10,7 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { RouterOutlet } from '@angular/router';
 
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
+import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
@@ -25,7 +26,11 @@ export class App {
   private readonly documentAppearance = inject(DocumentAppearance);
   private readonly systemTextScale = inject(SystemTextScale);
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
+  private readonly calendarMaintenance = inject(CalendarMaintenanceInteractor);
   private readonly injector = inject(Injector);
+
+  /** Guards the asynchronous refresh chain against resolving into a torn-down injector. */
+  private destroyed = false;
 
   constructor() {
     // The selected appearance is applied in one place, for the whole app, whenever it changes. The
@@ -53,13 +58,44 @@ export class App {
     // all of it into the initial bundle that every route pays for on first load.
     const listener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
       if (isActive) {
-        void this.deviceCalendarSync.refresh();
-        void import('@app/interactors/calendar/ics-subscription.interactor').then(
-          ({ IcsSubscriptionInteractor }) =>
-            this.injector.get(IcsSubscriptionInteractor).refreshAllDue(),
-        );
+        void this.refreshCalendars();
       }
     });
-    inject(DestroyRef).onDestroy(() => void listener.then((handle) => handle.remove()));
+    inject(DestroyRef).onDestroy(() => {
+      this.destroyed = true;
+      void listener.then((handle) => handle.remove());
+    });
+
+    // `appStateChange` only fires on the way back in, so the first run has to be started here.
+    void this.refreshCalendars();
+  }
+
+  /**
+   * Brings the calendar back in sync with the world it was computed in, then with its sources.
+   *
+   * Consistency comes first and is awaited: a device zone change or a recurrence-engine upgrade
+   * invalidates the derived rows wholesale, and rebuilding them after a refresh had already written
+   * into them would just do the work twice. It is cheap when nothing changed - two small reads.
+   */
+  private async refreshCalendars(): Promise<void> {
+    try {
+      await this.calendarMaintenance.ensureConsistency();
+    } catch (error) {
+      // A failed repair must not stop the refreshes below or escape into the app-state listener as
+      // an unhandled rejection; the calendar screens surface their own load errors.
+      console.warn('Die Kalenderdaten konnten nicht geprüft werden.', error);
+    }
+
+    // Every step past here is resolved asynchronously, so the app may be gone by the time it lands -
+    // reaching into a destroyed injector then would throw where nobody can catch it.
+    if (this.destroyed) {
+      return;
+    }
+
+    void this.deviceCalendarSync.refresh();
+    void import('@app/interactors/calendar/ics-subscription.interactor').then(
+      ({ IcsSubscriptionInteractor }) =>
+        this.destroyed ? undefined : this.injector.get(IcsSubscriptionInteractor).refreshAllDue(),
+    );
   }
 }

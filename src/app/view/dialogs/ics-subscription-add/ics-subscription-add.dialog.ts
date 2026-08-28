@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import {
   IcsSubscriptionInteractor,
@@ -42,6 +42,17 @@ export class IcsSubscriptionAddDialog {
   protected readonly formError = signal('');
   protected readonly submitting = signal(false);
 
+  /**
+   * Why the entered link is unusable, empty while it is fine - or still empty, which `save()`
+   * reports instead, so the button does not start out disabled with nothing explaining it.
+   */
+  private readonly urlIssue = computed(() => {
+    const url = this.url().trim();
+    return url === '' ? '' : (this.icsSubscriptions.urlError(url) ?? '');
+  });
+
+  protected readonly canSubmit = computed(() => !this.submitting() && this.urlIssue() === '');
+
   protected updateName(value: string): void {
     this.name.set(value);
     if (this.nameError() !== '') {
@@ -56,13 +67,18 @@ export class IcsSubscriptionAddDialog {
     }
   }
 
+  /** Reports a broken link once the user has left the field, not while they are still typing it. */
+  protected checkUrl(): void {
+    this.urlError.set(this.urlIssue());
+  }
+
   protected async save(): Promise<void> {
     const name = this.name().trim();
     const url = this.url().trim();
 
     this.nameError.set(name === '' ? 'Bitte gib einen Namen ein.' : '');
-    this.urlError.set(url === '' ? 'Bitte gib einen Kalender-Link ein.' : '');
-    if (name === '' || url === '') {
+    this.urlError.set(url === '' ? 'Bitte gib einen Kalender-Link ein.' : this.urlIssue());
+    if (name === '' || this.urlError() !== '') {
       return;
     }
 

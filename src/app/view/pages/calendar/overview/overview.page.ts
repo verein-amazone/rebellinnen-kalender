@@ -7,6 +7,8 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { Temporal } from 'temporal-polyfill';
@@ -35,6 +37,9 @@ type ViewMode = 'week' | 'month';
 /**
  * The calendar screen: week or month grid on top, the selected day's agenda below.
  *
+ * The Woche/Monat switch is an `@angular/aria/tabs` widget - the same one the content overview uses
+ * (see `ContentOverviewPage`), so both in-page switches share one implementation and one look.
+ *
  * View mode and selected day are route state (`?view=…&day=…`), so a deep link, a tab switch or an
  * app restart land on the same picture. Navigation replaces the URL rather than pushing: paging
  * through months must not stack up as that many back presses.
@@ -47,6 +52,12 @@ type ViewMode = 'week' | 'month';
     CalendarAgendaBlock,
     CalendarGridBlock,
     CalendarSourceFilterBlock,
+    NgTemplateOutlet,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
+    TabContent,
     LucideChevronLeft,
     LucideChevronRight,
   ],
@@ -65,12 +76,16 @@ export class CalendarOverviewPage {
     // The "calendar screen" trigger `DeviceCalendarSyncInteractor`'s own doc comment promises:
     // an external change (edited in Google Calendar, synced in by the OS in the background) has
     // otherwise no way to reach this screen until the next debounced refresh happens to land.
-    // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap; the
-    // occurrences resource is reloaded afterwards so a genuinely fresh cache is not stuck behind
-    // the range param not having changed.
-    void this.deviceCalendarSync.refresh().then(() => {
-      this.occurrences.reload();
-      this.filterableCalendars.reload();
+    // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap.
+    //
+    // Only a refresh that actually replaced the cache is worth reloading for: revisiting within the
+    // debounce window - the common case - leaves the rows exactly as the resources already have
+    // them, and reloading then would run the whole read path again for nothing.
+    void this.deviceCalendarSync.refresh().then((refreshed) => {
+      if (refreshed) {
+        this.occurrences.reload();
+        this.filterableCalendars.reload();
+      }
     });
   }
 
@@ -193,8 +208,11 @@ export class CalendarOverviewPage {
     this.navigate({ day });
   }
 
-  protected setView(view: ViewMode): void {
-    this.navigate({ view, day: this.selectedDay() });
+  /** The tab list hands back the selected tab's `value`; anything else cannot come from the DOM. */
+  protected onViewChange(value: string | undefined): void {
+    if (value === 'week' || value === 'month') {
+      this.navigate({ view: value, day: this.selectedDay() });
+    }
   }
 
   protected toggleCalendar(calendarId: string): void {

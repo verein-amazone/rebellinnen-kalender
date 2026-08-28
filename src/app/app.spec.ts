@@ -2,18 +2,32 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from '@app/app';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
+import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
 
 class FakeDeviceCalendarSyncInteractor {
-  refresh(): Promise<void> {
-    return Promise.resolve();
+  calls = 0;
+
+  refresh(): Promise<boolean> {
+    this.calls += 1;
+    return Promise.resolve(false);
   }
 }
 
 class FakeIcsSubscriptionInteractor {
   refreshAllDue(): Promise<void> {
     return Promise.resolve();
+  }
+}
+
+class FakeCalendarMaintenanceInteractor {
+  calls = 0;
+  fail = false;
+
+  ensureConsistency(): Promise<void> {
+    this.calls += 1;
+    return this.fail ? Promise.reject(new Error('rebuild failed')) : Promise.resolve();
   }
 }
 
@@ -31,6 +45,7 @@ describe('App', () => {
         provideRouter([]),
         { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
         { provide: IcsSubscriptionInteractor, useClass: FakeIcsSubscriptionInteractor },
+        { provide: CalendarMaintenanceInteractor, useClass: FakeCalendarMaintenanceInteractor },
       ],
     }).compileComponents();
   });
@@ -57,6 +72,39 @@ describe('App', () => {
     expect(document.documentElement.hasAttribute('data-motion')).toBe(false);
     // The OS scale always reaches the document; on the web it is the neutral 1.
     expect(document.documentElement.style.getPropertyValue('--rk-os-scale')).toBe('1');
+  });
+
+  it('checks the derived calendar data for consistency on start, before refreshing sources', async () => {
+    const maintenance = TestBed.inject(
+      CalendarMaintenanceInteractor,
+    ) as unknown as FakeCalendarMaintenanceInteractor;
+    const device = TestBed.inject(
+      DeviceCalendarSyncInteractor,
+    ) as unknown as FakeDeviceCalendarSyncInteractor;
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+
+    expect(maintenance.calls).toBe(1);
+    expect(device.calls).toBe(1);
+  });
+
+  it('refreshes the sources anyway when the consistency check fails', async () => {
+    const maintenance = TestBed.inject(
+      CalendarMaintenanceInteractor,
+    ) as unknown as FakeCalendarMaintenanceInteractor;
+    maintenance.fail = true;
+    const device = TestBed.inject(
+      DeviceCalendarSyncInteractor,
+    ) as unknown as FakeDeviceCalendarSyncInteractor;
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+
+    expect(device.calls).toBe(1);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('should reapply the appearance when the selection changes', async () => {

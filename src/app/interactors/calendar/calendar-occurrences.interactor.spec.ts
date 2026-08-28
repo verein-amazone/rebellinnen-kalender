@@ -94,6 +94,42 @@ describe('CalendarOccurrencesInteractor', () => {
     await expect(interactor.listForDays('2026-09-08', '2026-09-08')).resolves.toEqual([]);
   });
 
+  it('skips the repeated coverage check for a range it already checked', async () => {
+    const repository = TestBed.inject(CalendarRepository);
+    const extend = vi.spyOn(repository, 'extendCoverageForRange');
+
+    await interactor.listForDays('2026-09-07', '2026-09-07');
+    await interactor.listForDays('2026-09-07', '2026-09-07');
+    await interactor.listForDays('2026-09-08', '2026-09-08');
+
+    // Once for each distinct range; the repeat of the first one is skipped.
+    expect(extend).toHaveBeenCalledTimes(2);
+  });
+
+  it('checks coverage again once a source is added, so a new one still gets its window', async () => {
+    const repository = TestBed.inject(CalendarRepository);
+    await interactor.listForDays('2026-09-07', '2026-09-07');
+
+    const extend = vi.spyOn(repository, 'extendCoverageForRange');
+    await repository.createSource(
+      {
+        id: 'source-2',
+        type: 'app',
+        name: 'Zweiter',
+        enabled: true,
+        state: 'ok',
+        createdAt: '2026-08-01T09:00:00.000Z',
+        updatedAt: '2026-08-01T09:00:00.000Z',
+      },
+      [],
+    );
+
+    // The identical range would otherwise be skipped - and the new source would never be extended.
+    await interactor.listForDays('2026-09-07', '2026-09-07');
+
+    expect(extend).toHaveBeenCalledTimes(1);
+  });
+
   it('finds one occurrence by id, or null when it does not exist', async () => {
     const repository = TestBed.inject(CalendarRepository);
     await repository.createItem(

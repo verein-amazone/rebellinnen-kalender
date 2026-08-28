@@ -39,7 +39,9 @@ test.describe('application shell', () => {
 
     await page.getByRole('button', { name: 'Schließen' }).click();
 
-    await expect(page).toHaveURL(/\/calendar$/);
+    // Closing returns to the calendar view the screen was opened from, which the „Neuer Termin"
+    // link carried into it - the default week view here.
+    await expect(page).toHaveURL(/\/calendar\?view=week$/);
     await expect(page.getByRole('navigation', { name: 'Hauptbereiche' })).toBeVisible();
     // Closing must not drop focus to the body.
     await expect(page.getByRole('heading', { name: 'Kalender', level: 1 })).toBeFocused();

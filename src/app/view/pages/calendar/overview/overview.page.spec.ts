@@ -134,6 +134,16 @@ async function setup(
   };
 }
 
+function tabNamed(element: HTMLElement, label: string): HTMLElement {
+  const tab = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]')).find(
+    (candidate) => candidate.textContent?.trim() === label,
+  );
+  if (tab === undefined) {
+    throw new Error(`No tab named "${label}"`);
+  }
+  return tab;
+}
+
 function queryParamsOf(navigate: ReturnType<typeof vi.fn>, call = 0): Record<string, string> {
   const options = navigate.mock.calls[call][1] as {
     queryParams: Record<string, string>;
@@ -212,21 +222,30 @@ describe('CalendarOverviewPage', () => {
   });
 
   it('switches the view while keeping the selected day', async () => {
-    const { element, navigate } = await setup({ day: '2026-08-05' });
+    const { element, navigate, whenStable } = await setup({ day: '2026-08-05' });
 
-    const monthRadio = element.querySelector<HTMLInputElement>('input[value="month"]');
-    monthRadio?.click();
+    tabNamed(element, 'Monat').click();
+    await whenStable();
 
     expect(queryParamsOf(navigate)).toEqual({ view: 'month', day: '2026-08-05' });
   });
 
-  it('offers week and month as a labelled radio choice', async () => {
+  it('offers week and month as a real tab widget, with the week view selected by default', async () => {
     const { element } = await setup();
 
-    const radios = element.querySelectorAll<HTMLInputElement>('input[type="radio"]');
-    expect(radios).toHaveLength(2);
-    expect(element.querySelector('fieldset legend')?.textContent).toContain('Ansicht');
-    expect(element.querySelector<HTMLInputElement>('input[value="week"]')?.checked).toBe(true);
+    const tabList = element.querySelector('[role="tablist"]');
+    expect(tabList?.getAttribute('aria-label')).toBe('Ansicht');
+
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual(['Woche', 'Monat']);
+    expect(tabNamed(element, 'Woche').getAttribute('aria-selected')).toBe('true');
+    expect(tabNamed(element, 'Monat').getAttribute('aria-selected')).toBe('false');
+
+    // The selected tab controls the panel that is not `inert` - the one showing the grid.
+    const panels = Array.from(element.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    expect(panels).toHaveLength(2);
+    const shown = panels.find((panel) => !panel.hasAttribute('inert'));
+    expect(tabNamed(element, 'Woche').getAttribute('aria-controls')).toBe(shown?.id);
   });
 
   it('selecting a day in the grid navigates to it', async () => {

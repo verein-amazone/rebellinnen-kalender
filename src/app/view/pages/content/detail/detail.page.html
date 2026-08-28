@@ -18,7 +18,7 @@
   }
 
   @if (item(); as content) {
-    <div class="space-y-4 pb-6">
+    <div class="space-y-4">
       <!-- The content type is never colour alone: an icon and its own text label always ship
            together. -->
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -70,40 +70,35 @@
           </ul>
         </div>
       }
+
+      @if (content.sourceLabel || content.sourceUrl || content.imageAttribution) {
+        <div class="border-border space-y-0.5 border-t pt-4">
+          @if (content.sourceLabel || content.sourceUrl) {
+            <p class="text-muted-foreground text-sm">
+              Quelle:
+              @if (content.sourceUrl; as sourceUrl) {
+                <a
+                  [href]="sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 underline underline-offset-2"
+                  >{{ content.sourceLabel ?? sourceUrl }}
+                  <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                  <span class="sr-only">, öffnet in einem neuen Fenster</span></a
+                >
+              } @else {
+                {{ content.sourceLabel }}
+              }
+            </p>
+          }
+
+          @if (content.imageAttribution) {
+            <p class="text-muted-foreground text-xs">Bild: {{ content.imageAttribution }}</p>
+          }
+        </div>
+      }
     </div>
   } @else {
     <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
-  }
-
-  <!-- Its own top-level `@if`, a direct child of `app-focused-screen` - nesting it inside the
-       `item(); as content` branch above (which has sibling nodes) would silently drop the
-       projection instead of rendering it (NG8011), per `FocusedScreenScaffold`'s own contract. -->
-  @if (item(); as footerContent) {
-    @if (footerContent.sourceLabel || footerContent.sourceUrl || footerContent.imageAttribution) {
-      <div footer #focusedScreenFooter class="space-y-0.5 pt-2">
-        @if (footerContent.sourceLabel || footerContent.sourceUrl) {
-          <p class="text-muted-foreground text-sm">
-            Quelle:
-            @if (footerContent.sourceUrl; as sourceUrl) {
-              <a
-                [href]="sourceUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-1 underline underline-offset-2"
-                >{{ footerContent.sourceLabel ?? sourceUrl }}
-                <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
-                <span class="sr-only">, öffnet in einem neuen Fenster</span></a
-              >
-            } @else {
-              {{ footerContent.sourceLabel }}
-            }
-          </p>
-        }
-
-        @if (footerContent.imageAttribution) {
-          <p class="text-muted-foreground text-xs">Bild: {{ footerContent.imageAttribution }}</p>
-        }
-      </div>
-    }
   }
 </app-focused-screen>

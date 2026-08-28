@@ -113,6 +113,44 @@ describe('DeviceCalendarSyncInteractor', () => {
     expect(source!.state).toBe('ok');
   });
 
+  it('leaves the cache untouched when the device handed back the same events', async () => {
+    await interactor.connect();
+    const before = await occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z');
+
+    // Reordered on purpose: a provider is free to return the same events in another order, and that
+    // must not count as a change.
+    gateway.instances = [...gateway.instances].reverse();
+    const changed = await interactor.refresh({ force: true });
+
+    expect(changed).toBe(false);
+    await expect(
+      occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z'),
+    ).resolves.toEqual(before);
+  });
+
+  it('reports a change and rewrites the rows when an event actually moved', async () => {
+    await interactor.connect();
+    gateway.instances = [{ ...gateway.instances[0], title: 'Zahnarzt (verschoben)' }];
+
+    await expect(interactor.refresh({ force: true })).resolves.toBe(true);
+
+    const rows = await occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z');
+    expect(rows.map((row) => row.title)).toEqual(['Zahnarzt (verschoben)']);
+  });
+
+  it('rebuilds when the rows went missing even though the device data did not change', async () => {
+    await interactor.connect();
+
+    // Stands in for any path that removes cached rows without clearing the fingerprint. The count
+    // check is what has to notice, since the fingerprint alone would still match.
+    await occurrences.deleteOfSource(DEVICE_SOURCE_ID);
+
+    await expect(interactor.refresh({ force: true })).resolves.toBe(true);
+    await expect(
+      occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z'),
+    ).resolves.toHaveLength(1);
+  });
+
   it('a refresh replaces the range instead of duplicating it', async () => {
     await interactor.connect();
     gateway.instances = [
@@ -169,11 +207,20 @@ describe('DeviceCalendarSyncInteractor', () => {
     ).resolves.toHaveLength(1);
   });
 
+  it('lets a forced refresh reset the debounce window, so an automatic one does not redo it', async () => {
+    await interactor.connect();
+
+    // `connect()` ends in a forced refresh. An automatic trigger arriving right behind it has
+    // nothing new to fetch and must back off rather than repeat the whole native read.
+    await expect(interactor.refresh()).resolves.toBe(false);
+  });
+
   it('a thrown permission check (e.g. the unimplemented web plugin) marks the source as failing without throwing', async () => {
     await interactor.connect();
     gateway.checkReadPermission = () => Promise.reject(new Error('not implemented on web'));
 
-    await expect(interactor.refresh({ force: true })).resolves.toBeUndefined();
+    // Resolves rather than throwing, and reports that nothing was cached.
+    await expect(interactor.refresh({ force: true })).resolves.toBe(false);
 
     const source = await repository.findSource(DEVICE_SOURCE_ID);
     expect(source!.state).toBe('error');

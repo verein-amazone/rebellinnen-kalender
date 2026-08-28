@@ -180,6 +180,7 @@ async function setup(inputs: {
   id: string;
   occurrence?: CalendarOccurrence | null;
   note?: string | null;
+  view?: string;
 }) {
   const occurrencesInteractor = new FakeCalendarOccurrencesInteractor();
   occurrencesInteractor.result = inputs.occurrence ?? null;
@@ -214,6 +215,7 @@ async function setup(inputs: {
 
   const fixture = TestBed.createComponent(EventDetailPage);
   fixture.componentRef.setInput('id', inputs.id);
+  fixture.componentRef.setInput('view', inputs.view);
   await fixture.whenStable();
 
   return {
@@ -498,6 +500,23 @@ describe('EventDetailPage, edit', () => {
     await settle();
 
     expect(navigateByUrl).toHaveBeenCalledWith('/calendar?day=2026-08-10', { replaceUrl: true });
+  });
+
+  it("keeps the calendar's week/month view when the back-arrow is used", async () => {
+    // The appointment link carries the view the user was looking at, so returning does not reset
+    // the calendar to its default week view.
+    const { button, settle, navigateByUrl } = await setup({
+      id: 'occ-1',
+      view: 'month',
+      occurrence: occurrence({ startDay: '2026-08-10' }),
+    });
+
+    button('Zurück')?.click();
+    await settle();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/calendar?view=month&day=2026-08-10', {
+      replaceUrl: true,
+    });
   });
 
   it('returns focus to the „Bearbeiten“ button when the header back-arrow cancels edit mode', async () => {

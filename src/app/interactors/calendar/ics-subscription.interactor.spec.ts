@@ -49,13 +49,21 @@ class FakeIcsHttpGateway {
     lastModified: null,
   };
   lastRequest: IcsDownloadRequest | null = null;
+  downloads = 0;
+  /** Set to hold every download open, so two callers can overlap deterministically. */
+  gate: Promise<void> | null = null;
 
-  download(request: IcsDownloadRequest): Promise<IcsDownloadResult> {
+  async download(request: IcsDownloadRequest): Promise<IcsDownloadResult> {
     this.lastRequest = request;
-    if (this.result === 'error') {
-      return Promise.reject(new IcsDownloadError('Der Kalender konnte nicht geladen werden.'));
+    this.downloads += 1;
+
+    if (this.gate !== null) {
+      await this.gate;
     }
-    return Promise.resolve(this.result);
+    if (this.result === 'error') {
+      throw new IcsDownloadError('Der Kalender konnte nicht geladen werden.');
+    }
+    return this.result;
   }
 }
 
@@ -98,6 +106,13 @@ describe('IcsSubscriptionInteractor', () => {
       interactor.add('Schule', 'http://insecure.example/cal.ics'),
     ).rejects.toBeInstanceOf(IcsUrlInvalidError);
     await expect(repository.listIcsSubscriptions()).resolves.toEqual([]);
+  });
+
+  it('urlError names the same links add() rejects, and passes the ones it accepts', () => {
+    expect(interactor.urlError('https://example.org/cal.ics')).toBeNull();
+    expect(interactor.urlError('webcal://example.org/cal.ics')).toBeNull();
+    expect(interactor.urlError('http://insecure.example/cal.ics')).not.toBeNull();
+    expect(interactor.urlError('nicht-mal-eine-adresse')).not.toBeNull();
   });
 
   it('rejects a blank name before anything is stored, instead of creating an unnamed source', async () => {
@@ -174,6 +189,79 @@ describe('IcsSubscriptionInteractor', () => {
     await expect(
       occurrences.listInRange('2026-10-01T00:00:00Z', '2026-11-15T00:00:00Z'),
     ).resolves.toHaveLength(4);
+  });
+
+  it('a 304 counts as a successful check, so a long-unchanged feed stops being due', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    // The situation the bug lived in: the content last changed longer ago than the refresh
+    // interval, so gating on that alone makes the feed due no matter how recently it was checked.
+    await database.run(`UPDATE ics_subscriptions SET last_success_at = ? WHERE id = ?`, [
+      new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+      subscriptionId,
+    ]);
+
+    http.result = { status: 'not-modified' };
+    await interactor.refresh(subscriptionId);
+
+    const subscription = await repository.findIcsSubscription(subscriptionId);
+    expect(subscription!.lastCheckedAt).not.toBeNull();
+
+    // Previously this re-downloaded on every launch and every foreground, forever.
+    const before = http.downloads;
+    await interactor.refreshAllDue();
+    expect(http.downloads).toBe(before);
+  });
+
+  it('still refreshes a feed whose last check is older than the interval', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    await database.run(
+      `UPDATE ics_subscriptions SET last_success_at = ?, last_checked_at = ? WHERE id = ?`,
+      [
+        new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+        new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+        subscriptionId,
+      ],
+    );
+
+    const before = http.downloads;
+    await interactor.refreshAllDue();
+
+    expect(http.downloads).toBe(before + 1);
+  });
+
+  it('shares one download between concurrent refreshes of the same subscription', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    http.result = { status: 'not-modified' };
+
+    let open = () => undefined as void;
+    http.gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    const before = http.downloads;
+
+    // Two callers overlapping is the normal case: the foreground auto-refresh and a screen that
+    // force-refreshes what the curated sync just reported.
+    const both = Promise.all([
+      interactor.refresh(subscriptionId),
+      interactor.refresh(subscriptionId, { force: true }),
+    ]);
+    open();
+
+    await expect(both).resolves.toEqual(['unchanged', 'unchanged']);
+    expect(http.downloads).toBe(before + 1);
+  });
+
+  it('starts a new download once the previous one has settled', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    http.result = { status: 'not-modified' };
+
+    const before = http.downloads;
+    await interactor.refresh(subscriptionId);
+    await interactor.refresh(subscriptionId);
+
+    // Sharing is only for calls that overlap - it must not turn into a cache.
+    expect(http.downloads).toBe(before + 2);
   });
 
   it('an updated feed replaces the previous revision atomically', async () => {
@@ -373,6 +461,7 @@ describe('IcsSubscriptionInteractor', () => {
         etag: null,
         lastModified: null,
         lastSuccessAt: null,
+        lastCheckedAt: null,
         lastAttemptAt: null,
         lastError: null,
         activeRevisionId: null,

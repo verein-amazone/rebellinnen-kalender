@@ -17,7 +17,12 @@
   <ul class="mb-3 space-y-2">
     @for (entry of entries(); track entry.id) {
       <li>
-        <app-occurrence-card [occurrence]="entry" [day]="day()" [timeZone]="timeZone()" />
+        <app-occurrence-card
+          [occurrence]="entry"
+          [day]="day()"
+          [timeZone]="timeZone()"
+          [linkQueryParams]="cardQueryParams()"
+        />
       </li>
     }
   </ul>
@@ -25,7 +30,7 @@
 
 <a
   routerLink="/calendar/event/new"
-  [queryParams]="{ day: day() }"
+  [queryParams]="{ day: day(), view: view() }"
   class="rk-button rk-button-primary flex"
   >Neuer Termin</a
 >

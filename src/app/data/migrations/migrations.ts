@@ -10,6 +10,8 @@ import { ADD_OCCURRENCE_DESCRIPTION } from './009-add-occurrence-description';
 import { CREATE_CONTENT_ITEMS } from './010-create-content-items';
 import { ADD_RELATED_SOURCES } from './011-add-related-sources';
 import { ADD_ICS_CURATED_ID } from './012-add-ics-curated-id';
+import { ADD_SOURCE_CONTENT_FINGERPRINT } from './013-add-source-content-fingerprint';
+import { ADD_ICS_LAST_CHECKED_AT } from './014-add-ics-last-checked-at';
 import type { Migration } from './migration';
 
 /**
@@ -32,6 +34,8 @@ export const MIGRATIONS: readonly Migration[] = [
   CREATE_CONTENT_ITEMS,
   ADD_RELATED_SOURCES,
   ADD_ICS_CURATED_ID,
+  ADD_SOURCE_CONTENT_FINGERPRINT,
+  ADD_ICS_LAST_CHECKED_AT,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

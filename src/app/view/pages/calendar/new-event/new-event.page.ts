@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideCheck } from '@lucide/angular';
 
@@ -31,6 +31,22 @@ export class NewEventPage {
    * to the day the user was already looking at. Absent for a deep link or direct navigation.
    */
   readonly day = input<string | undefined>();
+  /**
+   * Bound from the `?view=` query param that same link carries: the calendar's week/month view, so
+   * cancelling or saving returns to the view the user started from rather than the default one.
+   */
+  readonly view = input<string | undefined>();
+
+  /** Only the two known views may travel back into the calendar's `?view=`. */
+  private readonly returnView = computed(() => {
+    const view = this.view();
+    return view === 'week' || view === 'month' ? view : undefined;
+  });
+
+  protected readonly cancelLink = computed(() => {
+    const view = this.returnView();
+    return view === undefined ? '/calendar' : `/calendar?view=${view}`;
+  });
 
   protected async handleSave(result: AppEventFormResult): Promise<void> {
     if (result.mode !== 'create') {
@@ -41,7 +57,7 @@ export class NewEventPage {
     // Replaces rather than pushes: the form is finished and must not be reachable again by the
     // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.
     await this.router.navigate(['/calendar'], {
-      queryParams: { day: deviceLocalDay(result.draft.start) },
+      queryParams: { day: deviceLocalDay(result.draft.start), view: this.returnView() },
       replaceUrl: true,
     });
   }

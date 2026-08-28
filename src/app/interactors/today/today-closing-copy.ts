@@ -7,6 +7,9 @@
  *
  * Text only, no emoji: a decorative emoji is rendered by the component in its own `aria-hidden`
  * element, not read out as part of the sentence.
+ *
+ * Every appointment line may state a clock time: `selectTodayClosingState` never picks an all-day
+ * entry as the next or tomorrow's appointment, precisely because it has no time to state.
  */
 const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
   'appointment-later.headline': [
@@ -19,8 +22,6 @@ const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
     'Dein nächster Termin beginnt um {time}.',
   ],
   'appointment-later.withReminders': ['Dein nächster Termin beginnt um {time}.'],
-  'appointment-later.nextAllDay': ['Heute: {title}', 'Als Nächstes: {title}'],
-  'appointment-later.withRemindersAllDay': ['Und außerdem heute: {title}'],
   'open-reminders.headline.one': ['Noch 1 Punkt für heute', 'Für heute ist noch 1 Punkt offen'],
   'open-reminders.headline.many': [
     'Noch {count} Punkte für heute',
@@ -33,7 +34,6 @@ const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
     'Du hast für heute alles im Blick.',
   ],
   'all-done.tomorrowPreview': ['Morgen um {time}: {title}', 'Als Nächstes: Morgen um {time}'],
-  'all-done.tomorrowPreviewAllDay': ['Morgen: {title}'],
   'nothing-planned.headline': [
     'Heute ist nichts weiter geplant',
     'Für heute steht nichts mehr an',
@@ -43,7 +43,6 @@ const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
     'Morgen um {time}: {title}',
     'Als Nächstes: Morgen um {time}',
   ],
-  'nothing-planned.tomorrowPreviewAllDay': ['Morgen: {title}'],
   'day-over.headline': [
     "Das war's für heute",
     'Für heute ist alles geschafft',

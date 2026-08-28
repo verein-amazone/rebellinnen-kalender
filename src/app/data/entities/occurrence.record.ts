@@ -66,4 +66,10 @@ export interface SourceCoverageRecord {
   readonly windowEndUtc: string;
   readonly engineVersion: string;
   readonly updatedAt: string;
+  /**
+   * A digest of the external data these rows were built from, so a refresh can recognise that
+   * rebuilding them would change nothing. Only the device source has external input to fingerprint;
+   * `null` everywhere else, and `null` also means "unknown, rebuild to be sure".
+   */
+  readonly contentFingerprint: string | null;
 }

@@ -6,7 +6,7 @@ import {
   type CalendarContext,
 } from '@app/data/calendar/calendar.repository';
 import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
-import { normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
+import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
 import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
@@ -14,7 +14,7 @@ import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
 
 export { IcsUrlInvalidError } from '@app/data/calendar/ics/ics-url';
 
-/** Foreground auto-refresh only bothers the network when the last success is older than this. */
+/** Foreground auto-refresh only bothers the network when the last check is older than this. */
 export const ICS_AUTO_REFRESH_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 export const ICS_SUBSCRIPTION_NAME_MAX_LENGTH = 200;
@@ -54,6 +54,25 @@ export class IcsSubscriptionInteractor {
   private readonly http = inject(IcsHttpGateway);
   private readonly emojiPicker = inject(EmojiPickerGateway);
   private readonly sources = inject(CalendarSourceDao);
+
+  /** One download per subscription at a time; see `refresh`. */
+  private readonly inFlight = new Map<string, Promise<IcsRefreshOutcome>>();
+
+  /**
+   * The reason a link is unusable, or `null` when `add()` would accept it. Lets the add form report
+   * a broken link and keep its submit button disabled without guessing at the interactor's rules.
+   */
+  urlError(url: string, options: { allowInsecure?: boolean } = {}): string | null {
+    try {
+      normalizeIcsUrl(url, { allowInsecure: options.allowInsecure ?? false });
+      return null;
+    } catch (error) {
+      if (error instanceof IcsUrlInvalidError) {
+        return error.message;
+      }
+      throw error;
+    }
+  }
 
   /**
    * Adds a subscription and loads it once. Throws `IcsUrlInvalidError` for an unusable link; a
@@ -101,6 +120,7 @@ export class IcsSubscriptionInteractor {
         etag: null,
         lastModified: null,
         lastSuccessAt: null,
+        lastCheckedAt: null,
         lastAttemptAt: null,
         lastError: null,
         activeRevisionId: null,
@@ -115,10 +135,32 @@ export class IcsSubscriptionInteractor {
     return { subscriptionId, outcome };
   }
 
-  /** Refreshes one subscription; without `force` it respects the conditional-request metadata. */
-  async refresh(
+  /**
+   * Refreshes one subscription; without `force` it respects the conditional-request metadata.
+   *
+   * Concurrent calls for the same subscription share one download instead of racing. Several
+   * unrelated paths can ask at once - the foreground auto-refresh, and every screen that awaits
+   * `CuratedCalendarSync` and then force-refreshes the ids it reports - and without this each of
+   * them fetched the same feed again. A plain call joining a forced one is harmless: `force` is
+   * strictly the stronger refresh.
+   */
+  refresh(subscriptionId: string, options: { force?: boolean } = {}): Promise<IcsRefreshOutcome> {
+    const pending = this.inFlight.get(subscriptionId);
+    if (pending !== undefined) {
+      return pending;
+    }
+
+    const attempt = this.performRefresh(subscriptionId, options).finally(() => {
+      this.inFlight.delete(subscriptionId);
+    });
+    this.inFlight.set(subscriptionId, attempt);
+
+    return attempt;
+  }
+
+  private async performRefresh(
     subscriptionId: string,
-    options: { force?: boolean } = {},
+    options: { force?: boolean },
   ): Promise<IcsRefreshOutcome> {
     const context = this.context();
     const subscription = await this.repository.findIcsSubscription(subscriptionId);
@@ -170,13 +212,18 @@ export class IcsSubscriptionInteractor {
     }
   }
 
-  /** Refreshes every subscription whose last success is older than the auto-refresh age. */
+  /** Refreshes every subscription whose last check is older than the auto-refresh age. */
   async refreshAllDue(): Promise<void> {
     const now = Date.now();
     for (const subscription of await this.repository.listIcsSubscriptions()) {
-      const lastSuccess =
-        subscription.lastSuccessAt === null ? 0 : Date.parse(subscription.lastSuccessAt);
-      if (now - lastSuccess >= ICS_AUTO_REFRESH_MAX_AGE_MS) {
+      // Measured against the last *check*, not the last stored revision: a feed that answers `304`
+      // is being confirmed as current, and gating on `lastSuccessAt` made such a feed count as due
+      // forever - re-downloaded on every launch and every foreground. `lastSuccessAt` is the
+      // fallback for rows written before that column existed, so an update does not make every
+      // subscription due at once.
+      const lastChecked = subscription.lastCheckedAt ?? subscription.lastSuccessAt;
+      const checkedAt = lastChecked === null ? 0 : Date.parse(lastChecked);
+      if (now - checkedAt >= ICS_AUTO_REFRESH_MAX_AGE_MS) {
         await this.refresh(subscription.id);
       }
     }

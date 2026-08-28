@@ -145,6 +145,7 @@ export class CuratedCalendarSync {
           etag: null,
           lastModified: null,
           lastSuccessAt: null,
+          lastCheckedAt: null,
           lastAttemptAt: null,
           lastError: null,
           activeRevisionId: null,

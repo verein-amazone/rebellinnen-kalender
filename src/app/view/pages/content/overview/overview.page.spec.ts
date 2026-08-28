@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of, type Observable } from 'rxjs';
+import { vi } from 'vitest';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
@@ -124,12 +125,23 @@ async function setup(
     ],
   });
 
+  const navigate = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigate = navigate;
+
   const fixture = TestBed.createComponent(ContentOverviewPage);
+  // `area` is bound from the query parameter by `withComponentInputBinding()` in the real app.
+  fixture.componentRef.setInput('area', options.queryParams?.['area']);
   await fixture.whenStable();
 
   return {
     element: fixture.nativeElement as HTMLElement,
     whenStable: () => fixture.whenStable(),
+    navigate,
+    /** Stands in for the router feeding the navigated-to `?area=` back into the input. */
+    setArea: async (area: string) => {
+      fixture.componentRef.setInput('area', area);
+      await fixture.whenStable();
+    },
     bookmarks,
     bookmarkChanges: TestBed.inject(BookmarkChanges),
     sheets,
@@ -199,18 +211,21 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).toContain('noch keine Anlaufstellen');
   });
 
-  async function openCollection(element: HTMLElement, whenStable: () => Promise<void>) {
+  async function openCollection(
+    element: HTMLElement,
+    setArea: (area: string) => Promise<void>,
+  ): Promise<void> {
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
-    await whenStable();
+    await setArea('collection');
   }
 
   it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
-    const { element, whenStable } = await setup({
+    const { element, setArea } = await setup({
       items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
 
     const links = [...element.querySelectorAll<HTMLAnchorElement>('a[href^="/content/"]')];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
@@ -220,22 +235,22 @@ describe('ContentOverviewPage', () => {
   });
 
   it('shows the empty-collection state when nothing is bookmarked', async () => {
-    const { element, whenStable } = await setup({ items: [] });
+    const { element, setArea } = await setup({ items: [] });
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
 
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
   });
 
   it('filters the collection by content type', async () => {
-    const { element, whenStable } = await setup({
+    const { element, whenStable, setArea } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
         item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
       ],
     });
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
     expect(element.textContent).toContain('Wissensimpuls');
     expect(element.textContent).toContain('Eine Rebellin');
 
@@ -251,12 +266,12 @@ describe('ContentOverviewPage', () => {
   });
 
   it('asks for confirmation before removing an item, then removes it once confirmed', async () => {
-    const { element, whenStable, bookmarks, bookmarkChanges, sheets } = await setup({
+    const { element, whenStable, setArea, bookmarks, bookmarkChanges, sheets } = await setup({
       items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
     sheets.results = [true];
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
     const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Aus Sammlung entfernen'),
     );
@@ -274,12 +289,12 @@ describe('ContentOverviewPage', () => {
   });
 
   it('keeps the item when the removal confirmation is declined', async () => {
-    const { element, whenStable, bookmarks, sheets } = await setup({
+    const { element, whenStable, setArea, bookmarks, sheets } = await setup({
       items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
     sheets.results = [false];
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
     const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Aus Sammlung entfernen'),
     );
@@ -310,9 +325,9 @@ describe('ContentOverviewPage', () => {
   });
 
   it('reloads the collection when a bookmark changes elsewhere', async () => {
-    const { element, whenStable, bookmarks, bookmarkChanges } = await setup({ items: [] });
+    const { element, whenStable, setArea, bookmarks, bookmarkChanges } = await setup({ items: [] });
 
-    await openCollection(element, whenStable);
+    await openCollection(element, setArea);
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
 
     bookmarks.savedItems = [item({ id: 'wi-01', title: 'Was tut dir gut?' })];

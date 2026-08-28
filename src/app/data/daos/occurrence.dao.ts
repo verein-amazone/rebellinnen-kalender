@@ -8,7 +8,7 @@ import type {
   SourceCoverageRecord,
 } from '../entities/occurrence.record';
 import type { TemporalKind } from '../entities/temporal-value';
-import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
+import { SQLITE_DATABASE, type SqlValue, type SqliteExecutor } from '../gateways/sqlite-database';
 
 /** The database shape of an `occurrences` row. */
 interface OccurrenceRow {
@@ -45,11 +45,38 @@ interface CoverageRow {
   readonly window_end_utc: string;
   readonly engine_version: string;
   readonly updated_at: string;
+  readonly content_fingerprint: string | null;
 }
 
 const COLUMNS = `id, source_id, source_type, calendar_id, series_id, original_start, provenance,
   item_kind, item_id, title, location, description, is_all_day, start_kind, start_value, start_tz,
   end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id`;
+
+const COLUMN_COUNT = COLUMNS.split(',').length;
+
+const COVERAGE_COLUMNS = `source_id, window_start_utc, window_end_utc, engine_version, updated_at,
+  content_fingerprint`;
+
+/**
+ * How many rows one `INSERT ... VALUES (...), (...)` carries.
+ *
+ * `SQLITE_MAX_VARIABLE_NUMBER` is 32766 on SQLite 3.32+, but only 999 on older builds - iOS,
+ * Android and `jeep-sqlite` do not all ship the same engine, so the low limit is the one to
+ * respect. At 24 bound values per row, 40 rows stay under it everywhere. The point is the order of
+ * magnitude - a full window rebuild goes from thousands of statements to dozens - not squeezing
+ * out the last one, so there is no reason to go near any limit.
+ */
+const INSERT_CHUNK_ROWS = 40;
+
+/** 5 bound values per row in `updateLocalDaysMany` - 150 rows stay under the same low limit. */
+const UPDATE_CHUNK_ROWS = 150;
+
+/** One row's new day bucketing, for `updateLocalDaysMany`. */
+export interface LocalDayAssignment {
+  readonly id: string;
+  readonly startLocalDay: string;
+  readonly endLocalDay: string;
+}
 
 /**
  * Table access for the materialized occurrence layer and its coverage rows.
@@ -81,40 +108,25 @@ export class OccurrenceDao {
     return rows.map(toRecord);
   }
 
+  /**
+   * Inserts rows in chunked multi-row statements rather than one statement per row.
+   *
+   * A rebuilt 18-month window is thousands of rows, and on a device every statement is its own
+   * round trip through the Capacitor bridge - which dominated app start. Only the placeholders are
+   * built into the SQL; every value is still bound.
+   */
   async insertMany(
     records: readonly OccurrenceRecord[],
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
-    for (const record of records) {
+    const row = `(${new Array<string>(COLUMN_COUNT).fill('?').join(', ')})`;
+
+    for (let offset = 0; offset < records.length; offset += INSERT_CHUNK_ROWS) {
+      const chunk = records.slice(offset, offset + INSERT_CHUNK_ROWS);
+
       await executor.run(
-        `INSERT INTO occurrences (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          record.id,
-          record.sourceId,
-          record.sourceType,
-          record.calendarId,
-          record.seriesId,
-          record.originalStart,
-          record.provenance,
-          record.itemKind,
-          record.itemId,
-          record.title,
-          record.location,
-          record.description,
-          record.isAllDay ? 1 : 0,
-          record.start.kind,
-          record.start.value,
-          record.start.timeZone,
-          record.end?.kind ?? null,
-          record.end?.value ?? null,
-          record.end?.timeZone ?? null,
-          record.startUtc,
-          record.endUtc,
-          record.startLocalDay,
-          record.endLocalDay,
-          record.externalId,
-        ],
+        `INSERT INTO occurrences (${COLUMNS}) VALUES ${new Array<string>(chunk.length).fill(row).join(', ')}`,
+        chunk.flatMap(toValues),
       );
     }
   }
@@ -192,20 +204,36 @@ export class OccurrenceDao {
   }
 
   /**
-   * Rewrites only the local-day bucketing columns of one row - used to repair cached device rows
-   * after a device timezone change, where the underlying UTC instants are still correct and only
-   * their day assignment needs to move.
+   * Rewrites only the local-day bucketing columns - used to repair cached device rows after a
+   * device timezone change, where the underlying UTC instants are still correct and only their day
+   * assignment needs to move.
+   *
+   * Chunked `CASE`-per-id statements rather than an update per row, for the same reason
+   * `insertMany` batches: a zone change can touch every cached device row at once. 5 bound values
+   * per row, so the chunk is larger than the insert one and still far under the 999 limit
+   * documented at `INSERT_CHUNK_ROWS`.
    */
-  async updateLocalDays(
-    id: string,
-    startLocalDay: string,
-    endLocalDay: string,
+  async updateLocalDaysMany(
+    assignments: readonly LocalDayAssignment[],
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
-    await executor.run(
-      `UPDATE occurrences SET start_local_day = ?, end_local_day = ? WHERE id = ?`,
-      [startLocalDay, endLocalDay, id],
-    );
+    for (let offset = 0; offset < assignments.length; offset += UPDATE_CHUNK_ROWS) {
+      const chunk = assignments.slice(offset, offset + UPDATE_CHUNK_ROWS);
+      const cases = chunk.map(() => `WHEN ? THEN ?`).join(' ');
+      const ids = chunk.map(() => `?`).join(', ');
+
+      await executor.run(
+        `UPDATE occurrences
+         SET start_local_day = CASE id ${cases} END,
+             end_local_day = CASE id ${cases} END
+         WHERE id IN (${ids})`,
+        [
+          ...chunk.flatMap((entry) => [entry.id, entry.startLocalDay]),
+          ...chunk.flatMap((entry) => [entry.id, entry.endLocalDay]),
+          ...chunk.map((entry) => entry.id),
+        ],
+      );
+    }
   }
 
   async findCoverage(
@@ -213,21 +241,25 @@ export class OccurrenceDao {
     executor: SqliteExecutor = this.database,
   ): Promise<SourceCoverageRecord | null> {
     const rows = await executor.query<CoverageRow>(
-      `SELECT source_id, window_start_utc, window_end_utc, engine_version, updated_at
-       FROM source_coverage WHERE source_id = ?`,
+      `SELECT ${COVERAGE_COLUMNS} FROM source_coverage WHERE source_id = ?`,
       [sourceId],
     );
 
     const row = rows[0];
-    return row
-      ? {
-          sourceId: row.source_id,
-          windowStartUtc: row.window_start_utc,
-          windowEndUtc: row.window_end_utc,
-          engineVersion: row.engine_version,
-          updatedAt: row.updated_at,
-        }
-      : null;
+    return row ? toCoverageRecord(row) : null;
+  }
+
+  /**
+   * Every source's coverage in one read, for callers that judge all sources at once and would
+   * otherwise ask per source. Reading them together also means every source is judged against the
+   * same snapshot rather than one that drifts while the loop runs.
+   */
+  async listCoverage(executor: SqliteExecutor = this.database): Promise<SourceCoverageRecord[]> {
+    const rows = await executor.query<CoverageRow>(
+      `SELECT ${COVERAGE_COLUMNS} FROM source_coverage ORDER BY source_id ASC`,
+    );
+
+    return rows.map(toCoverageRecord);
   }
 
   async upsertCoverage(
@@ -235,26 +267,87 @@ export class OccurrenceDao {
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `INSERT INTO source_coverage (source_id, window_start_utc, window_end_utc, engine_version, updated_at)
-       VALUES (?, ?, ?, ?, ?)
+      `INSERT INTO source_coverage (${COVERAGE_COLUMNS})
+       VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT (source_id) DO UPDATE SET
          window_start_utc = excluded.window_start_utc,
          window_end_utc = excluded.window_end_utc,
          engine_version = excluded.engine_version,
-         updated_at = excluded.updated_at`,
+         updated_at = excluded.updated_at,
+         content_fingerprint = excluded.content_fingerprint`,
       [
         record.sourceId,
         record.windowStartUtc,
         record.windowEndUtc,
         record.engineVersion,
         record.updatedAt,
+        record.contentFingerprint,
       ],
     );
+  }
+
+  /**
+   * How many rows a source currently has. Paired with `SourceCoverageRecord.contentFingerprint`:
+   * the fingerprint says the *input* is unchanged, this says the *output* is still there - so a
+   * refresh can skip its rebuild without having to trust every other path that might have deleted
+   * rows behind its back.
+   */
+  async countOfSource(sourceId: string, executor: SqliteExecutor = this.database): Promise<number> {
+    const rows = await executor.query<{ readonly count: number }>(
+      `SELECT COUNT(*) AS count FROM occurrences WHERE source_id = ?`,
+      [sourceId],
+    );
+
+    return rows[0]?.count ?? 0;
   }
 
   async deleteCoverage(sourceId: string, executor: SqliteExecutor = this.database): Promise<void> {
     await executor.run(`DELETE FROM source_coverage WHERE source_id = ?`, [sourceId]);
   }
+}
+
+function toCoverageRecord(row: CoverageRow): SourceCoverageRecord {
+  return {
+    sourceId: row.source_id,
+    windowStartUtc: row.window_start_utc,
+    windowEndUtc: row.window_end_utc,
+    engineVersion: row.engine_version,
+    updatedAt: row.updated_at,
+    contentFingerprint: row.content_fingerprint ?? null,
+  };
+}
+
+/**
+ * One row's bound values, in the order `COLUMNS` lists them - the two are a pair and have to be
+ * edited together.
+ */
+function toValues(record: OccurrenceRecord): SqlValue[] {
+  return [
+    record.id,
+    record.sourceId,
+    record.sourceType,
+    record.calendarId,
+    record.seriesId,
+    record.originalStart,
+    record.provenance,
+    record.itemKind,
+    record.itemId,
+    record.title,
+    record.location,
+    record.description,
+    record.isAllDay ? 1 : 0,
+    record.start.kind,
+    record.start.value,
+    record.start.timeZone,
+    record.end?.kind ?? null,
+    record.end?.value ?? null,
+    record.end?.timeZone ?? null,
+    record.startUtc,
+    record.endUtc,
+    record.startLocalDay,
+    record.endLocalDay,
+    record.externalId,
+  ];
 }
 
 function toRecord(row: OccurrenceRow): OccurrenceRecord {

@@ -60,6 +60,28 @@ describe('OccurrenceDao', () => {
     ]);
   });
 
+  it('inserts more rows than fit in one chunked statement', async () => {
+    // Deliberately crosses the chunk boundary twice and lands mid-chunk, so a short final chunk is
+    // exercised as well as the full ones.
+    const records = Array.from({ length: 81 }, (_, index) =>
+      occurrence({ id: `app:item-${index}`, itemId: `item-${index}` }),
+    );
+
+    await dao.insertMany(records);
+
+    await expect(
+      dao.listInRange('2026-10-12T00:00:00Z', '2026-10-13T00:00:00Z'),
+    ).resolves.toHaveLength(81);
+  });
+
+  it('inserts nothing for an empty list', async () => {
+    await expect(dao.insertMany([])).resolves.toBeUndefined();
+
+    await expect(dao.listInRange('2026-10-12T00:00:00Z', '2026-10-13T00:00:00Z')).resolves.toEqual(
+      [],
+    );
+  });
+
   it('matches ranges by interval overlap, not by containment', async () => {
     // Runs 16:00Z–18:00Z; the queried range starts inside it.
     await dao.insertMany([occurrence()]);
@@ -138,6 +160,7 @@ describe('OccurrenceDao', () => {
       windowEndUtc: '2028-02-06T00:00:00Z',
       engineVersion: 'rrule-temporal@2.0.2',
       updatedAt: '2026-08-06T12:00:00Z',
+      contentFingerprint: null,
     });
     await dao.upsertCoverage({
       sourceId: 'source-1',
@@ -145,6 +168,7 @@ describe('OccurrenceDao', () => {
       windowEndUtc: '2028-08-06T00:00:00Z',
       engineVersion: 'rrule-temporal@2.0.2',
       updatedAt: '2026-08-07T12:00:00Z',
+      contentFingerprint: null,
     });
 
     await expect(dao.findCoverage('source-1')).resolves.toEqual({
@@ -153,8 +177,50 @@ describe('OccurrenceDao', () => {
       windowEndUtc: '2028-08-06T00:00:00Z',
       engineVersion: 'rrule-temporal@2.0.2',
       updatedAt: '2026-08-07T12:00:00Z',
+      contentFingerprint: null,
     });
     await expect(dao.findCoverage('other')).resolves.toBeNull();
+  });
+
+  it('moves only the listed rows to their new local days, across a chunk boundary', async () => {
+    const records = Array.from({ length: 160 }, (_, index) =>
+      occurrence({ id: `app:item-${index}`, itemId: `item-${index}` }),
+    );
+    await dao.insertMany(records);
+
+    // 151 assignments span two chunks; the untouched rows prove the `WHERE id IN (...)` bound.
+    await dao.updateLocalDaysMany(
+      records.slice(0, 151).map((record) => ({
+        id: record.id,
+        startLocalDay: '2026-10-13',
+        endLocalDay: '2026-10-13',
+      })),
+    );
+
+    const all = await dao.listInRange('2026-10-12T00:00:00Z', '2026-10-13T00:00:00Z');
+    const moved = all.filter((row) => row.startLocalDay === '2026-10-13');
+    const untouched = all.filter((row) => row.startLocalDay === '2026-10-12');
+
+    expect(moved).toHaveLength(151);
+    expect(untouched).toHaveLength(9);
+    expect(moved.every((row) => row.endLocalDay === '2026-10-13')).toBe(true);
+  });
+
+  it('lists every source’s coverage in one read', async () => {
+    await expect(dao.listCoverage()).resolves.toEqual([]);
+
+    const coverage = (sourceId: string) => ({
+      sourceId,
+      windowStartUtc: '2026-02-06T00:00:00Z',
+      windowEndUtc: '2028-02-06T00:00:00Z',
+      engineVersion: 'rrule-temporal@2.0.2',
+      updatedAt: '2026-08-06T12:00:00Z',
+      contentFingerprint: null,
+    });
+    await dao.upsertCoverage(coverage('source-2'));
+    await dao.upsertCoverage(coverage('source-1'));
+
+    await expect(dao.listCoverage()).resolves.toEqual([coverage('source-1'), coverage('source-2')]);
   });
 
   it('finds one row by id, or null when it does not exist', async () => {

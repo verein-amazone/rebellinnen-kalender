@@ -3,7 +3,7 @@ import { Temporal } from 'temporal-polyfill';
 
 import { AppCalendarItemDao } from '../daos/app-calendar-item.dao';
 import { CalendarSourceDao } from '../daos/calendar-source.dao';
-import { OccurrenceDao } from '../daos/occurrence.dao';
+import { OccurrenceDao, type LocalDayAssignment } from '../daos/occurrence.dao';
 import type { AppItemExceptionRecord, AppItemRecord } from '../entities/app-item.record';
 import type {
   CalendarRecord,
@@ -27,6 +27,7 @@ import type {
   IcsSubscriptionRecord,
 } from '../entities/ics.record';
 import type { DeviceCalendar, DeviceEventInstance } from '../gateways/native-calendar.gateway';
+import { fingerprintOccurrences } from './device-cache-fingerprint';
 import { deviceCalendarRowId, localDaysOf, normalizeDeviceInstances } from './device-normalizer';
 import type { ParsedIcsCalendar } from './ics/ics-parser';
 import { materializeAppItem } from './recurrence/occurrence-materializer';
@@ -87,6 +88,20 @@ export class CalendarRepository {
   private readonly occurrences = inject(OccurrenceDao);
   private readonly icsSubscriptions = inject(IcsSubscriptionDao);
   private readonly icsItems = inject(IcsItemDao);
+
+  private coverageRevision = 0;
+
+  /**
+   * Changes whenever a coverage row or the set of sources might have, so a caller can tell that a
+   * conclusion it drew from `extendCoverageForRange` is still the current one.
+   *
+   * Counted rather than compared: the point is only "is this the same state I last checked", and a
+   * counter cannot miss a change that happened and was undone in between. It is bumped optimistically,
+   * before a transaction has committed - erring towards an extra check, never towards a missed one.
+   */
+  coverageVersion(): number {
+    return this.coverageRevision;
+  }
 
   /** Read access for interactors that need the canonical item before deciding an edit scope. */
   findItem(itemId: string): Promise<AppItemRecord | null> {
@@ -422,6 +437,9 @@ export class CalendarRepository {
     source: CalendarSourceRecord,
     calendars: readonly CalendarRecord[],
   ): Promise<void> {
+    // A source that did not exist a moment ago has no coverage yet, so anything that concluded
+    // "nothing needs extending" was answering a different question than it would now.
+    this.coverageRevision += 1;
     await this.database.transaction(async (tx) => {
       await this.sources.insertSource(source, tx);
       for (const calendar of calendars) {
@@ -444,6 +462,14 @@ export class CalendarRepository {
    * snapshot is reconciled (removed native calendars take their rows with them), the range's rows
    * are swapped against the fresh instances, and coverage grows to include the range. The UI never
    * sees a half-replaced cache, and cached rows never become app-owned records.
+   *
+   * The swap is skipped entirely when the instances normalize to exactly the rows already cached.
+   * The OS offers no change token on either platform, so the instances still have to be fetched and
+   * normalized to find that out - what this saves is rewriting a whole 24-month window of rows on
+   * every launch, which is what the device log showed it doing.
+   *
+   * Returns whether the cached rows actually changed, so a caller reloading a view to show new data
+   * can tell there is none.
    */
   async replaceDeviceRange(
     sourceId: string,
@@ -453,8 +479,8 @@ export class CalendarRepository {
     deviceCalendars: readonly DeviceCalendar[],
     instances: readonly DeviceEventInstance[],
     context: CalendarContext,
-  ): Promise<void> {
-    await this.database.transaction(async (tx) => {
+  ): Promise<boolean> {
+    return this.database.transaction(async (tx) => {
       const existing = await this.sources.listCalendarsOfSource(sourceId, tx);
       const existingByRowId = new Map(existing.map((calendar) => [calendar.id, calendar]));
       const nativeRowIds = new Set(
@@ -508,31 +534,61 @@ export class CalendarRepository {
         }
       }
 
-      await this.occurrences.deleteOfSourceInRange(sourceId, rangeStartUtc, rangeEndUtc, tx);
-      await this.occurrences.insertMany(
-        normalizeDeviceInstances(sourceId, platform, instances, context.timeZone),
-        tx,
-      );
+      const rows = normalizeDeviceInstances(sourceId, platform, instances, context.timeZone);
+      const fingerprint = fingerprintOccurrences(rows);
 
       const coverage = await this.occurrences.findCoverage(sourceId, tx);
-      await this.occurrences.upsertCoverage(
-        {
-          sourceId,
-          windowStartUtc:
-            coverage !== null && coverage.windowStartUtc < rangeStartUtc
-              ? coverage.windowStartUtc
-              : rangeStartUtc,
-          windowEndUtc:
-            coverage !== null && coverage.windowEndUtc > rangeEndUtc
-              ? coverage.windowEndUtc
-              : rangeEndUtc,
-          engineVersion: RECURRENCE_ENGINE_VERSION,
-          updatedAt: context.nowUtc,
-        },
-        tx,
-      );
+      // Counted after the calendar cleanup above, so a calendar that just disappeared - and took
+      // its rows with it - is already reflected.
+      const cachedCount = await this.occurrences.countOfSource(sourceId, tx);
+
+      // The fingerprint says the OS handed us the same events as last time; the count says the rows
+      // it produced are still in the table. Only both together justify skipping the rebuild, and
+      // any disagreement rebuilds - the safe direction.
+      const rowsAreCurrent =
+        coverage?.contentFingerprint === fingerprint && cachedCount === rows.length;
+
+      if (!rowsAreCurrent) {
+        await this.occurrences.deleteOfSourceInRange(sourceId, rangeStartUtc, rangeEndUtc, tx);
+        await this.occurrences.insertMany(rows, tx);
+      }
+
+      const windowStartUtc =
+        coverage !== null && coverage.windowStartUtc < rangeStartUtc
+          ? coverage.windowStartUtc
+          : rangeStartUtc;
+      const windowEndUtc =
+        coverage !== null && coverage.windowEndUtc > rangeEndUtc
+          ? coverage.windowEndUtc
+          : rangeEndUtc;
+
+      // Written only when it would say something new. Re-stamping it on every launch would also
+      // invalidate the read path's coverage guard every launch, for no change at all.
+      const coverageChanged =
+        coverage === null ||
+        coverage.windowStartUtc !== windowStartUtc ||
+        coverage.windowEndUtc !== windowEndUtc ||
+        coverage.engineVersion !== RECURRENCE_ENGINE_VERSION ||
+        coverage.contentFingerprint !== fingerprint;
+
+      if (coverageChanged) {
+        this.coverageRevision += 1;
+        await this.occurrences.upsertCoverage(
+          {
+            sourceId,
+            windowStartUtc,
+            windowEndUtc,
+            engineVersion: RECURRENCE_ENGINE_VERSION,
+            updatedAt: context.nowUtc,
+            contentFingerprint: fingerprint,
+          },
+          tx,
+        );
+      }
 
       await this.sources.updateSourceState(sourceId, 'ok', context.nowUtc, tx);
+
+      return !rowsAreCurrent;
     });
   }
 
@@ -570,6 +626,9 @@ export class CalendarRepository {
     calendar: CalendarRecord,
     subscription: IcsSubscriptionRecord,
   ): Promise<void> {
+    // See `createSource`: a subscription added mid-session must not be judged by a conclusion drawn
+    // before it existed - that is exactly how it would end up never extending its window.
+    this.coverageRevision += 1;
     await this.database.transaction(async (tx) => {
       await this.sources.insertSource(source, tx);
       await this.sources.insertCalendar(calendar, tx);
@@ -595,12 +654,8 @@ export class CalendarRepository {
   ): Promise<void> {
     await this.database.transaction(async (tx) => {
       await this.icsItems.deleteOfSubscription(subscriptionId, tx);
-      for (const item of parsed.items) {
-        await this.icsItems.insertItem(item, tx);
-      }
-      for (const exception of parsed.exceptions) {
-        await this.icsItems.insertException(exception, tx);
-      }
+      await this.icsItems.insertItems(parsed.items, tx);
+      await this.icsItems.insertExceptions(parsed.exceptions, tx);
 
       const truncated = await this.materializeIcsInTransaction(
         subscriptionId,
@@ -672,11 +727,10 @@ export class CalendarRepository {
     windowOverride?: { startUtc: string; endUtc: string },
   ): Promise<void> {
     await this.database.transaction(async (tx) => {
-      const items = await this.icsItems.listItems(subscriptionId, tx);
-      const exceptions: IcsItemExceptionRecord[] = [];
-      for (const item of items) {
-        exceptions.push(...(await this.icsItems.listExceptions(subscriptionId, item.uid, tx)));
-      }
+      const [items, exceptions] = await Promise.all([
+        this.icsItems.listItems(subscriptionId, tx),
+        this.icsItems.listExceptions(subscriptionId, tx),
+      ]);
 
       await this.materializeIcsInTransaction(
         subscriptionId,
@@ -700,13 +754,21 @@ export class CalendarRepository {
     rangeEndUtc: string,
     context: CalendarContext,
   ): Promise<void> {
-    for (const source of await this.sources.listSources()) {
+    // Both tables in one read each, not one coverage query per source: this runs on every range
+    // the calendar shows, and in the common case only to conclude that nothing is near an edge.
+    const [sources, coverages] = await Promise.all([
+      this.sources.listSources(),
+      this.occurrences.listCoverage(),
+    ]);
+    const coverageBySource = new Map(coverages.map((entry) => [entry.sourceId, entry]));
+
+    for (const source of sources) {
       if (source.type === 'device') {
         continue;
       }
 
-      const coverage = await this.occurrences.findCoverage(source.id);
-      if (coverage === null) {
+      const coverage = coverageBySource.get(source.id);
+      if (coverage === undefined) {
         continue;
       }
 
@@ -768,42 +830,54 @@ export class CalendarRepository {
    */
   async recomputeDeviceLocalDays(context: CalendarContext): Promise<void> {
     const rows = await this.occurrences.listOfSourceType('device');
-    if (rows.length === 0) {
+
+    // Which rows actually move is decided before a transaction is opened: most zone changes shift
+    // only some of them, and a run that changes nothing should not open and commit an empty unit
+    // of work at all.
+    const changed: LocalDayAssignment[] = [];
+    for (const row of rows) {
+      const { startLocalDay, endLocalDay } = localDaysOf(
+        row.startUtc,
+        row.endUtc,
+        context.timeZone,
+      );
+      if (startLocalDay !== row.startLocalDay || endLocalDay !== row.endLocalDay) {
+        changed.push({ id: row.id, startLocalDay, endLocalDay });
+      }
+    }
+
+    if (changed.length === 0) {
       return;
     }
 
     await this.database.transaction(async (tx) => {
-      for (const row of rows) {
-        const { startLocalDay, endLocalDay } = localDaysOf(
-          row.startUtc,
-          row.endUtc,
-          context.timeZone,
-        );
-        if (startLocalDay !== row.startLocalDay || endLocalDay !== row.endLocalDay) {
-          await this.occurrences.updateLocalDays(row.id, startLocalDay, endLocalDay, tx);
-        }
-      }
+      await this.occurrences.updateLocalDaysMany(changed, tx);
     });
   }
 
   /** True when any coverage row was generated by a different recurrence-engine version. */
   async hasOutdatedEngineRows(): Promise<boolean> {
-    for (const source of await this.sources.listSources()) {
-      if (source.type === 'device') {
-        continue;
-      }
+    const [sources, coverages] = await Promise.all([
+      this.sources.listSources(),
+      this.occurrences.listCoverage(),
+    ]);
+    const coverageBySource = new Map(coverages.map((entry) => [entry.sourceId, entry]));
 
-      const coverage = await this.occurrences.findCoverage(source.id);
-      if (coverage !== null && coverage.engineVersion !== RECURRENCE_ENGINE_VERSION) {
-        return true;
-      }
-    }
-
-    return false;
+    // Driven by the sources, not by the coverage rows: device coverage carries an engine version
+    // too but is not rebuildable here, and a coverage row whose source is gone must not count.
+    return sources.some((source) => {
+      const coverage = coverageBySource.get(source.id);
+      return (
+        source.type !== 'device' &&
+        coverage !== undefined &&
+        coverage.engineVersion !== RECURRENCE_ENGINE_VERSION
+      );
+    });
   }
 
   /** Removes a subscription and everything it brought along, in one unit of work. */
   async removeIcsSubscription(subscriptionId: string): Promise<void> {
+    this.coverageRevision += 1;
     await this.database.transaction(async (tx) => {
       await this.occurrences.deleteOfSource(subscriptionId, tx);
       await this.occurrences.deleteCoverage(subscriptionId, tx);
@@ -824,9 +898,10 @@ export class CalendarRepository {
   ): Promise<boolean> {
     await this.occurrences.deleteOfSource(subscriptionId, tx);
 
-    const window =
-      windowOverride ??
-      this.coverageWindow(await this.occurrences.findCoverage(subscriptionId, tx), context);
+    // Read before the window is decided and kept, so the coverage write at the end can tell whether
+    // it would actually change anything.
+    const existingCoverage = await this.occurrences.findCoverage(subscriptionId, tx);
+    const window = windowOverride ?? this.coverageWindow(existingCoverage, context);
     const exceptionsByUid = new Map<string, IcsItemExceptionRecord[]>();
     for (const exception of exceptions) {
       const list = exceptionsByUid.get(exception.uid) ?? [];
@@ -834,6 +909,11 @@ export class CalendarRepository {
       exceptionsByUid.set(exception.uid, list);
     }
 
+    // Collected across all items and written once: inserting per item would issue a statement per
+    // item where one covers the whole source. Nothing is held that was not already in memory -
+    // `materializeAppItem` materializes each series in full anyway, and the total is what the table
+    // is about to hold for this source.
+    const pending: OccurrenceRecord[] = [];
     let truncated = false;
     for (const item of items) {
       const result = materializeAppItem(
@@ -847,11 +927,13 @@ export class CalendarRepository {
         },
         { keyPrefix: 'ics', sourceType: 'ics' },
       );
-      await this.occurrences.insertMany(result.occurrences, tx);
+      pending.push(...result.occurrences);
       truncated ||= result.truncated;
     }
 
-    await this.occurrences.upsertCoverage(this.coverageRecord(subscriptionId, window, context), tx);
+    await this.occurrences.insertMany(pending, tx);
+
+    await this.writeCoverageIfChanged(subscriptionId, window, existingCoverage, context, tx);
 
     return truncated;
   }
@@ -887,9 +969,8 @@ export class CalendarRepository {
     await this.database.transaction(async (tx) => {
       await this.occurrences.deleteOfSource(sourceId, tx);
 
-      const window =
-        windowOverride ??
-        this.coverageWindow(await this.occurrences.findCoverage(sourceId, tx), context);
+      const existingCoverage = await this.occurrences.findCoverage(sourceId, tx);
+      const window = windowOverride ?? this.coverageWindow(existingCoverage, context);
       const calendarIds = new Set(
         (await this.sources.listCalendarsOfSource(sourceId, tx)).map((calendar) => calendar.id),
       );
@@ -897,20 +978,31 @@ export class CalendarRepository {
         calendarIds.has(item.calendarId),
       );
 
+      // Read once and grouped in memory rather than once per item. Exceptions of items outside
+      // this source come along harmlessly - only the materialized items are ever looked up.
+      const exceptionsBySeries = new Map<string, AppItemExceptionRecord[]>();
+      for (const exception of await this.items.listAllExceptions(tx)) {
+        const list = exceptionsBySeries.get(exception.seriesId) ?? [];
+        list.push(exception);
+        exceptionsBySeries.set(exception.seriesId, list);
+      }
+
+      // See `materializeIcsInTransaction`: collected across all items, written once.
+      const pending: OccurrenceRecord[] = [];
       let truncated = false;
       for (const item of items) {
-        const exceptions = await this.items.listExceptionsOfSeries(item.id, tx);
-        const result = materializeAppItem(item, exceptions, {
+        const result = materializeAppItem(item, exceptionsBySeries.get(item.id) ?? [], {
           sourceId,
           windowStartUtc: window.startUtc,
           windowEndUtc: window.endUtc,
           timeZone: context.timeZone,
         });
-        await this.occurrences.insertMany(result.occurrences, tx);
+        pending.push(...result.occurrences);
         truncated ||= result.truncated;
       }
 
-      await this.occurrences.upsertCoverage(this.coverageRecord(sourceId, window, context), tx);
+      await this.occurrences.insertMany(pending, tx);
+      await this.writeCoverageIfChanged(sourceId, window, existingCoverage, context, tx);
 
       if (truncated) {
         await this.sources.updateSourceState(sourceId, 'stale', context.nowUtc, tx);
@@ -943,10 +1035,7 @@ export class CalendarRepository {
       timeZone: context.timeZone,
     });
     await this.occurrences.insertMany(result.occurrences, tx);
-    await this.occurrences.upsertCoverage(
-      this.coverageRecord(calendar.sourceId, window, context),
-      tx,
-    );
+    await this.writeCoverageIfChanged(calendar.sourceId, window, coverage, context, tx);
 
     if (result.truncated) {
       await this.sources.updateSourceState(calendar.sourceId, 'stale', context.nowUtc, tx);
@@ -1041,6 +1130,33 @@ export class CalendarRepository {
     };
   }
 
+  /**
+   * Writes the coverage row only when it says something new.
+   *
+   * Rematerializing a single edited item leaves the window and the engine version exactly as they
+   * were, so re-stamping would mean a write per edit that no reader can tell apart from no write
+   * at all - `updatedAt` exists on the record but nothing consumes it.
+   */
+  private async writeCoverageIfChanged(
+    sourceId: string,
+    window: { startUtc: string; endUtc: string },
+    existing: SourceCoverageRecord | null,
+    context: CalendarContext,
+    tx: SqliteExecutor,
+  ): Promise<void> {
+    if (
+      existing !== null &&
+      existing.windowStartUtc === window.startUtc &&
+      existing.windowEndUtc === window.endUtc &&
+      existing.engineVersion === RECURRENCE_ENGINE_VERSION
+    ) {
+      return;
+    }
+
+    this.coverageRevision += 1;
+    await this.occurrences.upsertCoverage(this.coverageRecord(sourceId, window, context), tx);
+  }
+
   private coverageRecord(
     sourceId: string,
     window: { startUtc: string; endUtc: string },
@@ -1052,6 +1168,9 @@ export class CalendarRepository {
       windowEndUtc: window.endUtc,
       engineVersion: RECURRENCE_ENGINE_VERSION,
       updatedAt: context.nowUtc,
+      // App and ICS rows are materialized from canonical data in this same database, so there is no
+      // external snapshot to fingerprint - only the device cache has one.
+      contentFingerprint: null,
     };
   }
 }

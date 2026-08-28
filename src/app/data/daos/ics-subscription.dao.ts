@@ -11,6 +11,7 @@ interface SubscriptionRow {
   readonly etag: string | null;
   readonly last_modified: string | null;
   readonly last_success_at: string | null;
+  readonly last_checked_at: string | null;
   readonly last_attempt_at: string | null;
   readonly last_error: string | null;
   readonly active_revision_id: string | null;
@@ -20,8 +21,8 @@ interface SubscriptionRow {
   readonly curated_id: string | null;
 }
 
-const COLUMNS = `id, url, allow_insecure, etag, last_modified, last_success_at, last_attempt_at,
-  last_error, active_revision_id, raw_ics, created_at, updated_at, curated_id`;
+const COLUMNS = `id, url, allow_insecure, etag, last_modified, last_success_at, last_checked_at,
+  last_attempt_at, last_error, active_revision_id, raw_ics, created_at, updated_at, curated_id`;
 
 /**
  * Table access for ICS subscriptions. The URL is sensitive; this DAO stores and returns it, and
@@ -70,7 +71,7 @@ export class IcsSubscriptionDao {
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.url,
@@ -78,6 +79,7 @@ export class IcsSubscriptionDao {
         record.etag,
         record.lastModified,
         record.lastSuccessAt,
+        record.lastCheckedAt,
         record.lastAttemptAt,
         record.lastError,
         record.activeRevisionId,
@@ -101,10 +103,10 @@ export class IcsSubscriptionDao {
   ): Promise<void> {
     await executor.run(
       `UPDATE ics_subscriptions SET active_revision_id = ?, raw_ics = ?, etag = ?,
-         last_modified = ?, last_success_at = ?, last_attempt_at = ?, last_error = NULL,
-         updated_at = ?
+         last_modified = ?, last_success_at = ?, last_checked_at = ?, last_attempt_at = ?,
+         last_error = NULL, updated_at = ?
        WHERE id = ?`,
-      [revisionId, rawIcs, etag, lastModified, nowUtc, nowUtc, nowUtc, id],
+      [revisionId, rawIcs, etag, lastModified, nowUtc, nowUtc, nowUtc, nowUtc, id],
     );
   }
 
@@ -115,9 +117,10 @@ export class IcsSubscriptionDao {
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `UPDATE ics_subscriptions SET last_attempt_at = ?, last_error = NULL, updated_at = ?
+      `UPDATE ics_subscriptions SET last_checked_at = ?, last_attempt_at = ?, last_error = NULL,
+         updated_at = ?
        WHERE id = ?`,
-      [nowUtc, nowUtc, id],
+      [nowUtc, nowUtc, nowUtc, id],
     );
   }
 
@@ -148,6 +151,7 @@ function toRecord(row: SubscriptionRow): IcsSubscriptionRecord {
     etag: row.etag ?? null,
     lastModified: row.last_modified ?? null,
     lastSuccessAt: row.last_success_at ?? null,
+    lastCheckedAt: row.last_checked_at ?? null,
     lastAttemptAt: row.last_attempt_at ?? null,
     lastError: row.last_error ?? null,
     activeRevisionId: row.active_revision_id ?? null,
