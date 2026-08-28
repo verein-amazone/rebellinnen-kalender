@@ -107,12 +107,20 @@ describe('CalendarMaintenanceInteractor', () => {
       'rk.calendar-maintenance',
       JSON.stringify({ lastTimeZone: 'America/New_York' }),
     );
-    const before = await occurrences.findCoverage('source-1');
+
+    // Asserted through the derived rows themselves rather than through the coverage row's
+    // `updatedAt`: the window and the engine version do not change here, so the coverage row is
+    // deliberately left alone. Dropping a row the rebuild has to put back proves it ran.
+    await occurrences.deleteOfSource('source-1');
+    await expect(
+      occurrences.listInRange('2026-09-01T00:00:00Z', '2026-10-01T00:00:00Z'),
+    ).resolves.toHaveLength(0);
 
     await interactor.ensureConsistency();
 
-    const after = await occurrences.findCoverage('source-1');
-    expect(after!.updatedAt).not.toBe(before!.updatedAt);
+    await expect(
+      occurrences.listInRange('2026-09-01T00:00:00Z', '2026-10-01T00:00:00Z'),
+    ).resolves.toHaveLength(1);
   });
 
   it('recomputes cached device rows into the new zone without a native refresh', async () => {

@@ -24,6 +24,17 @@ export class CalendarOccurrencesInteractor {
   private readonly injector = inject(Injector);
 
   /**
+   * The last range `extendCoverageForRange` was asked about, with the coverage state it answered
+   * for. Session-scoped and purely an optimisation: losing it costs one extra check, never a
+   * missed extension.
+   */
+  private lastExtendedRange: {
+    coverageVersion: number;
+    rangeStartUtc: string;
+    rangeEndUtc: string;
+  } | null = null;
+
+  /**
    * All visible occurrences touching the days `fromDay`…`toDay` (inclusive, device zone),
    * deterministically ordered: by day, all-day entries first, then start time, then title.
    */
@@ -57,10 +68,32 @@ export class CalendarOccurrencesInteractor {
 
     // Navigating close to a coverage edge widens the window first, so the user never runs into
     // an artificial end of the calendar.
-    await this.repository.extendCoverageForRange(rangeStartUtc, rangeEndUtc, {
-      nowUtc: new Date().toISOString(),
-      timeZone,
-    });
+    //
+    // Every calendar surface calls this on every render, and the same range is asked for again and
+    // again (two Today blocks, a screen revisited, a filter changed). Re-asking is skipped only when
+    // both the exact range and the repository's coverage state are the ones the last check already
+    // answered for - a new subscription or any coverage write invalidates that immediately, which is
+    // what keeps a source added mid-session from being permanently skipped.
+    const coverageVersion = this.repository.coverageVersion();
+    const checked = this.lastExtendedRange;
+    if (
+      checked === null ||
+      checked.coverageVersion !== coverageVersion ||
+      checked.rangeStartUtc !== rangeStartUtc ||
+      checked.rangeEndUtc !== rangeEndUtc
+    ) {
+      await this.repository.extendCoverageForRange(rangeStartUtc, rangeEndUtc, {
+        nowUtc: new Date().toISOString(),
+        timeZone,
+      });
+      // Read again: extending writes coverage, and the point is to remember the state that the
+      // answer now describes, not the one it started from.
+      this.lastExtendedRange = {
+        coverageVersion: this.repository.coverageVersion(),
+        rangeStartUtc,
+        rangeEndUtc,
+      };
+    }
 
     const rows = await this.repository.occurrencesInRange(rangeStartUtc, rangeEndUtc, filter);
     return rows.map(toOccurrence);

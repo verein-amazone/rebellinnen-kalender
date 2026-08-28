@@ -529,6 +529,7 @@ describe('CalendarRepository', () => {
       windowEndUtc: '2028-02-06T13:00:00Z',
       engineVersion: 'rrule-temporal@0.0.1',
       updatedAt: '2026-08-06T12:00:00Z',
+      contentFingerprint: null,
     });
 
     await expect(repository.hasOutdatedEngineRows()).resolves.toBe(true);

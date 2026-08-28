@@ -65,12 +65,16 @@ export class CalendarOverviewPage {
     // The "calendar screen" trigger `DeviceCalendarSyncInteractor`'s own doc comment promises:
     // an external change (edited in Google Calendar, synced in by the OS in the background) has
     // otherwise no way to reach this screen until the next debounced refresh happens to land.
-    // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap; the
-    // occurrences resource is reloaded afterwards so a genuinely fresh cache is not stuck behind
-    // the range param not having changed.
-    void this.deviceCalendarSync.refresh().then(() => {
-      this.occurrences.reload();
-      this.filterableCalendars.reload();
+    // `refresh()` is debounced, not `force`, so revisiting the screen repeatedly is cheap.
+    //
+    // Only a refresh that actually replaced the cache is worth reloading for: revisiting within the
+    // debounce window - the common case - leaves the rows exactly as the resources already have
+    // them, and reloading then would run the whole read path again for nothing.
+    void this.deviceCalendarSync.refresh().then((refreshed) => {
+      if (refreshed) {
+        this.occurrences.reload();
+        this.filterableCalendars.reload();
+      }
     });
   }
 

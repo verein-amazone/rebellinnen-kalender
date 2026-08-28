@@ -54,20 +54,29 @@ export class DeviceCalendarSyncInteractor {
   /**
    * Refreshes the cached range. Automatic triggers (app foreground, screen activation) call this
    * without `force` and are debounced; pull-to-refresh passes `force: true`.
+   *
+   * Returns whether the cached rows actually changed, so a caller that only reloads its view to
+   * show new data can skip that work when there is none - a debounced-out call, a missing source,
+   * lost permission, a failed native query and a device whose calendars are unchanged since the
+   * last refresh all report `false`.
    */
-  async refresh(options: { force?: boolean } = {}): Promise<void> {
+  async refresh(options: { force?: boolean } = {}): Promise<boolean> {
     const now = Date.now();
-    if (options.force !== true) {
-      if (now - this.lastAutomaticRefreshAt < DEVICE_REFRESH_MIN_INTERVAL_MS) {
-        return;
-      }
-      this.lastAutomaticRefreshAt = now;
+    if (
+      options.force !== true &&
+      now - this.lastAutomaticRefreshAt < DEVICE_REFRESH_MIN_INTERVAL_MS
+    ) {
+      return false;
     }
+
+    // Stamped for forced refreshes too: a pull-to-refresh has just done the work, and leaving the
+    // window untouched would let the next automatic trigger immediately redo it.
+    this.lastAutomaticRefreshAt = now;
 
     const context = this.context();
     const source = await this.repository.findSource(DEVICE_SOURCE_ID);
     if (source === null) {
-      return;
+      return false;
     }
 
     let permission: DeviceCalendarPermission;
@@ -79,19 +88,22 @@ export class DeviceCalendarSyncInteractor {
       // can call `refresh()` on it with a source already seeded/connected. The previous cache stays;
       // the source just shows as failing rather than throwing an unhandled rejection.
       await this.repository.setSourceState(DEVICE_SOURCE_ID, 'error', context);
-      return;
+      return false;
     }
     if (permission !== 'granted') {
       // Access revoked: keep the cache, flag the source; the user decides what happens next.
       await this.repository.setSourceState(DEVICE_SOURCE_ID, 'permission-lost', context);
-      return;
+      return false;
     }
 
     const range = await this.fetchRange(context);
     try {
       const calendars = await this.gateway.listCalendars();
       const instances = await this.gateway.listEventInstances(range.startUtc, range.endUtc);
-      await this.repository.replaceDeviceRange(
+
+      // The repository reports whether the cache actually changed; a launch where nothing on the
+      // device moved reaches here and still has nothing to show for it.
+      return await this.repository.replaceDeviceRange(
         DEVICE_SOURCE_ID,
         devicePlatform(),
         range.startUtc,
@@ -103,6 +115,7 @@ export class DeviceCalendarSyncInteractor {
     } catch {
       // The native query failed; the previous cache stays and the source shows as failing.
       await this.repository.setSourceState(DEVICE_SOURCE_ID, 'error', context);
+      return false;
     }
   }
 

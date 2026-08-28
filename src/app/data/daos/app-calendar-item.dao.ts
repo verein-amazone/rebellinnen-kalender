@@ -146,6 +146,22 @@ export class AppCalendarItemDao {
     await executor.run(`DELETE FROM app_items WHERE id = ?`, [id]);
   }
 
+  /**
+   * Every exception of every series, for callers that rematerialize a whole source and would
+   * otherwise ask once per item. Ordered by series first so the caller can group them without
+   * losing the `original_start` order each series is materialized in.
+   */
+  async listAllExceptions(
+    executor: SqliteExecutor = this.database,
+  ): Promise<AppItemExceptionRecord[]> {
+    const rows = await executor.query<AppItemExceptionRow>(
+      `SELECT ${EXCEPTION_COLUMNS} FROM app_item_exceptions
+       ORDER BY series_id ASC, original_start ASC`,
+    );
+
+    return rows.map(toExceptionRecord);
+  }
+
   async listExceptionsOfSeries(
     seriesId: string,
     executor: SqliteExecutor = this.database,

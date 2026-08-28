@@ -126,6 +126,13 @@ DAOs **must not** contain business rules. The only places handwritten SQL should
 DAOs, database initialization, and migrations. Use the `*Dao` suffix consistently for direct
 SQLite/table access.
 
+A method that writes many rows issues **one statement per chunk, not one per row**: on a device
+every statement is its own round trip through the Capacitor bridge, and a loop of them dominated
+app start. Only placeholders are generated into the SQL - every value stays bound. Chunk sizes are
+per table and deliberately conservative, because `SQLITE_MAX_VARIABLE_NUMBER` is 999 on older
+builds and iOS, Android and `jeep-sqlite` do not all ship the same engine (see `INSERT_CHUNK_ROWS`
+in `occurrence.dao.ts` for the reasoning, and `reminder.dao.ts` for the `CASE`-per-id update form).
+
 ## Migrations
 
 All schema changes are **versioned migrations** under `data/migrations/`: one file per version
@@ -234,6 +241,28 @@ Expansion is bounded to a configurable window (defaults −6/+18 months,
 coverage edge. Coverage rows are written in the same transaction as the rows they describe and are
 stamped with the recurrence-engine version, so an engine upgrade triggers a cheap full rebuild of
 derived rows without touching canonical data.
+
+### Recognising work that would change nothing
+
+Rebuilding derived rows is cheap to write but not free, and the two paths that run on every launch
+would otherwise redo it in full each time:
+
+- A coverage row also carries a **content fingerprint** of the external data its rows were built
+  from (`data/calendar/device-cache-fingerprint.ts`). Only the device source has such input - app
+  and ICS rows are materialized from canonical data already in the database, so the column stays
+  `NULL` for them. A device refresh normalizes what the OS returned, fingerprints it, and skips the
+  swap when it matches what is stored _and_ the row count still agrees. The fingerprint describes
+  the input; the count confirms the output is still there. Either disagreeing rebuilds, which is
+  the safe direction. There is no change token on either platform, so the instances still have to
+  be fetched and normalized - what this avoids is rewriting the whole window.
+- An ICS subscription records `last_checked_at` separately from `last_success_at`: a `304 Not
+Modified` confirms the cached revision is current without storing a new one. The automatic
+  refresh interval is measured against the check, so a feed that never changes stops being asked
+  on every launch.
+
+Writes that would restate what a row already says are skipped throughout the layer - coverage rows
+included - because such a write is indistinguishable from no write to every reader, and re-stamping
+one invalidates caches built on top of it.
 
 ## Native calendar gateway boundary
 

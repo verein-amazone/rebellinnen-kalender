@@ -119,6 +119,29 @@ describe('AppCalendarItemDao', () => {
     ]);
   });
 
+  it('lists every series’ exceptions grouped by series and ordered within each', async () => {
+    await dao.insert(item());
+    await dao.insert(item({ id: 'item-2' }));
+
+    await dao.upsertException(
+      exception({ seriesId: 'item-2', originalStart: '2026-09-21T18:00:00' }),
+    );
+    await dao.upsertException(
+      exception({ seriesId: 'item-1', originalStart: '2026-09-28T18:00:00' }),
+    );
+    await dao.upsertException(
+      exception({ seriesId: 'item-1', originalStart: '2026-09-14T18:00:00' }),
+    );
+
+    const all = await dao.listAllExceptions();
+
+    expect(all.map((entry) => [entry.seriesId, entry.originalStart])).toEqual([
+      ['item-1', '2026-09-14T18:00:00'],
+      ['item-1', '2026-09-28T18:00:00'],
+      ['item-2', '2026-09-21T18:00:00'],
+    ]);
+  });
+
   it('deletes only the exception tail from a split point on', async () => {
     await dao.insert(item());
     await dao.upsertException(exception({ originalStart: '2026-09-14T18:00:00' }));

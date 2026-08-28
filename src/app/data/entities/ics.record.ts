@@ -13,7 +13,14 @@ export interface IcsSubscriptionRecord {
   readonly allowInsecure: boolean;
   readonly etag: string | null;
   readonly lastModified: string | null;
+  /** When the feed last returned content that was stored as a new revision. */
   readonly lastSuccessAt: string | null;
+  /**
+   * When the subscription was last confirmed to be current - a stored revision *or* a `304 Not
+   * Modified`. This is what the automatic refresh interval is measured against: a feed that only
+   * ever answers 304 is being checked successfully, and must not count as perpetually due.
+   */
+  readonly lastCheckedAt: string | null;
   readonly lastAttemptAt: string | null;
   readonly lastError: string | null;
   readonly activeRevisionId: string | null;
