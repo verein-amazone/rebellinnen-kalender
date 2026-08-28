@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import type { CalendarSourceRecord } from '@app/data/entities/calendar-source.record';
-import { AppSettingsGateway } from '@app/data/gateways/app-settings.gateway';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { SystemSettings } from '@app/cross-cutting/infrastructure/system-settings';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import type { DeviceCalendarPermission } from '@app/data/gateways/native-calendar.gateway';
 
 import { DEVICE_SOURCE_ID, DeviceCalendarSyncInteractor } from './device-calendar-sync.interactor';
@@ -51,8 +51,8 @@ export interface DeviceCalendarsSnapshot {
 export class DeviceCalendarsInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly sync = inject(DeviceCalendarSyncInteractor);
-  private readonly appSettings = inject(AppSettingsGateway);
-  private readonly emojiPicker = inject(EmojiPickerGateway);
+  private readonly appSettings = inject(SystemSettings);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
 
   /** The device source's state and its calendars grouped by native account/source. */
   async loadSnapshot(): Promise<DeviceCalendarsSnapshot> {

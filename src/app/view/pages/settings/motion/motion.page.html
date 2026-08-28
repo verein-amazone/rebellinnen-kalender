@@ -1,4 +1,5 @@
 <app-focused-screen heading="Bewegung &amp; Animationen" fallbackLink="/settings">
+  <h2 class="mb-2 text-lg">Animationen</h2>
   <fieldset class="space-y-2">
     <legend class="sr-only">Bewegung wählen</legend>
 
@@ -10,6 +11,25 @@
         [description]="option.description"
         [checked]="appearance.motion() === option.id"
         (selected)="select($event)"
+      />
+    }
+  </fieldset>
+
+  <!-- Its own group rather than three more entries above: the setting above governs animation
+       everywhere in the app, this one governs one card's greeting. „Reduziert“ still silences the
+       wave here, whichever option is picked. -->
+  <h2 class="mt-6 mb-2 text-lg">Tagesimpuls</h2>
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Begrüßung durch den Tagesimpuls wählen</legend>
+
+    @for (option of appearance.impulseGreetingOptions; track option.id) {
+      <app-choice-row
+        name="impulse-greeting"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.impulseGreeting() === option.id"
+        (selected)="selectGreeting($event)"
       />
     }
   </fieldset>

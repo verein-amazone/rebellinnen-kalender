@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import type { Catalog } from '@app/data/calendar/curated/curated-calendar-sync';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import {
   IcsHttpGateway,
   type IcsDownloadRequest,
@@ -40,7 +40,7 @@ const CATALOG: Catalog = {
   ],
 };
 
-class FakeEmojiPickerGateway {
+class FakeEmojiPicker {
   result: string | null = '🌻';
 
   pickEmoji(): Promise<string | null> {
@@ -84,7 +84,7 @@ describe('CuratedCalendarsInteractor', () => {
       providers: [
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: IcsHttpGateway, useValue: http },
-        { provide: EmojiPickerGateway, useValue: new FakeEmojiPickerGateway() },
+        { provide: NativeEmojiPicker, useValue: new FakeEmojiPicker() },
       ],
     });
 

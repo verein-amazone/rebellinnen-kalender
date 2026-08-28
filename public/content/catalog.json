@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "items": [
     {
       "id": "wi-01",
@@ -7,12 +7,14 @@
       "title": "Menstruation, Hormone & Zyklus",
       "teaser": "Menstruation, Periode, Regel, Erdbeerwoche – egal wie, aber ganz sicher kein Tabu!",
       "bodyMarkdown": "Der Menstruationszyklus ist von Person zu Person unterschiedlich – meist zwischen 20 und 40 Tage. Der Zyklus teilt sich in folgende Phasen:\n\n**Menstruation** Durch das Zusammenziehen der Muskeln der Gebärmutter wird Menstruationsflüssigkeit ausgeschieden. Das kann zu Schmerzen führen und es kann sein, dass du dich energielos fühlst.\n\n**Follikelphase** In den Eierstöcken bilden sich Eizellen und die Gebärmutter beginnt, eine Schleimhaut aufzubauen. Die Hormone Östrogen und Serotonin steigen und können sich positiv auf die Stimmung auswirken.\n\n**Eisprung** Die Eizelle wird aus dem Eierstock in einen der beiden Eileiter gespült und wandert weiter in die Gebärmutter. Manche spüren in dieser Phase Schmerzen.\n\n**Lutealphase** Die Gebärmutterschleimhaut baut sich weiter auf. Wenn du unter PMS (Prämenstruelles Syndrom) leidest, können in dieser Phase Beschwerden wie Kopfschmerzen, Schlappheit oder unreine Haut auftreten. Hat keine Befruchtung der Eizelle stattgefunden, sinkt der Hormonspiegel im Blut und deine Menstruation setzt bald ein.\n\nTipp: Deinen Zyklus zu tracken, kann dir helfen, deinen Körper besser zu verstehen. Verwende zum Beispiel die Euki App (sammelt keine Daten).",
+      "imageAlt": "Grafik: viele rote Tropfen in verschiedenen Größen auf dunkelblauem Grund.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": "Euki App",
       "sourceUrl": "https://eukiapp.org/",
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-02",
@@ -20,12 +22,14 @@
       "title": "Was tut dir gut?",
       "teaser": "Wir haben ein paar Ideen für dich!",
       "bodyMarkdown": "- Ein Bad nehmen\n- Spazieren gehen\n- Musik hören\n- In ein Kissen schreien\n- Reden\n- An Lavendel riechen\n- Gedanken aufschreiben\n- Schlafen\n- Zeichnen\n- Lieblingsserie schauen\n- …\n\nEs gibt ein Thema, das dich beschäftigt? Reden kann hilfreich sein! Schau' mal zu den Anlaufstellen. Vielleicht ist ein passendes Angebot für dich dabei! <3",
+      "imageAlt": "Illustration: gezeichnete Gesichter auf orangem Grund, die ganz unterschiedliche Gefühle zeigen – fröhlich, traurig, wütend, überrascht, lachend.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-03",
@@ -33,12 +37,14 @@
       "title": "Es ist okay, nicht okay zu sein.",
       "teaser": "Probier diese Übung als Soforthilfe bei Stress, Ängsten oder Sorgen!",
       "bodyMarkdown": "4 Sekunden: durch die Nase einatmen\n\n7 Sekunden: den Atem anhalten\n\n8 Sekunden: langsam und hörbar durch den Mund ausatmen\n\nUnd? Besser?",
+      "imageAlt": "Zeichnung: eine getigerte Katze auf mintgrünem Grund, die die Augen geschlossen hat und ruhig atmet.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-04",
@@ -46,12 +52,14 @@
       "title": "Gestalte gemeinsam mit uns den Rebell*innen Kalender 2027/28!",
       "teaser": "Du bist gerne kreativ und hast Ideen? Du möchtest mitentscheiden, wie der nächste Kalender aussieht? Du hast Wünsche oder Verbesserungsvorschläge?",
       "bodyMarkdown": "Wo? 3 Online-Treffen im März 2027 mit Nina vom Verein Amazone.\n\nWer? Mitmachen können alle Mädchen\\*, inter\\*, nicht-binären, trans\\* und agender Jugendlichen von 12 bis 25 Jahren aus ganz Österreich.\n\nWie? Melde dich bis 14. Februar 2027 an. Klick auf den Link oder schreib ein E-Mail an n.kaufmann@amazone.or.at",
+      "imageAlt": "Drei gerahmte Fotos: junge Menschen halten lachend Ausgaben des Rebell*innen Kalenders in die Kamera.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": "Jetzt anmelden",
       "sourceUrl": "https://forms.gle/Y5UxyyAa1Y7qS2Gg7",
       "validFrom": "2027-01-02",
       "validTo": "2027-04-14",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-05",
@@ -59,12 +67,14 @@
       "title": "Februar ist Black History Month!",
       "teaser": "Erfahre mehr über die Geschichte von Haare Schwarzer Personen.",
       "bodyMarkdown": "- vor 1500: Frisuren in afrikanischen Ländern geben Informationen zu Ansehen, Religion und Familienstand.\n- um 1500: Versklavte Personen müssen ihre Haare abrasieren.\n- um 1700: Flechtfrisuren wie Cornrows dienen dazu, Karten zur Befreiung von versklavten Personen zu zeichnen.\n- um 1800: Haare werden mit Schafsbürste oder heißem Kamm geglättet.\n- um 1970: Der Afro gilt als Symbol der Bürger\\*innenrechtsbewegung in den USA.\n- um 2000: Haare werden meist geglättet, passende Haarprodukte gibt es kaum.\n- seit 2022: #naturalhairmovement ist eine Bewegung, die Mut macht, Haare natürlich zu tragen.",
+      "imageAlt": "Illustration: eine Schwarze Person mit großem Afro vor mintgrünem Grund, daneben der Schriftzug „Check your privilege!“.",
       "imageAttribution": "Verein Amazone, Konfettikrake / Johanna Augustin",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-02-01",
       "validTo": "2027-02-10",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-06",
@@ -72,12 +82,14 @@
       "title": "#mikrofeminismus",
       "teaser": "Mikrofeminismus – das sind kleine, alltägliche Gesten und Aktionen für Geschlechtergerechtigkeit. Wir haben da mal ein paar Ideen für dich!",
       "bodyMarkdown": "- Pfeif drauf, wie Mädchen\\* sein sollen! Sei wie du bist, sei laut und nimm dir Platz!\n- Gib Freunden\\* Komplimente für ihre Schönheit und ihr Aussehen und Freundinnen\\* für ihren Mut und ihre Stärke!\n- Verwende die weibliche Form, wenn Menschen aller Geschlechter gemeint sind!\n- Halte Jungen\\* die Tür auf oder frag, ob du beim Tragen der Tasche helfen kannst!\n- Brich Tabus: Versteck Periodenprodukte nicht länger!\n- Konsumiere gezielt Bücher, Musik und Filme von Frauen\\*!\n\nUnd jetzt bist du an der Reihe! Probier's einfach mal aus!",
+      "imageAlt": "Illustration: eine Hand hält ein Demoschild mit der Aufschrift „Wir sind laut!“ vor rotem Grund.",
       "imageAttribution": "Verein Amazone, Konfettikrake / Johanna Augustin",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-07",
@@ -85,12 +97,14 @@
       "title": "Tipps gegen Hass im Netz",
       "teaser": "Heute ist Safer Internet Day. Gemeinsam wollen wir das Internet zu einem besseren Ort für ALLE machen!",
       "bodyMarkdown": "Vieles online ist illegal und strafbar! Mach immer einen Screenshot und speicher Bilder, Chats und Kommentare als Beweise ab.\n\nWenn du online etwas siehst, das nicht okay ist, kannst du etwas tun! Du kannst die Beiträge oder das Profil an die Social Media Plattform melden, Personen blockieren und dir Unterstützung holen.\n\nEs ist wichtig, dass wir uns gegenseitig unterstützen! Trau dich, dich in einem sicheren Rahmen für andere einzusetzen. Das kann Mut machen! Hast du schon mal versucht, eine Gegenmeinung zu posten?\n\nRede darüber! Niemand soll mit Hass im Netz allein sein. Hol dir Unterstützung und lass dich zum Beispiel bei ZARA #GegenHassimNetz kostenlos beraten.",
+      "imageAlt": "Grafik: der rote Schriftzug „#Gegen #Hass #ImNetz“ auf dunkelblauem Grund.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": "ZARA – #GegenHassimNetz",
       "sourceUrl": "https://zara.or.at/beratung/",
       "validFrom": "2027-02-09",
       "validTo": "2027-02-09",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-08",
@@ -98,12 +112,14 @@
       "title": "Heute ist Feministischer Kampftag!",
       "teaser": "Frauen*rechte wurden von mutigen und starken Frauen* hart erkämpft und müssen auch heute noch verteidigt werden.",
       "bodyMarkdown": "Wusstest du das…\n\n… Frauen\\* in Österreich erst seit 1975 ohne Erlaubnis des Mannes\\* arbeiten dürfen? Bis dahin hat meist der Ehemann oder Vater entschieden, ob eine Frau\\* arbeiten darf und welchen Beruf sie ausübt.\n\n… Frauen\\* in Österreich erst seit 1957 ein eigenes Bankkonto eröffnen dürfen? Vorher mussten Frauen\\* ihren Lohn oft dem Mann überlassen, der für die Verwaltung des Geldes in der Familie zuständig war.",
+      "imageAlt": "Zeichnung: eine rosa Katze mit pinker Sonnenbrille, Kopftuch und gepunktetem Oberteil hält eine Getränkedose.",
       "imageAttribution": "Verein Amazone, illustriert von Freya",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-03-08",
       "validTo": "2027-03-08",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-09",
@@ -111,12 +127,14 @@
       "title": "Tomatensuppe aus dem Ofen",
       "teaser": "Heute haben wir eine Rezeptempfehlung für dich!",
       "bodyMarkdown": "- 10 große Tomaten halbieren\n- 1 Zwiebel in feine Streifen schneiden\n- 3 Knoblauchzehen schälen\n- Tomaten, Zwiebel und Knoblauch mit 4 Esslöffel Olivenöl, 1 Teelöffel Zucker und 1 großer Prise Salz vermischen\n- alles auf ein Blech geben und bei 180° Ober-/Unterhitze 30 Minuten in den Ofen\n- nach dem Backen die Tomatenschalen entfernen und alles pürieren\n- mit frischem Brot genießen",
+      "imageAlt": "Illustration: viele reife rote Tomaten mit grünen Stielen, dicht an dicht.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-10",
@@ -124,12 +142,14 @@
       "title": "Was bedeutet eigentlich FLINTA*?",
       "teaser": "FLINTA* ist eine Abkürzung und ein wichtiger Begriff aus dem Queer-Feminismus.",
       "bodyMarkdown": "FLINTA\\* meint alle Menschen, die im Patriarchat (= Gesellschaftssystem, in dem Männer mehr Macht und Vorteile haben) diskriminiert werden.\n\n- F … Female, also Mädchen\\* und Frauen\\*\n- L … Lesbische Personen\n- I … Inter\\* Personen\n- N … Nicht-binäre Personen\n- T … Trans\\* Personen\n- A … Agender Personen\n- \\* … Das Gendersternchen lässt Platz für alle weiteren Personengruppen, die aufgrund ihrer Geschlechtsidentität benachteiligt werden.",
+      "imageAlt": "Grafik: der Schriftzug „FLINTA*“ auf orangem Grund, darüber liegt eine zusammengerollte, schlafende Katze.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-11",
@@ -137,12 +157,14 @@
       "title": "HAPPY NEW YEAR!",
       "teaser": "Wir wünschen dir ein schönes, tolles und lustiges Neues Jahr!",
       "bodyMarkdown": "2027 wird super, da sind wir uns ganz sicher!",
+      "imageAlt": "Grafik: der dunkelblaue Schriftzug „Happy New Year!“ zwischen bunten Sternumrissen auf weißem Grund.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-01-01",
       "validTo": "2027-01-01",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-12",
@@ -150,12 +172,14 @@
       "title": "Hör rein!",
       "teaser": "Podcast Tipps aus dem Rebell*innen Kalender 2026/27.",
       "bodyMarkdown": "Wir haben ein paar coole Podcasts gesammelt, die wir dir nicht vorenthalten möchten. Hör einfach mal rein!\n\n- [Facts & Feelings](https://www.deutschlandfunknova.de/podcasts/download/ab-21)\n- [deep und deutlich](https://play.funk.net/channel/deep-und-deutlich-12229)\n- [Lesen ist schuwl](https://lesen-ist-schwul.podigee.io/)\n- [Taking the Red Pill – Einstiegsdroge Antifeminismus](https://www.bpb.de/mediathek/podcasts/taking-the-red-pill/)\n- [Deutschland 3000](https://www.ndr.de/n-joy/deutschland3000-ne-gute-stunde-mit-eva-schulz,podcast4504.html)\n- [FASHION THE GAZE](https://www.buzzsprout.com/1340737)\n- [Say My Name](https://www.bpb.de/mediathek/podcasts/say-my-name-der-podcast/)\n- [Willkommen im Club](https://www.ardsounds.de/sendung/willkommen-im-club-der-queere-podcast-von-puls/urn:ard:show:ed0f0aaa375868aa/)\n- Poetry Slam: [Paulina Behrendt – Schweigepflicht](https://www.youtube.com/watch?v=SYbXtJgaKt8)",
+      "imageAlt": "Illustration: bunte Musikkassetten liegen übereinander, beschriftet mit Podcast-Titeln wie „Facts & Feelings“, „Say My Name“ und „deep und deutlich“.",
       "imageAttribution": "Verein Amazone, illustriert von Isabel Natter",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-13",
@@ -163,12 +187,14 @@
       "title": "Watchlist",
       "teaser": "Film- und Serientipps aus dem Rebell*innen Kalender 2026/27",
       "bodyMarkdown": "Wir haben ein paar coole Filme und Serien gesammelt, die wir dir nicht vorenthalten möchten. Schau rein!\n\n- Flow\n- Momo\n- Elisa y Marcela\n- Hilma – Alle Farben der Seele\n- XO, Kitty\n- I am not okay with this\n- The Principles of Pleasure\n- The L Word: Generation Q\n- Der Zopf\n- Hoppers\n- Against All Gods",
+      "imageAlt": "Illustration: ein Stapel alter Fernsehgeräte auf türkisem Grund, auf den Bildschirmen stehen Film- und Serientitel wie „The L Word: Generation Q“, „Momo“ und „Flow“.",
       "imageAttribution": "Verein Amazone, illustriert von Isabel Natter",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-14",
@@ -176,12 +202,14 @@
       "title": "Lies mich!",
       "teaser": "Buchtipps aus dem Rebell*innen Kalender 2026/27",
       "bodyMarkdown": "Wir haben ein paar spannende Buchtipps gesammelt, die wir dir nicht vorenthalten möchten. Lies rein!\n\n- Miroloi – Karen Köhler\n- Rebel Girl – Kathleen Hanna\n- Mitternachtszustand (Gedichte) – Anja Bachl\n- Da, wo ich dich sehen kann – Jasmin Schreiber\n- Lügen über meine Mutter – Daniela Dröscher\n- Nemesis' Töchter – Tara-Louise Wittwer\n- We are Austria: 77 außergewöhnliche Frauen aus Österreich\n- Silber – die Bücher der Träume – Kerstin Gier\n- Malnata – Beatrice Salvioni\n- Im Spiegelsaal – Liv Strömquist\n- Und alle so still – Mareike Fallwickl",
+      "imageAlt": "Illustration: gelbe Bücher in einem Regal, beschriftet mit Titeln wie „Rebel Girl“, „Miroloi“ und „Nemesis’ Töchter“; rechts hängt ein Bild mit einer Katze.",
       "imageAttribution": "Verein Amazone, illustriert von Isabel Natter",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-15",
@@ -189,12 +217,14 @@
       "title": "Gendern",
       "teaser": "Wie wir gendern und Geschlechter sichtbar machen.",
       "bodyMarkdown": "Gendern ist wichtig, darum verwenden wir das Gendersternchen. Wir schreiben zum Beispiel Eisverkäufer\\*innen oder Schüler\\*innen, weil wir ALLE ansprechen möchten. Also auch Personen, die sich weder dem weiblichen noch dem männlichen Geschlecht zuordnen können oder wollen.",
+      "imageAlt": "Grafik: viele weiße Sternchen – das Gendersternchen – auf rotem Grund.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-16",
@@ -202,12 +232,14 @@
       "title": "Juni ist Pride Month!",
       "teaser": "Der Pride Month steht weltweit für die Sichtbarkeit, Nichtdiskriminierung und Gleichberechtigung der LGBTQIA+ Community",
       "bodyMarkdown": "LGBTQIA+: Diese Kombination von Buchstaben (die es auch in anderen Varianten gibt) versucht, die große Vielfalt an Geschlechtern und sexuellen Orientierungen aufzuzeigen. Das + am Ende ist Platzhalter für weitere Zuordnungen. Die Buchstaben stehen für lesbian, gay, bisexual, trans\\*, queer, inter\\* und agender.",
+      "imageAlt": "Die Progress-Pride-Flagge: der Regenbogen in sechs Streifen, links ein Pfeil aus schwarzen, braunen, hellblauen, rosa und weißen Streifen sowie ein gelbes Feld mit lila Kreis.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-01",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-17",
@@ -215,12 +247,14 @@
       "title": "Ein Regenbogen für alle!",
       "teaser": "Du darfst sein, wer du bist – denn du bist einzigartig!",
       "bodyMarkdown": "Viele Menschen gehen davon aus, dass es nur zwei Geschlechter gibt und, dass Geschlecht allein vom Körper abhängt. Aber: Geschlecht ist mehr!\n\n**Geschlechtsidentität:** Geschlecht, dem ich mich innerlich zugehörig fühle. Zum Beispiel cis, trans\\*, inter\\*, nicht-binär…\n\n**Romantische Orientierung:** In wen ich mich verliebe. Zum Beispiel heteroromantisch, lesbisch, schwul, aromantisch, panromantisch…\n\n**Sexuelle Orientierung:** Zu wem ich mich sexuell hingezogen fühle. Zum Beispiel heterosexuell, lesbisch, schwul, pan-sexuell, asexuell…\n\n**Geschlechtsausdruck:** Wie ich mich kleide, spreche und bewege und so mein Geschlecht zum Ausdruck bringe. Zum Beispiel feminin, maskulin, androgyn…\n\n**Körpergeschlecht:** Entspricht meist dem Geschlecht, das ich bei der Geburt auf Basis meiner Genitalien zugewiesen bekomme. Zum Körpergeschlecht gehören auch innere Geschlechtsorgane, Keimdrüsen, Chromosomen und Hormone.",
+      "imageAlt": "Zeichnung: eine orange gezeichnete Katze mit zugekniffenen Augen schwenkt fröhlich eine Regenbogenfahne.",
       "imageAttribution": "Verein Amazone, illustriert von Freya",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-30",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-18",
@@ -228,12 +262,14 @@
       "title": "Ally",
       "teaser": "Ally heißt auf Deutsch Verbündete*r. Aber was ist eigentlich ein Ally?",
       "bodyMarkdown": "Ein Ally ist eine cis und/oder hetero Person, die sich als Verbündete\\*r oder Unterstützer\\*in aller LGBTQIA+ Personen versteht.\n\n- Sei dir als Ally deiner Privilegien bewusst!\n- Erkenne Diskriminierung und reagiere darauf!\n- Hör auf Betroffene und lass ihnen Raum!\n- Bilde dich weiter und informier dich!\n- Achte auf geschlechtersensible Sprache!\n- Unterstütz LGBTQIA+ Organisationen!",
+      "imageAlt": "Grafik: der große Schriftzug „Ally“ vor pastellfarbenen Streifen, darüber hält eine Hand eine kleine Regenbogenfahne.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-30",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-19",
@@ -241,12 +277,14 @@
       "title": "Juli ist Disability Pride Month!",
       "teaser": "Für mehr Sichtbarkeit und Selbstbestimmung von Menschen mit Behinderungen!",
       "bodyMarkdown": "Der jährlich im Juli stattfindende Disability Pride Month feiert Behinderung als Teil der menschlichen Vielfalt und setzt ein Zeichen gegen Ableismus, die Diskriminierung von Menschen mit Behinderungen. Gefordert werden Barrierefreiheit sowie echte gesellschaftliche Teilhabe und Selbstbestimmung.",
+      "imageAlt": "Die Disability-Pride-Flagge: fünf diagonale Streifen in Rot, Gelb, Weiß, Hellblau und Grün auf dunkelgrauem Grund.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": "2027-07-01",
       "validTo": "2027-07-01",
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "wi-20",
@@ -254,12 +292,14 @@
       "title": "There is no Planet B!",
       "teaser": "3 einfache Tipps für den Alltag, um unser Klima zu schützen.",
       "bodyMarkdown": "Veggie statt Fleisch! Wusstest du, dass Massentierhaltung nicht nur für Tiere, sondern auch für's Klima schlecht ist?\n\nKI nur gezielt verwenden! Wusstest du, dass KI extrem viel Energie und Wasser verbraucht?\n\nKauf second hand! Gebrauchte Kleidung zu kaufen, schont das Klima und macht Spaß. Wie wär's mal mit einem Flohmarktbesuch mit deiner Freundin\\*?",
+      "imageAlt": "Grafik: eine stilisierte Weltkugel auf mintgrünem Grund, darüber der orange Schriftzug „No Planet B“.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-21",
@@ -267,12 +307,14 @@
       "title": "Alle unsere Lieblingssongs in einer Playlist",
       "teaser": "Hör einfach mal rein!",
       "bodyMarkdown": "Die Liste wird jedes Jahr im Zuge der Erarbeitung des neuen Rebell\\*innen Kalenders erweitert und sammelt die tollsten Songs unserer liebsten Musikerinnen\\*. Du möchtest einen Song hinzufügen? Schreib ein Mail an Nina vom Verein Amazone: n.kaufmann@amazone.or.at",
+      "imageAlt": "Zeichnung: eine pinke Katze tanzt neben einem Kassettenrekorder, ringsum fliegen Notenzeichen.",
       "imageAttribution": "Verein Amazone, illustriert von Freya",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "wi-22",
@@ -280,12 +322,14 @@
       "title": "Mach mir ein Bananenbrot!",
       "teaser": "Wir haben das Rezept für das beste Bananenbrot aller Zeiten: schnell, einfach und vegan.",
       "bodyMarkdown": "Was du brauchst:\n\n- 4-5 sehr reife Bananen (die Schale darf schon braun sein)\n- 80 ml Pflanzenöl (z. B. Kokosöl)\n- 1 Prise Zimt\n- 1 Prise Salz\n- 80 g Zucker\n- ½ Päckchen Backpulver\n- 250 g Mehl\n\nWas du machst:\n\n3 bis 4 Bananen mit einer Gabel gut zerdrücken und mit dem Pflanzenöl, Zucker, Zimt und Salz in einer großen Schüssel vermischen. Mehl und Backpulver unterrühren. Es entsteht ein klebriger Teig. Eine Kastenform mit etwas Pflanzenöl einfetten und den Teig hineingeben. Die noch übrige Banane der Länge nach halbieren und darauflegen. Bei 180 Grad Umluft circa 40 Minuten backen – fertig!\n\nPro-Tipp: Du kannst dein Bananenbrot auch noch mit Schokodrops oder gehackten Nüssen pimpen. Einfach vor dem Backen in den Teig mischen.",
+      "imageAlt": "Foto: ein angeschnittenes Bananenbrot mit Mandelblättchen auf einem weißen Teller, umrahmt von bunten Farbflächen.",
       "imageAttribution": "Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-01",
@@ -293,12 +337,14 @@
       "title": "Hedy Lamarr",
       "teaser": "Schauspielerin und Erfinderin, *1914, Österreich-Ungarn; † 2000, USA",
       "bodyMarkdown": "> All creative people want to do the unexpected.\n\nHedy ist eine erfolgreiche Schauspielerin, dreht in Paris und London und wird mit einem Stern auf dem Hollywood Walk of Fame geehrt. Hedy interessiert sich aber auch schon früh für Technik und ist Gegnerin des Nationalsozialismus. So entwickelt sie eine Funkfernsteuerung für Torpedos, die vor feindlichen Störsignalen schützt. Damit gewinnt sie einen Award und wird in die National Inventors Hall of Fame aufgenommen. Ihre Erfindung wird später von vielen Techniker\\*innen aufgegriffen und weiterentwickelt.",
+      "imageAlt": "Schwarz-weißes Porträtfoto von Hedy Lamarr: sie trägt eine gewellte Hochsteckfrisur und eine dunkle Spitzenbluse und blickt ruhig in die Kamera.",
       "imageAttribution": "Los Angeles Times, CC BY 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true,
+      "dailyRender": "image",
       "relatedSources": [
         {
           "title": "Hedy Lamarr – Wikipedia",
@@ -312,12 +358,14 @@
       "title": "Christina Koch",
       "teaser": "Astronautin, *1979, USA",
       "bodyMarkdown": "> You don't see borders. You don't see religious lines. You don't see political boundaries. All you see is Earth and you see that we're way more alike than we are different.\n\nNach ihrem Physik- und Elektrotechnikstudium arbeitet Christina als Ingenieurin und Astronautin für die NASA. 2019 fliegt sie zur Internationalen Raumstation (ISS). Sie bleibt 328 Tage im All – länger als jede andere Frau\\* zuvor. Im April 2026 ist sie Besatzungsmitglied der Mission Artemis 2, dem ersten Flug zum Mond seit Apollo 17 im Jahr 1972. Damit ist die erste und einzige Frau\\*, die je zum Mond geflogen ist.",
+      "imageAlt": "Foto von Christina Koch im weißen NASA-Raumanzug, hinter ihr die US-Flagge und das NASA-Logo.",
       "imageAttribution": "Bill Stafford, Public domain, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-03",
@@ -325,12 +373,14 @@
       "title": "Nika Kovač",
       "teaser": "Anthropologin und Aktivistin, *1993, Slowenien",
       "bodyMarkdown": "> If you want to deny women access to safe abortion, you want control. You want to decide what our bodies are for. You are interested in us as function, not as full human beings.\n\nNika kämpft gegen geschlechtsspezifische Ungleichheiten in Slowenien und darüber hinaus. Sie ist international bekannt für ihr Engagement für Frauenrechte und leitet die Initiative „My Voice, My Choice“, die sich für sichere und zugängliche Schwangerschaftsabbrüche in Europa einsetzt.",
+      "imageAlt": "Foto von Nika Kovač: sie spricht lächelnd in ein Mikrofon, im Hintergrund eine Bühne im Freien.",
       "imageAttribution": "Hladnikm, CC BY-SA 4.0, via Wikimedia Commons",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-04",
@@ -338,12 +388,14 @@
       "title": "Guerrilla Girls",
       "teaser": "Aktivistinnen*, Künstlerinnen*, USA",
       "bodyMarkdown": "> Do women have to be naked to get into the Met Museum?\n\nGuerrilla Girls ist eine anonyme, feministische und aktivistische Künstlerinnen\\*gruppe. 1985 in New York City gegründet, verfolgen sie das Ziel, auf Ungleichheiten zwischen den Geschlechtern im Kunstbetrieb aufmerksam zu machen. Mit Plakaten, Büchern, öffentlichen Performances und Aktionen kritisieren sie sexistische und rassistische Strukturen in der Kunstwelt. Um unerkannt zu bleiben, tragen sie Gorillamasken und verwenden Namen verstorbener Künstlerinnen\\* als Pseudonyme.",
+      "imageAlt": "Schwarz-weißes Foto: zwei Guerrilla Girls mit Gorillamasken und Lederjacken stehen vor ihrem Plakat mit der Frage „Do women have to be naked to get into the Met. Museum?“.",
       "imageAttribution": "Victoria and Albert Museum, CC BY-SA 2.0, via Wikimedia Commons",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-05",
@@ -351,12 +403,14 @@
       "title": "Meena Keshwar Kamal",
       "teaser": "Kämpferin für Frauenrechte, *1956, Afghanistan – †1987, Pakistan",
       "bodyMarkdown": "> Afghan women are like sleeping lions, when awoken, they can play a wonderful role in any social revolution.\n\nMeena studiert Rechtswissenschaften und gründet als Studentin die Frauenorganisation RAWA, mit der sie Frauen\\* in Afghanistan eine Stimme geben will. Sie setzt sich für Frauenrechte ein, kämpft für soziale Gerechtigkeit und ein freies und demokratisches Afghanistan. Ihr Aktivismus ist heute noch prägend für die afghanische Frauenbewegung. 1987 wird Meena ermordet – vermutlich von Fundamentalisten.",
+      "imageAlt": "Körniges Schwarz-Weiß-Foto von Meena Keshwar Kamal: sie trägt ein Kopftuch und spricht mit offenem Mund in ein Mikrofon.",
       "imageAttribution": "RAWA, CC BY 3.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "reb-06",
@@ -364,12 +418,14 @@
       "title": "Gisèle Pelicot",
       "teaser": "Kämpferin gegen sexualisierte Gewalt an Frauen*, *1952, Frankreich",
       "bodyMarkdown": "> Die Scham muss die Seite wechseln.\n\nIm Strafprozess gegen ihren damaligen Ehemann und 50 weitere Täter erlangt Gisèle internationale Bekanntheit. Ihr Mann hat sie über Jahre hinweg betäubt und fremden Männern über eine Online-Plattform zur Vergewaltigung angeboten. Um aus der Opferrolle herauszutreten und den Tätern die Scham zuzuweisen, entscheidet sie sich, den Prozess öffentlich zu führen. Das löst in Frankreich ein Umdenken aus und führt zum „Nur ja heißt ja“ Gesetz. Das heißt, es braucht eine ausdrückliche Zustimmung zu einer einvernehmlichen sexuellen Handlung. Das wäre auch in Österreich ein wichtiger Schritt zum Schutz vor sexualisierter Gewalt.",
+      "imageAlt": "Foto von Gisèle Pelicot mit rotem Bob-Haarschnitt und dunklem Blazer, sie sitzt vor einem petrolfarbenen Hintergrund und blickt zur Seite.",
       "imageAttribution": "Amrei-Marie, CC BY-SA 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-07",
@@ -377,12 +433,14 @@
       "title": "Teresa Reichl",
       "teaser": "Autorin, *1996, Deutschland",
       "bodyMarkdown": "> Wenn alles ganz anders kommt als man immer dachte, dann bleibt schließlich nur eins: darüber lachen. Und das klappt ganz gut – bis jetzt.\n\nNeben ihrem Deutsch- und Englisch-Studium tritt Teresa regelmäßig bei Poetry Slams auf und nimmt erfolgreich an mehreren Meisterschaften teil. Während der Pandemie beginnt sie damit, vermehrt Videos auf Instagram, TikTok und YouTube zu veröffentlichen, in denen sie über Feminismus und Literatur spricht. Sie schreibt Bücher und ist mit ihrem ersten Kabarettprogramm auf der Bühne zu sehen.",
+      "imageAlt": "Foto von Teresa Reichl auf einer Bühne: sie hält ein Mikrofon, lächelt und wird von blauem und rosa Bühnenlicht angestrahlt.",
       "imageAttribution": "Schiplagerheide, CC BY 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-08",
@@ -390,12 +448,14 @@
       "title": "Alysa Liu",
       "teaser": "Eiskunstläuferin, *2005, USA",
       "bodyMarkdown": "> I love struggling, actually. It makes me feel alive.\n\nAlysa wächst mit fünf jüngeren Geschwistern bei ihrem Vater auf. Er ist als politischer Flüchtling aus China in die USA geflohen. Mit 13 Jahren ist sie US-amerikanische Meisterin im Eiskunstlauf, 2025 Weltmeisterin und 2026 gewinnt Alysa Gold bei den Olympischen Winterspielen. Sie ist die erste US-amerikanische Frau, die erfolgreich einen vierfachen Sprung im Wettbewerb gezeigt hat. Neben dem Eiskunstlauf studiert Alysa Psychologie.",
+      "imageAlt": "Foto von Alysa Liu im goldenen Glitzerkostüm: sie streckt die Zunge heraus und hält ihre olympische Goldmedaille und eine US-Flagge in die Kamera.",
       "imageAttribution": "YantsImages, CC BY-SA 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-09",
@@ -403,12 +463,14 @@
       "title": "Ada Lovelace",
       "teaser": "Mathematikerin, *1815 – †1852, Großbritannien",
       "bodyMarkdown": "> Die Maschine ist kein denkendes Wesen, sondern lediglich ein Automat, der nach Gesetzen handelt, die ihm auferlegt wurden.\n\nAda stammt aus einer reichen Familie und interessiert sich schon früh für Maschinen und Erfindungen. Obwohl Mädchen sich in dieser Zeit in künstlerischen und musischen Bereichen bilden sollen, wird ihr eine Ausbildung in Mathematik und Naturwissenschaften ermöglicht. Ada schreibt den ersten Algorithmus und ist somit die erste Programmiererin. Ihre Erkenntnisse sind visionär und legen den Grundstein für die Entwicklung des Computers. Später wird auch eine Programmiersprache nach ihr benannt: Ada.",
+      "imageAlt": "Gemaltes Porträt von Ada Lovelace in einem Kleid mit schwarzer Spitze, Blumen im hochgesteckten Haar.",
       "imageAttribution": "Alfred Edward Chalon, Public domain, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true,
+      "dailyRender": "image",
       "relatedSources": [
         {
           "title": "Ada Lovelace – Wikipedia",
@@ -422,12 +484,14 @@
       "title": "Johanna Dohnal",
       "teaser": "Politikerin, *1939 – †2010, Österreich",
       "bodyMarkdown": "> Aus taktischen Gründen leise zu treten, hat sich noch immer als Fehler erwiesen.\n\nJohanna engagiert sich früh politisch, ist Bezirksrätin, Landtagsabgeordnete, Gemeinderätin und Staatssekretärin für Frauenangelegenheiten. Von 1990 bis 1995 ist sie die erste Frauenministerin Österreichs. Sie hat die österreichische Frauenpolitik maßgeblich geprägt – trotz starker Widerstände. Sie ist für eine Vielzahl an Verbesserungen der Lebenswelten von Frauen\\* verantwortlich: Gewaltschutz, Gleichbehandlung, Frauenförderung sowie Familien- und Arbeitsrecht.",
+      "imageAlt": "Schwarz-weißes Porträtfoto von Johanna Dohnal mit kurzen hellen Haaren und dunklem Sakko.",
       "imageAttribution": "Parlamentsdirektion/ungeklärt, via www.parlament.gv.at, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true,
+      "dailyRender": "teaser",
       "relatedSources": [
         {
           "title": "Johanna Dohnal – Wikipedia",
@@ -441,12 +505,14 @@
       "title": "Vivian Jenna Wilson",
       "teaser": "Model, *2004, USA",
       "bodyMarkdown": "> The internet's favourite hobby is to comment on women's bodies. Especially trans women's bodies.\n\nVivian ist erfolgreiches Model. Bekannt ist sie aber vor allem durch ihr Coming-Out als Transfrau und den öffentlich ausgetragenen Konflikt mit ihrem Vater Elon Musk. Dieser ist rechtskonservativ und tätigt immer wieder queerfeindliche Aussagen. Vivian kritisiert ihn stark und wehrt sich: Sie bricht den Kontakt ab und legt auch seinen Nachnamen ab. Auf Social Media äußert sie sich regelmäßig zu sozialer Ungleichheit, queeren Themen und kritisiert die Macht von Tech-Milliardären.",
+      "imageAlt": "Foto von Vivian Jenna Wilson: sie hat lange blonde Haare, steht in der Sonne vor einer begrünten Wand und blickt in die Kamera.",
       "imageAttribution": "Vivian Wilson, CC BY 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-12",
@@ -454,12 +520,14 @@
       "title": "Sylvia Rivera",
       "teaser": "Sylvia (sie/ihr) ist eine wichtige Aktivistin für die Rechte von trans* Personen.",
       "bodyMarkdown": "Sylvia Rivera prägte die US-Lesben- und Schwulenbewegung der 1970er-Jahre entscheidend mit. Sie setzt sich ihr Leben lang für die Rechte von trans\\* Personen of Color ein und engagiert sich für die Unterstützung obdachloser Drag Queens. Sylvia ist auch an den Stonewall-Riots 1969 beteiligt, die als Beginn des aktiven Widerstands gegen die Diskriminierung und Verfolgung von LGBTQIA+ Personen gelten.\n\n> We have to be visible. We should not be ashamed of who we are.",
+      "imageAlt": "Schwarz-weißes Foto von Sylvia Rivera auf einer Demonstration: sie steht neben einem großen Stoffbanner mit der Aufschrift „Street Transvestites Action Revolutionaries“.",
       "imageAttribution": "Roseleechs, CC BY-SA 4.0, via Wikimedia Commons",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-13",
@@ -467,12 +535,14 @@
       "title": "Patti Smith",
       "teaser": "Patti (sie/ihr) ist Lyrikerin, Poetin, Autorin, Fotografin, Malerin und Musikerin.",
       "bodyMarkdown": "Patti Smith gilt heute als „Godmother of Punk“. Sie wird in den 1970er Jahren mit ihrer Musik weltbekannt. Mit ihren Performances bricht sie Geschlechterklischees und bringt ihre Ablehnung von Geschlechterrollen zum Ausdruck. Sie ist eine der ersten weiblichen Künstlerinnen\\*, die in der männlich dominierten Punkrock-Szene erfolgreich war und wurde zum Vorbild für viele andere Frauen\\*.\n\n> When you hit a wall, just kick it in.",
+      "imageAlt": "Schwarz-weißes Foto von Patti Smith beim Singen: sie trägt eine Wollmütze, hält das Mikrofon fest und hat die Augen geschlossen.",
       "imageAttribution": "Beni Köhler, CC BY-SA 3.0, via Wikimedia Commons",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true,
+      "dailyRender": "image",
       "relatedSources": [
         {
           "title": "Patti Smith – Wikipedia",
@@ -486,12 +556,14 @@
       "title": "Alok Vaid-Menon",
       "teaser": "Alok (they/them) veröffentlicht Bücher, macht Poesie, Comedy und Performance-Kunst.",
       "bodyMarkdown": "Alok Vaid-Menon identifiziert sich selbst als gender non-conforming, also als Person, deren Geschlechtsidentität nicht mit dem Geschlecht übereinstimmt, das ihr bei der Geburt zugewiesen wurde und die aus gesellschaftlichen Vorstellungen von Geschlecht ausbricht.\n\nAloks Kunst behandelt Themen wie Geschlecht, Normen, Zugehörigkeit, aber auch Gewalt gegen trans\\* und gendernicht-konforme Personen und setzt ein starkes Zeichen für geschlechtliche Vielfalt und Selbstbestimmungsrechte.\n\n> Gender diversity is an integral part of our existence. It always has been, and it always will be.",
+      "imageAlt": "Foto von Alok Vaid-Menon vor rosa Hintergrund: das Gesicht ist von orangen und rosa Blüten umrahmt, das Make-up glänzt golden.",
       "imageAttribution": "Eivind Hansen, CC0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-15",
@@ -499,12 +571,14 @@
       "title": "Li Maizi",
       "teaser": "Li Maizi (sie/ihr) ist eine queer-feministische Aktivistin.",
       "bodyMarkdown": "Li Maizi ist Mitglied der Feminist Five – eine Gruppe chinesischer Feministinnen\\*, die für die Rechte von Frauen\\* kämpfen. 2015 werden die Feminist Five für 37 Tage verhaftet, weil sie am Weltfrauen\\*tag Sticker gegen sexuelle Belästigung im öffentlichen Raum verteilen wollen. Als sie in Haft sitzen, starten Unterstützer\\*innen aus der ganzen Welt eine internationale Kampagne.\n\nLi Maizi macht auf Themen aufmerksam, die Frauen\\* weltweit betreffen: geschlechtsspezifische Gewalt, Zwangsheirat, reproduktive Rechte, körperliche Selbstbestimmung etc.\n\n> I went to jail for handing out feminist stickers in China.",
+      "imageAlt": "Gemaltes Porträt von Li Maizi mit kurzem schwarzem Haar, eine Strähne hinter dem Ohr ist türkis gefärbt.",
       "imageAttribution": "David Revoy, CC BY-SA 4.0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-16",
@@ -512,12 +586,14 @@
       "title": "Simone Biles",
       "teaser": "Simone Biles (sie/ihr) ist die erfolgreichste Turnerin aller Zeiten.",
       "bodyMarkdown": "Mit 16 Jahren hat Simone ihren ersten Weltmeisterinnentitel und gewinnt mehrfach bei den Olympischen Spielen.\n\n2018 macht sie im Zuge der #MeToo-Bewegung öffentlich, vom früheren Arzt des US-Turnteams missbraucht worden zu sein und kritisiert das Fehlverhalten des Turnverbands.\n\nSimone, die selbst in Pflegefamilien gelebt hat, engagiert sich dafür, Kindern aus Pflegefamilien den Zugang zu Bildung zu erleichtern und möchte vor allem Mädchen\\* ermutigen, ihre Ziele zu verfolgen und ihr Leben selbstbewusst zu gestalten.\n\n> At the end of the day, if I can say I had fun, it was a good day.",
+      "imageAlt": "Foto von Simone Biles im rot-weiß-blauen Turnanzug: sie sitzt im Schneidersitz auf der Matte und lächelt.",
       "imageAttribution": "Ocoudis, CC0, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true,
+      "dailyRender": "image",
       "relatedSources": [
         {
           "title": "Simone Biles – Wikipedia",
@@ -531,12 +607,14 @@
       "title": "Samar Badawi",
       "teaser": "Samar Badawi (sie/ihr) ist eine Frauen*rechtsaktivistin aus Saudi-Arabien.",
       "bodyMarkdown": "In Saudi-Arabien haben Frauen\\* nur wenige Rechte. 2018 erkämpft Samar gemeinsam mit anderen Aktivist\\*innen die Aufhebung des Fahrverbots für Frauen\\*. Seitdem dürfen Frauen\\* auch in Saudi-Arabien Auto fahren! Trotz mehrfacher Verhaftung kämpft sie weiterhin für die Verteidigung der Menschenrechte.\n\n> Our only way forward is to resist… to never lose hope that the future will be brighter.",
+      "imageAlt": "Porträtfoto von Samar Badawi: sie trägt ein schwarzes Kopftuch und lächelt in die Kamera.",
       "imageAttribution": "Public domain, via Wikimedia Commons, zugeschnitten durch den Verein Amazone",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "teaser"
     },
     {
       "id": "reb-18",
@@ -544,12 +622,14 @@
       "title": "Nora Tschirner",
       "teaser": "Nora Tschirner (sie/ihr) ist eine deutsche Schauspielerin, Regisseurin und Musikerin.",
       "bodyMarkdown": "Nora Tschirner engagiert sich gegen Bodyshaming und Schönheitsdruck. Sie spricht offen über ihre Depressionen und Therapie sowie darüber, wie wichtig mentale Gesundheit ist.\n\n> Meine Depression war eine gesunde Reaktion auf ein krankes System.",
+      "imageAlt": "Foto von Nora Tschirner auf einem roten Teppich: sie trägt ein dunkelblaues Kleid, hat lange dunkle Haare und lächelt.",
       "imageAttribution": "Manfred Werner (Tsui), CC BY-SA 4.0, via Wikimedia Commons",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     },
     {
       "id": "reb-19",
@@ -557,12 +637,14 @@
       "title": "Autumn Peltier",
       "teaser": "Autumn Peltier (sie/ihr) ist eine Umweltaktivistin aus Kanada.",
       "bodyMarkdown": "Autumn Peltier ist oberste Wasserbeauftragte der Anishinabek Nation – eine Organisation, die sich für die Rechte der indigenen Bevölkerung Kanadas einsetzt.\n\nBereits als Achtjährige beginnt sie, auf das Problem der Wasserverschmutzung, das indigene Communities besonders bedroht, aufmerksam zu machen.\n\nMit 13 Jahren wird sie zum ersten Mal von den Vereinten Nationen eingeladen, eine Rede über die Bedeutung des Zugangs zu sauberem Wasser zu halten. Dafür setzt sie sich bis heute ein.\n\n> We can't eat money or drink oil.",
+      "imageAlt": "Foto von Autumn Peltier auf einer Konferenzbühne: sie sitzt in einem Sessel vor roter Wand, trägt eine Brille und eine Kette aus hellen Anhängern.",
       "imageAttribution": "Vaughn Ridley/Collision via Sportsfile, flickr.com/photos/collisionconf/53007901692, CC BY 2.0",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     }
   ]
 }

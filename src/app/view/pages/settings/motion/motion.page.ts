@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import {
   AppearanceInteractor,
+  type ImpulseGreetingId,
   type MotionId,
 } from '@app/interactors/settings/appearance.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
@@ -20,5 +21,9 @@ export class MotionPage {
 
   protected select(motion: MotionId): void {
     this.appearance.selectMotion(motion);
+  }
+
+  protected selectGreeting(greeting: ImpulseGreetingId): void {
+    this.appearance.selectImpulseGreeting(greeting);
   }
 }

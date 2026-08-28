@@ -1,9 +1,12 @@
 <div class="flex items-center justify-between gap-3">
-  <p class="text-lg">{{ greeting() }}{{ name() ? ', ' + name() : '' }}</p>
+  <!-- The screen's own title, so `PageFocus` announces the greeting on arrival rather than a
+       generic „Heute“. The emoji button stays a sibling: inside the heading it would end up in
+       that announcement. -->
+  <h1 class="text-3xl leading-snug">{{ greeting() }}{{ name() ? ', ' + name() : '' }}</h1>
 
   <button
     type="button"
-    class="rk-icon-button text-2xl"
+    class="rk-icon-button text-5xl"
     (click)="openEmojiPicker()"
     [attr.aria-label]="'Persönliches Emoji ändern, aktuell ' + emoji()"
   >

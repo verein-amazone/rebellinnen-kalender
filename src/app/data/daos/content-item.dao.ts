@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import type {
   ContentItemKind,
   ContentItemRecord,
+  DailyRenderMode,
   RelatedSourceRecord,
 } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor, type SqlValue } from '../gateways/sqlite-database';
@@ -15,6 +16,7 @@ interface ContentItemRow {
   readonly teaser: string;
   readonly body_markdown: string;
   readonly image_path: string | null;
+  readonly image_alt: string | null;
   readonly image_attribution: string | null;
   readonly source_label: string | null;
   readonly source_url: string | null;
@@ -22,10 +24,12 @@ interface ContentItemRow {
   readonly valid_from: string | null;
   readonly valid_to: string | null;
   readonly eligible_for_daily: number;
+  readonly daily_render: DailyRenderMode | null;
 }
 
-const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_attribution,
-  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily`;
+const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_alt, image_attribution,
+  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily,
+  daily_render`;
 
 /**
  * Table access for curated content items. No business rules live here - the daily-selection logic
@@ -93,7 +97,7 @@ export class ContentItemDao {
     if (existing === null) {
       await executor.run(
         `INSERT INTO content_items (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         toValues(record),
       );
       return;
@@ -101,9 +105,9 @@ export class ContentItemDao {
 
     await executor.run(
       `UPDATE content_items
-       SET kind = ?, title = ?, teaser = ?, body_markdown = ?, image_path = ?, image_attribution = ?,
-           source_label = ?, source_url = ?, related_sources = ?, valid_from = ?, valid_to = ?,
-           eligible_for_daily = ?
+       SET kind = ?, title = ?, teaser = ?, body_markdown = ?, image_path = ?, image_alt = ?,
+           image_attribution = ?, source_label = ?, source_url = ?, related_sources = ?,
+           valid_from = ?, valid_to = ?, eligible_for_daily = ?, daily_render = ?
        WHERE id = ?`,
       [
         record.kind,
@@ -111,6 +115,7 @@ export class ContentItemDao {
         record.teaser,
         record.bodyMarkdown,
         record.imagePath,
+        record.imageAlt,
         record.imageAttribution,
         record.sourceLabel,
         record.sourceUrl,
@@ -118,6 +123,7 @@ export class ContentItemDao {
         record.validFrom,
         record.validTo,
         record.eligibleForDaily ? 1 : 0,
+        record.dailyRender,
         record.id,
       ],
     );
@@ -136,6 +142,7 @@ function toValues(record: ContentItemRecord): SqlValue[] {
     record.teaser,
     record.bodyMarkdown,
     record.imagePath,
+    record.imageAlt,
     record.imageAttribution,
     record.sourceLabel,
     record.sourceUrl,
@@ -143,6 +150,7 @@ function toValues(record: ContentItemRecord): SqlValue[] {
     record.validFrom,
     record.validTo,
     record.eligibleForDaily ? 1 : 0,
+    record.dailyRender,
   ];
 }
 
@@ -154,6 +162,7 @@ function toRecord(row: ContentItemRow): ContentItemRecord {
     teaser: row.teaser,
     bodyMarkdown: row.body_markdown,
     imagePath: row.image_path ?? null,
+    imageAlt: row.image_alt ?? null,
     imageAttribution: row.image_attribution ?? null,
     sourceLabel: row.source_label ?? null,
     sourceUrl: row.source_url ?? null,
@@ -161,6 +170,8 @@ function toRecord(row: ContentItemRow): ContentItemRecord {
     validFrom: row.valid_from ?? null,
     validTo: row.valid_to ?? null,
     eligibleForDaily: row.eligible_for_daily === 1,
+    // A row written before the column existed carries the layout the card had back then.
+    dailyRender: row.daily_render ?? 'teaser',
   };
 }
 

@@ -13,8 +13,8 @@ import {
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
+import { Router } from '@angular/router';
 
-import { estimateReadingTime } from '@app/cross-cutting/helpers/reading-time';
 import type {
   ContentItemView,
   RelatedSourceView,
@@ -22,6 +22,11 @@ import type {
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
+import {
+  ConfirmationDialog,
+  type ConfirmationDialogData,
+} from '@app/view/dialogs/confirmation/confirmation.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 /** One related-source link, with its publisher/domain derived for display (#22). */
@@ -32,9 +37,12 @@ export interface RelatedSourceRow {
 }
 
 /**
- * The curated content detail screen: content-type label, title, estimated reading time, image,
- * complete body, a "More on this topic" related-sources section, and a bookmark toggle for one
- * "Wissen & Impulse" piece or Rebell*in (#1, #22).
+ * The curated content detail screen: content-type label, title, image, complete body, a "More on
+ * this topic" related-sources section, and a bookmark toggle for one "Wissen & Impulse" piece or
+ * Rebell*in (#1, #22).
+ *
+ * The bookmark toggle is the only way in or out of „Meine Sammlung“. Removing asks first and then
+ * takes the user to the collection, so the result of the removal is visible where it happened.
  */
 @Component({
   selector: 'app-content-detail',
@@ -55,6 +63,11 @@ export interface RelatedSourceRow {
 export class ContentDetailPage {
   private readonly contentItems = inject(ContentItemsInteractor);
   private readonly bookmarks = inject(BookmarksInteractor);
+  private readonly sheets = inject(SheetService);
+  private readonly router = inject(Router);
+
+  /** Where a confirmed removal lands: the collection the item just left. */
+  private static readonly COLLECTION_URL = '/content?area=collection';
 
   readonly id = input.required<string>();
   /**
@@ -83,11 +96,6 @@ export class ContentDetailPage {
     this.item()?.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse',
   );
 
-  protected readonly readingTime = computed(() => {
-    const item = this.item();
-    return item === null ? null : estimateReadingTime(item.bodyMarkdown);
-  });
-
   protected readonly relatedSources = computed<readonly RelatedSourceRow[]>(() =>
     (this.item()?.relatedSources ?? []).map(toRelatedSourceRow),
   );
@@ -102,10 +110,38 @@ export class ContentDetailPage {
       return;
     }
 
+    // Saving is cheap and instantly reversible, so it just happens. Removing is the one that is
+    // easy to regret - a saved item is hard to find again - so it asks first.
+    if (this.bookmarked()) {
+      this.confirmUnsave(current);
+      return;
+    }
+
     await this.bookmarks.toggle(current.id);
-    this.data.update((value) =>
-      value === undefined ? value : { ...value, bookmarked: !value.bookmarked },
-    );
+    this.data.update((value) => (value === undefined ? value : { ...value, bookmarked: true }));
+  }
+
+  private confirmUnsave(item: ContentItemView): void {
+    const data: ConfirmationDialogData = {
+      message: `„${item.title}“ wird aus deiner Sammlung entfernt.`,
+      confirmLabel: 'Entfernen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Aus Sammlung entfernen?',
+        data,
+      })
+      .closed.subscribe(async (confirmed) => {
+        // Declining leaves everything as it was; the sheet returns focus to the toggle itself.
+        if (confirmed !== true) {
+          return;
+        }
+
+        await this.bookmarks.toggle(item.id);
+        await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, { replaceUrl: true });
+      });
   }
 }
 

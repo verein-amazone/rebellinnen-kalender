@@ -1,4 +1,7 @@
-import type { ContentItemKind } from '@app/data/entities/content-item.record';
+import type { ContentItemKind, DailyRenderMode } from '@app/data/entities/content-item.record';
+
+/** Re-exported so views can name a content type without importing the data-layer record. */
+export type { ContentItemKind, DailyRenderMode };
 
 /** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceView {
@@ -18,8 +21,10 @@ export interface ContentItemView {
   readonly teaser: string;
   readonly bodyMarkdown: string;
   readonly imagePath: string | null;
+  readonly imageAlt: string | null;
   readonly imageAttribution: string | null;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
   readonly relatedSources: readonly RelatedSourceView[];
+  readonly dailyRender: DailyRenderMode;
 }

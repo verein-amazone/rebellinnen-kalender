@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
 import { MIGRATIONS } from '@app/data/migrations/migrations';
 import { AppCalendarsInteractor } from './app-calendars.interactor';
 
-class FakeEmojiPickerGateway {
+class FakeEmojiPicker {
   result: string | null = '🌻';
 
   pickEmoji(): Promise<string | null> {
@@ -19,18 +19,18 @@ describe('AppCalendarsInteractor', () => {
   let database: InMemorySqliteDatabase;
   let interactor: AppCalendarsInteractor;
   let sources: CalendarSourceDao;
-  let emojiPicker: FakeEmojiPickerGateway;
+  let emojiPicker: FakeEmojiPicker;
 
   beforeEach(() => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
-    emojiPicker = new FakeEmojiPickerGateway();
+    emojiPicker = new FakeEmojiPicker();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: SQLITE_DATABASE, useValue: database },
-        { provide: EmojiPickerGateway, useValue: emojiPicker },
+        { provide: NativeEmojiPicker, useValue: emojiPicker },
       ],
     });
 

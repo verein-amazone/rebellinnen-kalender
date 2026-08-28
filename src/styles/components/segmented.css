@@ -2,7 +2,7 @@
  * A view/area switcher: an inset track with the active segment lifted on the `card` surface.
  *
  * One class pair backs two different controls with the same look: a native radio group (Woche/
- * Monat) and an `@angular/aria` tab list (Anlaufstellen/Meine Sammlung). `has-checked:` matches the
+ * Monat) and an `@angular/aria` tab list (Meine Sammlung/Anlaufstellen). `has-checked:` matches the
  * radio case (the input lives inside the segment); `aria-selected:` matches the tab case (the
  * state lives on the segment itself, there is no input). Both variants are always applied - a given
  * segment only ever satisfies one of them.

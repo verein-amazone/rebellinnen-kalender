@@ -17,6 +17,7 @@ describe('AppearanceStore', () => {
       theme: 'amazone',
       textSize: 'system',
       motion: 'system',
+      impulseGreeting: 'full',
     });
   });
 
@@ -30,20 +31,40 @@ describe('AppearanceStore', () => {
       theme: 'lila',
       textSize: 'system',
       motion: 'system',
+      impulseGreeting: 'full',
     });
   });
 
   it('should restore persisted preferences', () => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ theme: 'nacht', textSize: 'large', motion: 'reduced' }),
+      JSON.stringify({
+        theme: 'nacht',
+        textSize: 'large',
+        motion: 'reduced',
+        impulseGreeting: 'none',
+      }),
     );
 
     expect(TestBed.inject(AppearanceStore).preferences()).toEqual({
       theme: 'nacht',
       textSize: 'large',
       motion: 'reduced',
+      impulseGreeting: 'none',
     });
+  });
+
+  // The three-way Tagesimpuls preference replaced an on/off vibration switch. Somebody who had
+  // switched the vibration off asked for a quieter greeting, not for the default one.
+  it('should read a stored vibration switch as the matching greeting setting', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ haptics: 'off' }));
+
+    expect(TestBed.inject(AppearanceStore).preferences().impulseGreeting).toBe('motion');
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ haptics: 'on' }));
+    TestBed.resetTestingModule();
+
+    expect(TestBed.inject(AppearanceStore).preferences().impulseGreeting).toBe('full');
   });
 
   it('should accept every step of the text-size ladder, including the pre-existing ones', () => {
@@ -56,12 +77,16 @@ describe('AppearanceStore', () => {
   });
 
   it('should fall back to the defaults for unknown or malformed values', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'himmel', textSize: 42 }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ theme: 'himmel', textSize: 42, impulseGreeting: 'sometimes' }),
+    );
 
     expect(TestBed.inject(AppearanceStore).preferences()).toEqual({
       theme: 'amazone',
       textSize: 'system',
       motion: 'system',
+      impulseGreeting: 'full',
     });
   });
 

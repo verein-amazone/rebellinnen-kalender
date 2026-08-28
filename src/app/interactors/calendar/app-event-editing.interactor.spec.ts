@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AppCalendarItemDao } from '@app/data/daos/app-calendar-item.dao';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
-import { CAPACITOR_CALENDAR } from '@app/data/gateways/capacitor-calendar';
+import { CAPACITOR_CALENDAR } from '@app/cross-cutting/plugins/calendar.plugin';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
 import { MIGRATIONS } from '@app/data/migrations/migrations';

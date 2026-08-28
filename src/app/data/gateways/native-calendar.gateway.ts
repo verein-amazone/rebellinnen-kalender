@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { CalendarPermissionScope } from '@ebarooni/capacitor-calendar';
+
+import {
+  CalendarPermissionScope,
+  CAPACITOR_CALENDAR,
+} from '@app/cross-cutting/plugins/calendar.plugin';
 
 import { utcInstantFromEpochMilliseconds } from '../calendar/utc-instant';
-import { CAPACITOR_CALENDAR } from './capacitor-calendar';
 
 /** The read permission as the app reasons about it - no plugin types above this line. */
 export type DeviceCalendarPermission = 'granted' | 'denied' | 'prompt';

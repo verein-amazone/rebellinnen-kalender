@@ -39,8 +39,12 @@ before changing application code:
   orchestrate the data layer and must not hold view state, navigate, or inject UI/components.
 - **Persistence and external data-source access live in the data layer** (DAOs, migrations, stores,
   gateways). Never inject DAOs or the SQLite plugin into views.
-- **Keep plugin-specific types behind data gateways** so Capacitor types never leak into interactors
-  or views.
+- **Keep plugin-specific types behind a wrapper** so Capacitor types never leak into interactors or
+  views. A Capacitor plugin package is imported in exactly one place - its token in
+  `src/app/cross-cutting/plugins/` - and only `data/gateways/**` (data sources) and
+  `cross-cutting/infrastructure/**` (device capabilities) may inject that token; ESLint enforces
+  both. See
+  [src/app/cross-cutting/plugins/README.md](./src/app/cross-cutting/plugins/README.md).
 - The ESLint config enforces these boundaries via `no-restricted-imports`. Fix violations; do not
   disable the rule.
 

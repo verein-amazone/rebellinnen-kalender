@@ -72,36 +72,40 @@
       <h2 class="text-muted-foreground text-sm">App &amp; Rechtliches</h2>
       <ul class="rk-list">
         <li>
-          <a routerLink="/settings/privacy" class="rk-row">
-            <span class="rk-row-label">Datenschutz</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/settings/imprint" class="rk-row">
-            <span class="rk-row-label">Impressum</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/settings/licenses" class="rk-row">
-            <span class="rk-row-label">Open-Source-Lizenzen</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/settings/image-credits" class="rk-row">
-            <span class="rk-row-label">Bildnachweise</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        <li>
           <a routerLink="/settings/about" class="rk-row">
             <span class="rk-row-label">Über die App</span>
             <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
+        <!-- Datenschutz and Impressum live on the Amazone website and are maintained there. Linking
+             out keeps one source of truth instead of a second copy that silently goes stale. -->
+        <li>
+          <a
+            href="https://www.amazone.or.at/impressum-datenschutz#datenschutz"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rk-row"
+            aria-label="Datenschutz (öffnet die Website von Amazone)"
+          >
+            <span class="rk-row-label">Datenschutz</span>
+            <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.amazone.or.at/impressum-datenschutz#impressum"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rk-row"
+            aria-label="Impressum (öffnet die Website von Amazone)"
+          >
+            <span class="rk-row-label">Impressum</span>
+            <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
       </ul>
+      <!-- Open-Source-Lizenzen and Bildnachweise are reachable from Über die App, where they
+           belong: credits about the app, not settings the user acts on. -->
     </section>
 
     <section class="space-y-2">
@@ -113,7 +117,16 @@
             <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
+        <li>
+          <a routerLink="/settings/dev-tools" class="rk-row">
+            <span class="rk-row-label">Entwickler-Werkzeuge</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
       </ul>
     </section>
+    <!-- Not a row: there is nothing to tap here. It sits at the end so a support request can name
+         the exact version without hunting for it. -->
+    <p class="text-muted-foreground pb-2 text-center text-sm">Version {{ version }}</p>
   </div>
 </app-focused-screen>

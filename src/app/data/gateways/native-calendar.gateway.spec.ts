@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import type { CapacitorCalendar } from '@ebarooni/capacitor-calendar';
 
-import { CAPACITOR_CALENDAR } from './capacitor-calendar';
+import { CAPACITOR_CALENDAR } from '@app/cross-cutting/plugins/calendar.plugin';
 import { NativeCalendarGateway } from './native-calendar.gateway';
 
 function setup(plugin: Partial<typeof CapacitorCalendar>): NativeCalendarGateway {

@@ -5,7 +5,7 @@
       id="profile-name"
       class="rk-input"
       type="text"
-      autocomplete="off"
+      autocomplete="given-name"
       [attr.maxlength]="maxLength"
       [value]="profile.name() ?? ''"
       (input)="updateName($any($event.target).value)"

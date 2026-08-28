@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { CapacitorSQLitePlugin } from '@capacitor-community/sqlite';
 
 import { DATABASE_VERSION, MIGRATIONS } from '../migrations/migrations';
-import { CAPACITOR_SQLITE } from './capacitor-sqlite';
+import { CAPACITOR_SQLITE } from '@app/cross-cutting/plugins/sqlite.plugin';
 import { SqliteUnavailableError } from './sqlite-database';
 import { SqliteGateway } from './sqlite.gateway';
 

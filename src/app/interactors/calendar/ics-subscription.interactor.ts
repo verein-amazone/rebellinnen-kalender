@@ -9,7 +9,7 @@ import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
 import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
 
 export { IcsUrlInvalidError } from '@app/data/calendar/ics/ics-url';
@@ -52,7 +52,7 @@ export interface IcsSubscriptionRow {
 export class IcsSubscriptionInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly http = inject(IcsHttpGateway);
-  private readonly emojiPicker = inject(EmojiPickerGateway);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
   private readonly sources = inject(CalendarSourceDao);
 
   /** One download per subscription at a time; see `refresh`. */

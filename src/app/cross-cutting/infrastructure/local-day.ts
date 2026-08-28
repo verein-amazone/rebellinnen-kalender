@@ -1,5 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { App } from '@capacitor/app';
+
+import { AppLifecycle } from './app-lifecycle';
 
 /** How often the day is re-checked while the app stays open. */
 const CHECK_INTERVAL_MS = 60_000;
@@ -11,9 +12,8 @@ const CHECK_INTERVAL_MS = 60_000;
  * on every check and would retrigger everything reading it once a minute. A day key only changes when
  * the day actually does.
  *
- * Three sources write it, because none of them covers every case on its own: the interval catches an
- * app left open across midnight, `appStateChange` catches a phone that was asleep for hours, and
- * `visibilitychange` covers the browser build, where the Capacitor event does not fire.
+ * Two sources write it, because neither covers every case on its own: the interval catches an app
+ * left open across midnight, and `AppLifecycle` catches a phone that was asleep for hours.
  */
 @Injectable({ providedIn: 'root' })
 export class LocalDay {
@@ -24,19 +24,11 @@ export class LocalDay {
 
   constructor() {
     const interval = setInterval(() => this.refresh(), CHECK_INTERVAL_MS);
-    const onVisibilityChange = (): void => this.refresh();
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
-    const listener = App.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        this.refresh();
-      }
-    });
+    const stopWatchingResumes = inject(AppLifecycle).onResume(() => this.refresh());
 
     inject(DestroyRef).onDestroy(() => {
       clearInterval(interval);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      void listener.then((handle) => handle.remove());
+      stopWatchingResumes();
     });
   }
 

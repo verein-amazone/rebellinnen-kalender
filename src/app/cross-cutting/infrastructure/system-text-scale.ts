@@ -1,8 +1,9 @@
-import { Injectable, signal } from '@angular/core';
-import { AccessibilityPreferences } from '@capawesome/capacitor-accessibility-preferences';
-import { App } from '@capacitor/app';
-import { TextZoom } from '@capacitor/text-zoom';
+import { inject, Injectable, signal } from '@angular/core';
 
+import { ACCESSIBILITY_PREFERENCES } from '@app/cross-cutting/plugins/accessibility-preferences.plugin';
+import { TEXT_ZOOM_PLUGIN } from '@app/cross-cutting/plugins/text-zoom.plugin';
+
+import { AppLifecycle } from './app-lifecycle';
 import { devicePlatform } from './device-platform';
 
 /**
@@ -25,6 +26,9 @@ import { devicePlatform } from './device-platform';
  */
 @Injectable({ providedIn: 'root' })
 export class SystemTextScale {
+  private readonly preferences = inject(ACCESSIBILITY_PREFERENCES);
+  private readonly textZoom = inject(TEXT_ZOOM_PLUGIN);
+  private readonly lifecycle = inject(AppLifecycle);
   private readonly scaleState = signal(1);
 
   /** The OS text scale. `1` is the default size; iOS reaches 3.12 at its largest setting. */
@@ -40,18 +44,14 @@ export class SystemTextScale {
   async initialize(): Promise<void> {
     await this.refresh();
 
-    await App.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        void this.refresh();
-      }
-    });
+    this.lifecycle.onResume(() => void this.refresh());
   }
 
   /** Re-reads the OS preference. Failures leave the last known scale in place. */
   async refresh(): Promise<void> {
     if (devicePlatform() === 'android') {
       try {
-        await TextZoom.set({ value: 1 });
+        await this.textZoom.set({ value: 1 });
       } catch {
         // The reset failed, so Android is still applying its own zoom. Leaving the scale at 1 keeps
         // that single scaling in place; applying ours on top would double-scale.
@@ -60,7 +60,7 @@ export class SystemTextScale {
     }
 
     try {
-      const { fontScale } = await AccessibilityPreferences.getPreferences();
+      const { fontScale } = await this.preferences.getPreferences();
       if (Number.isFinite(fontScale) && fontScale > 0) {
         this.scaleState.set(fontScale);
       }

@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
-import { of, type Observable } from 'rxjs';
 import { vi } from 'vitest';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
@@ -11,7 +10,6 @@ import type {
   SupportServiceView,
 } from '@app/interactors/support-services/support-service.vm';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
-import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ContentOverviewPage } from './overview.page';
 
@@ -23,10 +21,12 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: 'Ein Bad nehmen.',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -67,20 +67,6 @@ class FakeBookmarksInteractor {
   }
 }
 
-/** Answers sheet opens in the order they are configured; the sheet chrome has its own spec. */
-class StubSheetService {
-  readonly opens: { heading: string; data: unknown }[] = [];
-  results: unknown[] = [];
-
-  open(
-    _content: unknown,
-    config: { heading: string; data?: unknown },
-  ): { closed: Observable<unknown> } {
-    this.opens.push({ heading: config.heading, data: config.data });
-    return { closed: of(this.results.shift()) };
-  }
-}
-
 class FakeSupportServicesInteractor {
   services: SupportServiceView[] = [];
   regions: SupportServiceRegion[] = [];
@@ -109,15 +95,12 @@ async function setup(
   supportServices.services = options.services ?? [];
   supportServices.regions = options.regions ?? [];
 
-  const sheets = new StubSheetService();
-
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: BookmarksInteractor, useValue: bookmarks },
       { provide: SupportServicesInteractor, useValue: supportServices },
-      { provide: SheetService, useValue: sheets },
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams ?? {}) } },
@@ -144,21 +127,19 @@ async function setup(
     },
     bookmarks,
     bookmarkChanges: TestBed.inject(BookmarkChanges),
-    sheets,
   };
 }
 
 describe('ContentOverviewPage', () => {
-  it('shows Anlaufstellen by default', async () => {
+  it('shows Meine Sammlung by default', async () => {
     const { element } = await setup({
-      regions: [{ id: 'online', label: 'Online & Telefon' }],
-      services: [service()],
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
 
-    expect(element.textContent).toContain('Rat auf Draht');
+    expect(element.textContent).toContain('Was tut dir gut?');
   });
 
-  it('exposes a real ARIA tabs widget with the Anlaufstellen tab selected by default', async () => {
+  it('exposes a real ARIA tabs widget with the Meine Sammlung tab selected by default', async () => {
     const { element } = await setup();
 
     expect(element.querySelector('[role="tablist"]')).not.toBeNull();
@@ -166,18 +147,22 @@ describe('ContentOverviewPage', () => {
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     const servicesTab = tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'));
     const collectionTab = tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'));
-    expect(servicesTab?.getAttribute('aria-selected')).toBe('true');
-    expect(collectionTab?.getAttribute('aria-selected')).toBe('false');
+    expect(collectionTab?.getAttribute('aria-selected')).toBe('true');
+    expect(servicesTab?.getAttribute('aria-selected')).toBe('false');
+
+    // Meine Sammlung also comes first in the tab list itself, not only in the selection.
+    expect(tabs[0]).toBe(collectionTab);
 
     const panels = Array.from(element.querySelectorAll('[role="tabpanel"]'));
     expect(panels).toHaveLength(2);
-    expect(servicesTab?.getAttribute('aria-controls')).toBe(
+    expect(collectionTab?.getAttribute('aria-controls')).toBe(
       panels.find((panel) => !panel.hasAttribute('inert'))?.id,
     );
   });
 
   it('shows only entries matching the selected region', async () => {
     const { element, whenStable } = await setup({
+      queryParams: { area: 'services' },
       regions: [
         { id: 'online', label: 'Online & Telefon' },
         { id: 'vorarlberg', label: 'Vorarlberg' },
@@ -204,6 +189,7 @@ describe('ContentOverviewPage', () => {
 
   it('shows an empty state for a region with no entries', async () => {
     const { element } = await setup({
+      queryParams: { area: 'services' },
       regions: [{ id: 'online', label: 'Online & Telefon' }],
       services: [],
     });
@@ -211,107 +197,91 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).toContain('noch keine Anlaufstellen');
   });
 
-  async function openCollection(
+  /** Anlaufstellen is the second tab now, so the services tests have to switch to it. */
+  async function openServices(
     element: HTMLElement,
     setArea: (area: string) => Promise<void>,
   ): Promise<void> {
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
-    tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
-    await setArea('collection');
+    tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'))?.click();
+    await setArea('services');
   }
 
-  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
+  it('switches to Anlaufstellen when its tab is tapped', async () => {
     const { element, setArea } = await setup({
+      regions: [{ id: 'online', label: 'Online & Telefon' }],
+      services: [service()],
+    });
+
+    await openServices(element, setArea);
+
+    expect(element.textContent).toContain('Rat auf Draht');
+  });
+
+  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
+    const { element } = await setup({
       items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
 
-    await openCollection(element, setArea);
-
     const links = [...element.querySelectorAll<HTMLAnchorElement>('a[href^="/content/"]')];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
-      '/content/wi-01?returnTo=%2Fcontent%3Farea%3Dcollection%26filter%3Dall',
+      '/content/wi-01?returnTo=%2Fcontent%3Farea%3Dcollection',
     ]);
     expect(element.textContent).toContain('Was tut dir gut?');
   });
 
   it('shows the empty-collection state when nothing is bookmarked', async () => {
-    const { element, setArea } = await setup({ items: [] });
-
-    await openCollection(element, setArea);
+    const { element } = await setup({ items: [] });
 
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
   });
 
-  it('filters the collection by content type', async () => {
-    const { element, whenStable, setArea } = await setup({
+  function kindFilter(element: HTMLElement, label: string): HTMLButtonElement {
+    const buttons = Array.from(element.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'));
+    return buttons.find((button) => button.textContent?.includes(label))!;
+  }
+
+  it('shows every content type by default and switches one off independently', async () => {
+    const { element, whenStable } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
         item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
       ],
     });
 
-    await openCollection(element, setArea);
+    expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('true');
+    expect(kindFilter(element, 'Rebell*in').getAttribute('aria-pressed')).toBe('true');
     expect(element.textContent).toContain('Wissensimpuls');
     expect(element.textContent).toContain('Eine Rebellin');
 
-    const filterButtons = Array.from(element.querySelectorAll('button[role="radio"]'));
-    const rebellinFilter = filterButtons.find((button) =>
-      button.textContent?.includes('Rebell*in'),
-    );
-    (rebellinFilter as HTMLButtonElement).click();
+    kindFilter(element, 'Wissen & Impulse').click();
     await whenStable();
 
+    expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('false');
     expect(element.textContent).toContain('Eine Rebellin');
     expect(element.textContent).not.toContain('Wissensimpuls');
   });
 
-  it('asks for confirmation before removing an item, then removes it once confirmed', async () => {
-    const { element, whenStable, setArea, bookmarks, bookmarkChanges, sheets } = await setup({
-      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+  it('explains that the filter, not the collection, is empty when every type is switched off', async () => {
+    const { element, whenStable } = await setup({
+      items: [item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' })],
     });
-    sheets.results = [true];
 
-    await openCollection(element, setArea);
-    const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Aus Sammlung entfernen'),
-    );
-    (removeButton as HTMLButtonElement).click();
+    kindFilter(element, 'Wissen & Impulse').click();
+    kindFilter(element, 'Rebell*in').click();
     await whenStable();
 
-    expect(sheets.opens[0]?.heading).toContain('entfernen');
-    // The fake stands in for `BookmarksInteractor.toggle`, which normally notifies
-    // `BookmarkChanges` itself - the resource only reloads once that happens.
-    bookmarks.savedItems = [];
-    bookmarkChanges.notify();
-    await whenStable();
-
-    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+    expect(element.textContent).toContain('Alle Kategorien sind ausgeblendet');
+    expect(element.textContent).not.toContain('Deine Sammlung ist noch leer');
   });
 
-  it('keeps the item when the removal confirmation is declined', async () => {
-    const { element, whenStable, setArea, bookmarks, sheets } = await setup({
-      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
-    });
-    sheets.results = [false];
-
-    await openCollection(element, setArea);
-    const removeButton = Array.from(element.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Aus Sammlung entfernen'),
-    );
-    (removeButton as HTMLButtonElement).click();
-    await whenStable();
-
-    expect(bookmarks.savedItems).toHaveLength(1);
-    expect(element.textContent).toContain('Was tut dir gut?');
-  });
-
-  it('restores the Meine Sammlung tab and filter from the returnTo query params', async () => {
+  it('restores the tab and the kind filter from the returnTo query params', async () => {
     const { element } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
         item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
       ],
-      queryParams: { area: 'collection', filter: 'rebellin' },
+      queryParams: { area: 'collection', hidden: 'wissensimpulse' },
     });
 
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
@@ -325,9 +295,8 @@ describe('ContentOverviewPage', () => {
   });
 
   it('reloads the collection when a bookmark changes elsewhere', async () => {
-    const { element, whenStable, setArea, bookmarks, bookmarkChanges } = await setup({ items: [] });
+    const { element, whenStable, bookmarks, bookmarkChanges } = await setup({ items: [] });
 
-    await openCollection(element, setArea);
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
 
     bookmarks.savedItems = [item({ id: 'wi-01', title: 'Was tut dir gut?' })];

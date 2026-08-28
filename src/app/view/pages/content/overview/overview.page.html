@@ -24,8 +24,8 @@
         (selectedTabChange)="onAreaChange($event)"
         class="rk-segmented min-w-0 flex-1 list-none gap-0.5"
       >
-        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
         <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
+        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
       </ul>
     </div>
   </div>
@@ -35,6 +35,69 @@
          (removing it from the accessibility tree and from tab order) but deliberately leaves visual
          hiding to the consumer. `ngTabContent` defers the panel's content until it's selected once,
          then keeps it mounted - the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
+    <div
+      ngTabPanel
+      value="collection"
+      #collectionPanel="ngTabPanel"
+      [class.hidden]="!collectionPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          <p class="text-muted-foreground">
+            Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
+            persönlichen Fundstücke immer griffbereit.
+          </p>
+
+          @if (!hasSavedItems()) {
+            <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
+              <p class="font-semibold">Deine Sammlung ist noch leer</p>
+              <p class="text-muted-foreground text-sm">
+                Wenn du einen Tagesimpuls, Wissensbeitrag oder eine Rebell*in später wiederfinden
+                möchtest, tippe auf das Lesezeichen.
+              </p>
+            </div>
+          } @else {
+            <app-content-kind-filter
+              [kinds]="kindFilters()"
+              [hiddenIds]="hiddenKinds()"
+              (toggled)="toggleKind($event)"
+            />
+
+            @if (filteredSavedItems().length > 0) {
+              <div class="space-y-2">
+                <!-- No remove action on the card: removing happens on the item itself, by
+                     un-bookmarking it, so there is exactly one place that owns the decision. -->
+                @for (item of filteredSavedItems(); track item.id) {
+                  <a
+                    [routerLink]="['/content', item.id]"
+                    [queryParams]="{ returnTo: collectionReturnTo() }"
+                    class="rk-card block px-4 py-3"
+                  >
+                    <span class="rk-pill text-xs">{{
+                      item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
+                    }}</span>
+                    <p class="mt-2 font-semibold">{{ item.title }}</p>
+                    <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                      {{ item.teaser }}
+                    </p>
+                  </a>
+                }
+              </div>
+            } @else if (allKindsHidden()) {
+              <p class="text-muted-foreground px-4 py-6 text-center">
+                Alle Kategorien sind ausgeblendet. Tippe oben auf eine Kategorie, um sie wieder
+                einzublenden.
+              </p>
+            } @else {
+              <p class="text-muted-foreground px-4 py-6 text-center">
+                Keine gespeicherten Einträge in dieser Kategorie.
+              </p>
+            }
+          }
+        </div>
+      </ng-template>
+    </div>
+
     <div
       ngTabPanel
       value="services"
@@ -88,94 +151,6 @@
             } @else {
               <p class="text-muted-foreground px-4 py-6 text-center">
                 Für diese Region sind noch keine Anlaufstellen hinterlegt.
-              </p>
-            }
-          }
-        </div>
-      </ng-template>
-    </div>
-
-    <div
-      ngTabPanel
-      value="collection"
-      #collectionPanel="ngTabPanel"
-      [class.hidden]="!collectionPanel.visible()"
-    >
-      <ng-template ngTabContent>
-        <div class="space-y-4">
-          <p class="text-muted-foreground">
-            Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
-            persönlichen Fundstücke immer griffbereit.
-          </p>
-
-          @if (!hasSavedItems()) {
-            <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
-              <p class="font-semibold">Deine Sammlung ist noch leer</p>
-              <p class="text-muted-foreground text-sm">
-                Wenn du einen Tagesimpuls, Wissensbeitrag oder eine Rebell*in später wiederfinden
-                möchtest, tippe auf das Lesezeichen.
-              </p>
-            </div>
-          } @else {
-            <div
-              class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
-              role="radiogroup"
-              aria-label="Sammlung filtern"
-            >
-              @for (filter of collectionFilters; track filter.id) {
-                <button
-                  type="button"
-                  role="radio"
-                  class="rk-pill min-h-touch shrink-0 transition-colors"
-                  [class.font-bold]="filter.id === collectionFilter()"
-                  [attr.aria-checked]="filter.id === collectionFilter()"
-                  (click)="selectCollectionFilter(filter.id)"
-                >
-                  @if (filter.id === collectionFilter()) {
-                    <svg lucideCheck class="rk-icon-sm" aria-hidden="true"></svg>
-                  }
-                  <span>{{ filter.label }} · {{ filterCounts()[filter.id] }}</span>
-                </button>
-              }
-            </div>
-
-            @if (filteredSavedItems().length > 0) {
-              <div class="space-y-2">
-                @for (row of filteredSavedItems(); track row.item.id) {
-                  <div class="rk-card overflow-hidden">
-                    <a
-                      [routerLink]="['/content', row.item.id]"
-                      [queryParams]="{ returnTo: collectionReturnTo() }"
-                      class="block px-4 py-3"
-                    >
-                      <div class="flex items-start justify-between gap-2">
-                        <span class="rk-pill text-xs">{{
-                          row.item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
-                        }}</span>
-                        <span class="text-muted-foreground shrink-0 text-xs">{{
-                          row.readingTime
-                        }}</span>
-                      </div>
-                      <p class="mt-2 font-semibold">{{ row.item.title }}</p>
-                      <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                        {{ row.item.teaser }}
-                      </p>
-                    </a>
-                    <div class="border-border/50 flex justify-end border-t px-2 py-1">
-                      <button
-                        type="button"
-                        class="text-muted-foreground hoverable:text-danger min-h-touch px-2 text-xs font-semibold"
-                        (click)="confirmUnsave(row.item)"
-                      >
-                        Aus Sammlung entfernen
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else {
-              <p class="text-muted-foreground px-4 py-6 text-center">
-                Keine gespeicherten Einträge in dieser Kategorie.
               </p>
             }
           }

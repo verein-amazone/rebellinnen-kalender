@@ -22,6 +22,21 @@
   }
 
   /*
+   * The Tagesimpuls marker: the same rounded chip, but filled with the brand colour rather than
+   * tinted by an arbitrary per-instance one. It says „this is today's“ on a card that is otherwise
+   * an ordinary content card, which is exactly the job a solid fill does and a tinted border does
+   * not. The `primary` / `primary-foreground` pair is the one the solid buttons already use, so
+   * its contrast is settled in all four themes.
+   *
+   * Upper case with wide tracking, matching the click dummy - it reads as a label rather than as a
+   * sentence, and „Tagesimpuls“ is one word, so the shouting stays short.
+   */
+  .rk-pill-solid {
+    @apply bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /*
    * A support service's colour identity as a square badge (Anlaufstellen, #24 follow-up) - same
    * "coloured border over a tinted background" technique as `.rk-pill`, so it stays correct in
    * dark mode too, but `rounded-2xl` rather than `rounded-full` so the two identities read as

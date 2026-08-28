@@ -15,12 +15,14 @@ function catalogEntry(overrides: Partial<Catalog['items'][number]> = {}): Catalo
     title: 'Was tut dir gut?',
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: '- Ein Bad nehmen',
+    imageAlt: 'Eine Badewanne voller Schaum',
     imageAttribution: 'Verein Amazone',
     sourceLabel: null,
     sourceUrl: null,
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -73,12 +75,43 @@ describe('ContentCatalogSync', () => {
   });
 
   it('does nothing when the stored version already matches the catalog version', async () => {
+    mockFetch({ version: 2, items: [catalogEntry()] });
+    await sync.ensureSynced();
+    await contentItems.upsert({
+      id: 'wi-01',
+      kind: 'wissensimpulse',
+      title: 'Von Hand geändert',
+      teaser: 't',
+      bodyMarkdown: 'b',
+      imagePath: null,
+      imageAlt: 'Bildbeschreibung',
+      imageAttribution: null,
+      sourceLabel: null,
+      sourceUrl: null,
+      relatedSources: [],
+      validFrom: null,
+      validTo: null,
+      eligibleForDaily: true,
+      dailyRender: 'teaser',
+    });
+
+    await sync.ensureSynced();
+
+    // Untouched: a matching version with items in place is the caught-up case, and reconciling
+    // again would overwrite the row.
+    expect((await contentItems.findById('wi-01'))?.title).toBe('Von Hand geändert');
+  });
+
+  it('reconciles again when the version matches but the items are gone', async () => {
+    // The version lives in localStorage and the items in SQLite, so the two can drift apart - a
+    // browser dropping IndexedDB on the web, or the dev-tools data reset. Trusting the version
+    // alone would leave the app on an empty catalog forever.
     store.setSyncedVersion(2);
     mockFetch({ version: 2, items: [catalogEntry()] });
 
     await sync.ensureSynced();
 
-    expect(await contentItems.listIds()).toEqual([]);
+    expect(await contentItems.listIds()).toEqual(['wi-01']);
   });
 
   it('updates a changed item in place and removes one no longer in the catalog', async () => {
@@ -89,6 +122,7 @@ describe('ContentCatalogSync', () => {
       teaser: 't',
       bodyMarkdown: 'b',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -96,6 +130,7 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     });
     await contentItems.upsert({
       id: 'wi-99',
@@ -104,6 +139,7 @@ describe('ContentCatalogSync', () => {
       teaser: 't',
       bodyMarkdown: 'b',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -111,6 +147,7 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     });
     await bookmarks.add('wi-99', '2026-08-21T09:00:00.000Z');
 
@@ -148,6 +185,28 @@ describe('ContentCatalogSync', () => {
     await sync.ensureSynced();
 
     await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources: [] });
+  });
+
+  it('carries the image description through, and defaults the daily layout to the teaser', async () => {
+    mockFetch({
+      version: 1,
+      items: [
+        catalogEntry({
+          id: 'wi-01',
+          imageAlt: 'Eine Badewanne voller Schaum',
+          dailyRender: undefined,
+        }),
+        catalogEntry({ id: 'wi-02', dailyRender: 'image' }),
+      ],
+    });
+
+    await sync.ensureSynced();
+
+    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({
+      imageAlt: 'Eine Badewanne voller Schaum',
+      dailyRender: 'teaser',
+    });
+    await expect(contentItems.findById('wi-02')).resolves.toMatchObject({ dailyRender: 'image' });
   });
 
   it('carries related sources through from the catalog entry', async () => {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
-import { AppIconGateway } from '@app/data/gateways/app-icon.gateway';
+import { DeviceAppIcon } from '@app/cross-cutting/infrastructure/app-icon';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
 export const APP_ICON_IDS = ['klassisch', 'pixel', 'nacht'] as const;
@@ -32,6 +32,23 @@ const NATIVE_NAMES: Record<AppIconId, string | null> = {
 const DEFAULT_ICON: AppIconId = 'klassisch';
 
 /**
+ * What happens after the icon is picked, which is different on each platform and is only ever true
+ * of one of them: iOS puts up its own confirmation, Android swaps the icon lazily. Saying both at
+ * once left every reader working out which half applied to them.
+ *
+ * Android's wording also covers the `web` case, which never renders this - the screen offers no
+ * choice at all where `available` is false.
+ */
+const CHANGE_NOTICES: Record<'ios' | 'other', string> = {
+  ios:
+    'Das neue Symbol erscheint auf dem Startbildschirm. Du bestätigst die Änderung noch einmal ' +
+    'in einem Hinweis des Systems.',
+  other:
+    'Das neue Symbol erscheint auf dem Startbildschirm. Auf manchen Geräten wird es erst ' +
+    'getauscht, nachdem du die App einmal ganz geschlossen hast.',
+};
+
+/**
  * Reading and changing the app icon shown on the home screen (#9).
  *
  * There is no store behind this: the operating system owns which launcher icon is active, and it
@@ -45,7 +62,7 @@ const DEFAULT_ICON: AppIconId = 'klassisch';
  */
 @Injectable({ providedIn: 'root' })
 export class AppIconInteractor {
-  private readonly gateway = inject(AppIconGateway);
+  private readonly gateway = inject(DeviceAppIcon);
   private readonly platform = inject(DevicePlatformService);
 
   readonly options: readonly AppIconOption[] = [
@@ -58,6 +75,10 @@ export class AppIconInteractor {
     { id: 'pixel', label: 'Pixel', description: null, previewUrl: 'app-icons/pixel.webp' },
     { id: 'nacht', label: 'Nacht', description: null, previewUrl: 'app-icons/nacht.webp' },
   ];
+
+  /** What to expect after picking an icon here, in this device's terms - see `CHANGE_NOTICES`. */
+  readonly changeNotice =
+    this.platform.platform === 'ios' ? CHANGE_NOTICES.ios : CHANGE_NOTICES.other;
 
   /**
    * `available` is false in a browser tab and on iOS devices that do not support alternate icons;

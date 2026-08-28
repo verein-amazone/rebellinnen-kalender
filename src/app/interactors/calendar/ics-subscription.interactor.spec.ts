@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import { OccurrenceDao } from '@app/data/daos/occurrence.dao';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import {
   IcsDownloadError,
   IcsHttpGateway,
@@ -19,7 +19,7 @@ import {
   IcsUrlInvalidError,
 } from './ics-subscription.interactor';
 
-class FakeEmojiPickerGateway {
+class FakeEmojiPicker {
   result: string | null = '🌻';
 
   pickEmoji(): Promise<string | null> {
@@ -74,20 +74,20 @@ describe('IcsSubscriptionInteractor', () => {
   let repository: CalendarRepository;
   let occurrences: OccurrenceDao;
   let subscriptions: IcsSubscriptionDao;
-  let emojiPicker: FakeEmojiPickerGateway;
+  let emojiPicker: FakeEmojiPicker;
 
   beforeEach(() => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
     http = new FakeIcsHttpGateway();
-    emojiPicker = new FakeEmojiPickerGateway();
+    emojiPicker = new FakeEmojiPicker();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: IcsHttpGateway, useValue: http },
-        { provide: EmojiPickerGateway, useValue: emojiPicker },
+        { provide: NativeEmojiPicker, useValue: emojiPicker },
       ],
     });
 

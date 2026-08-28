@@ -23,14 +23,28 @@ export type TextSizeId = (typeof TEXT_SIZE_IDS)[number];
 export const MOTION_IDS = ['system', 'reduced', 'standard'] as const;
 export type MotionId = (typeof MOTION_IDS)[number];
 
+/**
+ * How the Tagesimpuls announces itself the first time it is shown on a given day: with both
+ * channels, with the wave alone, or not at all.
+ *
+ * One preference rather than two switches, because the two channels are two ways of saying the same
+ * single thing and people think of it that way: „soll der Tagesimpuls sich melden, und wie laut“.
+ * It is separate from `motion`, which governs animation everywhere in the app - a reduced-motion
+ * setting still silences the wave here, whichever value this one has.
+ */
+export const IMPULSE_GREETING_IDS = ['full', 'motion', 'none'] as const;
+export type ImpulseGreetingId = (typeof IMPULSE_GREETING_IDS)[number];
+
 export interface AppearancePreferences {
   readonly theme: ThemeId;
   readonly textSize: TextSizeId;
   readonly motion: MotionId;
+  readonly impulseGreeting: ImpulseGreetingId;
 }
 
 export const DEFAULT_APPEARANCE_PREFERENCES: AppearancePreferences = {
   theme: 'amazone',
   textSize: 'system',
   motion: 'system',
+  impulseGreeting: 'full',
 };

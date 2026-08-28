@@ -1,0 +1,25 @@
+<app-focused-screen heading="Entwickler-Werkzeuge" fallbackLink="/settings">
+  <div class="space-y-4">
+    <p class="text-muted-foreground">
+      Werkzeuge zum Testen - nur für die Entwicklung, nicht für den täglichen Gebrauch.
+    </p>
+
+    <div class="rk-card space-y-3 px-4 py-4">
+      <h2 class="text-lg">App-Daten löschen</h2>
+      <p class="text-muted-foreground">
+        Setzt die App auf den Zustand direkt nach der Installation zurück: alle Termine,
+        Erinnerungen, Lesezeichen, Kalender und Einstellungen werden gelöscht. Danach lässt sich zum
+        Beispiel die Begrüßungs-Animation des Tagesimpulses wieder auslösen.
+      </p>
+      <button
+        type="button"
+        class="rk-button rk-button-danger w-full"
+        [disabled]="resetting()"
+        (click)="confirmReset()"
+      >
+        <svg lucideTrash2 class="rk-icon-sm" aria-hidden="true"></svg>
+        {{ resetting() ? 'Wird gelöscht …' : 'App-Daten löschen' }}
+      </button>
+    </div>
+  </div>
+</app-focused-screen>

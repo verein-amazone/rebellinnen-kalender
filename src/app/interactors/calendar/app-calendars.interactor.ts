@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
-import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 
 /**
  * A calendar the create/edit form's picker may offer, stripped of everything view-irrelevant.
@@ -30,7 +30,7 @@ export interface WritableAppCalendar {
 export class AppCalendarsInteractor {
   private readonly sources = inject(CalendarSourceDao);
   private readonly repository = inject(CalendarRepository);
-  private readonly emojiPicker = inject(EmojiPickerGateway);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
 
   /**
    * Lists the picker's choices, first creating the app's own calendar source if none exists yet -

@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
+import { CAPACITOR_HTTP } from '@app/cross-cutting/plugins/http.plugin';
+
 import { ICS_MAX_BYTES, IcsDownloadError, IcsHttpGateway } from './ics-http.gateway';
 
 function streamResponse(init: {
@@ -26,6 +28,9 @@ describe('IcsHttpGateway (web/fetch path)', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
+    // The web path never calls it, but the real plugin proxy rejects everything under jsdom -
+    // including the `ngOnDestroy` Angular probes for on teardown.
+    TestBed.configureTestingModule({ providers: [{ provide: CAPACITOR_HTTP, useValue: {} }] });
     originalFetch = globalThis.fetch;
   });
 

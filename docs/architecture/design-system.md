@@ -380,6 +380,24 @@ one passes - and it is CSS for the reason `sheet.css` records: `base.css` neutra
 entirely. The CDK writes transforms and leaves the timing to CSS, so it is covered.
 `@angular/animations` is not installed and is not needed for any of this.
 
+### Arrival greeting - `arrived.css`
+
+`.rk-arrived` is the app's one "this is new" signal: a 1.2s wave that tips an element around its
+bottom edge and settles. It is deliberately slower and softer than a bounce - a bounce reads as an
+alert, and the only thing wearing this class is today's Tagesimpuls saying hello. Transform only,
+never opacity, for the same contrast reason the reorderable list records above.
+
+The card pairs it with a haptic pattern on the same envelope (`HapticsInteractor`): four taps whose
+intensity and sharpness fall away across the same 1.2s. Both channels are governed by one
+three-way preference on „Bewegung & Animationen“ - „Animation und Vibration“, „Nur Animation“,
+„Ohne Begrüßung“ - because the two are two ways of saying the same single thing, and people think
+of them that way. It is separate from the app-wide motion radio group on the same screen, which
+still silences the wave under „Reduziert“ whichever greeting is picked. Neither channel ever
+carries information on its own: the card is fully readable with both switched off.
+
+Shaking the phone replays the greeting. That gesture is an extra on a card that is always reachable
+by tapping, never the only path to anything.
+
 ### Shell frame - `screen.css`
 
 `.rk-scroll-region` is the app's single scrolling element and the query container every screen

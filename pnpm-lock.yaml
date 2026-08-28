@@ -63,6 +63,12 @@ importers:
       '@capawesome/capacitor-app-icon':
         specifier: ^0.1.1
         version: 0.1.1(@capacitor/core@8.5.0)
+      '@capawesome/capacitor-haptics':
+        specifier: ^0.1.1
+        version: 0.1.1(@capacitor/core@8.5.0)
+      '@capawesome/capacitor-shake':
+        specifier: ^0.1.1
+        version: 0.1.1(@capacitor/core@8.5.0)
       '@ebarooni/capacitor-calendar':
         specifier: ^8.3.0
         version: 8.3.0(@capacitor/core@8.5.0)
@@ -524,6 +530,16 @@ packages:
 
   '@capawesome/capacitor-app-icon@0.1.1':
     resolution: {integrity: sha512-5x4C9pUn6RM1vQrL+BxcmY9/VIMfbH0a0uMkEGQylY6WubO8gNYTQ23e9XIN2mchP6IAh2W5fZPcHSSAm3kP2w==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
+  '@capawesome/capacitor-haptics@0.1.1':
+    resolution: {integrity: sha512-63OUw1QfWZvkz06Z4YJGRmun5p8tDKS+D0bJGy7IKEFXVADOKH+Lfmsv5PQ2CZgXWNCN6pc8GIkJNoy/3evw5Q==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
+  '@capawesome/capacitor-shake@0.1.1':
+    resolution: {integrity: sha512-/6PKeH6eZWFMb+/dJ+83ZE99/SrrFt1g/37+n5DFGNsRbeFxRMHwkeiiBq5t2VfrYJ7dijKzRx8kybica6IVVg==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -4709,6 +4725,14 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.5.0
 
+  '@capawesome/capacitor-haptics@0.1.1(@capacitor/core@8.5.0)':
+    dependencies:
+      '@capacitor/core': 8.5.0
+
+  '@capawesome/capacitor-shake@0.1.1(@capacitor/core@8.5.0)':
+    dependencies:
+      '@capacitor/core': 8.5.0
+
   '@csstools/color-helpers@6.1.1': {}
 
   '@csstools/css-calc@3.3.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
@@ -5530,7 +5554,7 @@ snapshots:
       detect-libc: 2.1.2
       is-glob: 4.0.3
       node-addon-api: 7.1.1
-      picomatch: 4.0.5
+      picomatch: 4.0.7
     optionalDependencies:
       '@parcel/watcher-android-arm64': 2.5.6
       '@parcel/watcher-darwin-arm64': 2.5.6
@@ -7923,7 +7947,7 @@ snapshots:
   vite@8.1.5(@types/node@26.3.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.101.0):
     dependencies:
       lightningcss: 1.32.0
-      picomatch: 4.0.5
+      picomatch: 4.0.7
       postcss: 8.5.26
       rolldown: 1.1.5
       tinyglobby: 0.2.17

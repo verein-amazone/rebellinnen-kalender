@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { CapacitorHttp } from '@capacitor/core';
+import { inject, Injectable } from '@angular/core';
 
 import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
+import { CAPACITOR_HTTP } from '@app/cross-cutting/plugins/http.plugin';
 
 /**
  * Kept small on purpose: a subscribed calendar is text, not an archive. A genuine **byte** limit -
@@ -44,6 +44,7 @@ export type IcsDownloadResult =
  */
 @Injectable({ providedIn: 'root' })
 export class IcsHttpGateway {
+  private readonly http = inject(CAPACITOR_HTTP);
   private readonly isWeb = devicePlatform() === 'web';
 
   async download(request: IcsDownloadRequest): Promise<IcsDownloadResult> {
@@ -53,7 +54,7 @@ export class IcsHttpGateway {
   private async downloadNatively(request: IcsDownloadRequest): Promise<IcsDownloadResult> {
     let response;
     try {
-      response = await CapacitorHttp.get({
+      response = await this.http.get({
         url: request.url,
         headers: conditionalHeaders(request),
         connectTimeout: ICS_TIMEOUT_MS,

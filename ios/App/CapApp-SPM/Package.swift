@@ -18,6 +18,8 @@ let package = Package(
         .package(name: "CapacitorTextZoom", path: "../../../node_modules/.pnpm/@capacitor+text-zoom@8.0.1_@capacitor+core@8.5.0/node_modules/@capacitor/text-zoom"),
         .package(name: "CapawesomeCapacitorAccessibilityPreferences", path: "../../../node_modules/.pnpm/@capawesome+capacitor-accessibility-preferences@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-accessibility-preferences"),
         .package(name: "CapawesomeCapacitorAppIcon", path: "../../../node_modules/.pnpm/@capawesome+capacitor-app-icon@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-app-icon"),
+        .package(name: "CapawesomeCapacitorHaptics", path: "../../../node_modules/.pnpm/@capawesome+capacitor-haptics@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-haptics"),
+        .package(name: "CapawesomeCapacitorShake", path: "../../../node_modules/.pnpm/@capawesome+capacitor-shake@0.1.1_@capacitor+core@8.5.0/node_modules/@capawesome/capacitor-shake"),
         .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.3.0_@capacitor+core@8.5.0/node_modules/@ebarooni/capacitor-calendar"),
         .package(name: "IndependoCapacitorEmojiPicker", path: "../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.0_@capacitor+core@8.5.0/node_modules/@independo/capacitor-emoji-picker"),
         .package(name: "CapacitorNativeSettings", path: "../../../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.5.0/node_modules/capacitor-native-settings")
@@ -34,6 +36,8 @@ let package = Package(
                 .product(name: "CapacitorTextZoom", package: "CapacitorTextZoom"),
                 .product(name: "CapawesomeCapacitorAccessibilityPreferences", package: "CapawesomeCapacitorAccessibilityPreferences"),
                 .product(name: "CapawesomeCapacitorAppIcon", package: "CapawesomeCapacitorAppIcon"),
+                .product(name: "CapawesomeCapacitorHaptics", package: "CapawesomeCapacitorHaptics"),
+                .product(name: "CapawesomeCapacitorShake", package: "CapawesomeCapacitorShake"),
                 .product(name: "EbarooniCapacitorCalendar", package: "EbarooniCapacitorCalendar"),
                 .product(name: "IndependoCapacitorEmojiPicker", package: "IndependoCapacitorEmojiPicker"),
                 .product(name: "CapacitorNativeSettings", package: "CapacitorNativeSettings")

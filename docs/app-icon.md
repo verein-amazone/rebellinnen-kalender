@@ -77,7 +77,7 @@ Both platforms need each icon registered at build time; neither can be given a n
   on every change, and older devices may not support alternate icons at all - the settings screen
   reads that through `isAvailable()` and offers no choice where it is false.
 
-In the app, `AppIconGateway` wraps the plugin, `AppIconInteractor` owns the option list and the
+In the app, `DeviceAppIcon` wraps the plugin, `AppIconInteractor` owns the option list and the
 mapping from icon id to native name, and the settings page reads the active icon back through
 `getCurrentIcon()` instead of storing it. The operating system owns that state and can reset it
 without telling the app, so there is nothing to keep in sync.

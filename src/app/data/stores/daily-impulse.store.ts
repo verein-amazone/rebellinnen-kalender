@@ -19,9 +19,11 @@ interface StoredState {
   readonly day: string | null;
   readonly itemId: string | null;
   readonly recentIds: readonly string[];
+  /** The day whose impulse the user has already been shown, so it is only announced once. */
+  readonly seenDay: string | null;
 }
 
-const EMPTY_STATE: StoredState = { day: null, itemId: null, recentIds: [] };
+const EMPTY_STATE: StoredState = { day: null, itemId: null, recentIds: [], seenDay: null };
 
 /**
  * Persists which content item is featured on the Today page for the day it was picked, so the item
@@ -44,10 +46,36 @@ export class DailyImpulseStore {
 
   readonly recentIds = () => this.state().recentIds;
 
+  /** Whether today's impulse has already been shown to the user at least once. */
+  readonly hasSeen = (day: string) => this.state().seenDay === day;
+
   /** Records today's pick and rolls it into the recent-ids window. */
   setPick(day: string, itemId: string): void {
     const nextRecentIds = [...this.state().recentIds, itemId].slice(-HIGHLIGHT_COOLDOWN_DAYS);
-    const next: StoredState = { day, itemId, recentIds: nextRecentIds };
+    const next: StoredState = { ...this.state(), day, itemId, recentIds: nextRecentIds };
+    this.state.set(next);
+    this.write(next);
+  }
+
+  /**
+   * Forces the day's pick to a specific item, for the debug catalog. Unlike `setPick` it leaves the
+   * recent-ids cooldown alone - a hand-picked impulse is not a real selection and must not push a
+   * genuine one out of the window - and clears `seenDay`, so Today announces the new pick the same
+   * way it announces a fresh one.
+   */
+  overridePick(day: string, itemId: string): void {
+    const next: StoredState = { ...this.state(), day, itemId, seenDay: null };
+    this.state.set(next);
+    this.write(next);
+  }
+
+  /** Records that the user has seen the given day's impulse. */
+  markSeen(day: string): void {
+    if (this.state().seenDay === day) {
+      return;
+    }
+
+    const next: StoredState = { ...this.state(), seenDay: day };
     this.state.set(next);
     this.write(next);
   }
@@ -75,12 +103,13 @@ export class DailyImpulseStore {
     const recentIds = Array.isArray(candidate.recentIds)
       ? candidate.recentIds.filter((id): id is string => typeof id === 'string')
       : [];
+    const seenDay = typeof candidate.seenDay === 'string' ? candidate.seenDay : null;
 
     if (day === null || itemId === null) {
-      return { day: null, itemId: null, recentIds };
+      return { day: null, itemId: null, recentIds, seenDay };
     }
 
-    return { day, itemId, recentIds };
+    return { day, itemId, recentIds, seenDay };
   }
 
   private write(state: StoredState): void {

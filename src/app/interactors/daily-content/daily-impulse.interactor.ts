@@ -36,6 +36,32 @@ export class DailyImpulseInteractor {
 
     return picked === null ? null : toView(picked);
   }
+
+  /**
+   * Whether the given day's impulse still has to be announced to the user - true until the card has
+   * been shown once, so the arrival animation plays once a day rather than on every render.
+   */
+  isUnseen(day: string): boolean {
+    return !this.store.hasSeen(day);
+  }
+
+  markSeen(day: string): void {
+    this.store.markSeen(day);
+  }
+
+  /** Which item is featured today, if a pick was already made - for the debug catalog. */
+  featuredItemId(today: string): string | null {
+    const pick = this.store.pick();
+    return pick !== null && pick.day === today ? pick.itemId : null;
+  }
+
+  /**
+   * Features a specific item today, replacing whatever was picked. Development tooling: it is how a
+   * content item can be looked at on Today without waiting for the selector to choose it.
+   */
+  featureItem(today: string, itemId: string): void {
+    this.store.overridePick(today, itemId);
+  }
 }
 
 function toView(record: ContentItemRecord): ContentItemView {
@@ -46,9 +72,11 @@ function toView(record: ContentItemRecord): ContentItemView {
     teaser: record.teaser,
     bodyMarkdown: record.bodyMarkdown,
     imagePath: record.imagePath,
+    imageAlt: record.imageAlt,
     imageAttribution: record.imageAttribution,
     sourceLabel: record.sourceLabel,
     sourceUrl: record.sourceUrl,
     relatedSources: record.relatedSources,
+    dailyRender: record.dailyRender,
   };
 }

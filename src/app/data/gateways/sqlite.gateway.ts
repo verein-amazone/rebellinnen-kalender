@@ -1,15 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  SQLiteConnection,
-  type SQLiteDBConnection,
-  type capSQLiteVersionUpgrade,
-} from '@capacitor-community/sqlite';
+import type { SQLiteDBConnection, capSQLiteVersionUpgrade } from '@capacitor-community/sqlite';
 
 import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
 
 import { DATABASE_VERSION, MIGRATIONS } from '../migrations/migrations';
 import type { Migration } from '../migrations/migration';
-import { CAPACITOR_SQLITE } from './capacitor-sqlite';
+import { SQLITE_CONNECTION } from '@app/cross-cutting/plugins/sqlite.plugin';
 import {
   SqliteUnavailableError,
   type SqlValue,
@@ -32,8 +28,7 @@ const DATABASE_NAME = 'rebellinnen-kalender';
  */
 @Injectable({ providedIn: 'root' })
 export class SqliteGateway implements SqliteDatabase {
-  private readonly plugin = inject(CAPACITOR_SQLITE);
-  private readonly sqlite = new SQLiteConnection(this.plugin);
+  private readonly sqlite = inject(SQLITE_CONNECTION);
   protected readonly isWeb = devicePlatform() === 'web';
 
   private connection: Promise<SQLiteDBConnection> | null = null;

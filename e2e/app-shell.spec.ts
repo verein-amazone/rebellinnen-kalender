@@ -6,7 +6,10 @@ test.describe('application shell', () => {
     await page.goto('/');
 
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByRole('heading', { name: 'Heute', level: 1 })).toBeVisible();
+    // Today's `h1` is the greeting itself, which depends on the time of day.
+    await expect(
+      page.getByRole('heading', { name: /^(Guten Morgen|Hallo|Guten Abend)/, level: 1 }),
+    ).toBeVisible();
   });
 
   test('navigates between the primary destinations', async ({ page }) => {
@@ -87,7 +90,7 @@ test.describe('application shell', () => {
         ['Farbthema', 'Textgröße', 'Bewegung & Animationen', 'Nicht vergessen'],
       ],
       ['Kalender', ['Kalender verwalten']],
-      ['App & Rechtliches', ['Datenschutz', 'Impressum', 'Über die App']],
+      ['App & Rechtliches', ['Über die App', 'Datenschutz', 'Impressum']],
     ] as const) {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
       for (const entry of entries) {
@@ -132,9 +135,8 @@ test.describe('application shell', () => {
       ['/settings/motion', 'Bewegung & Animationen'],
       ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
-      ['/settings/privacy', 'Datenschutz'],
-      ['/settings/imprint', 'Impressum'],
       ['/settings/about', 'Über die App'],
+      ['/settings/dev-tools', 'Entwickler-Werkzeuge'],
     ] as const) {
       await page.goto(path);
 
