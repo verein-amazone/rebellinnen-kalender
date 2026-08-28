@@ -22,17 +22,19 @@ by diffing against the stored `version`. So:
 
 Fields per entry:
 
-| Field                      | Notes                                                                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`                       | `wi-NN` or `reb-NN`, next free number in that series.                                                                                                                                |
-| `kind`                     | `'wissensimpulse'` or `'rebellin'`.                                                                                                                                                  |
-| `title`, `teaser`          | Plain text.                                                                                                                                                                          |
-| `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                |
-| `imageAttribution`         | Human-readable credit string shown in the app footer - not the licensing record (that's §4).                                                                                         |
-| `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                             |
-| `relatedSources`           | Optional array of `{ title, url }` "Mehr zum Thema" links, shown below the body. Publisher/domain is derived from `url` automatically - omit the field entirely when there are none. |
-| `validFrom`, `validTo`     | ISO dates for date-scoped items, or both `null` for evergreen content.                                                                                                               |
-| `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                   |
+| Field                      | Notes                                                                                                                                                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                       | `wi-NN` or `reb-NN`, next free number in that series.                                                                                                                                                                     |
+| `kind`                     | `'wissensimpulse'` or `'rebellin'`.                                                                                                                                                                                       |
+| `title`, `teaser`          | Plain text.                                                                                                                                                                                                               |
+| `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                                                     |
+| `imageAlt`                 | **Required.** German description of what the picture shows, for people who cannot see it. Describe the picture, never the credit; include any text that is part of the image.                                             |
+| `imageAttribution`         | Human-readable credit string shown in the app footer - not the licensing record (that's §4). Never used as the image's `alt` text; that is `imageAlt`.                                                                    |
+| `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                                                                  |
+| `relatedSources`           | Optional array of `{ title, url }` "Mehr zum Thema" links, shown below the body. Publisher/domain is derived from `url` automatically - omit the field entirely when there are none.                                      |
+| `validFrom`, `validTo`     | ISO dates for date-scoped items, or both `null` for evergreen content.                                                                                                                                                    |
+| `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                                                        |
+| `dailyRender`              | Optional `'image'` or `'teaser'` (default). How the Today card renders this item: `image` leads with the picture, `teaser` leads with the teaser line. Pick `image` only when the picture says more than the teaser does. |
 
 Do **not** put an `imagePath` field in the catalog - it's derived automatically from `kind` and
 `id` (`imagePathFor()` in `content-catalog-sync.ts`): `/content/wissensimpulse/<id>.webp` or

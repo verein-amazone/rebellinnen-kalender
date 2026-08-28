@@ -19,6 +19,14 @@ const ARRIVAL_PATTERN: readonly HapticPulse[] = [
 ];
 
 /**
+ * How much longer a replayed greeting takes than the once-a-day one. Shaking the phone is a
+ * deliberate act, so the answer may take its time. The card's wave is stretched by the same factor
+ * (`.rk-arrived-stretched` in `styles/components/arrived.css`), so the two channels stay on one
+ * beat.
+ */
+const REPLAY_STRETCH = 1.5;
+
+/**
  * Haptic feedback as an application concern: what a moment should feel like, and whether the user
  * wants to feel it at all.
  */
@@ -27,9 +35,9 @@ export class HapticsInteractor {
   private readonly haptics = inject(DeviceHaptics);
   private readonly appearance = inject(AppearanceStore);
 
-  /** Plays the arrival greeting, unless the user switched haptics off or the device has none. */
-  async playArrival(): Promise<void> {
-    if (this.appearance.preferences().haptics !== 'on') {
+  /** Plays the arrival greeting, unless the user asked for a quieter one or the device has none. */
+  async playArrival(options: { readonly replay?: boolean } = {}): Promise<void> {
+    if (this.appearance.preferences().impulseGreeting !== 'full') {
       return;
     }
 
@@ -37,6 +45,13 @@ export class HapticsInteractor {
       return;
     }
 
-    await this.haptics.playPattern(ARRIVAL_PATTERN);
+    await this.haptics.playPattern(
+      options.replay === true ? stretch(ARRIVAL_PATTERN, REPLAY_STRETCH) : ARRIVAL_PATTERN,
+    );
   }
+}
+
+/** Spreads a pattern over a longer span without touching how hard any single tap feels. */
+function stretch(pattern: readonly HapticPulse[], factor: number): readonly HapticPulse[] {
+  return pattern.map((pulse) => ({ ...pulse, time: pulse.time * factor }));
 }

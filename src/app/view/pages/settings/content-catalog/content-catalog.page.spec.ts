@@ -18,10 +18,12 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: 'Ein Bad nehmen.',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    dailyRender: 'teaser',
     ...overrides,
   };
 }

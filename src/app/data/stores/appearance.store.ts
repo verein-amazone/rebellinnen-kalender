@@ -2,11 +2,12 @@ import { Injectable, signal } from '@angular/core';
 
 import {
   DEFAULT_APPEARANCE_PREFERENCES,
-  HAPTICS_IDS,
+  IMPULSE_GREETING_IDS,
   MOTION_IDS,
   THEME_IDS,
   TEXT_SIZE_IDS,
   type AppearancePreferences,
+  type ImpulseGreetingId,
 } from './appearance-preferences';
 
 const STORAGE_KEY = 'rk.appearance';
@@ -55,7 +56,7 @@ export class AppearanceStore {
       theme: pick(candidate.theme, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme),
       textSize: pick(candidate.textSize, TEXT_SIZE_IDS, DEFAULT_APPEARANCE_PREFERENCES.textSize),
       motion: pick(candidate.motion, MOTION_IDS, DEFAULT_APPEARANCE_PREFERENCES.motion),
-      haptics: pick(candidate.haptics, HAPTICS_IDS, DEFAULT_APPEARANCE_PREFERENCES.haptics),
+      impulseGreeting: readImpulseGreeting(candidate),
     };
   }
 
@@ -79,4 +80,19 @@ export class AppearanceStore {
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+/**
+ * The three-way Tagesimpuls preference replaced an on/off `haptics` switch. An install that had
+ * switched the vibration off asked for a quieter greeting, not for the default one, so the old
+ * value is carried over rather than dropped: `off` becomes „nur Animation“.
+ */
+function readImpulseGreeting(
+  candidate: Partial<Record<keyof AppearancePreferences | 'haptics', unknown>>,
+): ImpulseGreetingId {
+  if (IMPULSE_GREETING_IDS.includes(candidate.impulseGreeting as ImpulseGreetingId)) {
+    return candidate.impulseGreeting as ImpulseGreetingId;
+  }
+
+  return candidate.haptics === 'off' ? 'motion' : DEFAULT_APPEARANCE_PREFERENCES.impulseGreeting;
 }

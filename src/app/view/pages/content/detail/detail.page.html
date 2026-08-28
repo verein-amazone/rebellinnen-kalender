@@ -32,8 +32,14 @@
         </span>
       </div>
 
+      <!-- The teaser leads: it is the one sentence that says what this item is about, and it read
+           as missing once the reader was already looking at the picture. -->
+      <p class="text-lg">{{ content.teaser }}</p>
+
       @if (content.imagePath; as imagePath) {
-        <img [src]="imagePath" [alt]="content.imageAttribution ?? ''" class="w-full rounded-lg" />
+        <!-- `imageAlt` describes the picture. The credit is not a description and stays where it
+             belongs, in the visible caption further down. -->
+        <img [src]="imagePath" [alt]="content.imageAlt ?? ''" class="w-full rounded-lg" />
       }
 
       <div class="rk-card px-4 py-5">

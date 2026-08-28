@@ -15,12 +15,14 @@ function catalogEntry(overrides: Partial<Catalog['items'][number]> = {}): Catalo
     title: 'Was tut dir gut?',
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: '- Ein Bad nehmen',
+    imageAlt: 'Eine Badewanne voller Schaum',
     imageAttribution: 'Verein Amazone',
     sourceLabel: null,
     sourceUrl: null,
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -82,6 +84,7 @@ describe('ContentCatalogSync', () => {
       teaser: 't',
       bodyMarkdown: 'b',
       imagePath: null,
+      imageAlt: 'Bildbeschreibung',
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -89,6 +92,7 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     });
 
     await sync.ensureSynced();
@@ -118,6 +122,7 @@ describe('ContentCatalogSync', () => {
       teaser: 't',
       bodyMarkdown: 'b',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -125,6 +130,7 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     });
     await contentItems.upsert({
       id: 'wi-99',
@@ -133,6 +139,7 @@ describe('ContentCatalogSync', () => {
       teaser: 't',
       bodyMarkdown: 'b',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -140,6 +147,7 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     });
     await bookmarks.add('wi-99', '2026-08-21T09:00:00.000Z');
 
@@ -177,6 +185,28 @@ describe('ContentCatalogSync', () => {
     await sync.ensureSynced();
 
     await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources: [] });
+  });
+
+  it('carries the image description through, and defaults the daily layout to the teaser', async () => {
+    mockFetch({
+      version: 1,
+      items: [
+        catalogEntry({
+          id: 'wi-01',
+          imageAlt: 'Eine Badewanne voller Schaum',
+          dailyRender: undefined,
+        }),
+        catalogEntry({ id: 'wi-02', dailyRender: 'image' }),
+      ],
+    });
+
+    await sync.ensureSynced();
+
+    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({
+      imageAlt: 'Eine Badewanne voller Schaum',
+      dailyRender: 'teaser',
+    });
+    await expect(contentItems.findById('wi-02')).resolves.toMatchObject({ dailyRender: 'image' });
   });
 
   it('carries related sources through from the catalog entry', async () => {

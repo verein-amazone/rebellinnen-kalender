@@ -15,16 +15,22 @@
     }
   </fieldset>
 
-  <!-- Its own switch, not a fourth radio: haptics are a separate channel from on-screen motion, and
-       someone can want the screen still and the buzz kept, or the other way round. -->
-  <div class="mt-6 space-y-2">
-    <h2 class="text-lg">Vibration</h2>
-    <app-toggle-field
-      id="haptics"
-      label="Vibration"
-      description="Der Tagesimpuls begrüßt dich zusätzlich mit einer kurzen Vibration."
-      [checked]="appearance.hapticsEnabled()"
-      (checkedChange)="appearance.setHapticsEnabled($event)"
-    />
-  </div>
+  <!-- Its own group rather than three more entries above: the setting above governs animation
+       everywhere in the app, this one governs one card's greeting. „Reduziert“ still silences the
+       wave here, whichever option is picked. -->
+  <h2 class="mt-6 mb-2 text-lg">Tagesimpuls</h2>
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Begrüßung durch den Tagesimpuls wählen</legend>
+
+    @for (option of appearance.impulseGreetingOptions; track option.id) {
+      <app-choice-row
+        name="impulse-greeting"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.impulseGreeting() === option.id"
+        (selected)="selectGreeting($event)"
+      />
+    }
+  </fieldset>
 </app-focused-screen>

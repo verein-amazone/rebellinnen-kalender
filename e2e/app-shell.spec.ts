@@ -6,7 +6,10 @@ test.describe('application shell', () => {
     await page.goto('/');
 
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByRole('heading', { name: 'Heute', level: 1 })).toBeVisible();
+    // Today's `h1` is the greeting itself, which depends on the time of day.
+    await expect(
+      page.getByRole('heading', { name: /^(Guten Morgen|Hallo|Guten Abend)/, level: 1 }),
+    ).toBeVisible();
   });
 
   test('navigates between the primary destinations', async ({ page }) => {

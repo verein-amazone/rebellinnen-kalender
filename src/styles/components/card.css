@@ -13,6 +13,22 @@
   }
 
   /*
+   * A card whose content bleeds to its own edges - today's image-led Tagesimpuls, where the picture
+   * runs into the corners.
+   *
+   * `overflow-hidden` alone leaves a hairline of the page showing between the border and the
+   * clipped child: the rounded clip is rasterised without antialiasing unless the element is on its
+   * own compositing layer, so at most device pixel ratios a one-pixel seam appears along the top
+   * edge. `translateZ(0)` promotes it and the seam goes. The `.rk-arrived` wave used to hide the
+   * bug by accident - it writes a transform, which promotes the layer too - so the gap only showed
+   * on the days the greeting had already played.
+   */
+  .rk-card-bleed {
+    @apply overflow-hidden;
+    transform: translateZ(0);
+  }
+
+  /*
    * A grouped list of rows. `overflow-hidden` clips the first and last row backgrounds to the
    * corner radius. The containment turns this into the query container for the row rule below.
    *

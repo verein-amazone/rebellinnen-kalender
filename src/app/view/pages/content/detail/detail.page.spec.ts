@@ -17,10 +17,12 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: 'Ein Bad nehmen.',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -153,6 +155,38 @@ describe('ContentDetailPage', () => {
     const { element } = await setup({ item: item({ kind: 'rebellin', title: 'Ada Lovelace' }) });
 
     expect(element.textContent).toContain('Rebell*in');
+  });
+
+  it('shows the teaser above the image', async () => {
+    const { element } = await setup({
+      item: item({ imagePath: '/content/wissensimpulse/wi-02.webp', imageAlt: 'Eine Badewanne' }),
+    });
+
+    const teaser = [...element.querySelectorAll('p')].find((paragraph) =>
+      paragraph.textContent?.includes('Wir haben ein paar Ideen für dich!'),
+    );
+    const image = element.querySelector('img');
+
+    expect(teaser).toBeDefined();
+    expect(image).not.toBeNull();
+    // `DOCUMENT_POSITION_FOLLOWING`: the image comes after the teaser in the document.
+    expect(teaser!.compareDocumentPosition(image!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('describes the image instead of crediting it in the alt text', async () => {
+    const { element } = await setup({
+      item: item({
+        imagePath: '/content/rebellinnen/reb-01.webp',
+        imageAlt: 'Schwarz-weißes Porträtfoto von Hedy Lamarr',
+        imageAttribution: 'Los Angeles Times, CC BY 4.0, via Wikimedia Commons',
+      }),
+    });
+
+    expect(element.querySelector('img')?.getAttribute('alt')).toBe(
+      'Schwarz-weißes Porträtfoto von Hedy Lamarr',
+    );
+    // The credit is a caption, and stays one.
+    expect(element.textContent).toContain('Los Angeles Times, CC BY 4.0, via Wikimedia Commons');
   });
 
   it('shows a graceful fallback when the item cannot be found', async () => {

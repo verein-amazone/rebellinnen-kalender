@@ -25,6 +25,7 @@ export class AppIconPage {
   private readonly announcer = inject(LiveAnnouncer);
 
   protected readonly options = this.appIcon.options;
+  protected readonly changeNotice = this.appIcon.changeNotice;
 
   protected readonly iconResource = resource({
     loader: () => this.appIcon.loadSnapshot(),

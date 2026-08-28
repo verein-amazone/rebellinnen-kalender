@@ -21,10 +21,12 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: 'Ein Bad nehmen.',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -129,16 +131,15 @@ async function setup(
 }
 
 describe('ContentOverviewPage', () => {
-  it('shows Anlaufstellen by default', async () => {
+  it('shows Meine Sammlung by default', async () => {
     const { element } = await setup({
-      regions: [{ id: 'online', label: 'Online & Telefon' }],
-      services: [service()],
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
     });
 
-    expect(element.textContent).toContain('Rat auf Draht');
+    expect(element.textContent).toContain('Was tut dir gut?');
   });
 
-  it('exposes a real ARIA tabs widget with the Anlaufstellen tab selected by default', async () => {
+  it('exposes a real ARIA tabs widget with the Meine Sammlung tab selected by default', async () => {
     const { element } = await setup();
 
     expect(element.querySelector('[role="tablist"]')).not.toBeNull();
@@ -146,18 +147,22 @@ describe('ContentOverviewPage', () => {
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     const servicesTab = tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'));
     const collectionTab = tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'));
-    expect(servicesTab?.getAttribute('aria-selected')).toBe('true');
-    expect(collectionTab?.getAttribute('aria-selected')).toBe('false');
+    expect(collectionTab?.getAttribute('aria-selected')).toBe('true');
+    expect(servicesTab?.getAttribute('aria-selected')).toBe('false');
+
+    // Meine Sammlung also comes first in the tab list itself, not only in the selection.
+    expect(tabs[0]).toBe(collectionTab);
 
     const panels = Array.from(element.querySelectorAll('[role="tabpanel"]'));
     expect(panels).toHaveLength(2);
-    expect(servicesTab?.getAttribute('aria-controls')).toBe(
+    expect(collectionTab?.getAttribute('aria-controls')).toBe(
       panels.find((panel) => !panel.hasAttribute('inert'))?.id,
     );
   });
 
   it('shows only entries matching the selected region', async () => {
     const { element, whenStable } = await setup({
+      queryParams: { area: 'services' },
       regions: [
         { id: 'online', label: 'Online & Telefon' },
         { id: 'vorarlberg', label: 'Vorarlberg' },
@@ -184,6 +189,7 @@ describe('ContentOverviewPage', () => {
 
   it('shows an empty state for a region with no entries', async () => {
     const { element } = await setup({
+      queryParams: { area: 'services' },
       regions: [{ id: 'online', label: 'Online & Telefon' }],
       services: [],
     });
@@ -191,21 +197,31 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).toContain('noch keine Anlaufstellen');
   });
 
-  async function openCollection(
+  /** Anlaufstellen is the second tab now, so the services tests have to switch to it. */
+  async function openServices(
     element: HTMLElement,
     setArea: (area: string) => Promise<void>,
   ): Promise<void> {
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
-    tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'))?.click();
-    await setArea('collection');
+    tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'))?.click();
+    await setArea('services');
   }
 
-  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
+  it('switches to Anlaufstellen when its tab is tapped', async () => {
     const { element, setArea } = await setup({
-      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+      regions: [{ id: 'online', label: 'Online & Telefon' }],
+      services: [service()],
     });
 
-    await openCollection(element, setArea);
+    await openServices(element, setArea);
+
+    expect(element.textContent).toContain('Rat auf Draht');
+  });
+
+  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
+    const { element } = await setup({
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+    });
 
     const links = [...element.querySelectorAll<HTMLAnchorElement>('a[href^="/content/"]')];
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
@@ -215,9 +231,7 @@ describe('ContentOverviewPage', () => {
   });
 
   it('shows the empty-collection state when nothing is bookmarked', async () => {
-    const { element, setArea } = await setup({ items: [] });
-
-    await openCollection(element, setArea);
+    const { element } = await setup({ items: [] });
 
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
   });
@@ -228,14 +242,13 @@ describe('ContentOverviewPage', () => {
   }
 
   it('shows every content type by default and switches one off independently', async () => {
-    const { element, whenStable, setArea } = await setup({
+    const { element, whenStable } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
         item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
       ],
     });
 
-    await openCollection(element, setArea);
     expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('true');
     expect(kindFilter(element, 'Rebell*in').getAttribute('aria-pressed')).toBe('true');
     expect(element.textContent).toContain('Wissensimpuls');
@@ -250,11 +263,10 @@ describe('ContentOverviewPage', () => {
   });
 
   it('explains that the filter, not the collection, is empty when every type is switched off', async () => {
-    const { element, whenStable, setArea } = await setup({
+    const { element, whenStable } = await setup({
       items: [item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' })],
     });
 
-    await openCollection(element, setArea);
     kindFilter(element, 'Wissen & Impulse').click();
     kindFilter(element, 'Rebell*in').click();
     await whenStable();
@@ -263,7 +275,7 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).not.toContain('Deine Sammlung ist noch leer');
   });
 
-  it('restores the Meine Sammlung tab and filter from the returnTo query params', async () => {
+  it('restores the tab and the kind filter from the returnTo query params', async () => {
     const { element } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
@@ -283,9 +295,8 @@ describe('ContentOverviewPage', () => {
   });
 
   it('reloads the collection when a bookmark changes elsewhere', async () => {
-    const { element, whenStable, setArea, bookmarks, bookmarkChanges } = await setup({ items: [] });
+    const { element, whenStable, bookmarks, bookmarkChanges } = await setup({ items: [] });
 
-    await openCollection(element, setArea);
     expect(element.textContent).toContain('Deine Sammlung ist noch leer');
 
     bookmarks.savedItems = [item({ id: 'wi-01', title: 'Was tut dir gut?' })];

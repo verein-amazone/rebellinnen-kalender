@@ -12,6 +12,7 @@ import { ADD_RELATED_SOURCES } from './011-add-related-sources';
 import { ADD_ICS_CURATED_ID } from './012-add-ics-curated-id';
 import { ADD_SOURCE_CONTENT_FINGERPRINT } from './013-add-source-content-fingerprint';
 import { ADD_ICS_LAST_CHECKED_AT } from './014-add-ics-last-checked-at';
+import { ADD_CONTENT_ITEM_IMAGE_ALT } from './015-add-content-item-image-alt';
 import type { Migration } from './migration';
 
 /**
@@ -36,6 +37,7 @@ export const MIGRATIONS: readonly Migration[] = [
   ADD_ICS_CURATED_ID,
   ADD_SOURCE_CONTENT_FINGERPRINT,
   ADD_ICS_LAST_CHECKED_AT,
+  ADD_CONTENT_ITEM_IMAGE_ALT,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

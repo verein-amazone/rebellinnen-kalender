@@ -5,6 +5,19 @@ import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platfor
 import { SHAKE_PLUGIN } from '@app/cross-cutting/plugins/shake.plugin';
 
 /**
+ * How hard the phone has to be shaken before the gesture counts. Declared here rather than imported
+ * from the plugin: a plugin type may not leave `../plugins/`, and the three values are the whole
+ * vocabulary.
+ */
+export type ShakeSensitivity = 'light' | 'medium' | 'hard';
+
+/** Options for {@link ShakeGesture.watch}. */
+export interface ShakeWatchOptions {
+  /** Defaults to the plugin's own `medium` when omitted. */
+  readonly sensitivity?: ShakeSensitivity;
+}
+
+/**
  * Shake-gesture detection, wrapping `@capawesome/capacitor-shake` (see
  * `../plugins/shake.plugin.ts`).
  *
@@ -20,14 +33,14 @@ export class ShakeGesture {
    * Starts listening and resolves with the function that stops it again. Failing to start is
    * silent: a device whose sensors refuse is a device without the gesture, not a broken screen.
    */
-  async watch(onShake: () => void): Promise<() => void> {
+  async watch(onShake: () => void, options: ShakeWatchOptions = {}): Promise<() => void> {
     if (this.isWeb) {
       return () => undefined;
     }
 
     try {
       const listener = await this.plugin.addListener('shake', onShake);
-      await this.plugin.startWatching();
+      await this.plugin.startWatching(options);
 
       return () => {
         void listener.remove();

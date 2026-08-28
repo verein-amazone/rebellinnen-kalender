@@ -41,9 +41,9 @@ const COLLECTION_KIND_LABELS: readonly { readonly id: ContentItemKind; readonly 
   ];
 
 /**
- * The Content home (#24): a switch between Anlaufstellen (support services) and Meine Sammlung
- * (My Collection, #23) - every bookmarked item, filterable by content type, reactive to bookmark
- * toggles made elsewhere (the detail view) via `BookmarkChanges`.
+ * The Content home (#24): a switch between Meine Sammlung (My Collection, #23) - every bookmarked
+ * item, filterable by content type, reactive to bookmark toggles made elsewhere (the detail view)
+ * via `BookmarkChanges` - and Anlaufstellen (support services).
  *
  * The area switch uses `@angular/aria/tabs` (`Tabs`/`TabList`/`Tab`/`TabPanel`) rather than a
  * hand-rolled `role="tab"` set - it's the APG tab pattern (arrow-key navigation, `aria-selected`,
@@ -80,11 +80,14 @@ export class ContentOverviewPage {
    * Woche/Monat view: a reload, the browser's back button and the detail view's `returnTo` (see
    * `collectionReturnTo` below) all land on the tab the user left. Switching replaces the URL
    * rather than pushing it - a tab switch is not a place to come back to.
+   *
+   * „Meine Sammlung“ is the default: what the user saved themselves is the reason they come back
+   * to this screen, while Anlaufstellen is a reference list that is looked up when it is needed.
    */
   readonly area = input<string>();
   protected readonly activeArea = computed<ContentArea>(() => {
     const area = this.area();
-    return isContentArea(area) ? area : 'services';
+    return isContentArea(area) ? area : 'collection';
   });
 
   /**

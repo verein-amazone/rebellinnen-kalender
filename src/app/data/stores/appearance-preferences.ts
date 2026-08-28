@@ -24,23 +24,27 @@ export const MOTION_IDS = ['system', 'reduced', 'standard'] as const;
 export type MotionId = (typeof MOTION_IDS)[number];
 
 /**
- * Whether the app may answer with the vibration motor. Its own preference rather than a part of
- * `motion`: someone can want the screen to hold still and still like the buzz, or the other way
- * round, and the OS setting behind `motion` says nothing about haptics.
+ * How the Tagesimpuls announces itself the first time it is shown on a given day: with both
+ * channels, with the wave alone, or not at all.
+ *
+ * One preference rather than two switches, because the two channels are two ways of saying the same
+ * single thing and people think of it that way: „soll der Tagesimpuls sich melden, und wie laut“.
+ * It is separate from `motion`, which governs animation everywhere in the app - a reduced-motion
+ * setting still silences the wave here, whichever value this one has.
  */
-export const HAPTICS_IDS = ['on', 'off'] as const;
-export type HapticsId = (typeof HAPTICS_IDS)[number];
+export const IMPULSE_GREETING_IDS = ['full', 'motion', 'none'] as const;
+export type ImpulseGreetingId = (typeof IMPULSE_GREETING_IDS)[number];
 
 export interface AppearancePreferences {
   readonly theme: ThemeId;
   readonly textSize: TextSizeId;
   readonly motion: MotionId;
-  readonly haptics: HapticsId;
+  readonly impulseGreeting: ImpulseGreetingId;
 }
 
 export const DEFAULT_APPEARANCE_PREFERENCES: AppearancePreferences = {
   theme: 'amazone',
   textSize: 'system',
   motion: 'system',
-  haptics: 'on',
+  impulseGreeting: 'full',
 };

@@ -56,6 +56,7 @@ describe('ContentItemsInteractor', () => {
       teaser: 'Teaser',
       bodyMarkdown: 'Text',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -63,6 +64,7 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     };
     dao.items.set('wi-01', record);
 
@@ -74,10 +76,12 @@ describe('ContentItemsInteractor', () => {
         teaser: 'Teaser',
         bodyMarkdown: 'Text',
         imagePath: null,
+        imageAlt: null,
         imageAttribution: null,
         sourceLabel: null,
         sourceUrl: null,
         relatedSources: [],
+        dailyRender: 'teaser',
       },
     ]);
   });
@@ -94,6 +98,7 @@ describe('ContentItemsInteractor', () => {
       teaser: 'Teaser',
       bodyMarkdown: 'Text',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
@@ -101,6 +106,7 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      dailyRender: 'teaser',
     };
     dao.items.set('wi-01', record);
 
@@ -111,10 +117,12 @@ describe('ContentItemsInteractor', () => {
       teaser: 'Teaser',
       bodyMarkdown: 'Text',
       imagePath: null,
+      imageAlt: null,
       imageAttribution: null,
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
+      dailyRender: 'teaser',
     });
   });
 });

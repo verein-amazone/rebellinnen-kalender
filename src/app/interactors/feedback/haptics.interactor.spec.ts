@@ -51,13 +51,31 @@ describe('HapticsInteractor', () => {
     expect(pattern[pattern.length - 1].time).toBeLessThan(1.2);
   });
 
-  it('stays silent when the user switched haptics off', async () => {
+  it('spreads a replayed greeting over half again as long, at unchanged strength', async () => {
     const { interactor, gateway } = setup();
-    TestBed.inject(AppearanceStore).update({ haptics: 'off' });
 
     await interactor.playArrival();
+    const arrival = gateway.patterns[0];
 
-    expect(gateway.patterns).toHaveLength(0);
+    await interactor.playArrival({ replay: true });
+    const replay = gateway.patterns[1];
+
+    expect(replay).toHaveLength(arrival.length);
+    replay.forEach((pulse, index) => {
+      expect(pulse.time).toBeCloseTo(arrival[index].time * 1.5);
+      expect(pulse.intensity).toBe(arrival[index].intensity);
+    });
+  });
+
+  it('stays silent for every greeting setting except the full one', async () => {
+    for (const impulseGreeting of ['motion', 'none'] as const) {
+      const { interactor, gateway } = setup();
+      TestBed.inject(AppearanceStore).update({ impulseGreeting });
+
+      await interactor.playArrival();
+
+      expect(gateway.patterns).toHaveLength(0);
+    }
   });
 
   it('stays silent on a device without haptics', async () => {

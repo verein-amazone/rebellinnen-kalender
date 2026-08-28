@@ -46,6 +46,15 @@ function setup(platform: 'ios' | 'android' | 'web' = 'ios') {
 }
 
 describe('AppIconInteractor', () => {
+  it('explains what happens next in the terms of the device it is running on', () => {
+    // Saying both at once left every reader working out which half applied to them.
+    expect(setup('ios').interactor.changeNotice).toContain('Hinweis des Systems');
+    expect(setup('ios').interactor.changeNotice).not.toContain('ganz geschlossen');
+
+    expect(setup('android').interactor.changeNotice).toContain('ganz geschlossen');
+    expect(setup('android').interactor.changeNotice).not.toContain('Hinweis des Systems');
+  });
+
   it('offers every icon with a label and a preview', () => {
     const { interactor } = setup();
 

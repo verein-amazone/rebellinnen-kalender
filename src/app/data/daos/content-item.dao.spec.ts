@@ -14,6 +14,7 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: '- Ein Bad nehmen\n- Spazieren gehen',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: 'Verein Amazone',
     sourceLabel: null,
     sourceUrl: null,
@@ -21,6 +22,7 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    dailyRender: 'teaser',
     ...overrides,
   };
 }

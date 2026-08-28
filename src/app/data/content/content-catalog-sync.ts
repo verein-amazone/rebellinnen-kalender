@@ -5,6 +5,7 @@ import { ContentItemDao } from '../daos/content-item.dao';
 import type {
   ContentItemKind,
   ContentItemRecord,
+  DailyRenderMode,
   RelatedSourceRecord,
 } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
@@ -19,6 +20,8 @@ export interface CatalogEntry {
   readonly title: string;
   readonly teaser: string;
   readonly bodyMarkdown: string;
+  /** What the bundled image shows, in German. Mandatory - see `public/content/README.md`. */
+  readonly imageAlt: string;
   readonly imageAttribution: string | null;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
@@ -27,6 +30,8 @@ export interface CatalogEntry {
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
+  /** How this item renders as today's impulse. Omitted means `teaser`, the ordinary layout. */
+  readonly dailyRender?: DailyRenderMode;
 }
 
 export interface Catalog {
@@ -130,7 +135,12 @@ function isCatalog(value: unknown): value is Catalog {
 }
 
 function toRecord(entry: CatalogEntry): ContentItemRecord {
-  return { ...entry, relatedSources: entry.relatedSources ?? [], imagePath: imagePathFor(entry) };
+  return {
+    ...entry,
+    relatedSources: entry.relatedSources ?? [],
+    imagePath: imagePathFor(entry),
+    dailyRender: entry.dailyRender ?? 'teaser',
+  };
 }
 
 /** Every catalog entry has a matching bundled image at this path - see `public/content/README`. */

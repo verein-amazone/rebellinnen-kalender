@@ -2,7 +2,6 @@
      `.rk-screen-body` reserve on a focused screen, so switching between this tab and a focused
      screen (e.g. event detail) doesn't shift where scrollable content starts. -->
 <div class="flex items-center justify-between gap-2 px-4 py-2">
-  <h1 class="sr-only">Heute</h1>
   <time [attr.datetime]="today()" class="text-muted-foreground text-sm font-semibold">{{
     dateLabel()
   }}</time>

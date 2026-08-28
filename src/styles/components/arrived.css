@@ -5,6 +5,8 @@
  * the card gently around its bottom edge and settles, the way someone waves from behind a counter
  * as you walk past. It is a greeting, not a notification.
  *
+ * A shake replays it half again as long - see `.rk-arrived-stretched` below.
+ *
  * Plain CSS `@keyframes` on purpose: `[data-motion='reduced']`/`prefers-reduced-motion` (see
  * ../base.css) collapse the duration, which is how every animation here opts out. The Web
  * Animations API would ignore that, which is why `@angular/animations` is not used.
@@ -17,7 +19,17 @@
   .rk-arrived {
     /* Around the bottom edge, so the card tips like a hand rather than spinning in place. */
     transform-origin: 50% 100%;
-    animation: rk-arrived 1200ms cubic-bezier(0.33, 0, 0.2, 1) 1 both;
+    animation: rk-arrived var(--rk-arrived-duration, 1200ms) cubic-bezier(0.33, 0, 0.2, 1) 1 both;
+  }
+
+  /*
+   * The replay a shake asks for, half again as long. Shaking the phone is a deliberate act, so the
+   * answer may take its time; the once-a-day arrival has to stay out of the way of someone who
+   * only wanted to read the card. The haptic envelope is stretched by the same factor, so the two
+   * channels stay on one beat (`HapticsInteractor`).
+   */
+  .rk-arrived-stretched {
+    --rk-arrived-duration: 1800ms;
   }
 }
 

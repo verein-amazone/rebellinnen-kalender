@@ -36,9 +36,11 @@ function toView(record: ContentItemRecord): ContentItemView {
     teaser: record.teaser,
     bodyMarkdown: record.bodyMarkdown,
     imagePath: record.imagePath,
+    imageAlt: record.imageAlt,
     imageAttribution: record.imageAttribution,
     sourceLabel: record.sourceLabel,
     sourceUrl: record.sourceUrl,
     relatedSources: record.relatedSources,
+    dailyRender: record.dailyRender,
   };
 }

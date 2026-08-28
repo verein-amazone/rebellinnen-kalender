@@ -10,6 +10,7 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     teaser: 'Teaser',
     bodyMarkdown: 'Text',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
@@ -17,6 +18,7 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    dailyRender: 'teaser',
     ...overrides,
   };
 }

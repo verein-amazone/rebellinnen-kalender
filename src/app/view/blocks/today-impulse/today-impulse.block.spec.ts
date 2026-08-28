@@ -6,7 +6,10 @@ import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
 import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-impulse.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
-import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
+import {
+  ShakeInteractor,
+  type ShakeWatchOptions,
+} from '@app/interactors/feedback/shake.interactor';
 
 import { TodayImpulseBlock } from './today-impulse.block';
 
@@ -20,10 +23,12 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: 'Text',
     imagePath: null,
+    imageAlt: null,
     imageAttribution: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -48,9 +53,11 @@ class FakeDailyImpulseInteractor {
 /** Records greetings instead of buzzing; the real plugin has no jsdom implementation. */
 class FakeHapticsInteractor {
   plays = 0;
+  lastOptions: { readonly replay?: boolean } | null = null;
 
-  playArrival(): Promise<void> {
+  playArrival(options: { readonly replay?: boolean } = {}): Promise<void> {
     this.plays += 1;
+    this.lastOptions = options;
     return Promise.resolve();
   }
 }
@@ -59,9 +66,11 @@ class FakeHapticsInteractor {
 class FakeShakeInteractor {
   shake: (() => void) | null = null;
   stopped = 0;
+  options: ShakeWatchOptions | null = null;
 
-  watch(onShake: () => void): Promise<() => void> {
+  watch(onShake: () => void, options: ShakeWatchOptions = {}): Promise<() => void> {
     this.shake = onShake;
+    this.options = options;
     return Promise.resolve(() => {
       this.stopped += 1;
     });
@@ -116,16 +125,51 @@ describe('TodayImpulseBlock', () => {
     expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');
   });
 
-  it('labels a Wissensimpulse item as "Wissen & Impulse", not by colour alone', async () => {
-    const { element } = await setup({ item: item({ kind: 'wissensimpulse' }) });
-
-    expect(element.textContent).toContain('Wissen & Impulse');
-  });
-
-  it('labels a Rebell*in item as "Rebell*in"', async () => {
+  it('names itself Tagesimpuls, and does not repeat the content type here', async () => {
     const { element } = await setup({ item: item({ kind: 'rebellin', title: 'Ada Lovelace' }) });
 
-    expect(element.textContent).toContain('Rebell*in');
+    // The label is the heading the surrounding section is named by, styled as a pill.
+    const heading = element.querySelector('h2#impulse-heading');
+    expect(heading?.textContent).toContain('Tagesimpuls');
+    expect(heading?.classList.contains('rk-pill-solid')).toBe(true);
+
+    // The content type lives on the detail screen; on Today it competed with the one label that
+    // matters.
+    expect(element.textContent).not.toContain('Rebell*in');
+    expect(element.textContent).not.toContain('Wissen & Impulse');
+  });
+
+  it('leads with the teaser and no image by default', async () => {
+    const { element } = await setup({
+      item: item({ imagePath: '/content/wissensimpulse/wi-02.webp', imageAlt: 'Ein Bild' }),
+    });
+
+    expect(element.querySelector('img')).toBeNull();
+    expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');
+  });
+
+  it('leads with the image, its description and no teaser when the entry says so', async () => {
+    const { element } = await setup({
+      item: item({
+        dailyRender: 'image',
+        imagePath: '/content/rebellinnen/reb-09.webp',
+        imageAlt: 'Gemaltes Porträt von Ada Lovelace',
+        title: 'Ada Lovelace',
+      }),
+    });
+
+    const image = element.querySelector('img');
+    expect(image?.getAttribute('src')).toBe('/content/rebellinnen/reb-09.webp');
+    expect(image?.getAttribute('alt')).toBe('Gemaltes Porträt von Ada Lovelace');
+    expect(element.textContent).toContain('Ada Lovelace');
+    expect(element.textContent).not.toContain('Wir haben ein paar Ideen für dich!');
+  });
+
+  it('falls back to the teaser layout when an image-led entry has no image', async () => {
+    const { element } = await setup({ item: item({ dailyRender: 'image', imagePath: null }) });
+
+    expect(element.querySelector('img')).toBeNull();
+    expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');
   });
 
   it('shows a "Mehr lesen" hint', async () => {
@@ -169,6 +213,27 @@ describe('TodayImpulseBlock', () => {
     const { haptics } = await setup({ seenToday: true });
 
     expect(haptics.plays).toBe(0);
+  });
+
+  it('stretches the replayed greeting on both channels, but not the arrival one', async () => {
+    const { element, settle, shake, haptics } = await setup();
+
+    // The once-a-day arrival plays at its ordinary length.
+    expect(element.querySelector('.rk-arrived-stretched')).toBeNull();
+    expect(haptics.lastOptions).toEqual({ replay: false });
+
+    shake.shake?.();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await settle();
+
+    expect(element.querySelector('.rk-arrived-stretched')).not.toBeNull();
+    expect(haptics.lastOptions).toEqual({ replay: true });
+  });
+
+  it('listens for light shakes, not only for hard ones', async () => {
+    const { shake } = await setup();
+
+    expect(shake.options).toEqual({ sensitivity: 'light' });
   });
 
   it('replays the greeting when the phone is shaken', async () => {

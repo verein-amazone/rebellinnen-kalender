@@ -46,10 +46,11 @@ describe('TodayGreetingBlock', () => {
     vi.useRealTimers();
   });
 
-  it('shows the morning greeting before noon', () => {
+  it("shows the morning greeting before noon, as the screen's heading", () => {
     const { element } = setup(9);
 
-    expect(element.textContent).toContain('Guten Morgen');
+    // The greeting is the Today page's `h1`: it is what `PageFocus` focuses and announces.
+    expect(element.querySelector('h1')?.textContent).toContain('Guten Morgen');
   });
 
   it('shows the evening greeting after 18:00', () => {
@@ -63,7 +64,7 @@ describe('TodayGreetingBlock', () => {
     profile.name.set('Nina');
     fixture.detectChanges();
 
-    expect(element.textContent).toContain('Nina');
+    expect(element.querySelector('h1')?.textContent).toContain('Nina');
   });
 
   it('stays usable without a name', () => {
@@ -72,10 +73,11 @@ describe('TodayGreetingBlock', () => {
     expect(element.textContent).toContain('Guten Morgen');
   });
 
-  it('shows the current emoji', () => {
+  it('shows the current emoji outside the heading, so it is not announced as part of it', () => {
     const { element } = setup(9);
 
     expect(element.textContent).toContain('⭐');
+    expect(element.querySelector('h1')?.textContent).not.toContain('⭐');
   });
 
   it('opens the emoji picker when the emoji button is tapped', () => {

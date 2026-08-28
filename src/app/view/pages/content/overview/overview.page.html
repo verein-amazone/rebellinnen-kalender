@@ -24,8 +24,8 @@
         (selectedTabChange)="onAreaChange($event)"
         class="rk-segmented min-w-0 flex-1 list-none gap-0.5"
       >
-        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
         <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
+        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
       </ul>
     </div>
   </div>
@@ -35,66 +35,6 @@
          (removing it from the accessibility tree and from tab order) but deliberately leaves visual
          hiding to the consumer. `ngTabContent` defers the panel's content until it's selected once,
          then keeps it mounted - the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
-    <div
-      ngTabPanel
-      value="services"
-      #servicesPanel="ngTabPanel"
-      [class.hidden]="!servicesPanel.visible()"
-    >
-      <ng-template ngTabContent>
-        <div class="space-y-4">
-          <p class="text-muted-foreground">
-            Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an die
-            du dich wenden kannst.
-          </p>
-
-          @if (servicesError()) {
-            <div class="rk-card space-y-3 px-4 py-6 text-center">
-              <p>Die Anlaufstellen konnten nicht geladen werden.</p>
-              <button type="button" class="rk-button rk-button-ghost" (click)="reloadServices()">
-                Erneut versuchen
-              </button>
-            </div>
-          } @else if (servicesLoading()) {
-            <!-- Region-filter chip row, then two service-card placeholders. -->
-            <div class="space-y-2" aria-hidden="true">
-              <div class="flex gap-2">
-                <span class="rk-skeleton block h-8 w-20 rounded-full"></span>
-                <span class="rk-skeleton block h-8 w-24 rounded-full"></span>
-                <span class="rk-skeleton block h-8 w-16 rounded-full"></span>
-              </div>
-              <div class="rk-card space-y-2 px-4 py-3">
-                <span class="rk-skeleton block h-4 w-1/2"></span>
-                <span class="rk-skeleton block h-3 w-3/4"></span>
-              </div>
-              <div class="rk-card space-y-2 px-4 py-3">
-                <span class="rk-skeleton block h-4 w-2/5"></span>
-                <span class="rk-skeleton block h-3 w-2/3"></span>
-              </div>
-            </div>
-          } @else if (regions().length > 0) {
-            <app-support-service-region-filter
-              [regions]="regions()"
-              [selectedRegionId]="selectedRegionId()"
-              (regionSelected)="selectRegion($event)"
-            />
-
-            @if (filteredServices().length > 0) {
-              <div class="space-y-2">
-                @for (service of filteredServices(); track service.id) {
-                  <app-support-service-card [service]="service" />
-                }
-              </div>
-            } @else {
-              <p class="text-muted-foreground px-4 py-6 text-center">
-                Für diese Region sind noch keine Anlaufstellen hinterlegt.
-              </p>
-            }
-          }
-        </div>
-      </ng-template>
-    </div>
-
     <div
       ngTabPanel
       value="collection"
@@ -151,6 +91,66 @@
             } @else {
               <p class="text-muted-foreground px-4 py-6 text-center">
                 Keine gespeicherten Einträge in dieser Kategorie.
+              </p>
+            }
+          }
+        </div>
+      </ng-template>
+    </div>
+
+    <div
+      ngTabPanel
+      value="services"
+      #servicesPanel="ngTabPanel"
+      [class.hidden]="!servicesPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          <p class="text-muted-foreground">
+            Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an die
+            du dich wenden kannst.
+          </p>
+
+          @if (servicesError()) {
+            <div class="rk-card space-y-3 px-4 py-6 text-center">
+              <p>Die Anlaufstellen konnten nicht geladen werden.</p>
+              <button type="button" class="rk-button rk-button-ghost" (click)="reloadServices()">
+                Erneut versuchen
+              </button>
+            </div>
+          } @else if (servicesLoading()) {
+            <!-- Region-filter chip row, then two service-card placeholders. -->
+            <div class="space-y-2" aria-hidden="true">
+              <div class="flex gap-2">
+                <span class="rk-skeleton block h-8 w-20 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-24 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-16 rounded-full"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-1/2"></span>
+                <span class="rk-skeleton block h-3 w-3/4"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-2/5"></span>
+                <span class="rk-skeleton block h-3 w-2/3"></span>
+              </div>
+            </div>
+          } @else if (regions().length > 0) {
+            <app-support-service-region-filter
+              [regions]="regions()"
+              [selectedRegionId]="selectedRegionId()"
+              (regionSelected)="selectRegion($event)"
+            />
+
+            @if (filteredServices().length > 0) {
+              <div class="space-y-2">
+                @for (service of filteredServices(); track service.id) {
+                  <app-support-service-card [service]="service" />
+                }
+              </div>
+            } @else {
+              <p class="text-muted-foreground px-4 py-6 text-center">
+                Für diese Region sind noch keine Anlaufstellen hinterlegt.
               </p>
             }
           }
