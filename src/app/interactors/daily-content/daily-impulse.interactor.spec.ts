@@ -123,4 +123,30 @@ describe('DailyImpulseInteractor', () => {
     expect(picked?.id).toBe('b');
     expect(TestBed.inject(DailyImpulseStore).pick()).toEqual({ day: '2027-02-06', itemId: 'b' });
   });
+
+  it('reports no featured id before a pick was made, and the pick afterwards', async () => {
+    dao.eligible = [item({ id: 'a' })];
+    const interactor = TestBed.inject(DailyImpulseInteractor);
+
+    expect(interactor.featuredItemId('2027-02-05')).toBeNull();
+
+    await interactor.featuredItem('2027-02-05');
+
+    expect(interactor.featuredItemId('2027-02-05')).toBe('a');
+    // Yesterday's pick is not today's.
+    expect(interactor.featuredItemId('2027-02-06')).toBeNull();
+  });
+
+  it("features a hand-picked item and serves it as today's impulse", async () => {
+    dao.eligible = [item({ id: 'a' }), item({ id: 'b' })];
+    const interactor = TestBed.inject(DailyImpulseInteractor);
+    await interactor.featuredItem('2027-02-05');
+
+    interactor.featureItem('2027-02-05', 'b');
+
+    expect(interactor.featuredItemId('2027-02-05')).toBe('b');
+    expect((await interactor.featuredItem('2027-02-05'))?.id).toBe('b');
+    // The override is announced like any other new impulse.
+    expect(interactor.isUnseen('2027-02-05')).toBe(true);
+  });
 });

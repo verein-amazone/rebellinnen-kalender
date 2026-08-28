@@ -9,20 +9,20 @@ import {
 } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideCheck } from '@lucide/angular';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
-import { estimateReadingTime } from '@app/cross-cutting/helpers/reading-time';
-import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
+import type {
+  ContentItemKind,
+  ContentItemView,
+} from '@app/interactors/daily-content/content-item.vm';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
+import {
+  ContentKindFilterBlock,
+  type ContentKindFilterOption,
+} from '@app/view/blocks/content-kind-filter/content-kind-filter.block';
 import { SupportServiceCardBlock } from '@app/view/blocks/support-service-card/support-service-card.block';
 import { SupportServiceRegionFilterBlock } from '@app/view/blocks/support-service-region-filter/support-service-region-filter.block';
-import {
-  ConfirmationDialog,
-  type ConfirmationDialogData,
-} from '@app/view/dialogs/confirmation/confirmation.dialog';
-import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 type ContentArea = 'services' | 'collection';
 
@@ -30,23 +30,15 @@ function isContentArea(value: string | null | undefined): value is ContentArea {
   return value === 'services' || value === 'collection';
 }
 
-type CollectionFilter = 'all' | ContentItemView['kind'];
-
-function isCollectionFilter(value: string | null | undefined): value is CollectionFilter {
-  return value === 'all' || value === 'wissensimpulse' || value === 'rebellin';
+function isContentItemKind(value: string): value is ContentItemKind {
+  return value === 'wissensimpulse' || value === 'rebellin';
 }
 
-const COLLECTION_FILTERS: readonly { readonly id: CollectionFilter; readonly label: string }[] = [
-  { id: 'all', label: 'Alle' },
-  { id: 'wissensimpulse', label: 'Wissen & Impulse' },
-  { id: 'rebellin', label: 'Rebell*in' },
-];
-
-/** One saved item as the Meine Sammlung card needs it - its reading time precomputed once. */
-interface SavedItemRow {
-  readonly item: ContentItemView;
-  readonly readingTime: string;
-}
+const COLLECTION_KIND_LABELS: readonly { readonly id: ContentItemKind; readonly label: string }[] =
+  [
+    { id: 'wissensimpulse', label: 'Wissen & Impulse' },
+    { id: 'rebellin', label: 'Rebell*in' },
+  ];
 
 /**
  * The Content home (#24): a switch between Anlaufstellen (support services) and Meine Sammlung
@@ -71,7 +63,7 @@ interface SavedItemRow {
     Tab,
     TabPanel,
     TabContent,
-    LucideCheck,
+    ContentKindFilterBlock,
   ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,7 +74,6 @@ export class ContentOverviewPage {
   private readonly bookmarks = inject(BookmarksInteractor);
   private readonly bookmarkChanges = inject(BookmarkChanges);
   private readonly supportServices = inject(SupportServicesInteractor);
-  private readonly sheets = inject(SheetService);
 
   /**
    * The selected area is route state (`?area=…`), the same way the calendar overview keeps its
@@ -96,17 +87,24 @@ export class ContentOverviewPage {
     return isContentArea(area) ? area : 'services';
   });
 
-  protected readonly collectionFilters = COLLECTION_FILTERS;
-  protected readonly collectionFilter = signal<CollectionFilter>(
-    isCollectionFilter(this.route.snapshot.queryParamMap.get('filter'))
-      ? (this.route.snapshot.queryParamMap.get('filter') as CollectionFilter)
-      : 'all',
+  /**
+   * Which content types are switched *off*, mirroring the calendar's source filter: an exclusion
+   * set means every type is shown by default, and a new content type shows up without anyone
+   * having to remember to add it to a list of selected ones.
+   */
+  protected readonly hiddenKinds = signal<ReadonlySet<ContentItemKind>>(
+    new Set(
+      (this.route.snapshot.queryParamMap.get('hidden') ?? '')
+        .split(',')
+        .filter((kind): kind is ContentItemKind => isContentItemKind(kind)),
+    ),
   );
 
   /** The `returnTo` a Meine Sammlung item's link carries into the detail view - see above. */
-  protected readonly collectionReturnTo = computed(
-    () => `/content?area=collection&filter=${this.collectionFilter()}`,
-  );
+  protected readonly collectionReturnTo = computed(() => {
+    const hidden = [...this.hiddenKinds()].join(',');
+    return hidden === '' ? '/content?area=collection' : `/content?area=collection&hidden=${hidden}`;
+  });
 
   private readonly savedData = resource({
     params: () => ({ version: this.bookmarkChanges.version() }),
@@ -115,42 +113,33 @@ export class ContentOverviewPage {
   protected readonly savedItems = computed(() => this.savedData.value() ?? []);
   protected readonly hasSavedItems = computed(() => this.savedItems().length > 0);
 
-  protected readonly filterCounts = computed<Record<CollectionFilter, number>>(() => {
+  protected readonly kindFilters = computed<readonly ContentKindFilterOption[]>(() => {
     const items = this.savedItems();
-    return {
-      all: items.length,
-      wissensimpulse: items.filter((item) => item.kind === 'wissensimpulse').length,
-      rebellin: items.filter((item) => item.kind === 'rebellin').length,
-    };
+
+    return COLLECTION_KIND_LABELS.map((kind) => ({
+      ...kind,
+      count: items.filter((item) => item.kind === kind.id).length,
+    }));
   });
 
-  protected readonly filteredSavedItems = computed<readonly SavedItemRow[]>(() => {
-    const filter = this.collectionFilter();
-    const items = this.savedItems().filter((item) => filter === 'all' || item.kind === filter);
-    return items.map((item) => ({ item, readingTime: estimateReadingTime(item.bodyMarkdown) }));
+  protected readonly filteredSavedItems = computed<readonly ContentItemView[]>(() => {
+    const hidden = this.hiddenKinds();
+    return this.savedItems().filter((item) => !hidden.has(item.kind));
   });
 
-  protected selectCollectionFilter(filter: CollectionFilter): void {
-    this.collectionFilter.set(filter);
-  }
+  /** The collection is not empty, the filter is - which needs saying, or the screen reads as loss. */
+  protected readonly allKindsHidden = computed(() =>
+    COLLECTION_KIND_LABELS.every((kind) => this.hiddenKinds().has(kind.id)),
+  );
 
-  /** Confirms before removing - a saved item is easy to lose track of, unlike bookmarking one. */
-  protected confirmUnsave(item: ContentItemView): void {
-    const data: ConfirmationDialogData = {
-      message: `„${item.title}“ wird aus deiner Sammlung entfernt.`,
-      confirmLabel: 'Entfernen',
-    };
-
-    this.sheets
-      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
-        heading: 'Aus Sammlung entfernen?',
-        data,
-      })
-      .closed.subscribe((confirmed) => {
-        if (confirmed === true) {
-          void this.bookmarks.toggle(item.id);
-        }
-      });
+  protected toggleKind(kind: ContentItemKind): void {
+    this.hiddenKinds.update((hidden) => {
+      const next = new Set(hidden);
+      if (!next.delete(kind)) {
+        next.add(kind);
+      }
+      return next;
+    });
   }
 
   protected readonly servicesData = resource({

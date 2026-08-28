@@ -1,29 +1,50 @@
 <app-focused-screen heading="Alle Inhalte (Debug)" fallbackLink="/settings">
   <div class="space-y-4">
     <p class="text-muted-foreground">
-      Jeder kuratierte Inhalt, zum Durchklicken ohne Tagesimpuls-Auswahl oder Lesezeichen - nur für
-      die Entwicklung.
+      Jeder kuratierte Inhalt - nur für die Entwicklung. Tippe auf einen Eintrag, um ihn als
+      Tagesimpuls für heute zu setzen, oder auf den Pfeil, um ihn anzusehen.
     </p>
 
-    @if (items().length > 0) {
-      <ul class="rk-list">
+    @if (loading()) {
+      <p class="text-muted-foreground">Inhalte werden geladen …</p>
+    } @else if (items().length > 0) {
+      <div class="rk-list" role="radiogroup" aria-label="Tagesimpuls für heute auswählen">
         @for (item of items(); track item.id) {
-          <li>
-            <a
-              [routerLink]="['/content', item.id]"
-              [queryParams]="{ returnTo: '/settings/content-catalog' }"
-              class="rk-row"
+          <div class="flex items-stretch">
+            <button
+              type="button"
+              role="radio"
+              class="rk-row min-w-0 flex-1 text-left"
+              [attr.aria-checked]="item.id === featuredId()"
+              (click)="featureItem(item.id)"
             >
-              <span class="min-w-0">
+              <span class="min-w-0 flex-1">
                 <span class="text-muted-foreground block text-xs">{{
                   item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
                 }}</span>
                 <span class="rk-row-label">{{ item.title }}</span>
               </span>
+              @if (item.id === featuredId()) {
+                <span class="flex shrink-0 items-center gap-1 text-xs font-semibold">
+                  <svg lucideCheck class="rk-icon-sm" aria-hidden="true"></svg>
+                  Tagesimpuls
+                </span>
+              }
+            </button>
+            <a
+              [routerLink]="['/content', item.id]"
+              [queryParams]="{ returnTo: '/settings/content-catalog' }"
+              class="rk-row min-w-touch shrink-0 justify-center"
+              [attr.aria-label]="'Ansehen: ' + item.title"
+            >
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
             </a>
-          </li>
+          </div>
         }
-      </ul>
+      </div>
+    } @else if (error(); as message) {
+      <!-- Debug tooling: the raw failure is the useful thing here, not a friendly summary. -->
+      <p class="text-danger">{{ message }}</p>
     } @else {
       <p class="text-muted-foreground">Noch keine Inhalte vorhanden.</p>
     }

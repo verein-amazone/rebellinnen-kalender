@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/generate-app-version.mjs",
     "start": "ng serve",
+    "prebuild": "node scripts/generate-app-version.mjs",
     "build": "ng build",
     "postbuild": "node scripts/copy-third-party-licenses.mjs",
     "watch": "ng build --watch --configuration development",
@@ -43,6 +45,8 @@
     "@capacitor/text-zoom": "^8.0.1",
     "@capawesome/capacitor-accessibility-preferences": "^0.1.1",
     "@capawesome/capacitor-app-icon": "^0.1.1",
+    "@capawesome/capacitor-haptics": "^0.1.1",
+    "@capawesome/capacitor-shake": "^0.1.1",
     "@ebarooni/capacitor-calendar": "^8.3.0",
     "@independo/capacitor-emoji-picker": "^1.3.0",
     "@lucide/angular": "^1.34.0",

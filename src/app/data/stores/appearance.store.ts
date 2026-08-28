@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 
 import {
   DEFAULT_APPEARANCE_PREFERENCES,
+  HAPTICS_IDS,
   MOTION_IDS,
   THEME_IDS,
   TEXT_SIZE_IDS,
@@ -13,7 +14,7 @@ const STORAGE_KEY = 'rk.appearance';
 /**
  * Persists the appearance preferences.
  *
- * These are three scalar values read on every startup, so they live in `localStorage` rather than
+ * These are a handful of scalar values read on every startup, so they live in `localStorage` rather than
  * in SQLite. `localStorage` is available in both the iOS and Android WebViews and survives app
  * restarts; it is only cleared when the user clears the app data.
  *
@@ -54,6 +55,7 @@ export class AppearanceStore {
       theme: pick(candidate.theme, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme),
       textSize: pick(candidate.textSize, TEXT_SIZE_IDS, DEFAULT_APPEARANCE_PREFERENCES.textSize),
       motion: pick(candidate.motion, MOTION_IDS, DEFAULT_APPEARANCE_PREFERENCES.motion),
+      haptics: pick(candidate.haptics, HAPTICS_IDS, DEFAULT_APPEARANCE_PREFERENCES.haptics),
     };
   }
 

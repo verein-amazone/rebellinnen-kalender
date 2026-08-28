@@ -7,11 +7,10 @@ import { CuratedCalendarsPage } from './calendars/curated/curated-calendars.page
 import { DeviceCalendarsPage } from './calendars/device/device-calendars.page';
 import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
 import { ContentCatalogPage } from './content-catalog/content-catalog.page';
+import { DevToolsPage } from './dev-tools/dev-tools.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
-import { ImprintPage } from './imprint/imprint.page';
 import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
-import { PrivacyPage } from './privacy/privacy.page';
 import { ProfilePage } from './profile/profile.page';
 import { SettingsOverviewPage } from './overview/overview.page';
 import { SettingsRemindersPage } from './reminders/reminders.page';
@@ -36,10 +35,9 @@ export const SETTINGS_ROUTES: Routes = [
   },
   { path: 'calendars/device', component: DeviceCalendarsPage, title: 'Gerätekalender' },
   { path: 'calendars/ics', component: IcsCalendarsPage, title: 'Abonnierte Kalender' },
-  { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },
-  { path: 'imprint', component: ImprintPage, title: 'Impressum' },
   { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },
   { path: 'about', component: AboutPage, title: 'Über die App' },
   { path: 'content-catalog', component: ContentCatalogPage, title: 'Alle Inhalte (Debug)' },
+  { path: 'dev-tools', component: DevToolsPage, title: 'Entwickler-Werkzeuge' },
 ];

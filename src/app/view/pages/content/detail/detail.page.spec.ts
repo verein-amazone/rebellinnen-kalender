@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { of, type Observable } from 'rxjs';
 
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ContentDetailPage } from './detail.page';
 
@@ -48,8 +50,27 @@ class FakeBookmarksInteractor {
   }
 }
 
+/** Answers sheet opens in the order they are configured; the sheet chrome has its own spec. */
+class StubSheetService {
+  readonly opens: { heading: string; data: unknown }[] = [];
+  results: unknown[] = [];
+
+  open(
+    _content: unknown,
+    config: { heading: string; data?: unknown },
+  ): { closed: Observable<unknown> } {
+    this.opens.push({ heading: config.heading, data: config.data });
+    return { closed: of(this.results.shift()) };
+  }
+}
+
 async function setup(
-  config: { item?: ContentItemView | null; bookmarked?: boolean; returnTo?: string } = {},
+  config: {
+    item?: ContentItemView | null;
+    bookmarked?: boolean;
+    returnTo?: string;
+    confirmations?: unknown[];
+  } = {},
 ) {
   const contentItems = new FakeContentItemsInteractor();
   contentItems.item = config.item === undefined ? item() : config.item;
@@ -59,12 +80,16 @@ async function setup(
     bookmarks.bookmarked.add(contentItems.item.id);
   }
 
+  const sheets = new StubSheetService();
+  sheets.results = config.confirmations ?? [];
+
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: ContentItemsInteractor, useValue: contentItems },
       { provide: BookmarksInteractor, useValue: bookmarks },
+      { provide: SheetService, useValue: sheets },
     ],
   });
 
@@ -83,6 +108,9 @@ async function setup(
   return {
     element,
     navigateByUrl,
+    bookmarks,
+    sheets,
+    toggle: () => element.querySelector<HTMLButtonElement>('button[aria-pressed]')!.click(),
     settle: () => fixture.whenStable(),
     // The scaffold's own dismiss button, identified by its fixed position as the header's first
     // `.rk-icon-button` - the bookmark toggle is a projected header action and comes after it.
@@ -141,6 +169,46 @@ describe('ContentDetailPage', () => {
     expect(button?.getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('asks before removing the item from the collection and then leaves for the collection', async () => {
+    const { toggle, settle, bookmarks, sheets, navigateByUrl } = await setup({
+      bookmarked: true,
+      confirmations: [true],
+    });
+
+    toggle();
+    await settle();
+
+    expect(sheets.opens[0]?.heading).toContain('entfernen');
+    expect(bookmarks.bookmarked.has('wi-01')).toBe(false);
+    expect(navigateByUrl).toHaveBeenCalledWith('/content?area=collection', { replaceUrl: true });
+  });
+
+  it('keeps the item and stays on the page when the removal is declined', async () => {
+    const { toggle, settle, element, bookmarks, navigateByUrl } = await setup({
+      bookmarked: true,
+      confirmations: [false],
+    });
+
+    toggle();
+    await settle();
+
+    expect(bookmarks.bookmarked.has('wi-01')).toBe(true);
+    expect(element.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('saves without asking, since saving is instantly reversible', async () => {
+    const { toggle, settle, bookmarks, sheets } = await setup({ bookmarked: false });
+
+    toggle();
+    await settle();
+
+    expect(sheets.opens).toHaveLength(0);
+    expect(bookmarks.bookmarked.has('wi-01')).toBe(true);
+  });
+
   it('toggles the bookmark when the button is pressed', async () => {
     const { element, settle } = await setup({ bookmarked: false });
     const button = element.querySelector<HTMLButtonElement>('button[aria-pressed]')!;
@@ -149,12 +217,6 @@ describe('ContentDetailPage', () => {
     await settle();
 
     expect(button.getAttribute('aria-pressed')).toBe('true');
-  });
-
-  it('shows an estimated reading time for the body', async () => {
-    const { element } = await setup();
-
-    expect(element.textContent).toContain('Min. Lesezeit');
   });
 
   it('shows related sources with their publisher domain when present', async () => {

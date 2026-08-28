@@ -73,12 +73,41 @@ describe('ContentCatalogSync', () => {
   });
 
   it('does nothing when the stored version already matches the catalog version', async () => {
+    mockFetch({ version: 2, items: [catalogEntry()] });
+    await sync.ensureSynced();
+    await contentItems.upsert({
+      id: 'wi-01',
+      kind: 'wissensimpulse',
+      title: 'Von Hand geändert',
+      teaser: 't',
+      bodyMarkdown: 'b',
+      imagePath: null,
+      imageAttribution: null,
+      sourceLabel: null,
+      sourceUrl: null,
+      relatedSources: [],
+      validFrom: null,
+      validTo: null,
+      eligibleForDaily: true,
+    });
+
+    await sync.ensureSynced();
+
+    // Untouched: a matching version with items in place is the caught-up case, and reconciling
+    // again would overwrite the row.
+    expect((await contentItems.findById('wi-01'))?.title).toBe('Von Hand geändert');
+  });
+
+  it('reconciles again when the version matches but the items are gone', async () => {
+    // The version lives in localStorage and the items in SQLite, so the two can drift apart - a
+    // browser dropping IndexedDB on the web, or the dev-tools data reset. Trusting the version
+    // alone would leave the app on an empty catalog forever.
     store.setSyncedVersion(2);
     mockFetch({ version: 2, items: [catalogEntry()] });
 
     await sync.ensureSynced();
 
-    expect(await contentItems.listIds()).toEqual([]);
+    expect(await contentItems.listIds()).toEqual(['wi-01']);
   });
 
   it('updates a changed item in place and removes one no longer in the catalog', async () => {

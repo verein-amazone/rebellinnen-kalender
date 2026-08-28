@@ -23,14 +23,24 @@ export type TextSizeId = (typeof TEXT_SIZE_IDS)[number];
 export const MOTION_IDS = ['system', 'reduced', 'standard'] as const;
 export type MotionId = (typeof MOTION_IDS)[number];
 
+/**
+ * Whether the app may answer with the vibration motor. Its own preference rather than a part of
+ * `motion`: someone can want the screen to hold still and still like the buzz, or the other way
+ * round, and the OS setting behind `motion` says nothing about haptics.
+ */
+export const HAPTICS_IDS = ['on', 'off'] as const;
+export type HapticsId = (typeof HAPTICS_IDS)[number];
+
 export interface AppearancePreferences {
   readonly theme: ThemeId;
   readonly textSize: TextSizeId;
   readonly motion: MotionId;
+  readonly haptics: HapticsId;
 }
 
 export const DEFAULT_APPEARANCE_PREFERENCES: AppearancePreferences = {
   theme: 'amazone',
   textSize: 'system',
   motion: 'system',
+  haptics: 'on',
 };

@@ -17,6 +17,7 @@ describe('AppearanceStore', () => {
       theme: 'amazone',
       textSize: 'system',
       motion: 'system',
+      haptics: 'on',
     });
   });
 
@@ -30,19 +31,21 @@ describe('AppearanceStore', () => {
       theme: 'lila',
       textSize: 'system',
       motion: 'system',
+      haptics: 'on',
     });
   });
 
   it('should restore persisted preferences', () => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ theme: 'nacht', textSize: 'large', motion: 'reduced' }),
+      JSON.stringify({ theme: 'nacht', textSize: 'large', motion: 'reduced', haptics: 'off' }),
     );
 
     expect(TestBed.inject(AppearanceStore).preferences()).toEqual({
       theme: 'nacht',
       textSize: 'large',
       motion: 'reduced',
+      haptics: 'off',
     });
   });
 
@@ -56,12 +59,16 @@ describe('AppearanceStore', () => {
   });
 
   it('should fall back to the defaults for unknown or malformed values', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'himmel', textSize: 42 }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ theme: 'himmel', textSize: 42, haptics: 'sometimes' }),
+    );
 
     expect(TestBed.inject(AppearanceStore).preferences()).toEqual({
       theme: 'amazone',
       textSize: 'system',
       motion: 'system',
+      haptics: 'on',
     });
   });
 

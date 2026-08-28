@@ -1,5 +1,8 @@
 import type { ContentItemKind } from '@app/data/entities/content-item.record';
 
+/** Re-exported so views can name a content type without importing the data-layer record. */
+export type { ContentItemKind };
+
 /** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceView {
   readonly title: string;

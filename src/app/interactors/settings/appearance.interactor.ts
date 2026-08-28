@@ -1,10 +1,15 @@
 import { computed, inject, Injectable } from '@angular/core';
 
 import { AppearanceStore } from '@app/data/stores/appearance.store';
-import type { MotionId, TextSizeId, ThemeId } from '@app/data/stores/appearance-preferences';
+import type {
+  HapticsId,
+  MotionId,
+  TextSizeId,
+  ThemeId,
+} from '@app/data/stores/appearance-preferences';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
-export type { MotionId, TextSizeId, ThemeId };
+export type { HapticsId, MotionId, TextSizeId, ThemeId };
 
 /** A selectable appearance option. The shape is shared with the other settings screens. */
 export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
@@ -24,6 +29,8 @@ export class AppearanceInteractor {
   readonly theme = computed(() => this.store.preferences().theme);
   readonly textSize = computed(() => this.store.preferences().textSize);
   readonly motion = computed(() => this.store.preferences().motion);
+  /** Whether the app may answer with the vibration motor - see „Bewegung & Animationen“. */
+  readonly hapticsEnabled = computed(() => this.store.preferences().haptics === 'on');
 
   readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
     { id: 'amazone', label: 'Amazone', description: null },
@@ -78,6 +85,11 @@ export class AppearanceInteractor {
 
   selectMotion(motion: MotionId): void {
     this.store.update({ motion });
+  }
+
+  setHapticsEnabled(enabled: boolean): void {
+    const haptics: HapticsId = enabled ? 'on' : 'off';
+    this.store.update({ haptics });
   }
 }
 

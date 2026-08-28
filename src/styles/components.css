@@ -10,6 +10,7 @@
  * them regardless of import order. Overriding a primitive never needs `!important`.
  */
 
+@import './components/arrived.css';
 @import './components/button.css';
 @import './components/card.css';
 @import './components/check.css';

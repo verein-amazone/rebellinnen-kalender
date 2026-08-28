@@ -1,4 +1,5 @@
 <app-focused-screen heading="Bewegung &amp; Animationen" fallbackLink="/settings">
+  <h2 class="mb-2 text-lg">Animationen</h2>
   <fieldset class="space-y-2">
     <legend class="sr-only">Bewegung wählen</legend>
 
@@ -13,4 +14,17 @@
       />
     }
   </fieldset>
+
+  <!-- Its own switch, not a fourth radio: haptics are a separate channel from on-screen motion, and
+       someone can want the screen still and the buzz kept, or the other way round. -->
+  <div class="mt-6 space-y-2">
+    <h2 class="text-lg">Vibration</h2>
+    <app-toggle-field
+      id="haptics"
+      label="Vibration"
+      description="Der Tagesimpuls begrüßt dich zusätzlich mit einer kurzen Vibration."
+      [checked]="appearance.hapticsEnabled()"
+      (checkedChange)="appearance.setHapticsEnabled($event)"
+    />
+  </div>
 </app-focused-screen>

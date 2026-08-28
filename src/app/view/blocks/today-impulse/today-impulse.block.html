@@ -1,4 +1,4 @@
-<div class="rk-card border-primary border-2 px-4 py-5">
+<div class="rk-card border-primary border-2 px-4 py-5" [class.rk-arrived]="isNew()">
   <h2 id="impulse-heading" class="mb-1 text-sm font-bold">Tagesimpuls</h2>
 
   @if (data.error() !== undefined) {

@@ -11,6 +11,15 @@
  * `sql-wasm.wasm` asset is copied by every build (see angular.json) because CI runs the e2e suite
  * against the production bundle served statically.
  *
+ * Known dev-only trap: `jeep-sqlite` is a Stencil component, and Stencil hydrates lazily from its
+ * render queue, which is driven by `requestAnimationFrame` (`raf: (h) => requestAnimationFrame(h)`
+ * in its runtime). A browser tab that is hidden or backgrounded never fires `requestAnimationFrame`,
+ * so the element never hydrates, `initWebStore()` below never settles, and - because
+ * `SqliteGateway` awaits the open before every statement - every database-backed screen sits in its
+ * loading state forever, with no error to show for it. It resolves by itself once the tab is
+ * foregrounded. Automating the app in a background tab is the usual way to hit this; iOS and
+ * Android never load this file at all, and an active browser tab is unaffected.
+ *
  * `sql.js` is not a direct dependency: the wasm must match the Emscripten glue bundled inside
  * `jeep-sqlite`, so pnpm hoists jeep-sqlite's own `sql.js` and an override in pnpm-workspace.yaml
  * keeps it on the newest version that actually links (a newer `sql-wasm.wasm` next to the older

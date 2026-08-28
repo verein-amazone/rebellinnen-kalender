@@ -1,51 +1,87 @@
 <app-focused-screen heading="Über die App" fallbackLink="/settings">
-  <div class="space-y-4">
-    <p class="text-muted-foreground">
-      Der Rebell*innen Kalender ist eine gemeinsame Weiterentwicklung von
-      <a
-        href="https://www.amazone.or.at/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary underline underline-offset-2"
-        >Verein Amazone</a
-      >, Workshop-Teilnehmer*innen und
-      <a
-        href="https://independo.app/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary underline underline-offset-2"
-        >Independo</a
-      >
-      - die digitale Version des bestehenden
-      <a
-        href="https://www.amazone.or.at/projekte/rebell-innen-kalender"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary underline underline-offset-2"
-        >Rebell*innen Kalenders</a
-      >.
+  <div class="space-y-6">
+    <p>
+      Der Rebell*innen Kalender ist die digitale Version des gedruckten Rebell*innen Kalenders -
+      entstanden gemeinsam mit Verein Amazone, Workshop-Teilnehmer*innen und Independo.
     </p>
 
-    <p class="text-muted-foreground">
-      Sie funktioniert ganz ohne Login und ohne eigene Server-Infrastruktur: dein Kalender, deine
-      Erinnerungen und deine gemerkten Inhalte bleiben auf deinem Gerät.
-    </p>
+    <section class="space-y-2">
+      <h2 class="text-lg">Deine Daten bleiben bei dir</h2>
+      <div class="rk-card space-y-2 px-4 py-4">
+        <p>
+          Die App braucht kein Konto und keine eigenen Server. Deine Termine, deine Erinnerungen und
+          deine gemerkten Inhalte bleiben auf deinem Gerät.
+        </p>
+        <p class="text-muted-foreground text-sm">
+          Deshalb funktioniert die App auch ohne Internetverbindung - und deshalb sind deine Daten
+          weg, wenn du die App löschst.
+        </p>
+      </div>
+    </section>
 
-    <p class="text-muted-foreground">Developed by Independo GmbH on behalf of Verein Amazone.</p>
+    <section class="space-y-2">
+      <h2 class="text-lg">Wer dahintersteckt</h2>
+      <p class="text-muted-foreground">
+        Entwickelt von Independo GmbH im Auftrag von Verein Amazone.
+      </p>
+      <ul class="rk-list">
+        <li>
+          <a
+            href="https://www.amazone.or.at/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rk-row"
+            aria-label="Verein Amazone (öffnet die Website von Amazone)"
+          >
+            <span class="rk-row-label">Verein Amazone</span>
+            <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.amazone.or.at/projekte/rebell-innen-kalender"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rk-row"
+            aria-label="Der gedruckte Rebell*innen Kalender (öffnet die Website von Amazone)"
+          >
+            <span class="rk-row-label">Der gedruckte Rebell*innen Kalender</span>
+            <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://independo.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rk-row"
+            aria-label="Independo (öffnet die Website von Independo)"
+          >
+            <span class="rk-row-label">Independo</span>
+            <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
 
-    <ul class="rk-list">
-      <li>
-        <a routerLink="/settings/licenses" class="rk-row">
-          <span class="rk-row-label">Open-Source-Lizenzen</span>
-          <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-        </a>
-      </li>
-      <li>
-        <a routerLink="/settings/image-credits" class="rk-row">
-          <span class="rk-row-label">Bildnachweise</span>
-          <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-        </a>
-      </li>
-    </ul>
+    <section class="space-y-2">
+      <h2 class="text-lg">Nachweise</h2>
+      <ul class="rk-list">
+        <li>
+          <a routerLink="/settings/licenses" class="rk-row">
+            <span class="rk-row-label">Open-Source-Lizenzen</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/settings/image-credits" class="rk-row">
+            <span class="rk-row-label">Bildnachweise</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <p class="text-muted-foreground pb-2 text-center text-sm">Version {{ version }}</p>
   </div>
 </app-focused-screen>

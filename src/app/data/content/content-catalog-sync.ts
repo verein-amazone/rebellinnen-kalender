@@ -55,12 +55,31 @@ export class ContentCatalogSync {
 
   async ensureSynced(): Promise<void> {
     const catalog = await this.fetchCatalog();
-    if (catalog === null || catalog.version === this.store.syncedVersion()) {
+    if (catalog === null) {
+      return;
+    }
+
+    if (catalog.version === this.store.syncedVersion() && (await this.hasStoredItems(catalog))) {
       return;
     }
 
     await this.reconcile(catalog.items);
     this.store.setSyncedVersion(catalog.version);
+  }
+
+  /**
+   * The synced version lives in `localStorage` while the items live in SQLite, and the two can
+   * disagree - the database can be cleared (a browser dropping IndexedDB on the web, the dev-tools
+   * reset, a restore that fails) while the version flag survives, which would otherwise leave the
+   * app permanently convinced it is caught up on an empty catalog. One cheap id query per call
+   * rules that out.
+   */
+  private async hasStoredItems(catalog: Catalog): Promise<boolean> {
+    if (catalog.items.length === 0) {
+      return true;
+    }
+
+    return (await this.contentItems.listIds()).length > 0;
   }
 
   private async reconcile(entries: readonly CatalogEntry[]): Promise<void> {
