@@ -24,6 +24,16 @@ export class CalendarAgendaBlock {
   readonly timeZone = input<string>();
   /** True when the source filter (#18) has hidden every calendar - takes over the empty state. */
   readonly sourcesHidden = input(false);
+  /**
+   * The calendar's current view, carried into an appointment's detail screen so its back-arrow
+   * returns to the same week or month view instead of resetting to the default one.
+   */
+  readonly view = input<string>();
+
+  protected readonly cardQueryParams = computed(() => {
+    const view = this.view();
+    return view === undefined ? undefined : { view };
+  });
 
   protected readonly dayLabel = computed(() => formatDayLong(this.day()));
 

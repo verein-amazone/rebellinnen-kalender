@@ -5,23 +5,29 @@
        Unlike those pages there is no per-screen icon action to fill this row with, so the tabs
        themselves live here instead of behind a separate blank spacer.
 
-       The visual "inset track, active segment lifted with `bg-card`/`shadow-sm`" look mirrors the
-       calendar view's Woche/Monat switcher, but this is a real APG tab widget (see the class
-       doc-comment): `ngTabList`/`ngTab` supply `role="tablist"`/`role="tab"`, `aria-selected`,
-       `aria-controls`, and arrow-key navigation, so `aria-selected:` is enough to style the active
-       tab without a manual "is this selected" class binding. -->
-  <div class="flex items-center gap-2 px-4 py-2">
-    <h1 class="sr-only">Inhalte</h1>
+       Pinned like the calendar overview's header, for the same reason: the tabs stay reachable
+       while their panel scrolls underneath them. That needs an own background (or the scrolling
+       content shows through) and `safe-top` here rather than on the shell's `<main>`, so this
+       header's background fills the notch area - see `main-navigation.scaffold.html`.
 
-    <ul
-      ngTabList
-      [selectedTab]="activeArea()"
-      (selectedTabChange)="onAreaChange($event)"
-      class="rk-segmented min-w-0 flex-1 list-none gap-0.5"
-    >
-      <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
-      <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
-    </ul>
+       `ngTabList`/`ngTab` supply `role="tablist"`/`role="tab"`, `aria-selected`, `aria-controls`,
+       and arrow-key navigation, so `aria-selected:` is enough to style the active tab without a
+       manual "is this selected" class binding. -->
+  <div class="bg-background safe-top sticky top-0 z-10">
+    <div class="flex items-center gap-2 px-4 py-2">
+      <h1 class="sr-only">Inhalte</h1>
+
+      <ul
+        ngTabList
+        aria-label="Bereich"
+        [selectedTab]="activeArea()"
+        (selectedTabChange)="onAreaChange($event)"
+        class="rk-segmented min-w-0 flex-1 list-none gap-0.5"
+      >
+        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
+        <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
+      </ul>
+    </div>
   </div>
 
   <div class="px-4 pt-4 pb-6">

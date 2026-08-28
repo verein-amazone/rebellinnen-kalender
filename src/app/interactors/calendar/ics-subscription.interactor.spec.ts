@@ -108,6 +108,13 @@ describe('IcsSubscriptionInteractor', () => {
     await expect(repository.listIcsSubscriptions()).resolves.toEqual([]);
   });
 
+  it('urlError names the same links add() rejects, and passes the ones it accepts', () => {
+    expect(interactor.urlError('https://example.org/cal.ics')).toBeNull();
+    expect(interactor.urlError('webcal://example.org/cal.ics')).toBeNull();
+    expect(interactor.urlError('http://insecure.example/cal.ics')).not.toBeNull();
+    expect(interactor.urlError('nicht-mal-eine-adresse')).not.toBeNull();
+  });
+
   it('rejects a blank name before anything is stored, instead of creating an unnamed source', async () => {
     await expect(interactor.add('   ', 'https://example.org/cal.ics')).rejects.toBeInstanceOf(
       IcsSubscriptionNameInvalidError,

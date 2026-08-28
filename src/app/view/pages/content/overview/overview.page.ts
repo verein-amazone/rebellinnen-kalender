@@ -3,11 +3,12 @@ import {
   Component,
   computed,
   inject,
+  input,
   resource,
   signal,
 } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideCheck } from '@lucide/angular';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
@@ -76,6 +77,7 @@ interface SavedItemRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentOverviewPage {
+  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly bookmarks = inject(BookmarksInteractor);
   private readonly bookmarkChanges = inject(BookmarkChanges);
@@ -83,17 +85,16 @@ export class ContentOverviewPage {
   private readonly sheets = inject(SheetService);
 
   /**
-   * The detail view's `returnTo` carries `?area=collection&filter=<kind>` back here (see
-   * `collectionReturnTo` below) so leaving a Meine Sammlung item lands back on the same tab and
-   * filter chip instead of resetting to Anlaufstellen/Alle. Read once from the initial navigation,
-   * matching every other piece of this page's state (also plain signals, not synced to the URL
-   * after that).
+   * The selected area is route state (`?area=…`), the same way the calendar overview keeps its
+   * Woche/Monat view: a reload, the browser's back button and the detail view's `returnTo` (see
+   * `collectionReturnTo` below) all land on the tab the user left. Switching replaces the URL
+   * rather than pushing it - a tab switch is not a place to come back to.
    */
-  protected readonly activeArea = signal<ContentArea>(
-    isContentArea(this.route.snapshot.queryParamMap.get('area'))
-      ? (this.route.snapshot.queryParamMap.get('area') as ContentArea)
-      : 'services',
-  );
+  readonly area = input<string>();
+  protected readonly activeArea = computed<ContentArea>(() => {
+    const area = this.area();
+    return isContentArea(area) ? area : 'services';
+  });
 
   protected readonly collectionFilters = COLLECTION_FILTERS;
   protected readonly collectionFilter = signal<CollectionFilter>(
@@ -187,9 +188,15 @@ export class ContentOverviewPage {
     this.selectedRegion.set(regionId);
   }
 
+  /** The tab list hands back the selected tab's `value`; anything else cannot come from the DOM. */
   protected onAreaChange(value: string | undefined): void {
     if (isContentArea(value)) {
-      this.activeArea.set(value);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { area: value },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     }
   }
 

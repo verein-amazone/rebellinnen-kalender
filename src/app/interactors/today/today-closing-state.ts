@@ -10,7 +10,6 @@ export interface TodayClosingStateInput {
   readonly reminders: readonly Reminder[];
   readonly todayOccurrences: readonly CalendarOccurrence[];
   readonly tomorrowOccurrences: readonly CalendarOccurrence[];
-  readonly today: string;
   readonly nowUtc: string;
 }
 
@@ -25,12 +24,17 @@ export interface TodayClosingStateInput {
  * "everything is settled" state.
  */
 export function selectTodayClosingState(input: TodayClosingStateInput): TodayClosingState {
-  const { reminders, todayOccurrences, tomorrowOccurrences, today, nowUtc } = input;
+  const { reminders, todayOccurrences, tomorrowOccurrences, nowUtc } = input;
 
   const openReminderCount = reminders.filter((reminder) => !reminder.completed).length;
+  // All-day entries are out of this footer's picture entirely: they have no clock time, so they can
+  // neither be "what comes next" nor be previewed with a time, and counting them as still upcoming
+  // used to keep the day looking unfinished for as long as they last. They still count towards
+  // "something was planned today" below, which decides between the all-done and nothing-planned
+  // states.
   const nextAppointment =
-    todayOccurrences.find((occurrence) => isFuture(occurrence, today, nowUtc)) ?? null;
-  const tomorrowAppointment = tomorrowOccurrences[0] ?? null;
+    todayOccurrences.find((occurrence) => !occurrence.allDay && occurrence.endUtc > nowUtc) ?? null;
+  const tomorrowAppointment = tomorrowOccurrences.find((occurrence) => !occurrence.allDay) ?? null;
 
   if (nextAppointment !== null) {
     // Mixed with open reminders: the headline leads with the reminder count and the appointment
@@ -44,7 +48,8 @@ export function selectTodayClosingState(input: TodayClosingStateInput): TodayClo
           : openReminderCount === 1
             ? 'open-reminders.headline.one'
             : 'open-reminders.headline.many',
-      supportingLineKey: appointmentSupportingLineKey(openReminderCount, nextAppointment.allDay),
+      supportingLineKey:
+        openReminderCount > 0 ? 'appointment-later.withReminders' : 'appointment-later.next',
       nextAppointment,
       tomorrowAppointment: null,
       openReminderCount,
@@ -95,31 +100,11 @@ export function selectTodayClosingState(input: TodayClosingStateInput): TodayClo
   };
 }
 
-function isFuture(occurrence: CalendarOccurrence, today: string, nowUtc: string): boolean {
-  return occurrence.allDay ? occurrence.endDay >= today : occurrence.endUtc > nowUtc;
-}
-
-/**
- * Which supporting-line key states the next appointment's time - separate all-day variants exist
- * because an all-day appointment has no clock time to state ("beginnt um 00:00" would be wrong).
- */
-function appointmentSupportingLineKey(openReminderCount: number, allDay: boolean): string {
-  if (openReminderCount > 0) {
-    return allDay ? 'appointment-later.withRemindersAllDay' : 'appointment-later.withReminders';
-  }
-
-  return allDay ? 'appointment-later.nextAllDay' : 'appointment-later.next';
-}
-
 function tomorrowPreviewKey(
   state: 'all-done' | 'nothing-planned',
   tomorrowAppointment: CalendarOccurrence | null,
 ): string | null {
-  if (tomorrowAppointment === null) {
-    return null;
-  }
-
-  return tomorrowAppointment.allDay ? `${state}.tomorrowPreviewAllDay` : `${state}.tomorrowPreview`;
+  return tomorrowAppointment === null ? null : `${state}.tomorrowPreview`;
 }
 
 /** Device-zone hour of `nowUtc`, past which the closing tone switches to night. */

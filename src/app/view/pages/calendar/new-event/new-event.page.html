@@ -1,4 +1,4 @@
-<app-focused-screen heading="Neuer Termin" fallbackLink="/calendar" dismissal="close">
+<app-focused-screen heading="Neuer Termin" [fallbackLink]="cancelLink()" dismissal="close">
   <button
     header-actions
     type="submit"

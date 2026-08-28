@@ -73,7 +73,6 @@ export class TodayClosingBlock {
       reminders: loaded.reminders,
       todayOccurrences: loaded.todayOccurrences,
       tomorrowOccurrences: loaded.tomorrowOccurrences,
-      today: loaded.today,
       nowUtc: new Date().toISOString(),
     });
   });

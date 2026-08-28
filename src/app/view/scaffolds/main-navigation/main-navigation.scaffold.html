@@ -6,16 +6,12 @@
   <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
   <!--
     Primary destinations without a header of their own have the shell keep their content clear of
-    the notch. The calendar tab owns a sticky header of its own (its Woche/Monat switcher stays
-    pinned while the agenda scrolls under it), so it applies the top inset to that header instead -
-    same reasoning as a focused screen's `<header>` - and must not get it here too, or the inset
-    would be added twice.
+    the notch - today is the only one left. The calendar and content tabs own a sticky header each
+    (their Woche/Monat and Anlaufstellen/Meine Sammlung switchers stay pinned while the panel
+    scrolls under them), so they apply the top inset to that header instead - same reasoning as a
+    focused screen's `<header>` - and must not get it here too, or the inset would be added twice.
   -->
-  <main
-    #scrollRegion
-    class="rk-scroll-region safe-x"
-    [class.safe-top]="activeTab() !== null && activeTab() !== 'calendar'"
-  >
+  <main #scrollRegion class="rk-scroll-region safe-x" [class.safe-top]="activeTab() === 'today'">
     <router-outlet />
   </main>
 

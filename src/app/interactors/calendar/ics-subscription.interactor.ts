@@ -6,7 +6,7 @@ import {
   type CalendarContext,
 } from '@app/data/calendar/calendar.repository';
 import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
-import { normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
+import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
 import { EmojiPickerGateway } from '@app/data/gateways/emoji-picker.gateway';
@@ -57,6 +57,22 @@ export class IcsSubscriptionInteractor {
 
   /** One download per subscription at a time; see `refresh`. */
   private readonly inFlight = new Map<string, Promise<IcsRefreshOutcome>>();
+
+  /**
+   * The reason a link is unusable, or `null` when `add()` would accept it. Lets the add form report
+   * a broken link and keep its submit button disabled without guessing at the interactor's rules.
+   */
+  urlError(url: string, options: { allowInsecure?: boolean } = {}): string | null {
+    try {
+      normalizeIcsUrl(url, { allowInsecure: options.allowInsecure ?? false });
+      return null;
+    } catch (error) {
+      if (error instanceof IcsUrlInvalidError) {
+        return error.message;
+      }
+      throw error;
+    }
+  }
 
   /**
    * Adds a subscription and loads it once. Throws `IcsUrlInvalidError` for an unusable link; a

@@ -50,7 +50,6 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [occurrence()],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -64,7 +63,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: false })],
       todayOccurrences: [],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -77,7 +75,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: false })],
       todayOccurrences: [occurrence({ endUtc: '2026-08-11T09:00:00Z' })],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -89,7 +86,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: true })],
       todayOccurrences: [occurrence()],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -101,7 +97,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: false })],
       todayOccurrences: [occurrence()],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -116,7 +111,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ id: 'r1', completed: false })],
       todayOccurrences: [],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -131,7 +125,6 @@ describe('selectTodayClosingState', () => {
       ],
       todayOccurrences: [],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -144,7 +137,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: true })],
       todayOccurrences: [occurrence({ endUtc: '2026-08-11T09:00:00Z' })],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -156,7 +148,6 @@ describe('selectTodayClosingState', () => {
       reminders: [reminder({ completed: true })],
       todayOccurrences: [occurrence({ endUtc: '2026-08-11T09:00:00Z' })],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: LATE_EVENING_UTC,
     });
 
@@ -169,7 +160,6 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -190,7 +180,6 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [],
       tomorrowOccurrences: [tomorrowOccurrence],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
@@ -204,14 +193,13 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [],
       tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
     expect(result.tomorrowAppointment).toBeNull();
   });
 
-  it('treats an all-day appointment as future for the rest of the day it covers', () => {
+  it('never treats an all-day entry as the next appointment - it has no clock time to state', () => {
     const allDay = occurrence({
       allDay: true,
       startDay: TODAY,
@@ -226,36 +214,44 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [allDay],
       tomorrowOccurrences: [],
-      today: TODAY,
-      nowUtc: LATE_EVENING_UTC,
-    });
-
-    expect(result.id).toBe('appointment-later');
-  });
-
-  it('picks the all-day supporting-line key for an all-day next appointment, which has no clock time to state', () => {
-    const allDay = occurrence({
-      allDay: true,
-      startDay: TODAY,
-      endDay: TODAY,
-      start: { kind: 'date', value: TODAY, timeZone: null },
-      end: null,
-      startUtc: '2026-08-11T00:00:00Z',
-      endUtc: '2026-08-12T00:00:00Z',
-    });
-
-    const result = selectTodayClosingState({
-      reminders: [],
-      todayOccurrences: [allDay],
-      tomorrowOccurrences: [],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
-    expect(result.supportingLineKey).toBe('appointment-later.nextAllDay');
+    // The day still counts as planned, so it settles on all-done rather than nothing-planned.
+    expect(result.id).toBe('all-done');
+    expect(result.nextAppointment).toBeNull();
   });
 
-  it('picks the all-day tomorrow-preview key when tomorrow only has an all-day appointment', () => {
+  it('skips an all-day entry and picks the next timed appointment behind it', () => {
+    const allDay = occurrence({
+      id: 'o-all-day',
+      allDay: true,
+      startDay: TODAY,
+      endDay: TODAY,
+      start: { kind: 'date', value: TODAY, timeZone: null },
+      end: null,
+      startUtc: '2026-08-11T00:00:00Z',
+      endUtc: '2026-08-12T00:00:00Z',
+    });
+    const timed = occurrence({
+      id: 'o-timed',
+      startUtc: '2026-08-11T16:00:00Z',
+      endUtc: '2026-08-11T17:00:00Z',
+    });
+
+    const result = selectTodayClosingState({
+      reminders: [],
+      todayOccurrences: [allDay, timed],
+      tomorrowOccurrences: [],
+      nowUtc: NOON_UTC,
+    });
+
+    expect(result.id).toBe('appointment-later');
+    expect(result.nextAppointment?.id).toBe('o-timed');
+    expect(result.supportingLineKey).toBe('appointment-later.next');
+  });
+
+  it('ignores an all-day entry when previewing tomorrow', () => {
     const allDayTomorrow = occurrence({
       id: 'o2',
       allDay: true,
@@ -271,10 +267,10 @@ describe('selectTodayClosingState', () => {
       reminders: [],
       todayOccurrences: [],
       tomorrowOccurrences: [allDayTomorrow],
-      today: TODAY,
       nowUtc: NOON_UTC,
     });
 
-    expect(result.supportingLineKey).toBe('nothing-planned.tomorrowPreviewAllDay');
+    expect(result.tomorrowAppointment).toBeNull();
+    expect(result.supportingLineKey).toBeNull();
   });
 });

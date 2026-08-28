@@ -19,6 +19,10 @@ class FakeIcsSubscriptionInteractor {
   addResult: AddResult | Error = { subscriptionId: 'sub-1', outcome: 'updated' };
   lastCall: { name: string; url: string } | null = null;
 
+  urlError(url: string): string | null {
+    return url.startsWith('https://') ? null : 'Der Link muss mit https beginnen.';
+  }
+
   add(name: string, url: string): Promise<AddResult> {
     this.lastCall = { name, url };
     if (this.addResult instanceof Error) {
@@ -65,6 +69,10 @@ async function setup() {
     async type(input: HTMLInputElement, value: string) {
       input.value = value;
       input.dispatchEvent(new Event('input'));
+      await fixture.whenStable();
+    },
+    async blur(input: HTMLInputElement) {
+      input.dispatchEvent(new Event('blur'));
       await fixture.whenStable();
     },
     async submit() {
@@ -127,17 +135,45 @@ describe('IcsSubscriptionAddDialog', () => {
     expect(dialog.results).toEqual([{ subscriptionId: 'sub-42', outcome: 'failed' }]);
   });
 
-  it('shows an invalid-link error under the link field and keeps the sheet open', async () => {
+  it('reports an unusable link on blur and disables the submit button', async () => {
     const dialog = await setup();
-    dialog.interactor.addResult = new IcsUrlInvalidError('Der Link muss mit https beginnen.');
+    await dialog.type(dialog.nameInput, 'Schule');
+    await dialog.type(dialog.urlInput, 'nicht-mal-eine-adresse');
+
+    await dialog.blur(dialog.urlInput);
+
+    const error = dialog.element.querySelector('#ics-subscription-url-error');
+    expect(error?.textContent?.trim()).toBe('Der Link muss mit https beginnen.');
+    expect(dialog.urlInput.getAttribute('aria-invalid')).toBe('true');
+    expect(dialog.buttonNamed('Kalender hinzufügen').disabled).toBe(true);
+  });
+
+  it('never calls add() with a link the interactor would reject', async () => {
+    const dialog = await setup();
     await dialog.type(dialog.nameInput, 'Schule');
     await dialog.type(dialog.urlInput, 'http://example.org/cal.ics');
 
     await dialog.submit();
 
+    expect(dialog.interactor.lastCall).toBeNull();
     expect(dialog.results).toEqual([]);
     const error = dialog.element.querySelector('#ics-subscription-url-error');
     expect(error?.textContent?.trim()).toBe('Der Link muss mit https beginnen.');
+  });
+
+  it("shows the interactor's invalid-link error under the link field and keeps the sheet open", async () => {
+    const dialog = await setup();
+    dialog.interactor.addResult = new IcsUrlInvalidError(
+      'Der Link muss ein Webkalender-Link sein.',
+    );
+    await dialog.type(dialog.nameInput, 'Schule');
+    await dialog.type(dialog.urlInput, 'https://example.org/cal.ics');
+
+    await dialog.submit();
+
+    expect(dialog.results).toEqual([]);
+    const error = dialog.element.querySelector('#ics-subscription-url-error');
+    expect(error?.textContent?.trim()).toBe('Der Link muss ein Webkalender-Link sein.');
   });
 
   it('shows an invalid-name error under the name field and keeps the sheet open', async () => {

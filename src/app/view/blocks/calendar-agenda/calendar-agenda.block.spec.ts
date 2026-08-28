@@ -44,6 +44,7 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
       [day]="day()"
       [occurrences]="occurrences()"
       [sourcesHidden]="sourcesHidden()"
+      [view]="view()"
       timeZone="+0200"
     />
   `,
@@ -52,12 +53,14 @@ class Host {
   readonly day = input.required<string>();
   readonly occurrences = input.required<readonly CalendarOccurrence[]>();
   readonly sourcesHidden = input(false);
+  readonly view = input<string>();
 }
 
 async function setup(
   day: string,
   occurrences: readonly CalendarOccurrence[],
   sourcesHidden = false,
+  view?: string,
 ): Promise<{ element: HTMLElement }> {
   TestBed.configureTestingModule({
     providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'de' }],
@@ -67,6 +70,7 @@ async function setup(
   fixture.componentRef.setInput('day', day);
   fixture.componentRef.setInput('occurrences', occurrences);
   fixture.componentRef.setInput('sourcesHidden', sourcesHidden);
+  fixture.componentRef.setInput('view', view);
   await fixture.whenStable();
 
   return { element: fixture.nativeElement as HTMLElement };
@@ -142,6 +146,18 @@ describe('CalendarAgendaBlock', () => {
     expect(status).not.toBeNull();
     expect(status?.textContent).toContain('Mittwoch, 5. August 2026');
     expect(status?.textContent).toContain('1 Termin');
+  });
+
+  it("carries the calendar's view into every link, so returning lands on the same view", async () => {
+    const { element } = await setup('2026-08-05', [occurrence()], false, 'month');
+
+    const links = Array.from(element.querySelectorAll('a')).map((link) =>
+      link.getAttribute('href'),
+    );
+    expect(links).toEqual([
+      '/calendar/event/occ-1?view=month',
+      '/calendar/event/new?day=2026-08-05&view=month',
+    ]);
   });
 
   it('keeps „Neuer Termin" at the end of the list', async () => {

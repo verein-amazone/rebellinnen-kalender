@@ -1,5 +1,6 @@
 <a
   [routerLink]="['/calendar/event', occurrence().id]"
+  [queryParams]="linkQueryParams()"
   class="rk-card min-h-touch hoverable:bg-accent/10 active:bg-accent/20 flex items-stretch gap-3 p-3.5"
 >
   <!-- The calendar's colour, repeated in the grid's indicator dots. Decorative: the calendar is named in text below. -->

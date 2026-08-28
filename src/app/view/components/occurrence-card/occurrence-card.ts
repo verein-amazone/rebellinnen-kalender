@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, type Params } from '@angular/router';
 
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 
@@ -25,6 +25,13 @@ export class OccurrenceCard {
    * times render in the device zone, which is the right zone everywhere else.
    */
   readonly timeZone = input<string>();
+  /**
+   * Query parameters the detail link carries. The detail screen navigates back to an explicit
+   * target rather than walking history (see `FocusedScreenScaffold`), so whatever the list it was
+   * opened from needs to be restored - the calendar's `?view=`, for one - has to travel with the
+   * link.
+   */
+  readonly linkQueryParams = input<Params | undefined>(undefined);
 
   private readonly isStartDay = computed(() => this.occurrence().startDay === this.day());
   private readonly isEndDay = computed(() => this.occurrence().endDay === this.day());

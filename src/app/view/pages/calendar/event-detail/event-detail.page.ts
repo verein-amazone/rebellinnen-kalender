@@ -95,6 +95,8 @@ export class EventDetailPage {
   );
 
   readonly id = input.required<string>();
+  /** Bound from the `view` query parameter the calendar's appointment links carry - see `backLink`. */
+  readonly view = input<string>();
 
   protected readonly occurrenceResource = resource({
     params: () => this.id(),
@@ -152,13 +154,27 @@ export class EventDetailPage {
    * falls through to the scaffold's default back navigation.
    */
   /**
-   * Where the back-arrow goes. The calendar overview keeps the day being looked at in `?day=`, so
-   * a bare `/calendar` would drop the user on today rather than where they opened the appointment
-   * from. Until the occurrence has loaded there is no day to return to.
+   * Where the back-arrow goes. The calendar overview keeps both the day being looked at and the
+   * week/month view in the URL, so a bare `/calendar` would drop the user on today's week rather
+   * than where they opened the appointment from. `view` is carried here by the link that opened
+   * this screen (see `OccurrenceCard.linkQueryParams`); it is absent when the appointment was
+   * opened from somewhere without a calendar view, e.g. the Today screen. Until the occurrence has
+   * loaded there is no day to return to either.
    */
   protected readonly backLink = computed(() => {
+    const params = new URLSearchParams();
+    const view = this.view();
+    if (view === 'week' || view === 'month') {
+      params.set('view', view);
+    }
+
     const day = this.occurrence()?.startDay;
-    return day === undefined ? '/calendar' : `/calendar?day=${day}`;
+    if (day !== undefined) {
+      params.set('day', day);
+    }
+
+    const query = params.toString();
+    return query === '' ? '/calendar' : `/calendar?${query}`;
   });
 
   protected readonly handleBeforeDismiss = (): boolean => {
