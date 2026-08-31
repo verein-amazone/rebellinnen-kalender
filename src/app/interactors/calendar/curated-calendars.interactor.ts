@@ -69,9 +69,13 @@ export class CuratedCalendarsInteractor {
       await this.icsSubscriptions.refresh(subscriptionId, { force: true });
     }
 
+    const catalogEntries = catalog?.sources ?? [];
     const descriptionByCatalogId = new Map(
-      (catalog?.sources ?? []).map((entry) => [entry.id, entry.description]),
+      catalogEntries.map((entry) => [entry.id, entry.description]),
     );
+    // The catalog decides the order, not the seeding timestamps: an entry added to a later catalog
+    // version is seeded last on an existing install but may still belong at the top of the list.
+    const catalogOrderById = new Map(catalogEntries.map((entry, index) => [entry.id, index]));
 
     const [sources, calendars, subscriptions] = await Promise.all([
       this.sources.listSources(),
@@ -84,7 +88,7 @@ export class CuratedCalendarsInteractor {
       subscriptions.map((subscription) => [subscription.id, subscription]),
     );
 
-    const rows: CuratedCalendarRow[] = [];
+    const rows: { readonly row: CuratedCalendarRow; readonly order: number }[] = [];
     for (const source of sources) {
       if (source.type !== 'ics') {
         continue;
@@ -97,17 +101,21 @@ export class CuratedCalendarsInteractor {
 
       const calendar = calendarBySourceId.get(source.id);
       rows.push({
-        id: source.id,
-        name: calendar?.name ?? source.name,
-        description: descriptionByCatalogId.get(subscription.curatedId) ?? '',
-        color: calendar?.color ?? null,
-        emoji: calendar?.emoji ?? null,
-        enabled: source.enabled,
-        state: source.state,
-        lastError: subscription.lastError,
+        // An entry the current catalog no longer lists keeps its seeded position at the end.
+        order: catalogOrderById.get(subscription.curatedId) ?? Number.MAX_SAFE_INTEGER,
+        row: {
+          id: source.id,
+          name: calendar?.name ?? source.name,
+          description: descriptionByCatalogId.get(subscription.curatedId) ?? '',
+          color: calendar?.color ?? null,
+          emoji: calendar?.emoji ?? null,
+          enabled: source.enabled,
+          state: source.state,
+          lastError: subscription.lastError,
+        },
       });
     }
 
-    return rows;
+    return rows.sort((a, b) => a.order - b.order).map((entry) => entry.row);
   }
 }

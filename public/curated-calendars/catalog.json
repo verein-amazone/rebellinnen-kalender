@@ -1,6 +1,14 @@
 {
-  "version": 1,
+  "version": 2,
   "sources": [
+    {
+      "id": "amazone-rebellinnen-kalender",
+      "name": "Rebell*innen Kalender",
+      "description": "Veranstaltungen und Aktionen vom Verein Amazone.",
+      "url": "https://calendar.google.com/calendar/ical/e00a53ba638e4f853c958aa1a57954822e3357c87509a01985e4b2f49aba66f8%40group.calendar.google.com/public/basic.ics",
+      "color": "#7B3FA8",
+      "emoji": "✊"
+    },
     {
       "id": "at-public-holidays",
       "name": "Feiertage Österreich",
