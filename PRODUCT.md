@@ -62,6 +62,7 @@ that content-driven community apps usually make.
 ## Evidence on Hand
 
 - `docs/content-authoring.md` - licensing/authoring rules for curated content entries.
+- `docs/content-images.md` - what to ask an image contributor to deliver, and why.
 - `docs/app-icon.md` - where the app icon comes from and how its assets are generated.
 - No testimonials, benchmarks, or pricing exist; do not fabricate any.
 
