@@ -22,6 +22,13 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- Export compliance (https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations):
+	     the app implements no encryption of its own - the SQLite database is opened with
+	     'no-encryption' and the only encryption used is HTTPS provided by iOS, which is
+	     exempt. Declaring this here answers App Store Connect's "App Encryption
+	     Documentation" prompt on every TestFlight upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<!-- @ebarooni/capacitor-calendar (#20 device-calendar connection): requestFullCalendarAccess()
