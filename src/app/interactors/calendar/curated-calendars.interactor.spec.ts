@@ -112,6 +112,30 @@ describe('CuratedCalendarsInteractor', () => {
     expect(http.requests).toHaveLength(1);
   });
 
+  it('lists curated sources in catalog order, not in the order they were seeded', async () => {
+    // The order the sources were seeded in: holidays first, as on an install predating the
+    // catalog version that added the Amazone calendar.
+    await interactor.listForManagement();
+    mockFetch({
+      version: 2,
+      sources: [
+        {
+          id: 'amazone-rebellinnen-kalender',
+          name: 'Rebell*innen Kalender',
+          description: 'Veranstaltungen und Aktionen vom Verein Amazone.',
+          url: 'https://example.org/amazone.ics',
+          color: '#7B3FA8',
+          emoji: '✊',
+        },
+        ...CATALOG.sources,
+      ],
+    });
+
+    const rows = await interactor.listForManagement();
+
+    expect(rows.map((row) => row.name)).toEqual(['Rebell*innen Kalender', 'Feiertage Österreich']);
+  });
+
   it('never exposes add or remove on its surface', () => {
     expect((interactor as unknown as { add?: unknown }).add).toBeUndefined();
     expect((interactor as unknown as { remove?: unknown }).remove).toBeUndefined();

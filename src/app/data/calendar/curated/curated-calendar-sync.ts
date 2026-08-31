@@ -94,8 +94,12 @@ export class CuratedCalendarSync {
 
   private async reconcile(entries: readonly CatalogEntry[]): Promise<readonly string[]> {
     const created: string[] = [];
+    // Every calendar list sorts by `created_at`. Seeding the whole catalog inside one millisecond
+    // would tie every row and let the random UUID tie-breaker decide the order, so each entry is
+    // stamped one millisecond after the previous one and the catalog's order carries through.
+    const seededAtMs = Date.now();
 
-    for (const entry of entries) {
+    for (const [index, entry] of entries.entries()) {
       const existing = await this.subscriptions.findByCuratedId(entry.id);
       if (existing !== null) {
         continue;
@@ -112,7 +116,7 @@ export class CuratedCalendarSync {
       }
 
       const subscriptionId = crypto.randomUUID();
-      const nowUtc = new Date().toISOString();
+      const nowUtc = new Date(seededAtMs + index).toISOString();
 
       await this.repository.createIcsSubscription(
         {

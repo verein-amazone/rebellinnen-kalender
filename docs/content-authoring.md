@@ -42,6 +42,11 @@ Do **not** put an `imagePath` field in the catalog - it's derived automatically 
 
 ## 2. Convert and place the image
 
+This section covers turning a delivered file into the asset the app ships. For what to ask a
+contributor or partner organisation to deliver in the first place - aspect ratio, minimum
+resolution, and the description/credit/rights notes that must come with it - see
+[content-images.md](./content-images.md).
+
 Images ship as WebP to keep the app bundle small. This machine's Homebrew `ffmpeg` build has no
 `libwebp` support (`ffmpeg -encoders | grep webp` returns nothing), so conversion is two steps:
 resize with `ffmpeg` into a temporary PNG, then encode to WebP with the separate `cwebp` tool
