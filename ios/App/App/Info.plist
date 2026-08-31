@@ -4,8 +4,19 @@
 <dict>
 	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
+	<!-- The app is German-only: every string in the UI is German and index.html declares
+	     lang="de". iOS resolves an app's language from the localizations its bundle declares, and a
+	     bundle that declares none falls back to the development region - which left UIKit rendering
+	     its own chrome in English, most visibly the weekday headers of the native
+	     <input type="date"> picker inside the WebView. Declaring German here (and in
+	     CFBundleLocalizations below) makes iOS resolve the app language to German, so UIKit's own
+	     localizations apply. See https://developer.apple.com/library/archive/qa/qa1828/_index.html. -->
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>de</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>de</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Rebell*innen Kalender</string>
 	<key>CFBundleExecutable</key>
