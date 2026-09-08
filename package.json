@@ -47,7 +47,7 @@
     "@capawesome/capacitor-app-icon": "^0.1.1",
     "@capawesome/capacitor-haptics": "^0.1.1",
     "@capawesome/capacitor-shake": "^0.1.1",
-    "@ebarooni/capacitor-calendar": "^8.3.0",
+    "@ebarooni/capacitor-calendar": "^8.6.0",
     "@independo/capacitor-emoji-picker": "^1.3.0",
     "@lucide/angular": "^1.37.0",
     "capacitor-native-settings": "^8.2.0",

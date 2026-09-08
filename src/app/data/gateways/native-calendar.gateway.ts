@@ -84,7 +84,10 @@ export class NativeCalendarGateway {
     const { result } = await this.plugin.listCalendars();
     return result.map((calendar) => ({
       id: calendar.id,
-      name: calendar.title,
+      // The plugin types `title` as nullable: iOS always reports one, the Android provider may not.
+      // A calendar still has to be identifiable in the settings list, so fall back to the Android
+      // internal name, then to the account it belongs to, and only then to the raw id.
+      name: calendar.title ?? calendar.internalTitle ?? calendar.accountName ?? calendar.id,
       color: calendar.color ?? null,
       writable: calendar.allowsContentModifications ?? false,
       // `source` is iOS-only; Android has no separate id and reports `accountName` instead.
@@ -138,6 +141,12 @@ export class NativeCalendarGateway {
       isAllDay: draft.isAllDay,
       alerts: draft.isAllDay ? undefined : [-DEFAULT_ALERT_MINUTES_BEFORE_START],
     });
+    // The plugin types `id` as nullable because its web implementation produces an `.ics` file
+    // instead of writing to a calendar store. On iOS and Android a successful create always
+    // returns one, so a missing id here is a broken write, not a case the caller can handle.
+    if (id === null) {
+      throw new Error('The device calendar did not return an id for the created event.');
+    }
     return { eventId: id };
   }
 }

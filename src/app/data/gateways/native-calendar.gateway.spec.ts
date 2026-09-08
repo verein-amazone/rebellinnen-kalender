@@ -83,6 +83,25 @@ describe('NativeCalendarGateway', () => {
     ]);
   });
 
+  it('names a calendar the platform reports without a title', async () => {
+    const gateway = setup({
+      listCalendars: async () =>
+        ({
+          result: [
+            { id: 'cal-1', title: null, internalTitle: 'Arbeit', accountName: 'user@gmail.com' },
+            { id: 'cal-2', title: null, internalTitle: null, accountName: 'user@gmail.com' },
+            { id: 'cal-3', title: null, internalTitle: null, accountName: null },
+          ],
+        }) as never,
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ id: 'cal-1', name: 'Arbeit' }),
+      expect.objectContaining({ id: 'cal-2', name: 'user@gmail.com' }),
+      expect.objectContaining({ id: 'cal-3', name: 'cal-3' }),
+    ]);
+  });
+
   it('translates instance epochs to UTC instants without a fractional-second suffix', async () => {
     const gateway = setup({
       listEventsInRange: async (options: { from: number; to: number }) => {
@@ -148,7 +167,7 @@ describe('NativeCalendarGateway', () => {
     const gateway = setup({
       createEvent: async (options: unknown) => {
         sentOptions = options;
-        return { id: 'event-2' };
+        return { ics: null, id: 'event-2' };
       },
     });
 
@@ -178,7 +197,7 @@ describe('NativeCalendarGateway', () => {
     const gateway = setup({
       createEvent: async (options: unknown) => {
         sentOptions = options;
-        return { id: 'event-3' };
+        return { ics: null, id: 'event-3' };
       },
     });
 
@@ -192,5 +211,22 @@ describe('NativeCalendarGateway', () => {
     });
 
     expect(sentOptions).toEqual(expect.objectContaining({ isAllDay: true, alerts: undefined }));
+  });
+
+  it('rejects when the platform reports no id for the created event', async () => {
+    const gateway = setup({
+      createEvent: async () => ({ ics: null, id: null }),
+    });
+
+    await expect(
+      gateway.createEvent({
+        calendarId: 'cal-1',
+        title: 'Plenum',
+        location: null,
+        startUtc: '2026-08-10T08:00:00Z',
+        endUtc: '2026-08-10T09:00:00Z',
+        isAllDay: false,
+      }),
+    ).rejects.toThrow('did not return an id');
   });
 });
