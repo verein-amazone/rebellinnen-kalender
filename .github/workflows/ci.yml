@@ -1,7 +1,17 @@
-# Baseline CI: quality checks and the production build run in parallel, the e2e suite runs against
-# the promoted build artifact, and `ci-success` is the single stable required check for branch
-# protection. A future release/deploy workflow (App Store / Play Store) consumes the same `dist`
-# artifact instead of rebuilding.
+# Baseline CI: quality checks and the production build run in parallel, the e2e suite and both
+# native builds run against the promoted build artifact, and `ci-success` is the single stable
+# required check for branch protection. A future release/deploy workflow (App Store / Play Store)
+# consumes the same `dist` artifact instead of rebuilding.
+#
+# The `ios` and `android` jobs exist so native breakage surfaces in a pull request instead of on
+# somebody's laptop. They deliberately have no `paths` filter: the repository is public, so the
+# macOS runner is free, and a skipped job would report `skipped` to `ci-success`, which only accepts
+# `success`.
+#
+# Both native jobs run `cap sync` and then `git diff --exit-code`. A failure there is not flaky - it
+# means the committed native project no longer matches the installed dependencies, which is what a
+# dependency bump without a `pnpm cap:sync` looks like (Dependabot cannot run the Capacitor CLI, so
+# its npm major PRs fail here by design).
 #
 # If a merge queue is ever enabled, add `merge_group:` to `on:` so required checks are produced for
 # queued merges.
@@ -170,12 +180,133 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  ios:
+    name: iOS build (unsigned)
+    runs-on: macos-latest
+    needs: build
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Not optional: ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
+      # exact node_modules/.pnpm/<name>@<version> path, so the Swift package graph cannot resolve
+      # without an install that matches the lockfile.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/rebellinnen-kalender/browser
+
+      - name: Sync the iOS project
+        run: pnpm exec cap sync ios
+
+      - name: Check that the committed iOS project is in sync
+        run: git diff --exit-code -- ios
+
+      - name: Cache resolved Swift packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm"
+
+      # A generic simulator destination needs neither a booted simulator nor a signing identity, so
+      # this job stays free of the credentials the release workflow will need.
+      - name: Build the app (unsigned, simulator)
+        run: |
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm" \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+
+  android:
+    name: Android build (debug)
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up JDK
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      # Also verifies the checksum of the committed gradle-wrapper.jar against Gradle's published
+      # list (validate-wrappers is on by default).
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Download build artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: dist
+          path: dist/rebellinnen-kalender/browser
+
+      - name: Sync the Android project
+        run: pnpm exec cap sync android
+
+      - name: Check that the committed Android project is in sync
+        run: git diff --exit-code -- android
+
+      - name: Build the debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
   # Stable aggregate check for branch protection: require only this check, so the internal job
   # layout can change without touching repository settings.
   ci-success:
     name: CI success
     runs-on: ubuntu-latest
-    needs: [checks, build, e2e]
+    needs: [checks, build, e2e, ios, android]
     if: always()
     timeout-minutes: 5
     permissions: {}

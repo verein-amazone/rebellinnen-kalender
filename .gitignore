@@ -628,12 +628,6 @@ fastlane/test_output
 # Ignore Gradle GUI config
 gradle-app.setting
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
-
 # Cache of project
 .gradletasknamecache
 
@@ -709,6 +703,13 @@ __screenshots__/
 /android/app/build/
 /android/captures/
 /android/local.properties
+
+# The Gradle wrapper JAR is part of the committed Android project: without it `./gradlew` does not
+# work on a fresh clone. These negations have to sit *after* the `*.jar` rules of the Java and
+# Kotlin templates above - git applies the last matching pattern, which is why the identical pair
+# shipped inside the Gradle template had no effect.
+!gradle-wrapper.jar
+!gradle-wrapper.properties
 
 # macOS
 .DS_Store

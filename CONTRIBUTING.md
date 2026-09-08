@@ -57,6 +57,11 @@ pnpm build
 The lint step enforces the architecture layer boundaries (see below). Fix any violations rather
 than disabling the rule.
 
+CI additionally builds both native projects on every pull request: an unsigned iOS simulator build
+and an Android debug build, each preceded by `cap sync`. If a change touches dependencies, run
+`pnpm cap:sync` and commit the resulting changes to `ios/` and `android/` - otherwise the sync check
+in CI fails because the committed native projects no longer match the lockfile.
+
 ### Language
 
 All technical documentation and code comments must be written in **English**. (Community-facing
