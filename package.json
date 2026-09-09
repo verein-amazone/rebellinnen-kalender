@@ -1,6 +1,10 @@
 {
   "name": "rebellinnen-kalender",
   "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verein-amazone/rebellinnen-kalender.git"
+  },
   "scripts": {
     "ng": "ng",
     "prestart": "node scripts/generate-app-version.mjs",
@@ -66,8 +70,13 @@
     "@angular/compiler-cli": "^22.1.4",
     "@axe-core/playwright": "^4.13.0",
     "@capacitor/cli": "^8.5.0",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^11.0.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.4.0",
     "angular-eslint": "22.1.0",
@@ -78,6 +87,7 @@
     "postcss": "^8.5.26",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "semantic-release": "^25.0.9",
     "serve": "^14.2.6",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",

@@ -24,9 +24,43 @@ Feedback is especially helpful on: what is genuinely useful in everyday life, wh
 
 ### Branches and pull requests
 
-- `main` is the integration branch; `dev` is the working branch.
+- `dev` is the integration branch: every change lands here first, and every merge into it produces a
+  prerelease (`1.0.0-rc.1`, `1.0.0-rc.2`, …) for TestFlight and Play internal testing.
+- `main` is the release branch: merging `dev` into it produces a release (`1.0.0`, `1.0.1`, …) for
+  the App Store and Play production.
 - Create focused feature branches off `dev` and open a pull request back into it.
 - Keep pull requests small and reviewable, with a clear description of the change.
+
+### Commit messages
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`,
+for example `feat(calendar): …`, `fix(a11y): …`, `chore(deps): …`. CI runs `commitlint` over every
+commit of a pull request, so this is a required check rather than a style preference.
+
+The convention is not cosmetic: semantic-release reads the commit types to decide the next version.
+`feat` bumps the minor version, `fix` the patch version, and a `BREAKING CHANGE:` footer the major
+version. `build`, `chore`, `ci`, `refactor` and `revert` also produce a patch, so that every merge
+into `dev` gets its own distinct, sortable version to hand to testers. `docs`, `style` and `test`
+release nothing - a typo fix does not need a new build.
+
+Merge commits are exempt, which is why pull requests are merged rather than squashed: the individual
+commits are the record.
+
+### Versions
+
+Nothing in the repository is version-bumped by hand. semantic-release owns the version and, on every
+release, writes it into `package.json`, `CHANGELOG.md`,
+`src/app/cross-cutting/infrastructure/app-version.ts` (shown on the „Über die App" screen), and the
+iOS and Android version fields, then tags the commit and publishes a GitHub release.
+
+The native build number is derived from the version by `scripts/sync-native-version.mjs`; see its
+header comment for the encoding. `node scripts/sync-native-version.mjs --check` runs in CI and fails
+when the native fields no longer match `package.json`.
+
+If a store upload fails after the release already happened, do not re-upload the same build number -
+both stores reject it permanently. Push an empty commit to `dev`
+(`git commit --allow-empty -m 'fix: retry the release upload'`) to cut the next `rc`, which gets a
+fresh build number.
 
 ### Package manager
 
