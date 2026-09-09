@@ -75,6 +75,11 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # The iOS and Android version fields are derived from package.json by the release, never edited
+      # by hand; this catches a native project that no longer matches it.
+      - name: Check the native version fields
+        run: node scripts/sync-native-version.mjs --check
+
       - name: Unit tests
         run: pnpm test:ci
 
