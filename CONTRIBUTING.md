@@ -7,6 +7,9 @@ Kalender. Not everything is decided yet - that is exactly what the
 [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues), comments and feedback are
 for.
 
+Everyone taking part is expected to follow the [Verhaltenskodex](./CODE_OF_CONDUCT.md). Security
+problems go through the [security policy](./SECURITY.md) rather than a public issue.
+
 ## Ways to participate
 
 - Read the current [Issues](https://github.com/verein-amazone/rebellinnen-kalender/issues) and

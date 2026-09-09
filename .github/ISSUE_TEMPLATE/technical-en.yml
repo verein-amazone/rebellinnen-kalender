@@ -1,0 +1,35 @@
+name: Technical issue (English)
+description: An implementation ticket for the development team.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Technical issues are written in English (see `CONTRIBUTING.md`). Community feedback belongs
+        in the German forms instead.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What is the situation today, and why does it need to change? Link the code.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What has to be built or changed. Name the files and the boundaries it touches.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      value: |
+        * [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: Optional - what belongs to another ticket, and which one.
