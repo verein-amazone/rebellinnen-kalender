@@ -39,9 +39,12 @@ jobs:
     permissions:
       contents: read
     steps:
+      # Full history: the commit-message check below walks the range between the pull request's base
+      # and head, which a shallow checkout does not contain.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Install pnpm
@@ -56,11 +59,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # semantic-release derives the released version from the commit types, so a mistyped subject
+      # silently changes what ships. A conditional step rather than a conditional job: a job that
+      # skips on push events would report `skipped` to `ci-success`, which only accepts `success`.
+      - name: Check commit messages
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
       - name: Check formatting
         run: pnpm format:check
 
       - name: Lint
         run: pnpm lint
+
+      # The iOS and Android version fields are derived from package.json by the release, never edited
+      # by hand; this catches a native project that no longer matches it.
+      - name: Check the native version fields
+        run: node scripts/sync-native-version.mjs --check
 
       - name: Unit tests
         run: pnpm test:ci

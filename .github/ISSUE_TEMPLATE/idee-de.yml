@@ -1,0 +1,27 @@
+name: Idee oder Wunsch
+description: Ein Vorschlag, was die App können oder besser machen soll.
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideen sind ausdrücklich erwünscht, auch halbfertige. Nichts davon muss schon zu Ende gedacht
+        sein.
+  - type: textarea
+    id: idee
+    attributes:
+      label: Was ist deine Idee?
+    validations:
+      required: true
+  - type: textarea
+    id: warum
+    attributes:
+      label: Wobei würde dir das helfen?
+      description: In welcher Situation würdest du das brauchen?
+    validations:
+      required: true
+  - type: textarea
+    id: sonstiges
+    attributes:
+      label: Sonst noch etwas?
+      description: Optional - Beispiele, Skizzen, andere Apps, die das gut machen.

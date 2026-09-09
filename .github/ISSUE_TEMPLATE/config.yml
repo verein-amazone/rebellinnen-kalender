@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Mitmachen und Feedback geben
+    url: https://github.com/verein-amazone/rebellinnen-kalender/blob/dev/CONTRIBUTING.md
+    about: Wie du dich beteiligen kannst - auch über die WhatsApp-Gruppe von Verein Amazone.
+  - name: Sicherheitslücke melden
+    url: https://github.com/verein-amazone/rebellinnen-kalender/security/advisories/new
+    about: Bitte melde Sicherheitsprobleme vertraulich und nicht als öffentliches Issue.
