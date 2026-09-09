@@ -69,3 +69,28 @@ platform :ios do
     )
   end
 end
+
+platform :android do
+  desc 'Upload the release bundle to the Play internal testing track, as a draft.'
+  lane :internal do
+    # The changelog is a file, not a parameter: `supply` reads
+    # fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt, which
+    # scripts/build-store-release-notes.mjs has written by the time this runs.
+    #
+    # `draft` rather than `completed`: the bundle lands in the console with its notes attached and
+    # a human decides when testers get it. It is also what lets the pipeline be verified before the
+    # Play "App content" declarations (#78, #79) are answered - those block the rollout, not the
+    # upload.
+    upload_to_play_store(
+      track: 'internal',
+      release_status: 'draft',
+      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      # The service account JSON stays in memory; it is never written to the runner's disk.
+      json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false
+    )
+  end
+end
