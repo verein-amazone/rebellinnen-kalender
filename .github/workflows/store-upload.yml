@@ -1,0 +1,217 @@
+# Builds a released tag and hands the result to the stores. Called by .github/workflows/release.yml
+# straight after semantic-release, and runnable on its own to retry an upload that failed.
+#
+# Nothing here distributes anything to a tester. The iOS build lands in TestFlight with its "What to
+# Test" text filled in but no group attached, and the Android build lands as a draft release on the
+# Play internal track. Publishing to testers stays a deliberate action in the console - which is also
+# what makes a failed upload harmless to retry.
+#
+# It builds from the tag rather than reusing CI's `dist` artifact, deliberately: that artifact
+# belongs to the commit *before* the release commit and to a different workflow run, and an upload
+# has to be reproducible from the tag alone.
+#
+# The release has already happened by the time this runs, so a failed upload leaves the tag and the
+# GitHub release behind. That is the lesser evil - unpublishing a release is worse than a prerelease
+# that never reached a tester. Re-run this workflow for the same tag; the build number is derived
+# from the version, so a retry produces the identical build number, which both stores reject as a
+# duplicate. If the first attempt already uploaded, push an empty commit to `dev` to cut the next rc
+# instead (see docs/release.md).
+name: Store upload
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The release tag to build and upload, for example v1.0.0-rc.2.
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The release tag to build and upload, for example v1.0.0-rc.2.
+        required: true
+        type: string
+
+# Least privilege: no default token permissions; each job opts in to what it needs.
+permissions: {}
+
+# Two uploads of the same tag must never overlap; different tags may.
+concurrency:
+  group: store-upload-${{ inputs.tag }}
+  cancel-in-progress: false
+
+env:
+  # fastlane refuses to run under a non-UTF-8 locale, and neither runner image sets one.
+  LANG: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+  FASTLANE_SKIP_UPDATE_CHECK: 'true'
+  FASTLANE_OPT_OUT_USAGE: 'true'
+
+jobs:
+  testflight:
+    name: TestFlight
+    runs-on: macos-latest
+    environment: testflight
+    # The archive dominates the run; `pilot` then waits only until the build appears in App Store
+    # Connect, long enough to attach the release notes, and leaves the rest of Apple's processing to
+    # finish on its own.
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the released tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          bundler-cache: true
+
+      # Not optional: ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
+      # exact node_modules/.pnpm/<name>@<version> path.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the web app
+        run: pnpm build
+
+      - name: Sync the iOS project
+        run: pnpm exec cap sync ios
+
+      - name: Build the store release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: node scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
+
+      # match reads the certificates repository over SSH. The app repository itself was checked out
+      # over HTTPS, so forcing this identity for github.com affects nothing else in the run.
+      - name: Give match read access to the certificates repository
+        env:
+          MATCH_DEPLOY_KEY: ${{ secrets.MATCH_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$MATCH_DEPLOY_KEY" > ~/.ssh/match_deploy_key
+          chmod 600 ~/.ssh/match_deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          printf 'Host github.com\n  IdentityFile ~/.ssh/match_deploy_key\n  IdentitiesOnly yes\n' \
+            >> ~/.ssh/config
+
+      - name: Archive and upload to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_P8_BASE64 }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          bundle exec fastlane ios beta \
+            changelog:"$(cat "$RUNNER_TEMP/notes/testflight.txt")"
+
+      - name: Upload the build log
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fastlane-ios-logs
+          path: |
+            ~/Library/Logs/gym
+            fastlane/report.xml
+          retention-days: 7
+          if-no-files-found: ignore
+
+  play-internal:
+    name: Play internal testing
+    runs-on: ubuntu-latest
+    environment: play-internal
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the released tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          bundler-cache: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the web app
+        run: pnpm build
+
+      - name: Sync the Android project
+        run: pnpm exec cap sync android
+
+      - name: Build the store release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: node scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
+
+      - name: Decode the upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
+
+      - name: Build the release bundle
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon
+
+      # Without the signing environment the Gradle build silently produces an unsigned bundle, which
+      # Play rejects only after the upload. Catch it here, where the message is readable.
+      - name: Check that the bundle is signed
+        run: |
+          if ! jarsigner -verify android/app/build/outputs/bundle/release/app-release.aab \
+            | grep -q 'jar verified'; then
+            echo 'The release bundle is not signed - check the ANDROID_KEYSTORE_* secrets.' >&2
+            exit 1
+          fi
+
+      - name: Upload to the Play internal testing track
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: bundle exec fastlane android internal
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload-keystore.jks"

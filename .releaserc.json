@@ -19,7 +19,8 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "node scripts/generate-app-version.mjs && node scripts/sync-native-version.mjs"
+        "prepareCmd": "node scripts/generate-app-version.mjs && node scripts/sync-native-version.mjs",
+        "successCmd": "printf 'released=true\\nversion=%s\\ntag=%s\\n' '${nextRelease.version}' '${nextRelease.gitTag}' >> \"$GITHUB_OUTPUT\""
       }
     ],
     [

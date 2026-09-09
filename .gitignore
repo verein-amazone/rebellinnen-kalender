@@ -721,3 +721,18 @@ tmp
 
 # impeccable design-review hook's local cache - config.json (ignore rules) is versioned, this isn't
 .impeccable/hook.cache.json
+
+# Release credentials and signed artefacts. These belong in GitHub secrets and in a backup outside
+# this repository - never in a commit. See docs/release.md for the inventory and custody.
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+*.jks
+*.keystore
+play-service-account*.json
+*.aab
+
+# Written per release by scripts/build-store-release-notes.mjs from the GitHub release body.
+# Committing them would be a second copy of notes that already exist and can drift.
+fastlane/metadata/android/*/changelogs/
