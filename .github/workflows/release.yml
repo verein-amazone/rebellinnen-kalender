@@ -9,6 +9,11 @@
 # trigger workflows - so it neither loops back into this workflow nor spends a CI run on a commit
 # that only moves version numbers.
 #
+# A prerelease from `dev` continues straight into .github/workflows/store-upload.yml, which builds
+# the tag and hands the result to TestFlight and Play internal testing. That step is gated on the
+# repository variable STORE_UPLOADS_ENABLED, so this workflow stays green before the store
+# credentials exist.
+#
 # When branch protection lands (#75), this workflow needs a bypass for `dev` and `main`: it pushes
 # straight to the branch rather than opening a pull request, and a protected branch without a bypass
 # actor for it will fail the release, not the merge that triggered it.
@@ -33,6 +38,12 @@ jobs:
     name: semantic-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Set by the exec plugin's `successCmd` (.releaserc.json) once the tag, the release commit and
+    # the GitHub release all exist. Absent when the commits produced no release at all.
+    outputs:
+      released: ${{ steps.semantic-release.outputs.released }}
+      version: ${{ steps.semantic-release.outputs.version }}
+      tag: ${{ steps.semantic-release.outputs.tag }}
     permissions:
       # Push the release commit and the tag.
       contents: write
@@ -61,6 +72,25 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run semantic-release
+        id: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm exec semantic-release
+
+  # Store uploads happen in the same run, from the tag that was just created. Gated on the
+  # repository variable STORE_UPLOADS_ENABLED so the credentials can be set up (or switched off
+  # again) without touching a workflow file. `main` is deliberately excluded until #75 lets it
+  # release at all and the App Store / Play production lanes exist.
+  store-upload:
+    name: Store upload
+    needs: release
+    if: >-
+      needs.release.outputs.released == 'true'
+      && github.ref_name == 'dev'
+      && vars.STORE_UPLOADS_ENABLED == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/store-upload.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    secrets: inherit
