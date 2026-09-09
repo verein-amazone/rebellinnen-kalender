@@ -125,6 +125,15 @@ pnpm cap:open:ios      # Opens the iOS project in Xcode
 pnpm cap:open:android  # Opens the Android project in Android Studio
 ```
 
+Running on a device is the normal Xcode / Android Studio flow after `pnpm cap:sync`: pick the device
+and press run. Signing for local development uses the automatic signing already configured in the
+projects; nothing in this repository needs a certificate to build or run.
+
+### Releasing
+
+Releases are automated. Merging into `dev` cuts a prerelease and uploads it to TestFlight and Play
+internal testing; nothing is version-bumped by hand. See [docs/release.md](./docs/release.md).
+
 ### Angular CLI MCP
 
 For version-accurate Angular support, the official
