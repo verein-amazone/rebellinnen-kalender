@@ -732,3 +732,7 @@ tmp
 *.keystore
 play-service-account*.json
 *.aab
+
+# Written per release by scripts/build-store-release-notes.mjs from the GitHub release body.
+# Committing them would be a second copy of notes that already exist and can drift.
+fastlane/metadata/android/*/changelogs/
