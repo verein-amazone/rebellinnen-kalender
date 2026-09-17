@@ -2,7 +2,9 @@
   <!-- The screen's own title, so `PageFocus` announces the greeting on arrival rather than a
        generic „Heute“. The emoji button stays a sibling: inside the heading it would end up in
        that announcement. -->
-  <h1 class="text-3xl leading-snug">{{ greeting() }}{{ name() ? ', ' + name() : '' }}</h1>
+  <!-- No comma before the name: „Hallo Nina“ is how the app's testers greet each other, and the
+       comma made the heading read like a formal letter. -->
+  <h1 class="text-3xl leading-snug">{{ greeting() }}{{ name() ? ' ' + name() : '' }}</h1>
 
   <button
     type="button"
