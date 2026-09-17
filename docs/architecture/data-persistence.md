@@ -324,14 +324,17 @@ subscription explicitly opts into `http`.
 ## Stores
 
 `data/stores/*.store.ts` hold small persisted values that do not belong in a relational table - the
-appearance preferences (`appearance.store.ts`) and the preferences of the „Nicht vergessen“ list
-(`reminders.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+appearance preferences (`appearance.store.ts`), the preferences of the „Nicht vergessen“ list
+(`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
+hidden and in which order the chips appear (`calendar-chips.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 
 `reminders.store.ts` is the one to look at for the boundary: it holds where a new or completed entry
 enters its section and whether completed entries disappear at the day change - three scalars. The
-entries themselves stay in SQLite.
+entries themselves stay in SQLite. `calendar-chips.store.ts` draws the same line for calendars: two
+lists of ids that say how the chip row is arranged, while whether a calendar is connected at all
+stays in `calendars.enabled`.
 
 Stores expose their state as signals and **validate on read**: a stored value may come from an older
 app version or from a manually edited storage entry, so an unrecognised value falls back to the

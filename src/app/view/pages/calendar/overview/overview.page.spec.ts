@@ -63,9 +63,26 @@ class FakeCalendarOccurrencesInteractor {
 
 class FakeCalendarFiltersInteractor {
   calendars: CalendarFilterOption[] = [];
+  /** The interactor owns the hidden ids now, so the fake holds them as the real one would. */
+  readonly hidden = signal<ReadonlySet<string>>(new Set());
+  readonly hiddenIds = this.hidden.asReadonly();
+  readonly moves: { calendarId: string; toIndex: number }[] = [];
 
   listFilterable(): Promise<CalendarFilterOption[]> {
     return Promise.resolve(this.calendars);
+  }
+
+  toggleHidden(calendarId: string): void {
+    const next = new Set(this.hidden());
+    if (!next.delete(calendarId)) {
+      next.add(calendarId);
+    }
+    this.hidden.set(next);
+  }
+
+  move(calendarId: string, toIndex: number): Promise<void> {
+    this.moves.push({ calendarId, toIndex });
+    return Promise.resolve();
   }
 }
 

@@ -5,7 +5,6 @@ import {
   inject,
   input,
   resource,
-  signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
@@ -108,8 +107,11 @@ export class CalendarOverviewPage {
     loader: () => this.calendarFilters.listFilterable(),
   });
 
-  /** Empty means "nothing hidden yet" - every filterable calendar is visible by default. */
-  protected readonly hiddenCalendarIds = signal<ReadonlySet<string>>(new Set());
+  /**
+   * Owned by the interactor and persisted there, so hiding a calendar survives a tab switch and an
+   * app restart. Empty means "nothing hidden yet" - every filterable calendar is visible.
+   */
+  protected readonly hiddenCalendarIds = this.calendarFilters.hiddenIds;
 
   /** Every filterable calendar is hidden - the agenda swaps its empty state for an explanation. */
   protected readonly allSourcesHidden = computed(() => {
@@ -216,15 +218,7 @@ export class CalendarOverviewPage {
   }
 
   protected toggleCalendar(calendarId: string): void {
-    this.hiddenCalendarIds.update((hidden) => {
-      const next = new Set(hidden);
-      if (next.has(calendarId)) {
-        next.delete(calendarId);
-      } else {
-        next.add(calendarId);
-      }
-      return next;
-    });
+    this.calendarFilters.toggleHidden(calendarId);
   }
 
   private step(direction: -1 | 1): string {
