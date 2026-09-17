@@ -14,7 +14,11 @@
        and arrow-key navigation, so `aria-selected:` is enough to style the active tab without a
        manual "is this selected" class binding. -->
   <div class="bg-background safe-top sticky top-0 z-10">
-    <div class="flex items-center gap-2 px-4 py-2">
+    <!-- `pt-4` rather than the `py-2` the other tabs use: their first row holds icon buttons or
+         small date text inside a 48px control, so their visible content starts ~20px below the
+         safe area. The segmented control here is a filled track that starts at its own edge, so
+         with `pt-2` Inhalte looked noticeably tighter to the status bar than Heute and Kalender. -->
+    <div class="flex items-center gap-2 px-4 pt-4 pb-2">
       <h1 class="sr-only">Inhalte</h1>
 
       <ul
