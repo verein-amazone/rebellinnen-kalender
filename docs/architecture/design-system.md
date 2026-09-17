@@ -444,6 +444,13 @@ protected chooseCalendar(): void {
 From inside the content component: `inject(SheetRef).close(id)`, and `inject(SHEET_DATA)` for
 whatever was passed in.
 
+Focus lands on the sheet's heading, the way `PageFocus` treats a new screen. A sheet that exists to
+type one thing passes `initialFocus: 'content'` instead and marks that one field `cdkFocusInitial`
+
+- there the caret, and the keyboard it raises, is the reason the sheet was opened at all
+  (`reminder-edit` is the only such sheet today). The dialog keeps its `aria-labelledby` heading
+  either way, so it is still announced by name on entry.
+
 **The chrome lives in `view/components/sheet/`; the contents are presenters and belong in
 `view/dialogs/`.**
 

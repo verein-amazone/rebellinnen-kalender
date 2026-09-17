@@ -47,6 +47,7 @@ export class SheetService {
       mode: config.mode ?? 'bottom',
       dismissible: config.dismissible ?? true,
       dismissLabel: config.dismissLabel ?? 'Schließen',
+      initialFocus: config.initialFocus ?? 'heading',
     };
 
     const previouslyFocused = this.document.activeElement as HTMLElement | null;

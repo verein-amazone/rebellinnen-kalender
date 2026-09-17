@@ -154,6 +154,9 @@ export class ReminderListBlock {
     this.sheets
       .open<string, ReminderEditDialogData>(ReminderEditDialog, {
         heading: 'Neue Erinnerung',
+        // The field, not the heading: this sheet exists to type one line, and a tester asked for the
+        // caret to be waiting in it.
+        initialFocus: 'content',
         data,
       })
       .closed.subscribe(async (text) => {
@@ -297,6 +300,7 @@ export class ReminderListBlock {
     this.sheets
       .open<string, ReminderEditDialogData>(ReminderEditDialog, {
         heading: 'Erinnerung bearbeiten',
+        initialFocus: 'content',
         data,
       })
       .closed.subscribe(async (text) => {

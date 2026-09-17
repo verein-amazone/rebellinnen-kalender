@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 
 import { REMINDER_TEXT_MAX_LENGTH } from '@app/interactors/reminders/reminder-list.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
@@ -24,9 +32,22 @@ export class ReminderEditDialog {
   private readonly data = inject(SHEET_DATA) as ReminderEditDialogData;
   private readonly sheetRef = inject<SheetRef<string>>(SheetRef);
 
+  private readonly textInput = viewChild.required<ElementRef<HTMLInputElement>>('textInput');
+
   protected readonly maxLength = REMINDER_TEXT_MAX_LENGTH;
   protected readonly draft = signal(this.data.text);
   protected readonly error = signal('');
+
+  constructor() {
+    // Put the caret behind the existing text before the sheet's focus trap gets to the field, so
+    // editing an entry continues where it left off instead of selecting or prefixing it. WebKit
+    // restores a cached selection on focus, which is why this is set explicitly rather than left
+    // to "assigning value moves the caret to the end".
+    afterNextRender(() => {
+      const element = this.textInput().nativeElement;
+      element.setSelectionRange(element.value.length, element.value.length);
+    });
+  }
 
   protected updateDraft(value: string): void {
     this.draft.set(value);

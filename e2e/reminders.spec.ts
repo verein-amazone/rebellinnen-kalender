@@ -98,6 +98,30 @@ test.describe('the „Nicht vergessen“ list', () => {
     );
   });
 
+  test('opens the add sheet with the caret already in the field', async ({ page }) => {
+    await page.goto('/today');
+
+    await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+
+    const dialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });
+    await expect(dialog.getByLabel('Text der Erinnerung')).toBeFocused();
+  });
+
+  test('opens the edit sheet with the caret behind the existing text', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Blumen gießen');
+
+    await chooseAction(page, 'Blumen gießen', 'Bearbeiten');
+
+    const field = page
+      .getByRole('dialog', { name: 'Erinnerung bearbeiten' })
+      .getByLabel('Text der Erinnerung');
+    await expect(field).toBeFocused();
+    expect(await field.evaluate((element: HTMLInputElement) => element.selectionStart)).toBe(
+      'Blumen gießen'.length,
+    );
+  });
+
   test('puts a new entry at the top of the open ones', async ({ page }) => {
     await page.goto('/today');
     await addReminder(page, 'Zuerst');

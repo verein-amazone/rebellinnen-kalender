@@ -20,7 +20,8 @@ class VisibilityAgnosticInteractivityChecker extends InteractivityChecker {
 }
 
 @Component({
-  template: '<p>Inhalt</p><button type="button" (click)="close()">Fertig</button>',
+  template:
+    '<p>Inhalt</p><input type="text" cdkFocusInitial /><button type="button" (click)="close()">Fertig</button>',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class ContentComponent {
@@ -101,6 +102,13 @@ describe('SheetService', () => {
 
     expect(document.activeElement?.tagName).toBe('H2');
     expect(document.activeElement?.textContent?.trim()).toBe('Kalender wählen');
+  });
+
+  it("focuses the content's own initial element when the sheet is opened for one field", async () => {
+    service.open(ContentComponent, { heading: 'Neue Erinnerung', initialFocus: 'content' });
+    await flush();
+
+    expect(document.activeElement?.tagName).toBe('INPUT');
   });
 
   it('renders the content component and hands it the configured data', async () => {

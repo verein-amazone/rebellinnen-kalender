@@ -9,6 +9,16 @@ import { Observable, ReplaySubject } from 'rxjs';
  */
 export type SheetMode = 'bottom' | 'full';
 
+/**
+ * Where focus lands when the sheet opens.
+ *
+ * `heading` is the default and matches what `PageFocus` does on navigation, so opening a sheet
+ * sounds like opening a screen. `content` hands focus to the content's own `cdkFocusInitial`
+ * element and is for a sheet that exists to type one thing: there the caret in the field, and the
+ * keyboard it brings up, is the whole point of opening it.
+ */
+export type SheetInitialFocus = 'heading' | 'content';
+
 export interface SheetConfig<TData = undefined> {
   /**
    * Rendered as the sheet's heading and referenced by `aria-labelledby`. Required: a modal without
@@ -21,6 +31,8 @@ export interface SheetConfig<TData = undefined> {
   readonly dismissible?: boolean;
   /** Accessible name of the dismiss action. Override where the default is not specific enough. */
   readonly dismissLabel?: string;
+  /** Where focus lands on open. Defaults to `heading`. */
+  readonly initialFocus?: SheetInitialFocus;
   /** Handed to the content component through `SHEET_DATA`. */
   readonly data?: TData;
   /** Extra providers visible to the content component, for per-open configuration (e.g. tokens). */
@@ -33,6 +45,7 @@ export interface ResolvedSheetConfig {
   readonly mode: SheetMode;
   readonly dismissible: boolean;
   readonly dismissLabel: string;
+  readonly initialFocus: SheetInitialFocus;
 }
 
 /** The value passed as `SheetConfig.data`. Inject it in the content component. */
