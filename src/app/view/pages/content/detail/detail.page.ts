@@ -19,6 +19,7 @@ import type {
   ContentItemView,
   RelatedSourceView,
 } from '@app/interactors/daily-content/content-item.vm';
+import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
@@ -77,6 +78,9 @@ export class ContentDetailPage {
    * automatically by the router's component input binding, same as `id`.
    */
   readonly returnTo = input<string | null>(null);
+
+  /** `null` unless the caller passed a route of this app - see `safeInAppUrl`. */
+  protected readonly safeReturnTo = computed(() => safeInAppUrl(this.returnTo()));
 
   private readonly data = resource({
     params: () => this.id(),

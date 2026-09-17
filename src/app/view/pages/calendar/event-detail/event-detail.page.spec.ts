@@ -181,6 +181,7 @@ async function setup(inputs: {
   occurrence?: CalendarOccurrence | null;
   note?: string | null;
   view?: string;
+  returnTo?: string;
 }) {
   const occurrencesInteractor = new FakeCalendarOccurrencesInteractor();
   occurrencesInteractor.result = inputs.occurrence ?? null;
@@ -216,6 +217,9 @@ async function setup(inputs: {
   const fixture = TestBed.createComponent(EventDetailPage);
   fixture.componentRef.setInput('id', inputs.id);
   fixture.componentRef.setInput('view', inputs.view);
+  if (inputs.returnTo !== undefined) {
+    fixture.componentRef.setInput('returnTo', inputs.returnTo);
+  }
   await fixture.whenStable();
 
   return {
@@ -451,6 +455,21 @@ describe('EventDetailPage, edit', () => {
     });
   });
 
+  it('returns to the screen it was opened from after saving, when one was named', async () => {
+    const { button, settle, emitFormSave, navigate, navigateByUrl } = await setup({
+      id: 'occ-1',
+      returnTo: '/today',
+      occurrence: occurrence(),
+    });
+
+    button('Bearbeiten')?.click();
+    await settle();
+    await emitFormSave({ mode: 'edit', changes: { title: 'Zahnarzt (verschoben)' } });
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('navigates to the new day when the save moves the appointment to a different date', async () => {
     const { button, settle, emitFormSave, eventEditing, navigate } = await setup({
       id: 'occ-1',
@@ -500,6 +519,19 @@ describe('EventDetailPage, edit', () => {
     await settle();
 
     expect(navigateByUrl).toHaveBeenCalledWith('/calendar?day=2026-08-10', { replaceUrl: true });
+  });
+
+  it('returns to the screen the appointment was opened from when one was named', async () => {
+    const { button, settle, navigateByUrl } = await setup({
+      id: 'occ-1',
+      returnTo: '/today',
+      occurrence: occurrence({ startDay: '2026-08-10' }),
+    });
+
+    button('Zurück')?.click();
+    await settle();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
   });
 
   it("keeps the calendar's week/month view when the back-arrow is used", async () => {

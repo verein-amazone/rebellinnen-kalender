@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { Router } from '@angular/router';
 import { LucideCheck } from '@lucide/angular';
 
+import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import { AppEventEditingInteractor } from '@app/interactors/calendar/app-event-editing.interactor';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
@@ -36,6 +37,12 @@ export class NewEventPage {
    * cancelling or saving returns to the view the user started from rather than the default one.
    */
   readonly view = input<string | undefined>();
+  /**
+   * Bound from `?returnTo=`: the screen that opened this form, when that is not the calendar - the
+   * Today screen sets it. Both cancelling and saving go back there, because an appointment created
+   * from Heute belongs back on Heute even when it was created for another day.
+   */
+  readonly returnTo = input<string | null>(null);
 
   /** Only the two known views may travel back into the calendar's `?view=`. */
   private readonly returnView = computed(() => {
@@ -43,7 +50,15 @@ export class NewEventPage {
     return view === 'week' || view === 'month' ? view : undefined;
   });
 
+  /** `null` unless the caller passed a route of this app - see `safeInAppUrl`. */
+  private readonly origin = computed(() => safeInAppUrl(this.returnTo()));
+
   protected readonly cancelLink = computed(() => {
+    const origin = this.origin();
+    if (origin !== null) {
+      return origin;
+    }
+
     const view = this.returnView();
     return view === undefined ? '/calendar' : `/calendar?view=${view}`;
   });
@@ -54,8 +69,15 @@ export class NewEventPage {
     }
 
     await this.eventEditing.create(result.draft);
+
     // Replaces rather than pushes: the form is finished and must not be reachable again by the
     // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.
+    const origin = this.origin();
+    if (origin !== null) {
+      await this.router.navigateByUrl(origin, { replaceUrl: true });
+      return;
+    }
+
     await this.router.navigate(['/calendar'], {
       queryParams: { day: deviceLocalDay(result.draft.start), view: this.returnView() },
       replaceUrl: true,

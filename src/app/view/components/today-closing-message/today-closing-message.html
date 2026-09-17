@@ -7,9 +7,13 @@
     }
 
     @if (appointment(); as occurrence) {
+      <!-- Opened from Heute, so it also leaves back to Heute. `min-h-touch` and `hoverable:`
+           rather than a bare `hover:`: this is a tap target on a touch device, where a sticky
+           hover state would stay lit after the tap. -->
       <a
         [routerLink]="['/calendar', 'event', occurrence.id]"
-        class="text-muted-foreground text-xs underline-offset-2 hover:underline"
+        [queryParams]="{ returnTo: '/today' }"
+        class="text-muted-foreground min-h-touch hoverable:underline inline-flex items-center justify-center text-xs underline-offset-2"
       >
         {{ occurrence.title }}
       </a>

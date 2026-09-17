@@ -50,6 +50,18 @@ test.describe('application shell', () => {
     await expect(page.getByRole('heading', { name: 'Kalender', level: 1 })).toBeFocused();
   });
 
+  test('returns to Heute from a screen opened there', async ({ page }) => {
+    await page.goto('/today');
+    await page.getByRole('link', { name: 'Neuer Termin' }).click();
+
+    await expect(page).toHaveURL(/\/calendar\/event\/new\?/);
+
+    await page.getByRole('button', { name: 'Schließen' }).click();
+
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.getByRole('navigation', { name: 'Hauptbereiche' })).toBeVisible();
+  });
+
   test('does not move focus when switching primary destinations', async ({ page }) => {
     await page.goto('/');
 

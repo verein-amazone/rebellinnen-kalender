@@ -1,4 +1,4 @@
-<app-focused-screen [heading]="heading()" fallbackLink="/content" [returnTo]="returnTo()">
+<app-focused-screen [heading]="heading()" fallbackLink="/content" [returnTo]="safeReturnTo()">
   @if (item(); as headerContent) {
     <button
       header-actions
