@@ -21,7 +21,59 @@ describe('AppCalendarsInteractor', () => {
   let sources: CalendarSourceDao;
   let emojiPicker: FakeEmojiPicker;
 
+  /** The app calendar „Termine“ and a writable device calendar „Familie“, in that database order. */
+  async function seedAppAndDeviceCalendar(): Promise<void> {
+    const at = '2026-08-01T09:00:00.000Z';
+    await sources.insertSource({
+      id: 'app-source',
+      type: 'app',
+      name: 'App',
+      enabled: true,
+      state: 'ok',
+      createdAt: at,
+      updatedAt: at,
+    });
+    await sources.insertCalendar({
+      id: 'calendar-1',
+      sourceId: 'app-source',
+      name: 'Termine',
+      color: null,
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: null,
+      nativeSourceId: null,
+      nativeSourceName: null,
+      createdAt: at,
+      updatedAt: at,
+    });
+    await sources.insertSource({
+      id: 'device-source',
+      type: 'device',
+      name: 'Gerätekalender',
+      enabled: true,
+      state: 'ok',
+      createdAt: at,
+      updatedAt: at,
+    });
+    await sources.insertCalendar({
+      id: 'device-cal:cal-1',
+      sourceId: 'device-source',
+      name: 'Familie',
+      color: null,
+      emoji: null,
+      enabled: true,
+      writable: true,
+      externalId: 'cal-1',
+      nativeSourceId: null,
+      nativeSourceName: null,
+      createdAt: at,
+      updatedAt: at,
+    });
+  }
+
   beforeEach(() => {
+    localStorage.clear();
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
     emojiPicker = new FakeEmojiPicker();
@@ -237,5 +289,34 @@ describe('AppCalendarsInteractor', () => {
     emojiPicker.result = null;
 
     await expect(interactor.pickEmoji()).resolves.toBeNull();
+  });
+
+  it('follows the order the user arranged for the calendar screen', async () => {
+    await seedAppAndDeviceCalendar();
+    localStorage.setItem(
+      'rk.calendarChips',
+      JSON.stringify({ hiddenCalendarIds: [], calendarOrder: ['device-cal:cal-1', 'calendar-1'] }),
+    );
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SQLITE_DATABASE, useValue: database },
+        { provide: NativeEmojiPicker, useValue: emojiPicker },
+      ],
+    });
+
+    const ids = (await TestBed.inject(AppCalendarsInteractor).listWritable()).map(
+      (calendar) => calendar.id,
+    );
+
+    expect(ids).toEqual(['device-cal:cal-1', 'calendar-1']);
+  });
+
+  it('leaves calendars the user never arranged in their database order', async () => {
+    await seedAppAndDeviceCalendar();
+
+    const ids = (await interactor.listWritable()).map((calendar) => calendar.id);
+
+    expect(ids).toEqual(['calendar-1', 'device-cal:cal-1']);
   });
 });

@@ -1,6 +1,7 @@
 import { computed, inject, Injectable } from '@angular/core';
 
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import { placementRank } from '@app/data/stores/calendar-chip-preferences';
 import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
 import type { CalendarRecord, CalendarSourceType } from '@app/data/entities/calendar-source.record';
 
@@ -90,16 +91,13 @@ export class CalendarFiltersInteractor {
 
     // The user's own arrangement wins; anything they have not placed follows in the default order,
     // so a calendar connected after the last reordering appears at the end rather than at random.
-    const order = this.chips.preferences().calendarOrder;
-    const placedAt = new Map(order.map((id, index) => [id, index]));
-    const rankOfPlacement = (calendar: CalendarRecord): number =>
-      placedAt.get(calendar.id) ?? Number.MAX_SAFE_INTEGER;
+    const rankOfPlacement = placementRank(this.chips.preferences().calendarOrder);
 
     return calendars
       .filter((calendar) => calendar.enabled && enabledSourceIds.has(calendar.sourceId))
       .sort(
         (one, other) =>
-          rankOfPlacement(one) - rankOfPlacement(other) ||
+          rankOfPlacement(one.id) - rankOfPlacement(other.id) ||
           rankOf(one) - rankOf(other) ||
           one.name.localeCompare(other.name),
       )

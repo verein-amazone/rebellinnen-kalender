@@ -26,3 +26,16 @@ export const DEFAULT_CALENDAR_CHIP_PREFERENCES: CalendarChipPreferences = {
   hiddenCalendarIds: [],
   calendarOrder: [],
 };
+
+/**
+ * Where a calendar sits in the user's arranged order - `Number.MAX_SAFE_INTEGER` for one they
+ * never placed, so it sorts after everything they did.
+ *
+ * Returned as a lookup rather than applied here, because each list decides for itself what to do
+ * with the rest: the chip row falls back to its own default rule, the appointment picker keeps the
+ * database order it already had. Both sort stably, so unplaced calendars keep their relative order.
+ */
+export function placementRank(order: readonly string[]): (calendarId: string) => number {
+  const placedAt = new Map(order.map((id, index) => [id, index]));
+  return (calendarId) => placedAt.get(calendarId) ?? Number.MAX_SAFE_INTEGER;
+}
