@@ -10,6 +10,13 @@
 # belongs to the commit *before* the release commit and to a different workflow run, and an upload
 # has to be reproducible from the tag alone.
 #
+# Each job is gated on its own repository variable - TESTFLIGHT_UPLOADS_ENABLED and
+# PLAY_UPLOADS_ENABLED - rather than on a single switch for both. The two stores are set up at
+# different times and by different people, and one platform waiting for credentials must not turn
+# every release run red. A job whose variable is not `true` reports as skipped, which is green.
+# The gates apply to a manual run as well, deliberately: there is no way to upload past a store
+# that is not ready.
+#
 # The release has already happened by the time this runs, so a failed upload leaves the tag and the
 # GitHub release behind. That is the lesser evil - unpublishing a release is worse than a prerelease
 # that never reached a tester. Re-run this workflow for the same tag; the build number is derived
@@ -50,6 +57,7 @@ env:
 jobs:
   testflight:
     name: TestFlight
+    if: vars.TESTFLIGHT_UPLOADS_ENABLED == 'true'
     runs-on: macos-latest
     environment: testflight
     # The archive dominates the run; `pilot` then waits only until the build appears in App Store
@@ -133,6 +141,7 @@ jobs:
 
   play-internal:
     name: Play internal testing
+    if: vars.PLAY_UPLOADS_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: play-internal
     timeout-minutes: 45

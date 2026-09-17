@@ -10,9 +10,9 @@
 # that only moves version numbers.
 #
 # A prerelease from `dev` continues straight into .github/workflows/store-upload.yml, which builds
-# the tag and hands the result to TestFlight and Play internal testing. That step is gated on the
-# repository variable STORE_UPLOADS_ENABLED, so this workflow stays green before the store
-# credentials exist.
+# the tag and hands the result to TestFlight and Play internal testing. Each of those two uploads is
+# gated on its own repository variable, so this workflow stays green before the store credentials
+# exist and while only one of the two stores is ready.
 #
 # When branch protection lands (#75), this workflow needs a bypass for `dev` and `main`: it pushes
 # straight to the branch rather than opening a pull request, and a protected branch without a bypass
@@ -77,17 +77,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm exec semantic-release
 
-  # Store uploads happen in the same run, from the tag that was just created. Gated on the
-  # repository variable STORE_UPLOADS_ENABLED so the credentials can be set up (or switched off
-  # again) without touching a workflow file. `main` is deliberately excluded until #75 lets it
-  # release at all and the App Store / Play production lanes exist.
+  # Store uploads happen in the same run, from the tag that was just created. Which platforms
+  # actually upload is decided per job inside the called workflow, by one repository variable each,
+  # so one store can go live while the other is still waiting for its credentials. `main` is
+  # deliberately excluded until #75 lets it release at all and the App Store / Play production lanes
+  # exist.
   store-upload:
     name: Store upload
     needs: release
-    if: >-
-      needs.release.outputs.released == 'true'
-      && github.ref_name == 'dev'
-      && vars.STORE_UPLOADS_ENABLED == 'true'
+    if: needs.release.outputs.released == 'true' && github.ref_name == 'dev'
     permissions:
       contents: read
     uses: ./.github/workflows/store-upload.yml
