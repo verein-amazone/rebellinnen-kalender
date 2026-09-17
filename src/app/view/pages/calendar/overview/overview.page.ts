@@ -31,6 +31,8 @@ import {
 } from '@app/view/blocks/calendar-grid/calendar-grid.block';
 import { CalendarSourceFilterBlock } from '@app/view/blocks/calendar-source-filter/calendar-source-filter.block';
 
+import { HorizontalSwipeDirective } from './horizontal-swipe.directive';
+
 type ViewMode = 'week' | 'month';
 
 /**
@@ -49,6 +51,7 @@ type ViewMode = 'week' | 'month';
   host: { class: 'block' },
   imports: [
     CalendarAgendaBlock,
+    HorizontalSwipeDirective,
     CalendarGridBlock,
     CalendarSourceFilterBlock,
     NgTemplateOutlet,

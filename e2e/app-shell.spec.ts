@@ -50,6 +50,27 @@ test.describe('application shell', () => {
     await expect(page.getByRole('heading', { name: 'Kalender', level: 1 })).toBeFocused();
   });
 
+  test('pages the calendar by dragging the grid sideways, and still selects a tapped day', async ({
+    page,
+  }) => {
+    await page.goto('/calendar?view=week&day=2026-08-05');
+
+    const grid = page.locator('app-calendar-grid');
+    const box = (await grid.boundingBox())!;
+    const y = box.y + box.height / 2;
+
+    await page.mouse.move(box.x + box.width - 20, y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 20, y, { steps: 10 });
+    await page.mouse.up();
+
+    await expect(page).toHaveURL(/day=2026-08-12/);
+
+    // The drag must not also select whatever day it ended on, but a plain tap still has to work.
+    await page.getByRole('button', { name: /13\./ }).first().click();
+    await expect(page).toHaveURL(/day=2026-08-13/);
+  });
+
   test('returns to Heute from a screen opened there', async ({ page }) => {
     await page.goto('/today');
     await page.getByRole('link', { name: 'Neuer Termin' }).click();

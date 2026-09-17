@@ -145,6 +145,10 @@ double tap, no drag as the only way to get something done. The reminder rows put
 visible `⋯` trigger for exactly this reason - a swipe-to-delete would be invisible and undiscoverable,
 and a screen reader user could not perform it at all. The same rows can be dragged into a new order,
 and „Nach oben“ / „Nach unten“ sit in that menu so the drag stays an accelerator rather than the way.
+The calendar grid pages to the previous or next week/month on a horizontal swipe for the same reason
+it is allowed to: the chevrons in the header do the same thing and stay. A swiping element needs
+`touch-pan-y touch-pinch-zoom` - `touch-action` is intersected with the `manipulation` its buttons
+already carry, so `pan-y` alone would take pinch-zoom away inside it.
 
 **Targets stay at `min-h-touch`.** 48px, as a minimum rather than a fixed height, so a label that wraps
 at a large text size does not clip. Icon buttons get it from `rk-control-base`.
