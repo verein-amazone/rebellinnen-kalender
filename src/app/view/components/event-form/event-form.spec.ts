@@ -225,10 +225,11 @@ describe('EventForm, create mode', () => {
     expect(form.saved).toHaveLength(1);
     const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
     expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
-    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-02', timeZone: null });
+    // The last day the appointment covers, not the day after it - one day means start === end.
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
   });
 
-  it('builds a multi-day all-day draft, storing the exclusive day after the chosen end date', async () => {
+  it('builds a multi-day all-day draft, storing the chosen end date as its last day', async () => {
     const form = await setup({ mode: 'create' });
     await form.expandDateTime();
 
@@ -242,7 +243,7 @@ describe('EventForm, create mode', () => {
     expect(form.saved).toHaveLength(1);
     const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
     expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
-    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-04', timeZone: null });
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-03', timeZone: null });
   });
 
   it('blocks save when the all-day end date is before the start date', async () => {
@@ -488,7 +489,7 @@ describe('EventForm, all-day toggle', () => {
     const allDayOccurrence = timedOccurrence({
       allDay: true,
       start: { kind: 'date', value: '2026-08-10', timeZone: null },
-      end: { kind: 'date', value: '2026-08-11', timeZone: null },
+      end: { kind: 'date', value: '2026-08-10', timeZone: null },
     });
     const form = await setup({
       mode: 'edit',
@@ -501,8 +502,7 @@ describe('EventForm, all-day toggle', () => {
 
     expect(form.field('event-form-date-time-start-time').value).not.toBe('');
     expect(form.field('event-form-date-time-end-time').value).not.toBe('');
-    // The occurrence's stored end (2026-08-11) is the exclusive day after an all-day span, not a
-    // date the end-date picker should ever show once the appointment becomes timed.
+    // The stored end is the last day the appointment covers, so the picker shows it unchanged.
     expect(form.field('event-form-date-time-end-date').value).toBe('2026-08-10');
   });
 });

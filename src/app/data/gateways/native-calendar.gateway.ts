@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
   CalendarPermissionScope,
   CAPACITOR_CALENDAR,
@@ -32,6 +33,7 @@ export interface DeviceEventDraft {
   readonly title: string;
   readonly location: string | null;
   readonly startUtc: string;
+  /** Exclusive, like every other `*Utc` end in the data layer - midnight after an all-day's last day. */
   readonly endUtc: string;
   readonly isAllDay: boolean;
 }
@@ -66,6 +68,7 @@ const DEFAULT_ALERT_MINUTES_BEFORE_START = 15;
 @Injectable({ providedIn: 'root' })
 export class NativeCalendarGateway {
   private readonly plugin = inject(CAPACITOR_CALENDAR);
+  private readonly platform = inject(DevicePlatformService);
 
   async checkReadPermission(): Promise<DeviceCalendarPermission> {
     const { result } = await this.plugin.checkPermission({
@@ -137,7 +140,7 @@ export class NativeCalendarGateway {
       title: draft.title,
       location: draft.location ?? undefined,
       startDate: Date.parse(draft.startUtc),
-      endDate: Date.parse(draft.endUtc),
+      endDate: this.nativeEndDate(draft),
       isAllDay: draft.isAllDay,
       alerts: draft.isAllDay ? undefined : [-DEFAULT_ALERT_MINUTES_BEFORE_START],
     });
@@ -148,6 +151,21 @@ export class NativeCalendarGateway {
       throw new Error('The device calendar did not return an id for the created event.');
     }
     return { eventId: id };
+  }
+
+  /**
+   * The end the platform's calendar store wants, from the app's own exclusive one.
+   *
+   * EventKit reads an all-day event's end as the last day it covers, so handing it the exclusive
+   * midnight would create an appointment one day too long. Android's `CalendarContract` takes the
+   * exclusive value as-is, which is what the app already has. The last instant before the
+   * exclusive end says "that day" in both readings without any date arithmetic in a time zone.
+   */
+  private nativeEndDate(draft: DeviceEventDraft): number {
+    const endUtc = Date.parse(draft.endUtc);
+    const isLastDayInclusive = draft.isAllDay && this.platform.platform === 'ios';
+
+    return isLastDayInclusive ? endUtc - 1 : endUtc;
   }
 }
 

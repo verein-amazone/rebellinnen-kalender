@@ -228,6 +228,14 @@ computed `start_utc`/`end_utc` (end exclusive) and device-zone day columns; `dat
 rows are computed in the device zone at materialization time, which is legitimate because a zone
 change triggers a rebuild (`CalendarMaintenanceInteractor`).
 
+**A `date` end is inclusive: the last day the appointment covers.** That holds for every stored
+record - app items, ICS items, the device cache - and for the event form that writes them. Only the
+computed `*_utc` columns are exclusive, and `DeviceEventDraft.endUtc` follows them; the native
+gateway translates that into whatever the platform's calendar store expects (EventKit wants the
+last day, `CalendarContract` the exclusive one). The form used to write the exclusive day instead,
+which made every all-day appointment render a day too long - migration 016 repairs the rows it
+wrote.
+
 ### Occurrence identity
 
 Identity is always source-scoped: `app:<series>#<originalStart>`,

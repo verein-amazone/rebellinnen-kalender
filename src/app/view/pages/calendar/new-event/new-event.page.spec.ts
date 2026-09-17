@@ -187,7 +187,7 @@ describe('NewEventPage, create', () => {
       location: null,
       note: null,
       start: { kind: 'date', value: '2026-09-01', timeZone: null },
-      end: { kind: 'date', value: '2026-09-02', timeZone: null },
+      end: { kind: 'date', value: '2026-09-01', timeZone: null },
       rrule: null,
     });
     expect(navigate).toHaveBeenCalledWith(['/calendar'], {

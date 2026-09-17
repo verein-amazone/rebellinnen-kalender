@@ -12,6 +12,8 @@ import {
   type AppEventDraft,
 } from './app-event-editing.interactor';
 
+import { Temporal } from 'temporal-polyfill';
+
 function draft(overrides: Partial<AppEventDraft> = {}): AppEventDraft {
   return {
     calendarId: 'calendar-1',
@@ -203,5 +205,29 @@ describe('AppEventEditingInteractor targeting a device calendar', () => {
       expect.objectContaining({ calendarId: 'cal-1', title: 'Plenum' }),
     );
     await expect(items.listAll()).resolves.toEqual([]);
+  });
+
+  it('hands an all-day event to the OS with the exclusive end the gateway expects', async () => {
+    // The draft's `date` end names the last day covered; `DeviceEventDraft.endUtc` is exclusive,
+    // so a single-day all-day appointment reaches the gateway as the following midnight.
+    await interactor.create(
+      draft({
+        calendarId: 'device-cal:cal-1',
+        start: { kind: 'date', value: '2026-09-18', timeZone: null },
+        end: { kind: 'date', value: '2026-09-18', timeZone: null },
+        rrule: null,
+      }),
+    );
+
+    const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const exclusiveEnd = Temporal.PlainDate.from('2026-09-19')
+      .toZonedDateTime(deviceZone)
+      .toInstant();
+    expect(createdOptions).toEqual(
+      expect.objectContaining({
+        isAllDay: true,
+        endDate: exclusiveEnd.epochMilliseconds,
+      }),
+    );
   });
 });

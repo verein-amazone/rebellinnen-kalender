@@ -206,7 +206,9 @@ export async function seedOccurrence(
       const sourceName =
         sourceType === 'app' ? 'App' : sourceType === 'device' ? 'Gerätekalender' : 'ICS-Kalender';
       const provenance = sourceType === 'app' ? 'standalone' : 'device-cached';
-      const endDay = endUtc.toISOString().slice(0, 10);
+      // `end_utc` is exclusive (the midnight after), while a `date` end names the last day the
+      // appointment covers - a one-day all-day row therefore ends on the day it starts.
+      const endDay = localDay;
       // Only an `app` occurrence has a canonical `app_items` row behind it; a `null` `item_id`
       // makes the detail page's edit/delete handlers no-op (`occurrence.itemId === null` is their
       // guard against exactly a missing item), so a real id is needed to exercise those flows.

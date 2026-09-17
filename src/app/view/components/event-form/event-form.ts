@@ -404,14 +404,9 @@ function modelFromOccurrence(
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const start = toDeviceParts(occurrence.start, deviceZone);
   const end = occurrence.end !== null ? toDeviceParts(occurrence.end, deviceZone) : null;
-  // An all-day occurrence's stored end is the exclusive day after the last day it covers (see
-  // `toEndValue`) - the end-date picker shows the last day the appointment actually covers, one
-  // day before that.
-  const endDate = occurrence.allDay
-    ? end !== null
-      ? Temporal.PlainDate.from(end.date).subtract({ days: 1 }).toString()
-      : start.date
-    : (end?.date ?? start.date);
+  // A stored `date` end is the last day the appointment covers, which is exactly what the
+  // end-date picker shows - for an all-day occurrence as much as for a timed one.
+  const endDate = end?.date ?? start.date;
 
   return {
     calendarId: occurrence.calendarId,
@@ -440,11 +435,11 @@ function toStartValue(model: EventFormModel, deviceZone: string): TemporalValue 
 
 function toEndValue(model: EventFormModel, deviceZone: string): TemporalValue {
   if (model.allDay) {
-    // Storage's end is the exclusive day after the last day covered, so a same-day all-day
-    // appointment (`endDate === date`) still stores tomorrow - a multi-day one stores the day
-    // after its own `endDate`.
-    const end = Temporal.PlainDate.from(model.endDate).add({ days: 1 });
-    return { kind: 'date', value: end.toString(), timeZone: null };
+    // A `date` end is the last day the appointment covers, inclusive - the convention every
+    // record in the data layer already uses (see `occurrence-materializer.ts`, `ics-parser.ts`,
+    // `device-normalizer.ts`). Storing the day after instead made every all-day appointment
+    // render one day too long.
+    return { kind: 'date', value: model.endDate, timeZone: null };
   }
 
   return { kind: 'zoned', value: `${model.endDate}T${model.endTime}:00`, timeZone: deviceZone };
