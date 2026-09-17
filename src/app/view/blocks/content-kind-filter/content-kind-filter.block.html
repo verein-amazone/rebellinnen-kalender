@@ -1,7 +1,11 @@
 <!-- `-mx-4 px-4`: breaks out of the page's own `px-4` gutter so the track scrolls edge-to-edge
      instead of being clipped by it, then puts the same 1rem gutter back as padding *inside* the
      scroll area - the same treatment the calendar's source filter uses. -->
-<div class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="group" aria-label="Sammlung filtern">
+<div
+  class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+  role="group"
+  aria-label="Sammlung filtern"
+>
   @for (kind of kinds(); track kind.id) {
     <button
       type="button"
