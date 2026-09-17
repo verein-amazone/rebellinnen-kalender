@@ -59,12 +59,12 @@ describe('TodayGreetingBlock', () => {
     expect(element.textContent).toContain('Guten Abend');
   });
 
-  it('includes the stored name in the greeting', () => {
+  it('includes the stored name in the greeting, without a comma before it', () => {
     const { element, profile, fixture } = setup(9);
     profile.name.set('Nina');
     fixture.detectChanges();
 
-    expect(element.querySelector('h1')?.textContent).toContain('Nina');
+    expect(element.querySelector('h1')?.textContent?.trim()).toBe('Guten Morgen Nina');
   });
 
   it('stays usable without a name', () => {

@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import { placementRank } from '@app/data/stores/calendar-chip-preferences';
+import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 
 /**
@@ -30,6 +32,7 @@ export interface WritableAppCalendar {
 export class AppCalendarsInteractor {
   private readonly sources = inject(CalendarSourceDao);
   private readonly repository = inject(CalendarRepository);
+  private readonly chips = inject(CalendarChipsStore);
   private readonly emojiPicker = inject(NativeEmojiPicker);
 
   /**
@@ -52,6 +55,12 @@ export class AppCalendarsInteractor {
       sources.filter((source) => source.enabled).map((source) => source.id),
     );
 
+    // The order the user arranged for the calendar screen's chips, so one list does not contradict
+    // the other. Only within the picker's own two sections, which the dialog groups by source type,
+    // and stable, so anything unplaced keeps the database order it had. Which calendar a new
+    // appointment defaults to does not depend on this - see `EventForm.applyDefaultCalendar`.
+    const rankOfPlacement = placementRank(this.chips.preferences().calendarOrder);
+
     return calendars
       .filter((calendar) => {
         const sourceType = sourceTypeById.get(calendar.sourceId);
@@ -65,6 +74,7 @@ export class AppCalendarsInteractor {
           enabledSourceIds.has(calendar.sourceId)
         );
       })
+      .sort((one, other) => rankOfPlacement(one.id) - rankOfPlacement(other.id))
       .map((calendar) => ({
         id: calendar.id,
         name: calendar.name,

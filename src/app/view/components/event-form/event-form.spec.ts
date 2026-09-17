@@ -165,13 +165,39 @@ async function setup(inputs: {
 }
 
 describe('EventForm, create mode', () => {
-  it('defaults the calendar picker to the first writable calendar, and leaves the title blank', async () => {
+  it('defaults the calendar picker to a writable calendar, and leaves the title blank', async () => {
     const form = await setup({ mode: 'create' });
 
     expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
 
     const title = form.element.querySelector<HTMLInputElement>('input[type="text"]');
     expect(title?.value).toBe('');
+  });
+
+  it("defaults to the app's own calendar, whatever position it is listed in", async () => {
+    // The list may be arranged by the user (Einstellungen › Kalender verwalten › Reihenfolge), so
+    // the default must follow the source type rather than "whatever came first".
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-privat', name: 'Privat', color: null, emoji: null, sourceType: 'app' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
+  });
+
+  it('falls back to the first calendar when there is no app calendar at all', async () => {
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-familie', name: 'Familie', color: null, emoji: null, sourceType: 'device' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Arbeit');
   });
 
   it('prefills the date from initialDate, e.g. the day the user was viewing', async () => {
@@ -225,10 +251,11 @@ describe('EventForm, create mode', () => {
     expect(form.saved).toHaveLength(1);
     const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
     expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
-    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-02', timeZone: null });
+    // The last day the appointment covers, not the day after it - one day means start === end.
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
   });
 
-  it('builds a multi-day all-day draft, storing the exclusive day after the chosen end date', async () => {
+  it('builds a multi-day all-day draft, storing the chosen end date as its last day', async () => {
     const form = await setup({ mode: 'create' });
     await form.expandDateTime();
 
@@ -242,7 +269,7 @@ describe('EventForm, create mode', () => {
     expect(form.saved).toHaveLength(1);
     const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
     expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
-    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-04', timeZone: null });
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-03', timeZone: null });
   });
 
   it('blocks save when the all-day end date is before the start date', async () => {
@@ -488,7 +515,7 @@ describe('EventForm, all-day toggle', () => {
     const allDayOccurrence = timedOccurrence({
       allDay: true,
       start: { kind: 'date', value: '2026-08-10', timeZone: null },
-      end: { kind: 'date', value: '2026-08-11', timeZone: null },
+      end: { kind: 'date', value: '2026-08-10', timeZone: null },
     });
     const form = await setup({
       mode: 'edit',
@@ -501,8 +528,7 @@ describe('EventForm, all-day toggle', () => {
 
     expect(form.field('event-form-date-time-start-time').value).not.toBe('');
     expect(form.field('event-form-date-time-end-time').value).not.toBe('');
-    // The occurrence's stored end (2026-08-11) is the exclusive day after an all-day span, not a
-    // date the end-date picker should ever show once the appointment becomes timed.
+    // The stored end is the last day the appointment covers, so the picker shows it unchanged.
     expect(form.field('event-form-date-time-end-date').value).toBe('2026-08-10');
   });
 });

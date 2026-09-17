@@ -273,10 +273,14 @@ export class EventForm {
 
   /**
    * The picker always has a value once there is anything to pick: a create-mode form with an empty
-   * `calendarId` defaults to the first writable calendar as soon as the list resolves, rather than
-   * asking the user to make an otherwise-pointless choice among app calendars they cannot tell
-   * apart yet. Edit mode never runs this - `calendarId` there comes from the occurrence being
-   * edited and the field is disabled.
+   * `calendarId` defaults to a writable calendar as soon as the list resolves, rather than asking
+   * the user to make an otherwise-pointless choice. Edit mode never runs this - `calendarId` there
+   * comes from the occurrence being edited and the field is disabled.
+   *
+   * The app's own calendar is preferred by its source type rather than by being first in the list:
+   * „Termine, die du direkt in der App anlegst, werden in diesem Kalender gespeichert“ is what the
+   * settings promise, and it must not change because the user rearranged the list somewhere else.
+   * A device calendar is only the default when there is no app calendar at all.
    */
   private readonly applyDefaultCalendar = effect(() => {
     if (this.mode() !== 'create') {
@@ -285,9 +289,13 @@ export class EventForm {
 
     const calendars = this.calendars();
     const field = this.form.calendarId;
-    if (calendars.length > 0 && field().value() === '') {
-      field().value.set(calendars[0].id);
+    if (calendars.length === 0 || field().value() !== '') {
+      return;
     }
+
+    const preferred =
+      calendars.find((calendar) => calendar.sourceType !== 'device') ?? calendars[0];
+    field().value.set(preferred.id);
   });
 
   /**
@@ -404,14 +412,9 @@ function modelFromOccurrence(
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const start = toDeviceParts(occurrence.start, deviceZone);
   const end = occurrence.end !== null ? toDeviceParts(occurrence.end, deviceZone) : null;
-  // An all-day occurrence's stored end is the exclusive day after the last day it covers (see
-  // `toEndValue`) - the end-date picker shows the last day the appointment actually covers, one
-  // day before that.
-  const endDate = occurrence.allDay
-    ? end !== null
-      ? Temporal.PlainDate.from(end.date).subtract({ days: 1 }).toString()
-      : start.date
-    : (end?.date ?? start.date);
+  // A stored `date` end is the last day the appointment covers, which is exactly what the
+  // end-date picker shows - for an all-day occurrence as much as for a timed one.
+  const endDate = end?.date ?? start.date;
 
   return {
     calendarId: occurrence.calendarId,
@@ -440,11 +443,11 @@ function toStartValue(model: EventFormModel, deviceZone: string): TemporalValue 
 
 function toEndValue(model: EventFormModel, deviceZone: string): TemporalValue {
   if (model.allDay) {
-    // Storage's end is the exclusive day after the last day covered, so a same-day all-day
-    // appointment (`endDate === date`) still stores tomorrow - a multi-day one stores the day
-    // after its own `endDate`.
-    const end = Temporal.PlainDate.from(model.endDate).add({ days: 1 });
-    return { kind: 'date', value: end.toString(), timeZone: null };
+    // A `date` end is the last day the appointment covers, inclusive - the convention every
+    // record in the data layer already uses (see `occurrence-materializer.ts`, `ics-parser.ts`,
+    // `device-normalizer.ts`). Storing the day after instead made every all-day appointment
+    // render one day too long.
+    return { kind: 'date', value: model.endDate, timeZone: null };
   }
 
   return { kind: 'zoned', value: `${model.endDate}T${model.endTime}:00`, timeZone: deviceZone };

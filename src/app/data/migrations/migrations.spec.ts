@@ -1,6 +1,7 @@
 import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
 import { CREATE_REMINDERS } from './001-create-reminders';
 import { ADD_REMINDER_POSITION } from './002-add-reminder-position';
+import { REPAIR_ALL_DAY_END } from './016-repair-all-day-end';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -91,5 +92,121 @@ describe('MIGRATIONS', () => {
     ]);
 
     database.close();
+  });
+
+  describe('the all-day end repair', () => {
+    /** Everything up to, but not including, the repair - the schema as the buggy form wrote it. */
+    async function setupBeforeRepair(): Promise<InMemorySqliteDatabase> {
+      const database = new InMemorySqliteDatabase();
+      database.migrate(MIGRATIONS.filter((migration) => migration.toVersion < 16));
+
+      const now = '2026-09-10T08:00:00.000Z';
+      await database.run(
+        `INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at)
+         VALUES ('src-app', 'app', 'App', 1, 'ok', ?, ?), ('src-device', 'device', 'Gerät', 1, 'ok', ?, ?)`,
+        [now, now, now, now],
+      );
+      await database.run(
+        `INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at)
+         VALUES ('cal-1', 'src-app', 'Mein Kalender', NULL, NULL, 1, 1, NULL, ?, ?)`,
+        [now, now],
+      );
+
+      const item = (
+        id: string,
+        startKind: string,
+        startValue: string,
+        endKind: string,
+        endValue: string,
+      ) =>
+        database.run(
+          `INSERT INTO app_items (
+             id, calendar_id, kind, title, location, note, start_kind, start_value, start_tz,
+             end_kind, end_value, end_tz, rrule, predecessor_series_id, rule_revision, created_at, updated_at
+           ) VALUES (?, 'cal-1', 'event', ?, NULL, NULL, ?, ?, NULL, ?, ?, NULL, NULL, NULL, 0, ?, ?)`,
+          [id, id, startKind, startValue, endKind, endValue, now, now],
+        );
+
+      await item('one-day', 'date', '2026-09-18', 'date', '2026-09-19');
+      await item('three-days', 'date', '2026-09-18', 'date', '2026-09-21');
+      await item('timed', 'zoned', '2026-09-18T09:00:00', 'zoned', '2026-09-18T10:00:00');
+      await database.run(
+        `INSERT INTO app_item_exceptions (
+           series_id, original_start, status, title, location, note, start_kind, start_value, start_tz,
+           end_kind, end_value, end_tz, created_at, updated_at
+         ) VALUES ('three-days', '2026-09-18', 'override', NULL, NULL, NULL, NULL, NULL, NULL, 'date', '2026-09-20', NULL, ?, ?)`,
+        [now, now],
+      );
+
+      await database.run(
+        `INSERT INTO source_coverage (source_id, window_start_utc, window_end_utc, engine_version, updated_at)
+         VALUES ('src-app', ?, ?, 'rrule-temporal@1.0.0', ?), ('src-device', ?, ?, 'rrule-temporal@1.0.0', ?)`,
+        [now, now, now, now, now, now],
+      );
+
+      return database;
+    }
+
+    it('moves an all-day end back to the last day the appointment actually covers', async () => {
+      const database = await setupBeforeRepair();
+
+      database.migrate([REPAIR_ALL_DAY_END]);
+
+      const rows = await database.query<{ readonly id: string; readonly end_value: string }>(
+        `SELECT id, end_value FROM app_items ORDER BY id`,
+      );
+      expect(rows).toEqual([
+        { id: 'one-day', end_value: '2026-09-18' },
+        { id: 'three-days', end_value: '2026-09-20' },
+        { id: 'timed', end_value: '2026-09-18T10:00:00' },
+      ]);
+
+      database.close();
+    });
+
+    it("repairs an exception through its series' start kind, since it has none of its own", async () => {
+      const database = await setupBeforeRepair();
+
+      database.migrate([REPAIR_ALL_DAY_END]);
+
+      const [exception] = await database.query<{ readonly end_value: string }>(
+        `SELECT end_value FROM app_item_exceptions`,
+      );
+      expect(exception?.end_value).toBe('2026-09-19');
+
+      database.close();
+    });
+
+    it('leaves an already-correct row alone when it is migrated twice over', async () => {
+      const database = await setupBeforeRepair();
+
+      database.migrate([REPAIR_ALL_DAY_END]);
+      // A shipped migration never runs twice on a device; this only proves the guard is the reason.
+      database.migrate([REPAIR_ALL_DAY_END]);
+
+      const [row] = await database.query<{ readonly end_value: string }>(
+        `SELECT end_value FROM app_items WHERE id = 'one-day'`,
+      );
+      expect(row?.end_value).toBe('2026-09-18');
+
+      database.close();
+    });
+
+    it('marks only the app sources for a rebuild of their materialized rows', async () => {
+      const database = await setupBeforeRepair();
+
+      database.migrate([REPAIR_ALL_DAY_END]);
+
+      const coverage = await database.query<{
+        readonly source_id: string;
+        readonly engine_version: string;
+      }>(`SELECT source_id, engine_version FROM source_coverage ORDER BY source_id`);
+      expect(coverage).toEqual([
+        { source_id: 'src-app', engine_version: 'repair-016-all-day-end' },
+        { source_id: 'src-device', engine_version: 'rrule-temporal@1.0.0' },
+      ]);
+
+      database.close();
+    });
   });
 });

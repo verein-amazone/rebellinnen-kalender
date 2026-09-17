@@ -1,13 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import type { CapacitorCalendar } from '@ebarooni/capacitor-calendar';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { CAPACITOR_CALENDAR } from '@app/cross-cutting/plugins/calendar.plugin';
 import { NativeCalendarGateway } from './native-calendar.gateway';
 
-function setup(plugin: Partial<typeof CapacitorCalendar>): NativeCalendarGateway {
+function setup(
+  plugin: Partial<typeof CapacitorCalendar>,
+  platform: 'ios' | 'android' | 'web' = 'web',
+): NativeCalendarGateway {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [{ provide: CAPACITOR_CALENDAR, useValue: plugin }],
+    providers: [
+      { provide: CAPACITOR_CALENDAR, useValue: plugin },
+      { provide: DevicePlatformService, useValue: { platform } },
+    ],
   });
 
   return TestBed.inject(NativeCalendarGateway);
@@ -211,6 +218,56 @@ describe('NativeCalendarGateway', () => {
     });
 
     expect(sentOptions).toEqual(expect.objectContaining({ isAllDay: true, alerts: undefined }));
+  });
+
+  it("hands iOS an all-day end on the appointment's last day, not the exclusive midnight", async () => {
+    // EventKit reads an all-day end as the last day covered, so passing the exclusive midnight
+    // would create an appointment that runs a day longer than the user asked for.
+    let sentOptions: { endDate?: number } | undefined;
+    const gateway = setup(
+      {
+        createEvent: async (options: unknown) => {
+          sentOptions = options as { endDate?: number };
+          return { ics: null, id: 'event-4' };
+        },
+      },
+      'ios',
+    );
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-09-18T00:00:00Z',
+      endUtc: '2026-09-19T00:00:00Z',
+      isAllDay: true,
+    });
+
+    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
+  });
+
+  it('passes Android the exclusive end unchanged, which is what CalendarContract wants', async () => {
+    let sentOptions: { endDate?: number } | undefined;
+    const gateway = setup(
+      {
+        createEvent: async (options: unknown) => {
+          sentOptions = options as { endDate?: number };
+          return { ics: null, id: 'event-5' };
+        },
+      },
+      'android',
+    );
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-09-18T00:00:00Z',
+      endUtc: '2026-09-19T00:00:00Z',
+      isAllDay: true,
+    });
+
+    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z'));
   });
 
   it('rejects when the platform reports no id for the created event', async () => {

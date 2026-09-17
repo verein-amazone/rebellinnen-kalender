@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucidePlus } from '@lucide/angular';
 
 import { formatDayLong } from '@app/cross-cutting/helpers/date-format';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
@@ -12,7 +13,7 @@ import { OccurrenceCard } from '@app/view/components/occurrence-card/occurrence-
 @Component({
   selector: 'app-calendar-agenda',
   host: { class: 'block' },
-  imports: [OccurrenceCard, RouterLink],
+  imports: [LucidePlus, OccurrenceCard, RouterLink],
   templateUrl: './calendar-agenda.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

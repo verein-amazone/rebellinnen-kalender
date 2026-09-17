@@ -63,9 +63,26 @@ class FakeCalendarOccurrencesInteractor {
 
 class FakeCalendarFiltersInteractor {
   calendars: CalendarFilterOption[] = [];
+  /** The interactor owns the hidden ids now, so the fake holds them as the real one would. */
+  readonly hidden = signal<ReadonlySet<string>>(new Set());
+  readonly hiddenIds = this.hidden.asReadonly();
+  readonly moves: { calendarId: string; toIndex: number }[] = [];
 
   listFilterable(): Promise<CalendarFilterOption[]> {
     return Promise.resolve(this.calendars);
+  }
+
+  toggleHidden(calendarId: string): void {
+    const next = new Set(this.hidden());
+    if (!next.delete(calendarId)) {
+      next.add(calendarId);
+    }
+    this.hidden.set(next);
+  }
+
+  move(calendarId: string, toIndex: number): Promise<void> {
+    this.moves.push({ calendarId, toIndex });
+    return Promise.resolve();
   }
 }
 
@@ -198,6 +215,25 @@ describe('CalendarOverviewPage', () => {
 
     expect(queryParamsOf(navigate, 0)).toEqual({ day: '2026-07-29' });
     expect(queryParamsOf(navigate, 1)).toEqual({ day: '2026-08-12' });
+  });
+
+  it('pages the grid with a horizontal swipe, the same way the arrows do', async () => {
+    const { element, navigate } = await setup({ day: '2026-08-05' });
+
+    const grid = element.querySelector('.rk-card')!;
+    const drag = (fromX: number, toX: number) => {
+      const options = { bubbles: true, cancelable: true, pointerId: 1, isPrimary: true, button: 0 };
+      grid.dispatchEvent(
+        new PointerEvent('pointerdown', { ...options, clientX: fromX, clientY: 100 }),
+      );
+      grid.dispatchEvent(new PointerEvent('pointerup', { ...options, clientX: toX, clientY: 100 }));
+    };
+
+    drag(240, 60);
+    drag(60, 240);
+
+    expect(queryParamsOf(navigate, 0)).toEqual({ day: '2026-08-12' });
+    expect(queryParamsOf(navigate, 1)).toEqual({ day: '2026-07-29' });
   });
 
   it('navigates a month back and forward in month view', async () => {

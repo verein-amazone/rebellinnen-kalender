@@ -25,9 +25,7 @@ describe('SupportServiceCatalogGateway', () => {
     region: 'online',
     name: 'Rat auf Draht',
     teaser: 'Beratung für Kinder und Jugendliche',
-    crisis: true,
     icon: '🧠',
-    color: '#E92F2A',
     actions: [
       { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
       { type: 'chat', label: 'Chat', uri: 'https://www.rataufdraht.at/chatberatung' },
@@ -102,14 +100,13 @@ describe('SupportServiceCatalogGateway', () => {
     expect(await gateway.fetchCatalog()).toEqual([validItem]);
   });
 
-  it('accepts an item with no crisis flag, no logoPath, and an empty action list', async () => {
+  it('accepts an item with no logoPath and an empty action list', async () => {
     const minimalItem = {
       id: 'zara',
       region: 'online',
       name: 'ZARA',
       teaser: 'Beratungsstellen #GegenHassimNetz und !GegenRassismus',
       icon: '✊',
-      color: '#7B3FA8',
       actions: [],
     };
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [minimalItem] })));
@@ -130,15 +127,6 @@ describe('SupportServiceCatalogGateway', () => {
     const itemWithoutIcon: Record<string, unknown> = { ...validItem };
     delete itemWithoutIcon['icon'];
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [itemWithoutIcon] })));
-    const gateway = setup();
-
-    expect(await gateway.fetchCatalog()).toEqual([]);
-  });
-
-  it('drops an item missing color', async () => {
-    const itemWithoutColor: Record<string, unknown> = { ...validItem };
-    delete itemWithoutColor['color'];
-    stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [itemWithoutColor] })));
     const gateway = setup();
 
     expect(await gateway.fetchCatalog()).toEqual([]);

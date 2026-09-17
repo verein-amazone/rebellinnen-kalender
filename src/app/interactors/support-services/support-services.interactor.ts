@@ -56,9 +56,7 @@ function toView(item: SupportServiceCatalogItem): SupportServiceView {
     region: item.region,
     name: item.name,
     teaser: item.teaser,
-    crisis: item.crisis ?? false,
     icon: item.icon,
-    color: item.color,
     logoPath: item.logoPath ?? null,
     actions: item.actions.map(toActionView),
   };

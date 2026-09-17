@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucidePlus } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
@@ -14,7 +15,7 @@ import { OccurrenceCard } from '@app/view/components/occurrence-card/occurrence-
 @Component({
   selector: 'app-today-appointments',
   host: { class: 'block' },
-  imports: [OccurrenceCard, RouterLink],
+  imports: [LucidePlus, OccurrenceCard, RouterLink],
   templateUrl: './today-appointments.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

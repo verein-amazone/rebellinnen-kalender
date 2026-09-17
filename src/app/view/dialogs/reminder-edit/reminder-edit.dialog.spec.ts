@@ -48,6 +48,20 @@ describe('ReminderEditDialog', () => {
     expect(label?.textContent?.trim()).not.toBe('');
   });
 
+  it('keeps the label for assistive technology only, since the sheet heading says it on screen', async () => {
+    const { element } = await setup('Blumen gießen');
+
+    expect(element.querySelector('label')?.className).toContain('sr-only');
+  });
+
+  it('asks the sheet for focus and puts the caret behind the existing text', async () => {
+    const { input } = await setup('Blumen gießen');
+
+    expect(input.hasAttribute('cdkFocusInitial')).toBe(true);
+    expect(input.selectionStart).toBe('Blumen gießen'.length);
+    expect(input.selectionEnd).toBe('Blumen gießen'.length);
+  });
+
   it('closes with the trimmed text when saved', async () => {
     const dialog = await setup('Blumen gießen');
 

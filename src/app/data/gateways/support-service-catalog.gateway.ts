@@ -27,11 +27,8 @@ export interface SupportServiceCatalogItem {
   readonly region: string;
   readonly name: string;
   readonly teaser: string;
-  readonly crisis?: boolean;
-  /** One emoji shown in the card's badge until a rights-cleared logo replaces it (`logoPath`). */
+  /** One emoji shown as the card's lead visual until a rights-cleared logo replaces it. */
   readonly icon: string;
-  /** Hex colour tinting the badge behind `icon`. */
-  readonly color: string;
   /** A real organisation logo, once its usage rights are cleared - see `docs/content-authoring.md`. */
   readonly logoPath?: string;
   readonly actions: readonly SupportServiceCatalogAction[];
@@ -82,9 +79,7 @@ function isCatalogItem(value: unknown): value is SupportServiceCatalogItem {
     typeof candidate.region === 'string' &&
     typeof candidate.name === 'string' &&
     typeof candidate.teaser === 'string' &&
-    (candidate.crisis === undefined || typeof candidate.crisis === 'boolean') &&
     typeof candidate.icon === 'string' &&
-    typeof candidate.color === 'string' &&
     (candidate.logoPath === undefined || typeof candidate.logoPath === 'string') &&
     Array.isArray(candidate.actions) &&
     candidate.actions.every(isCatalogAction)

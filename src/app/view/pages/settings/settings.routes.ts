@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { AboutPage } from './about/about.page';
 import { AppIconPage } from './app-icon/app-icon.page';
 import { CalendarsPage } from './calendars/calendars.page';
+import { CalendarOrderPage } from './calendars/order/calendar-order.page';
 import { CuratedCalendarsPage } from './calendars/curated/curated-calendars.page';
 import { DeviceCalendarsPage } from './calendars/device/device-calendars.page';
 import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
@@ -34,6 +35,7 @@ export const SETTINGS_ROUTES: Routes = [
     title: 'Amazone & Partnerkalender',
   },
   { path: 'calendars/device', component: DeviceCalendarsPage, title: 'Gerätekalender' },
+  { path: 'calendars/order', component: CalendarOrderPage, title: 'Reihenfolge' },
   { path: 'calendars/ics', component: IcsCalendarsPage, title: 'Abonnierte Kalender' },
   { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },

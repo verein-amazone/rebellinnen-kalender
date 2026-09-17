@@ -1,0 +1,100 @@
+<app-focused-screen heading="Reihenfolge" fallbackLink="/settings/calendars">
+  <div class="space-y-3">
+    <p class="text-muted-foreground text-sm">
+      In dieser Reihenfolge erscheinen die Kalender im Kalender-Tab. Ziehe einen Kalender am Griff
+      oder verschiebe ihn über sein Menü.
+    </p>
+
+    @if (isLoading()) {
+      <div class="rk-card space-y-3 px-4 py-4" aria-hidden="true">
+        <span class="rk-skeleton block h-5 w-2/3"></span>
+        <span class="rk-skeleton block h-5 w-1/2"></span>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="rk-card px-4 py-6">
+        <p class="text-muted-foreground text-center">
+          Es gibt noch keine Kalender, die im Kalender-Tab angezeigt werden.
+        </p>
+      </div>
+    } @else {
+      <!--
+        `overflow-visible` on both the card and the list: a row's menu hangs outside them, and the
+        default clipping would cut it off. Same shape as the „Nicht vergessen“ list.
+      -->
+      <div class="rk-card overflow-visible">
+        <ul
+          class="rk-list rk-reorder-list overflow-visible rounded-none bg-transparent"
+          cdkDropList
+          cdkDropListLockAxis="y"
+          [cdkDropListData]="rows()"
+          (cdkDropListDropped)="drop($event)"
+        >
+          @for (calendar of rows(); track calendar.id; let index = $index) {
+            <li class="rk-row relative" cdkDrag [cdkDragData]="calendar">
+              <!--
+                Decoration, not a control: it does nothing without a pointer drag, and a focusable
+                element with no keyboard behaviour would be a stop in the tab order that does
+                nothing. „Nach oben“ and „Nach unten“ in the row's menu are the reachable
+                equivalent.
+              -->
+              <span cdkDragHandle class="rk-drag-handle" aria-hidden="true">
+                <svg lucideGripVertical class="rk-icon" aria-hidden="true"></svg>
+              </span>
+
+              <span class="flex min-w-0 flex-1 items-center gap-3">
+                <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
+                <span data-testid="calendar-name" class="min-w-0 flex-1">{{ calendar.name }}</span>
+              </span>
+
+              @if (canReorder()) {
+                <!--
+                  Enter and Space are handled by `ngMenuTrigger` itself. Without `preventDefault`
+                  the browser would also synthesise a click on this <button>, which the directive
+                  reads as a second activation and closes the menu again in the same keystroke.
+                -->
+                <button
+                  type="button"
+                  class="rk-icon-button"
+                  ngMenuTrigger
+                  [menu]="rowMenu"
+                  (keydown.enter)="$event.preventDefault()"
+                  (keydown.space)="$event.preventDefault()"
+                >
+                  <svg lucideEllipsis class="rk-icon" aria-hidden="true"></svg>
+                  <span class="sr-only">Optionen für „{{ calendar.name }}“</span>
+                </button>
+
+                <div
+                  ngMenu
+                  #rowMenu="ngMenu"
+                  class="rk-menu absolute top-full right-3"
+                  (itemSelected)="runAction($event, index)"
+                >
+                  <!--
+                    The two moves are left out where they would do nothing rather than offered as
+                    dead controls.
+                  -->
+                  <ng-template ngMenuContent>
+                    @if (index > 0) {
+                      <button type="button" class="rk-menu-item" ngMenuItem value="move-up">
+                        <svg lucideArrowUp class="rk-icon-sm" aria-hidden="true"></svg>
+                        <span class="min-w-0">Nach oben</span>
+                      </button>
+                    }
+
+                    @if (index < rows().length - 1) {
+                      <button type="button" class="rk-menu-item" ngMenuItem value="move-down">
+                        <svg lucideArrowDown class="rk-icon-sm" aria-hidden="true"></svg>
+                        <span class="min-w-0">Nach unten</span>
+                      </button>
+                    }
+                  </ng-template>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</app-focused-screen>

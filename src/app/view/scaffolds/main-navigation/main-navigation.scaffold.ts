@@ -12,6 +12,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideBookOpen, LucideCalendarDays, LucideSun } from '@lucide/angular';
 import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { PageFocus } from '@app/cross-cutting/infrastructure/page-focus';
+import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import {
   ActivatedRouteSnapshot,
   NavigationEnd,
@@ -49,6 +50,7 @@ type Tab = (typeof DESTINATIONS)[number]['tab'];
 export class MainNavigationScaffold {
   private readonly router = inject(Router);
   private readonly pageFocus = inject(PageFocus);
+  private readonly motion = inject(AppearanceInteractor).motion;
   private readonly injector = inject(Injector);
 
   /** Drives the scroll-position correction below - see the effect in the constructor. */
@@ -128,6 +130,41 @@ export class MainNavigationScaffold {
       },
       { injector: this.injector },
     );
+  }
+
+  /**
+   * Tapping the active destination again scrolls its screen back to the top.
+   *
+   * No `preventDefault()`: the router ignores a navigation to the URL that is already active, and
+   * where it does navigate (a tab link carries no query params, so `/calendar?view=month` becomes
+   * `/calendar`) the fresh screen starts at the top anyway.
+   */
+  protected handleTabActivated(tab: Tab): void {
+    if (tab !== this.activeTab()) {
+      return;
+    }
+
+    this.scrollRegion()?.nativeElement.scrollTo({ top: 0, behavior: this.scrollBehavior() });
+  }
+
+  /**
+   * Animated unless motion is reduced. The CSS in `base.css` cannot decide this for us: it governs
+   * `scroll-behavior`, which a programmatic `scrollTo` with an explicit `behavior` overrides, so
+   * the same two conditions are resolved here - the in-app override first, the device setting when
+   * the app is following it.
+   */
+  private scrollBehavior(): ScrollBehavior {
+    const motion = this.motion();
+    if (motion === 'reduced') {
+      return 'auto';
+    }
+    if (motion === 'standard') {
+      return 'smooth';
+    }
+
+    // Optional call: `matchMedia` is missing in non-browser environments (unit tests, SSR), where
+    // "no stated preference" is the right answer anyway.
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   }
 
   private currentTab(): Tab | null {

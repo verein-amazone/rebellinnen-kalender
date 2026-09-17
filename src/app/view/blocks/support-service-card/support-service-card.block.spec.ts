@@ -12,9 +12,7 @@ function service(overrides: Partial<SupportServiceView> = {}): SupportServiceVie
     region: 'online',
     name: 'Rat auf Draht',
     teaser: 'Beratung für Kinder und Jugendliche',
-    crisis: false,
     icon: '🧠',
-    color: '#E92F2A',
     logoPath: null,
     actions: [
       { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
@@ -130,20 +128,8 @@ describe('SupportServiceCardBlock', () => {
     expect(element.querySelector('a')).toBeNull();
   });
 
-  it('shows a crisis marker with an explicit text label when crisis is true', async () => {
-    const element = await setup(service({ crisis: true }));
-
-    expect(element.textContent).toMatch(/Krisenhotline/i);
-  });
-
-  it('shows no crisis marker when crisis is false', async () => {
-    const element = await setup(service({ crisis: false }));
-
-    expect(element.textContent).not.toMatch(/Krisenhotline/i);
-  });
-
-  it('renders the service avatar with its icon and colour', async () => {
-    const element = await setup(service({ icon: '🧠', color: '#E92F2A' }));
+  it('renders the service avatar with its icon', async () => {
+    const element = await setup(service({ icon: '🧠' }));
 
     expect(element.querySelector('app-support-service-avatar')).not.toBeNull();
     expect(element.textContent).toContain('🧠');

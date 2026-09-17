@@ -92,11 +92,21 @@ describe('TodayAppointmentsBlock', () => {
     expect(allAppointments?.getAttribute('href')).toBe('/calendar');
   });
 
-  it('keeps „Neuer Termin" pointed at today, whether or not there are appointments', async () => {
+  it('keeps „Neuer Termin" pointed at today, and says to come back here', async () => {
     const { element } = await setup('2026-08-11', [occurrence()]);
 
     const links = Array.from(element.querySelectorAll('a'));
     const newAppointment = links.find((a) => a.textContent?.includes('Neuer Termin'));
-    expect(newAppointment?.getAttribute('href')).toBe('/calendar/event/new?day=2026-08-11');
+    expect(newAppointment?.getAttribute('href')).toBe(
+      '/calendar/event/new?day=2026-08-11&returnTo=%2Ftoday',
+    );
+  });
+
+  it('sends an appointment opened from here back here when it is left', async () => {
+    const { element } = await setup('2026-08-11', [occurrence()]);
+
+    const links = Array.from(element.querySelectorAll('a'));
+    const appointment = links.find((a) => a.getAttribute('href')?.startsWith('/calendar/event/'));
+    expect(appointment?.getAttribute('href')).toContain('returnTo=%2Ftoday');
   });
 });

@@ -55,7 +55,7 @@ class StubSheetService {
   }
 }
 
-async function setup(day?: string) {
+async function setup(day?: string, returnTo?: string) {
   const eventEditing = new FakeAppEventEditingInteractor();
   const sheets = new StubSheetService();
 
@@ -81,6 +81,9 @@ async function setup(day?: string) {
   const fixture = TestBed.createComponent(NewEventPage);
   if (day !== undefined) {
     fixture.componentRef.setInput('day', day);
+  }
+  if (returnTo !== undefined) {
+    fixture.componentRef.setInput('returnTo', returnTo);
   }
   await fixture.whenStable();
 
@@ -184,13 +187,28 @@ describe('NewEventPage, create', () => {
       location: null,
       note: null,
       start: { kind: 'date', value: '2026-09-01', timeZone: null },
-      end: { kind: 'date', value: '2026-09-02', timeZone: null },
+      end: { kind: 'date', value: '2026-09-01', timeZone: null },
       rrule: null,
     });
     expect(navigate).toHaveBeenCalledWith(['/calendar'], {
       queryParams: { day: '2026-09-01' },
       replaceUrl: true,
     });
+  });
+
+  it('returns to the screen that opened the form after saving, when one was named', async () => {
+    const page = await setup('2026-09-01', '/today');
+    await page.expandDateTime();
+
+    await page.type('event-form-title', 'Geburtstag');
+    await page.pickAllDay(true);
+    await page.type('event-form-date-time-start-date', '2026-09-01');
+    await page.type('event-form-date-time-end-date', '2026-09-01');
+    await page.submit();
+
+    expect(page.eventEditing.createCalls).toHaveLength(1);
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(page.navigate).not.toHaveBeenCalled();
   });
 
   it('creates a timed appointment and navigates to the day the user picked', async () => {
@@ -247,6 +265,22 @@ describe('NewEventPage, cancel', () => {
     await page.clickCancel();
 
     expect(page.eventEditing.createCalls).toEqual([]);
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
+  });
+
+  it('returns to the screen that opened the form when one was named', async () => {
+    const page = await setup('2026-09-01', '/today');
+
+    await page.clickCancel();
+
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+  });
+
+  it('ignores a return target that would leave the app', async () => {
+    const page = await setup('2026-09-01', '//example.com');
+
+    await page.clickCancel();
+
     expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
   });
 

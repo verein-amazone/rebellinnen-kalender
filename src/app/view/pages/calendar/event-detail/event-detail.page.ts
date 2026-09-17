@@ -18,6 +18,7 @@ import { LucideCheck, LucideExternalLink, LucidePencil, LucideTrash2 } from '@lu
 import { firstValueFrom } from 'rxjs';
 
 import { formatDayLong } from '@app/cross-cutting/helpers/date-format';
+import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import {
   AppEventEditingInteractor,
@@ -97,6 +98,11 @@ export class EventDetailPage {
   readonly id = input.required<string>();
   /** Bound from the `view` query parameter the calendar's appointment links carry - see `backLink`. */
   readonly view = input<string>();
+  /**
+   * Bound from `?returnTo=`: the screen the appointment was opened from, when that is not the
+   * calendar - the Today screen sets it. Leaving, saving and deleting all return there.
+   */
+  readonly returnTo = input<string | null>(null);
 
   protected readonly occurrenceResource = resource({
     params: () => this.id(),
@@ -161,7 +167,15 @@ export class EventDetailPage {
    * opened from somewhere without a calendar view, e.g. the Today screen. Until the occurrence has
    * loaded there is no day to return to either.
    */
+  /** `null` unless the caller passed a route of this app - see `safeInAppUrl`. */
+  private readonly origin = computed(() => safeInAppUrl(this.returnTo()));
+
   protected readonly backLink = computed(() => {
+    const origin = this.origin();
+    if (origin !== null) {
+      return origin;
+    }
+
     const params = new URLSearchParams();
     const view = this.view();
     if (view === 'week' || view === 'month') {
@@ -338,6 +352,12 @@ export class EventDetailPage {
   private async navigateToOccurrenceDay(day: string): Promise<void> {
     // Replaces rather than pushes: the appointment the user just saved or deleted must not be
     // reachable again by the platform back gesture. Same reasoning as `FocusedScreenScaffold`.
+    const origin = this.origin();
+    if (origin !== null) {
+      await this.router.navigateByUrl(origin, { replaceUrl: true });
+      return;
+    }
+
     await this.router.navigate(['/calendar'], { queryParams: { day }, replaceUrl: true });
   }
 }

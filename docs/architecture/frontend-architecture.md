@@ -107,7 +107,12 @@ applies to a page navigating away after finishing its own task (saving an appoin
 one) - those use `replaceUrl: true` for the same reason.
 
 A screen reachable from several places carries its origin in a `?returnTo=` query param rather than
-reading it back out of the history; the content detail screen is the example.
+reading it back out of the history: the content detail screen, the appointment detail screen and
+„Neuer Termin". Two rules come with it. A screen that honours `returnTo` returns there after
+finishing its own task too, not only when it is dismissed - an appointment created from Heute
+belongs back on Heute, even if it was created for another day. And the value arrives from the URL,
+so it is validated with `safeInAppUrl()` (`cross-cutting/helpers/in-app-url.ts`) before it reaches
+the router; anything that is not a route of this app falls back to the screen's static target.
 
 #### Page state and navigation
 

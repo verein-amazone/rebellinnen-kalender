@@ -78,7 +78,20 @@
   <div class="space-y-4 px-4 pt-4 pb-6">
     <!-- On a card surface: the muted weekday and out-of-month text meets contrast on `card`, not on
          every theme's page background. -->
-    <div class="rk-card p-2">
+    <!--
+      Swiping the grid sideways pages to the previous or next week/month. An accelerator only - the
+      chevrons above do the same thing and stay.
+
+      `touch-pinch-zoom` is not optional next to `pan-y`: `touch-action` is intersected with the day
+      buttons' own `manipulation` from base.css, so without it pinch-zoom would be gone inside the
+      grid - exactly where someone using large text needs it.
+    -->
+    <div
+      class="rk-card touch-pan-y touch-pinch-zoom p-2"
+      appHorizontalSwipe
+      (swipeLeft)="goToNext()"
+      (swipeRight)="goToPrevious()"
+    >
       <app-calendar-grid
         [view]="viewMode()"
         [selectedDay]="selectedDay()"

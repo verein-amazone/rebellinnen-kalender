@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Temporal } from 'temporal-polyfill';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
 import { shiftEnd } from '@app/data/calendar/recurrence/occurrence-materializer';
@@ -110,7 +111,15 @@ export class AppEventEditingInteractor {
     const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const isAllDay = draft.start.kind === 'date';
     const startUtc = toUtcInstantString(draft.start, deviceZone);
-    const endUtc = toUtcInstantString(draft.end ?? draft.start, deviceZone);
+    // `DeviceEventDraft.endUtc` is exclusive, like every other `*_utc` value in the data layer,
+    // while a `date` end names the last day the appointment covers - so an all-day end becomes the
+    // midnight after it. The gateway turns that back into whatever the platform's calendar store
+    // expects.
+    const draftEnd = draft.end ?? draft.start;
+    const endUtc = toUtcInstantString(
+      isAllDay ? exclusiveEndOfAllDay(draftEnd) : draftEnd,
+      deviceZone,
+    );
 
     const { eventId } = await this.nativeCalendar.createEvent({
       calendarId: nativeCalendarId,
@@ -266,4 +275,13 @@ function validatedTitle(title: string): string {
   }
 
   return trimmed;
+}
+
+/** The day after an all-day appointment's last day, as a `date` value. */
+function exclusiveEndOfAllDay(end: TemporalValue): TemporalValue {
+  return {
+    kind: 'date',
+    value: Temporal.PlainDate.from(end.value).add({ days: 1 }).toString(),
+    timeZone: null,
+  };
 }
