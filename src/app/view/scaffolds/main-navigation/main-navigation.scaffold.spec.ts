@@ -3,6 +3,8 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Router, provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
+import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
+
 import { MainNavigationScaffold } from './main-navigation.scaffold';
 
 @Component({ template: '<h1>{{ title() }}</h1>' })
@@ -83,6 +85,46 @@ describe('MainNavigationScaffold', () => {
     const { element } = await setUp('/calendar');
 
     expect(element.querySelector('main')?.classList).not.toContain('safe-top');
+  });
+
+  it('scrolls the screen back to the top when the active destination is tapped again', async () => {
+    const { element } = await setUp('/calendar');
+    const main = element.querySelector<HTMLElement>('main');
+    const scrollTo = vi.fn();
+    Object.defineProperty(main, 'scrollTo', { value: scrollTo, configurable: true });
+    // jsdom would otherwise log "navigation to another Document" for the anchor's default action.
+    element.addEventListener('click', (event) => event.preventDefault());
+
+    element.querySelector<HTMLElement>('nav a[href="/calendar"]')?.click();
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: expect.any(String) });
+  });
+
+  it('leaves the scroll position alone when another destination is tapped', async () => {
+    const { element } = await setUp('/calendar');
+    const main = element.querySelector<HTMLElement>('main');
+    const scrollTo = vi.fn();
+    Object.defineProperty(main, 'scrollTo', { value: scrollTo, configurable: true });
+    // jsdom would otherwise log "navigation to another Document" for the anchor's default action.
+    element.addEventListener('click', (event) => event.preventDefault());
+
+    element.querySelector<HTMLElement>('nav a[href="/today"]')?.click();
+
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('scrolls without animation when the app is set to reduced motion', async () => {
+    const { element } = await setUp('/calendar');
+    TestBed.inject(AppearanceInteractor).selectMotion('reduced');
+    const main = element.querySelector<HTMLElement>('main');
+    const scrollTo = vi.fn();
+    Object.defineProperty(main, 'scrollTo', { value: scrollTo, configurable: true });
+    // jsdom would otherwise log "navigation to another Document" for the anchor's default action.
+    element.addEventListener('click', (event) => event.preventDefault());
+
+    element.querySelector<HTMLElement>('nav a[href="/calendar"]')?.click();
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
   });
 
   it('should announce rather than steal focus when switching primary destinations', async () => {

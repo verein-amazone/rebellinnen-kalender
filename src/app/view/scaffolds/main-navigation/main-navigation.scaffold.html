@@ -20,9 +20,13 @@
       <ul class="rk-tab-list">
         @for (destination of destinations; track destination.tab) {
           <li class="flex-1">
+            <!-- Tapping the destination you are already on scrolls its screen back to the top,
+                 the way a phone's own tab bars behave - after reading a long list, the way back up
+                 is the control your thumb is already near. -->
             <a
               [routerLink]="destination.link"
               [attr.aria-current]="destination.tab === active ? 'page' : null"
+              (click)="handleTabActivated(destination.tab)"
               class="rk-tab"
               [class.text-rebel-text]="destination.tab === active"
               [class.font-bold]="destination.tab === active"
