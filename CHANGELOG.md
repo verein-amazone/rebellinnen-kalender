@@ -1,3 +1,30 @@
+# [1.0.0-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* **app:** hide the filter rows' scrollbar ([795925b](https://github.com/verein-amazone/rebellinnen-kalender/commit/795925b59fea7e9ad7f5c66d3c3a801f50f8dc13))
+* **calendar:** default a new appointment to the app's own calendar ([7789601](https://github.com/verein-amazone/rebellinnen-kalender/commit/7789601d8ea818d668fa85ae67d50040451eadff))
+* **calendar:** return to Heute from the screens opened there ([2ecab98](https://github.com/verein-amazone/rebellinnen-kalender/commit/2ecab984c10d7937155834bf075e4b2499df21cf))
+* **calendar:** store an all-day appointment's end as its last day ([5cfb425](https://github.com/verein-amazone/rebellinnen-kalender/commit/5cfb425c63581a1f19ecf13ace8c714a4684a82d))
+* **content:** drop the Wikipedia links we added ourselves ([87d2128](https://github.com/verein-amazone/rebellinnen-kalender/commit/87d212881f5561e7bd3ff85e2bfc24e28b61f087))
+* **content:** even out the Inhalte tab's top spacing ([bf3cada](https://github.com/verein-amazone/rebellinnen-kalender/commit/bf3cadade6322879cea0fbd1e1bebecd473ee1a3))
+* **content:** give the Inhalte empty states a card ([01f7eb6](https://github.com/verein-amazone/rebellinnen-kalender/commit/01f7eb64e75b152892233dcfee740dcf5a92060c))
+* **content:** make the content detail's small print readable ([fed0be8](https://github.com/verein-amazone/rebellinnen-kalender/commit/fed0be83d6f4eec675ae34e1a68e6c0d1fec7bb1))
+* **reminders:** say where hidden completed entries go ([a19dfda](https://github.com/verein-amazone/rebellinnen-kalender/commit/a19dfda119fb8d59659af1c5beb456f658d26f49))
+* **today:** greet without a comma before the name ([4af76ca](https://github.com/verein-amazone/rebellinnen-kalender/commit/4af76cacf39b2a1e4fa642128c81f724a024a3e9))
+
+
+### Features
+
+* **app:** give both add actions the same weight ([9774b24](https://github.com/verein-amazone/rebellinnen-kalender/commit/9774b2429920715db9362ac0636bfd0cece74815))
+* **app:** scroll back to the top when the active tab is tapped again ([394bd49](https://github.com/verein-amazone/rebellinnen-kalender/commit/394bd49b2be0a75c65e609483120238f6560b8bc))
+* **calendar:** follow the arranged order in the appointment's picker ([2a9be4b](https://github.com/verein-amazone/rebellinnen-kalender/commit/2a9be4bee49fc3468e7a1ec452290b12d3c48bfa))
+* **calendar:** remember hidden calendars and let their order be arranged ([47c7c54](https://github.com/verein-amazone/rebellinnen-kalender/commit/47c7c548f4b3686d653e15d157b592163e1358d5))
+* **calendar:** swipe the grid to the previous or next period ([e2c65af](https://github.com/verein-amazone/rebellinnen-kalender/commit/e2c65af704b88f4ee21fd478ad8c94a07f72c811))
+* **content:** simplify the Anlaufstellen cards ([39c5292](https://github.com/verein-amazone/rebellinnen-kalender/commit/39c52921a652afb7ef1ca446f3ccf7d5923b3d95))
+* **reminders:** open the reminder sheet with the caret in the field ([dc0a049](https://github.com/verein-amazone/rebellinnen-kalender/commit/dc0a049de0edfa41f8bef8575c246a33489e2023))
+
 # 1.0.0-rc.1 (2026-09-09)
 
 
