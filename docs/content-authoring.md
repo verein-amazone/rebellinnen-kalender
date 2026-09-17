@@ -143,9 +143,7 @@ are a **separate, simpler catalog** from the one above - don't confuse the two:
 | `id`             | Stable, unique, kebab-case (e.g. `rat-auf-draht`).                                                                                                                                                                                                                                          |
 | `region`         | `'online'` (Austria-wide phone/online offers) or an Austrian state slug (e.g. `vorarlberg`). A region only appears as a filter chip once it has at least one entry - see `SupportServicesInteractor`'s fixed display order (online first, then Vorarlberg, Tirol, Salzburg, then the rest). |
 | `name`, `teaser` | Plain text.                                                                                                                                                                                                                                                                                 |
-| `crisis`         | Optional, defaults to `false`. Set `true` for an acute-crisis/emergency hotline; the card marks it with an icon **and** the text "Krisenhotline", never colour alone.                                                                                                                       |
-| `icon`           | One emoji, freely chosen to fit the service (e.g. 🧠, 🛡️, ⚖️) - shown on a tinted badge next to the name. Every entry needs one; there's no default and no shared palette to pick from, just something distinct from its neighbours in the same region's list.                              |
-| `color`          | A hex colour tinting that badge (e.g. `"#E92F2A"`). Vary it across entries in the same region so a long scrolling list stays scannable - two red badges back-to-back defeats the point.                                                                                                     |
+| `icon`           | One emoji, freely chosen to fit the service (e.g. 🧠, 🛡️, ⚖️) - drawn plain as the card's lead visual, with no frame behind it. Every entry needs one; there's no default and no shared palette to pick from, just something distinct from its neighbours in the same region's list.        |
 | `logoPath`       | Optional, omitted today on every entry. A real organisation logo **may only be added once its usage rights are cleared** - same rule `image-attributions.json` already enforces for other images. See "Adding a real logo" below.                                                           |
 | `actions`        | Array of contact actions, in the order the buttons should appear (first button is primary). May be empty, though a service with no way to reach it is unusual.                                                                                                                              |
 
@@ -188,12 +186,12 @@ covers all of them:**
 Verify: `pnpm test:ci`, then open `/content` → Anlaufstellen and check the region filter, each
 `phone` action opens the device dialer with the exact number shown, each `sms` action opens the
 messaging app (not the dialer), `website`/`chat` actions open externally, and each card shows a
-distinct icon/colour badge.
+distinct emoji or logo.
 
 ### Adding a real logo
 
-Every entry ships with an `icon`/`color` badge today; a real organisation logo replaces it once
-one is sourced and cleared, per organisation:
+Every entry ships with an emoji today; a real organisation logo replaces it once one is sourced
+and cleared, per organisation:
 
 1. Confirm the logo's usage rights first - same rule as `image-attributions.json` (see §4 above):
    don't add a logo image on the assumption that licensing will be sorted out later.
@@ -201,5 +199,5 @@ one is sourced and cleared, per organisation:
    entry's `id` (mirrors the `public/content/<kind>/<id>.webp` convention the daily-impulse
    catalog uses - see §2 above for the `ffmpeg`/`cwebp` conversion steps).
 3. Set `"logoPath": "/support-services/logos/<id>.webp"` on that entry. `SupportServiceAvatar`
-   prefers the image automatically and falls back to the `icon`/`color` badge if it 404s - leave
-   `icon`/`color` in place as that fallback, don't remove them.
+   prefers the image automatically and falls back to the emoji if it 404s - leave `icon` in place
+   as that fallback, don't remove it.

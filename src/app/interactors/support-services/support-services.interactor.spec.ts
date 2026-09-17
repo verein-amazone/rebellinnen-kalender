@@ -37,7 +37,6 @@ describe('SupportServicesInteractor', () => {
           name: 'ZARA',
           teaser: 'Beratungsstellen #GegenHassimNetz und !GegenRassismus',
           icon: '✊',
-          color: '#7B3FA8',
           actions: [
             {
               type: 'website',
@@ -54,9 +53,7 @@ describe('SupportServicesInteractor', () => {
           region: 'online',
           name: 'ZARA',
           teaser: 'Beratungsstellen #GegenHassimNetz und !GegenRassismus',
-          crisis: false,
           icon: '✊',
-          color: '#7B3FA8',
           logoPath: null,
           actions: [
             {
@@ -70,16 +67,14 @@ describe('SupportServicesInteractor', () => {
       ]);
     });
 
-    it('keeps a crisis flag and an action list as authored', async () => {
+    it('keeps an action list as authored', async () => {
       gateway.items = [
         {
           id: 'rat-auf-draht',
           region: 'online',
           name: 'Rat auf Draht',
           teaser: 'Beratung für Kinder und Jugendliche',
-          crisis: true,
           icon: '🧠',
-          color: '#E92F2A',
           actions: [
             { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
             { type: 'chat', label: 'Chat', uri: 'https://www.rataufdraht.at/chatberatung' },
@@ -88,7 +83,6 @@ describe('SupportServicesInteractor', () => {
       ];
 
       const [item] = await interactor.listAll();
-      expect(item.crisis).toBe(true);
       expect(item.actions).toEqual([
         { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
         {
@@ -100,7 +94,7 @@ describe('SupportServicesInteractor', () => {
       ]);
     });
 
-    it('keeps icon and color as authored, and defaults logoPath to null', async () => {
+    it('keeps the icon as authored, and defaults logoPath to null', async () => {
       gateway.items = [
         {
           id: 'rat-auf-draht',
@@ -108,14 +102,12 @@ describe('SupportServicesInteractor', () => {
           name: 'Rat auf Draht',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
       ];
 
       const [item] = await interactor.listAll();
       expect(item.icon).toBe('🧠');
-      expect(item.color).toBe('#E92F2A');
       expect(item.logoPath).toBeNull();
     });
 
@@ -127,7 +119,6 @@ describe('SupportServicesInteractor', () => {
           name: 'Verein Amazone',
           teaser: 'T',
           icon: '🏳️‍⚧️',
-          color: '#43A047',
           logoPath: '/support-services/logos/verein-amazone.webp',
           actions: [],
         },
@@ -155,7 +146,6 @@ describe('SupportServicesInteractor', () => {
           name: 'A',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
         {
@@ -164,7 +154,6 @@ describe('SupportServicesInteractor', () => {
           name: 'B',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
       ];
@@ -183,7 +172,6 @@ describe('SupportServicesInteractor', () => {
           name: 'A',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
         {
@@ -192,7 +180,6 @@ describe('SupportServicesInteractor', () => {
           name: 'B',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
         {
@@ -201,7 +188,6 @@ describe('SupportServicesInteractor', () => {
           name: 'C',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
         {
@@ -210,7 +196,6 @@ describe('SupportServicesInteractor', () => {
           name: 'D',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
       ];
@@ -231,7 +216,6 @@ describe('SupportServicesInteractor', () => {
           name: 'A',
           teaser: 'T',
           icon: '🧠',
-          color: '#E92F2A',
           actions: [],
         },
       ];

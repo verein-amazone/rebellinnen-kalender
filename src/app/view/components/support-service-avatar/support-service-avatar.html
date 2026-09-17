@@ -16,11 +16,10 @@
     />
   </div>
 } @else {
-  <span
-    aria-hidden="true"
-    class="rk-service-badge size-24 shrink-0"
-    [style.--badge-color]="color()"
-  >
+  <!-- An emoji carries its own colour, so it needs no frame or tint behind it - the same plain
+       treatment the greeting emoji gets on the Today screen. The box keeps its size so emoji and
+       logo entries line up down a scrolling list. -->
+  <span aria-hidden="true" class="grid size-24 shrink-0 place-content-center text-6xl">
     {{ icon() }}
   </span>
 }

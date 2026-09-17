@@ -1,23 +1,11 @@
 <div class="rk-card space-y-3 p-4">
   <div class="flex gap-3">
     <div class="min-w-0 flex-1 space-y-1">
-      @if (service().crisis) {
-        <span
-          class="bg-danger/10 text-danger inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"
-        >
-          <svg lucideTriangleAlert class="rk-icon-sm" aria-hidden="true"></svg>
-          <span>Krisenhotline</span>
-        </span>
-      }
       <p class="font-semibold">{{ service().name }}</p>
       <p class="text-muted-foreground">{{ service().teaser }}</p>
     </div>
 
-    <app-support-service-avatar
-      [icon]="service().icon"
-      [color]="service().color"
-      [logoPath]="service().logoPath"
-    />
+    <app-support-service-avatar [icon]="service().icon" [logoPath]="service().logoPath" />
   </div>
 
   @if (service().actions.length > 0) {
@@ -29,7 +17,7 @@
           [attr.rel]="isExternal(action.type) ? 'noopener noreferrer' : null"
           class="rk-button flex-1"
           [class.rk-button-primary]="first"
-          [class.rk-button-secondary]="!first"
+          [class.rk-button-ghost]="!first"
           [attr.aria-label]="actionAriaLabel(service().name, action.label, action.displayValue)"
         >
           @switch (action.type) {

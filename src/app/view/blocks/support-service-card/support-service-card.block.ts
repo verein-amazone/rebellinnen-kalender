@@ -4,7 +4,6 @@ import {
   LucideMessageCircle,
   LucideMessageSquare,
   LucidePhone,
-  LucideTriangleAlert,
 } from '@lucide/angular';
 
 import type {
@@ -25,8 +24,7 @@ const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'ch
  * (a short number like `147` and a full `+43…` number need different `tel:` handling, which the
  * content author already resolved; see `docs/content-authoring.md`).
  *
- * The crisis marker pairs an icon with an explicit text label rather than colour alone, and each
- * action's accessible name includes the service name so a screen-reader user navigating by
+ * Each action's accessible name includes the service name so a screen-reader user navigating by
  * control type can still tell which service "Anrufen" belongs to.
  */
 @Component({
@@ -37,7 +35,6 @@ const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'ch
     LucideMessageCircle,
     LucideMessageSquare,
     LucidePhone,
-    LucideTriangleAlert,
     SupportServiceAvatar,
   ],
   templateUrl: './support-service-card.block.html',

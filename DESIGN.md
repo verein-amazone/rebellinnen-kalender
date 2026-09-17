@@ -251,8 +251,8 @@ One radius scale, driven from a single root token (`--rk-radius`, set once in `t
 `rounded-*` utilities, never an arbitrary value, and changing `--rk-radius` alone rescales all four.
 Cards, buttons, fields and list groups use `rounded-lg`; the sheet panel's top corners use
 `rounded-t-xl`; pills, checks, toggles and the tab indicator use `rounded-full`; the Anlaufstellen
-service badge uses `rounded-2xl` on purpose (a fixed Tailwind default, not a project token), so its
-square badge silhouette reads as visually distinct from a pill's fully-round chip.
+logo tile uses `rounded-2xl` on purpose (a fixed Tailwind default, not a project token), so its
+square silhouette reads as visually distinct from a pill's fully-round chip.
 
 Borders are consistently `border-2` (2px) at rest, thickening to `border-4` on a focused field while
 its padding shrinks by the same amount so the box never reflows. Border width is one of the only
@@ -285,9 +285,10 @@ must not scale with the root font size.
   `color-mix()` (never a Tailwind palette color, since the calendar color is arbitrary and
   per-instance). Label text always stays the normal foreground color, never the calendar's color,
   because a 30-swatch curated palette can't guarantee 4.5:1 contrast for every swatch.
-- **Service badge** (`.rk-service-badge`): the same coloured-border-over-tinted-background technique
-  at 20% tint and `rounded-2xl`, so it reads as a distinct "lead visual" context from a pill's
-  filter-chip role.
+- **Anlaufstellen lead visual**: an entry's emoji is drawn plain and large, with no frame or tint -
+  the emoji carries its own colour, and a tinted badge around it only competed with the card. A
+  rights-cleared organisation logo instead gets a white `rounded-2xl` tile, because such a logo
+  bakes in its own opaque background and needs a surface that matches it in every theme.
 
 ### Cards / Containers
 

@@ -6,11 +6,14 @@
       "region": "online",
       "name": "Rat auf Draht",
       "teaser": "Beratung für Kinder und Jugendliche",
-      "crisis": true,
       "icon": "📱",
-      "color": "#E92F2A",
       "actions": [
-        { "type": "phone", "label": "Anrufen", "uri": "tel:147", "displayValue": "147" },
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:147",
+          "displayValue": "147"
+        },
         {
           "type": "chat",
           "label": "Chat",
@@ -23,12 +26,15 @@
       "region": "online",
       "name": "Telefonseelsorge",
       "teaser": "Beratung bei Ängsten und Sorgen",
-      "crisis": true,
       "icon": "🫂",
-      "color": "#5C6BC0",
       "logoPath": "/support-services/logos/telefonseelsorge.webp",
       "actions": [
-        { "type": "phone", "label": "Anrufen", "uri": "tel:142", "displayValue": "142" },
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:142",
+          "displayValue": "142"
+        },
         {
           "type": "chat",
           "label": "Chat",
@@ -41,9 +47,7 @@
       "region": "online",
       "name": "Kindernotruf",
       "teaser": "Telefonberatung bei akuten Krisen",
-      "crisis": true,
       "icon": "🚨",
-      "color": "#FF6B6B",
       "logoPath": "/support-services/logos/kindernotruf.webp",
       "actions": [
         {
@@ -59,9 +63,7 @@
       "region": "online",
       "name": "Frauenhelpline gegen Gewalt",
       "teaser": "Kostenlose und anonyme Beratung für Frauen*, die von Gewalt betroffen sind",
-      "crisis": true,
       "icon": "✊",
-      "color": "#9C27B0",
       "actions": [
         {
           "type": "phone",
@@ -77,7 +79,6 @@
       "name": "Hotline für Essstörungen",
       "teaser": "Beratung bei Essstörungen",
       "icon": "🎗️",
-      "color": "#F48FB1",
       "actions": [
         {
           "type": "phone",
@@ -92,9 +93,7 @@
       "region": "online",
       "name": "SMS-Notruf für gehörlose und hörbehinderte Menschen",
       "teaser": "Notruf per SMS",
-      "crisis": true,
       "icon": "🚨",
-      "color": "#26A69A",
       "actions": [
         {
           "type": "sms",
@@ -110,7 +109,6 @@
       "name": "First Love - Herzklopfen",
       "teaser": "Online-Beratung zu den Themen Liebe, Sex und Beziehungen",
       "icon": "💘",
-      "color": "#FF8FA3",
       "actions": [
         {
           "type": "chat",
@@ -125,7 +123,6 @@
       "name": "kids-line",
       "teaser": "Rat für Jugendliche",
       "icon": "🧒",
-      "color": "#FFD54F",
       "actions": [
         {
           "type": "phone",
@@ -146,7 +143,6 @@
       "name": "TIME4FRIENDS",
       "teaser": "Die Peer-Beratung auf WhatsApp",
       "icon": "💬",
-      "color": "#4DB6AC",
       "actions": [
         {
           "type": "chat",
@@ -161,7 +157,6 @@
       "name": "Kinder- und Jugendanwaltschaften Österreichs",
       "teaser": "Info und Rat zu deinen Rechten",
       "icon": "⚖️",
-      "color": "#3F51B5",
       "logoPath": "/support-services/logos/kinder-jugendanwaltschaften-oesterreichs.webp",
       "actions": [
         {
@@ -177,7 +172,6 @@
       "name": "checkit!",
       "teaser": "Info- und Beratungsstelle zu Drogen, Sucht und Konsum",
       "icon": "💊",
-      "color": "#8D6E63",
       "actions": [
         {
           "type": "phone",
@@ -198,7 +192,6 @@
       "name": "HelpCh@t",
       "teaser": "Beratung für Frauen* und Mädchen*, die von Gewalt betroffen sind",
       "icon": "🆘",
-      "color": "#BA68C8",
       "logoPath": "/support-services/logos/helpchat.webp",
       "actions": [
         {
@@ -214,7 +207,6 @@
       "name": "ZARA",
       "teaser": "Beratungsstellen #GegenHassimNetz und !GegenRassismus",
       "icon": "🛡️",
-      "color": "#1565C0",
       "logoPath": "/support-services/logos/zara.webp",
       "actions": [
         {
@@ -230,7 +222,6 @@
       "name": "Orient Express",
       "teaser": "Zwangsheirat ist Gewalt. Hier bekommst du Unterstützung.",
       "icon": "🕊️",
-      "color": "#7DBDBB",
       "actions": [
         {
           "type": "website",
@@ -245,7 +236,6 @@
       "name": "Verein Amazone",
       "teaser": "amazoneZENTRUM und amazoneBERATUNG für Mädchen*, junge Frauen*, inter*, nicht-binäre, trans* und agender Jugendliche",
       "icon": "🏳️‍🌈",
-      "color": "#4CAF82",
       "actions": [
         {
           "type": "phone",

@@ -24,11 +24,8 @@ export interface SupportServiceView {
   readonly region: string;
   readonly name: string;
   readonly teaser: string;
-  readonly crisis: boolean;
-  /** One emoji shown in the card's badge until a rights-cleared logo replaces it (`logoPath`). */
+  /** One emoji shown as the card's lead visual until a rights-cleared logo replaces it. */
   readonly icon: string;
-  /** Hex colour tinting the badge behind `icon`. */
-  readonly color: string;
   /** A real organisation logo, once its usage rights are cleared; `null` until then. */
   readonly logoPath: string | null;
   readonly actions: readonly SupportServiceActionView[];
