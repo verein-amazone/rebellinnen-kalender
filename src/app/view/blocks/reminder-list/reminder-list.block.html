@@ -154,33 +154,21 @@
         }
       </ul>
     }
-
-    <!--
-      The last row of the card: an invitation, opening the same sheet `edit()` uses rather than
-      growing an inline field here. The list sits in the page's own scroll region, not a sheet's
-      own - a field that grew and focused in place there fought the keyboard for scroll position
-      (the row above it appearing after a submit pushed the still-focused field behind the
-      keyboard, and closing the keyboard again did not reliably give the scroll position back). The
-      sheet already owns exactly that problem correctly for editing an entry; adding one reuses it
-      instead of solving it a second time here.
-    -->
-    <div class="border-border border-t">
-      <!--
-        The label stays visible on the left, and the control is an icon button in the same column as
-        a row's menu trigger, so the card has one line of actions rather than two competing shapes.
-        The visible text is `aria-hidden` because the button already carries it as its name - read
-        twice it would sound like two separate things.
-      -->
-      <div class="rk-row">
-        <span class="text-muted-foreground min-w-0 flex-1" aria-hidden="true">
-          Punkt hinzufügen
-        </span>
-
-        <button type="button" class="rk-icon-button" (click)="openAdd()">
-          <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
-          <span class="sr-only">Punkt hinzufügen</span>
-        </button>
-      </div>
-    </div>
   </div>
+
+  <!--
+    Adding an entry opens the same sheet `edit()` uses rather than growing an inline field here. The
+    list sits in the page's own scroll region, not a sheet's own - a field that grew and focused in
+    place there fought the keyboard for scroll position (the row above it appearing after a submit
+    pushed the still-focused field behind the keyboard, and closing the keyboard again did not
+    reliably give the scroll position back). The sheet already owns exactly that problem correctly
+    for editing an entry; adding one reuses it instead of solving it a second time here.
+
+    A filled button under the card, not a quiet last row inside it: it is the twin of „Neuer Termin"
+    one section up, and testers read the two different shapes as two different kinds of action.
+  -->
+  <button type="button" class="rk-button rk-button-primary mt-3 flex w-full" (click)="openAdd()">
+    <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+    Punkt hinzufügen
+  </button>
 }
