@@ -273,10 +273,14 @@ export class EventForm {
 
   /**
    * The picker always has a value once there is anything to pick: a create-mode form with an empty
-   * `calendarId` defaults to the first writable calendar as soon as the list resolves, rather than
-   * asking the user to make an otherwise-pointless choice among app calendars they cannot tell
-   * apart yet. Edit mode never runs this - `calendarId` there comes from the occurrence being
-   * edited and the field is disabled.
+   * `calendarId` defaults to a writable calendar as soon as the list resolves, rather than asking
+   * the user to make an otherwise-pointless choice. Edit mode never runs this - `calendarId` there
+   * comes from the occurrence being edited and the field is disabled.
+   *
+   * The app's own calendar is preferred by its source type rather than by being first in the list:
+   * „Termine, die du direkt in der App anlegst, werden in diesem Kalender gespeichert“ is what the
+   * settings promise, and it must not change because the user rearranged the list somewhere else.
+   * A device calendar is only the default when there is no app calendar at all.
    */
   private readonly applyDefaultCalendar = effect(() => {
     if (this.mode() !== 'create') {
@@ -285,9 +289,13 @@ export class EventForm {
 
     const calendars = this.calendars();
     const field = this.form.calendarId;
-    if (calendars.length > 0 && field().value() === '') {
-      field().value.set(calendars[0].id);
+    if (calendars.length === 0 || field().value() !== '') {
+      return;
     }
+
+    const preferred =
+      calendars.find((calendar) => calendar.sourceType !== 'device') ?? calendars[0];
+    field().value.set(preferred.id);
   });
 
   /**

@@ -165,13 +165,39 @@ async function setup(inputs: {
 }
 
 describe('EventForm, create mode', () => {
-  it('defaults the calendar picker to the first writable calendar, and leaves the title blank', async () => {
+  it('defaults the calendar picker to a writable calendar, and leaves the title blank', async () => {
     const form = await setup({ mode: 'create' });
 
     expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
 
     const title = form.element.querySelector<HTMLInputElement>('input[type="text"]');
     expect(title?.value).toBe('');
+  });
+
+  it("defaults to the app's own calendar, whatever position it is listed in", async () => {
+    // The list may be arranged by the user (Einstellungen › Kalender verwalten › Reihenfolge), so
+    // the default must follow the source type rather than "whatever came first".
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-privat', name: 'Privat', color: null, emoji: null, sourceType: 'app' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
+  });
+
+  it('falls back to the first calendar when there is no app calendar at all', async () => {
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-familie', name: 'Familie', color: null, emoji: null, sourceType: 'device' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Arbeit');
   });
 
   it('prefills the date from initialDate, e.g. the day the user was viewing', async () => {
