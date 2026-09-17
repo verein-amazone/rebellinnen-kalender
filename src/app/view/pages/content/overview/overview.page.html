@@ -49,7 +49,10 @@
           </p>
 
           @if (!hasSavedItems()) {
-            <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
+            <!-- Empty states sit on a card here for the same reason they do on the calendar and
+                 Today screens (`calendar-agenda.block.html`): a bare sentence on the page
+                 background reads as a stray note rather than as the list that would be there. -->
+            <div class="rk-card flex flex-col items-center gap-2 px-4 py-6 text-center">
               <p class="font-semibold">Deine Sammlung ist noch leer</p>
               <p class="text-muted-foreground text-sm">
                 Wenn du einen Tagesimpuls, Wissensbeitrag oder eine Rebell*in später wiederfinden
@@ -84,14 +87,18 @@
                 }
               </div>
             } @else if (allKindsHidden()) {
-              <p class="text-muted-foreground px-4 py-6 text-center">
-                Alle Kategorien sind ausgeblendet. Tippe oben auf eine Kategorie, um sie wieder
-                einzublenden.
-              </p>
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Alle Kategorien sind ausgeblendet. Tippe oben auf eine Kategorie, um sie wieder
+                  einzublenden.
+                </p>
+              </div>
             } @else {
-              <p class="text-muted-foreground px-4 py-6 text-center">
-                Keine gespeicherten Einträge in dieser Kategorie.
-              </p>
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Keine gespeicherten Einträge in dieser Kategorie.
+                </p>
+              </div>
             }
           }
         </div>
@@ -152,9 +159,11 @@
                 }
               </div>
             } @else {
-              <p class="text-muted-foreground px-4 py-6 text-center">
-                Für diese Region sind noch keine Anlaufstellen hinterlegt.
-              </p>
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Für diese Region sind noch keine Anlaufstellen hinterlegt.
+                </p>
+              </div>
             }
           }
         </div>
