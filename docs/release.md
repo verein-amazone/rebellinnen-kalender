@@ -30,9 +30,11 @@ part of the pipeline.
 4. `.github/workflows/store-upload.yml` then builds **that tag** and uploads the result to both
    stores, with the release notes attached.
 
-The upload step only runs when the repository variable `STORE_UPLOADS_ENABLED` is `true`. That
-switch is how the pipeline stays green before the credentials exist, and how uploads can be stopped
-without reverting a workflow file.
+Each upload runs only when its own repository variable is `true`: `TESTFLIGHT_UPLOADS_ENABLED` for
+iOS, `PLAY_UPLOADS_ENABLED` for Android. Those switches are how the pipeline stays green before the
+credentials exist, how one store can go live while the other is still waiting, and how an upload can
+be stopped without reverting a workflow file. A job whose variable is not `true` reports as skipped,
+which is green.
 
 ### Version and build numbers
 
@@ -137,11 +139,19 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
     | `play-internal` | `ANDROID_KEY_PASSWORD`            | the key password from step 7       |
     | `play-internal` | `PLAY_SERVICE_ACCOUNT_JSON`       | the whole service-account JSON     |
 
-11. **The switch.** Settings → Secrets and variables → Actions → Variables: set
-    `STORE_UPLOADS_ENABLED` to `true`.
+11. **The switches.** Settings → Secrets and variables → Actions → Variables. Set
+    `TESTFLIGHT_UPLOADS_ENABLED` to `true` once the Apple steps are done, and
+    `PLAY_UPLOADS_ENABLED` to `true` once the Google steps are. They are independent on purpose -
+    the two stores are set up at different times and by different people.
 
 Then merge anything into `dev`, or run the **Store upload** workflow manually against the latest
-tag, and watch both jobs.
+tag, and watch the job you enabled.
+
+### Doing one platform first
+
+The Apple and Google halves share nothing, so they can be set up in either order. Whichever is done
+first gets its variable set to `true`; the other job stays skipped and no release run goes red
+because of it.
 
 ## Credential inventory and custody
 
@@ -228,7 +238,8 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
 - **The release workflow needs a bypass.** It pushes the release commit straight to the branch. That
   works on `dev` today and fails on `main`.
 - **Environments and secrets** as listed above.
-- **`STORE_UPLOADS_ENABLED`**, the variable that gates the uploads.
+- **`TESTFLIGHT_UPLOADS_ENABLED`** and **`PLAY_UPLOADS_ENABLED`**, the variables that gate the
+  two uploads.
 
 ## What is not automated yet
 
