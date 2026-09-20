@@ -94,20 +94,28 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
 
 ### Google
 
-5. **Create the Play Console entry** for `at.or.amazone.rebellinnenkalender`. Choose **`de-DE` as the
-   default language** - `supply` can only upload a changelog for a locale the listing actually has,
-   and the pipeline writes `de-DE`.
+5. **Create the Play Console entry** for `at.or.amazone.rebellinnenkalender` and add **`de-DE` as a
+   listing language** under Grow users → Store presence → Main store listing - `supply` can only
+   upload a changelog for a locale the listing actually has, and the pipeline writes `de-DE`. It
+   does not have to be the _default_ language.
 6. **Enable Play App Signing**, so Google holds the app signing key and this project only holds the
    upload key. Losing the upload key is then a support request rather than a dead app.
 7. **Generate the upload keystore** and back it up outside this repository:
 
    ```bash
    keytool -genkeypair -v \
-     -keystore upload-keystore.jks -storetype JKS \
+     -keystore upload-keystore.jks -storetype PKCS12 \
      -keyalg RSA -keysize 4096 -validity 10000 \
      -alias upload \
      -dname 'CN=Rebellinnen Kalender, O=Verein Amazone, C=AT'
    ```
+
+   `PKCS12` rather than `JKS`: the Gradle signing config sets no `storeType`, so it uses the JVM
+   default, which has been PKCS12 since JDK 9 and reads a JKS file only through a compatibility
+   fallback. A keystore that already exists as JKS migrates in place with
+   `keytool -importkeystore -srckeystore … -destkeystore … -deststoretype pkcs12`, which keeps the
+   key pair and therefore the upload certificate fingerprint. Under PKCS12 the key password and the
+   store password are the same value.
 
 8. **Play Developer API access.** Create a service account in Google Cloud, download its JSON key,
    then invite the service account's email address in the Play Console under Users and permissions
