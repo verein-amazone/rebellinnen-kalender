@@ -78,6 +78,26 @@ updates:
           - minor
           - patch
 
+  # ------------------------------------------------------------- bundler ----
+  # fastlane and its dependency tree (Gemfile.lock) - the only Ruby in this repository.
+  - package-ecosystem: bundler
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      fastlane:
+        patterns:
+          - '*'
+
   # ------------------------------------------------------ github-actions ----
   # Keeps the SHA-pinned actions in .github/workflows fresh.
   - package-ecosystem: github-actions

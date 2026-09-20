@@ -34,6 +34,10 @@ Feedback is especially helpful on: what is genuinely useful in everyday life, wh
 - Create focused feature branches off `dev` and open a pull request back into it.
 - Keep pull requests small and reviewable, with a clear description of the change.
 
+Merging into `dev` also builds and uploads the prerelease to TestFlight and Play internal testing.
+[docs/release.md](./docs/release.md) describes the whole path, the credentials it needs and what to
+do when an upload fails.
+
 ### Commit messages
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`,
@@ -61,9 +65,10 @@ header comment for the encoding. `node scripts/sync-native-version.mjs --check` 
 when the native fields no longer match `package.json`.
 
 If a store upload fails after the release already happened, do not re-upload the same build number -
-both stores reject it permanently. Push an empty commit to `dev`
-(`git commit --allow-empty -m 'fix: retry the release upload'`) to cut the next `rc`, which gets a
-fresh build number.
+both stores reject it permanently. Re-run the **Store upload** workflow for the same tag when the
+build never reached the store, and push an empty commit to `dev`
+(`git commit --allow-empty -m 'fix: retry the release upload'`) when it did. See
+[docs/release.md](./docs/release.md).
 
 ### Package manager
 
