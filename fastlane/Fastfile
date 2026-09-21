@@ -36,8 +36,25 @@ platform :ios do
 
     match(type: 'appstore', readonly: true, api_key: api_key)
 
-    # Manual signing against match's profile, passed on the command line rather than committed: the
-    # checked-in project keeps CODE_SIGN_STYLE = Automatic so opening it in Xcode still just works.
+    # Manual signing against match's profile, written into the project rather than committed: the
+    # checked-in project keeps CODE_SIGN_STYLE = Automatic so opening it in Xcode still just works,
+    # and CI checks out a fresh tree every run, so this edit never outlives the job.
+    #
+    # It has to be a per-target edit. The same settings passed as xcargs land on the xcodebuild
+    # command line, where they apply to *every* target in the build - including the resource-bundle
+    # targets Swift Package Manager generates for dependencies, which reject a profile outright:
+    # "ZIPFoundation_ZIPFoundation does not support provisioning profiles".
+    update_code_signing_settings(
+      path: XCODE_PROJECT,
+      targets: [XCODE_SCHEME],
+      build_configurations: ['Release'],
+      use_automatic_signing: false,
+      team_id: TEAM_ID,
+      code_sign_identity: 'Apple Distribution',
+      profile_name: MATCH_PROFILE_NAME,
+      bundle_identifier: APP_IDENTIFIER
+    )
+
     build_app(
       project: XCODE_PROJECT,
       scheme: XCODE_SCHEME,
@@ -47,13 +64,7 @@ platform :ios do
       export_options: {
         signingStyle: 'manual',
         provisioningProfiles: { APP_IDENTIFIER => MATCH_PROFILE_NAME }
-      },
-      xcargs: [
-        'CODE_SIGN_STYLE=Manual',
-        "DEVELOPMENT_TEAM=#{TEAM_ID}",
-        'CODE_SIGN_IDENTITY="Apple Distribution"',
-        "PROVISIONING_PROFILE_SPECIFIER=\"#{MATCH_PROFILE_NAME}\""
-      ].join(' ')
+      }
     )
 
     # `skip_waiting_for_build_processing` with a changelog is not the same as without one: pilot
