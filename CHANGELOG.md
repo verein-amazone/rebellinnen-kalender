@@ -1,3 +1,15 @@
+## [1.0.0-rc.9](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.8...v1.0.0-rc.9) (2026-09-21)
+
+### Chores
+
+* **deps:** upgrade dependencies ([8a000f1](https://github.com/verein-amazone/rebellinnen-kalender/commit/8a000f182873dc731750d1cebcebe5b90dca1ad8))
+* **ios:** restore the Info.plist comments Xcode strips ([9e350b5](https://github.com/verein-amazone/rebellinnen-kalender/commit/9e350b544dd8d17e9020cf7e4fc0c3c9b2f97a2b))
+
+### Delivery
+
+* **release:** pin the changelog preset to the major the writer can render ([411181e](https://github.com/verein-amazone/rebellinnen-kalender/commit/411181eb1dbd01dc5617bbe52c15fff9fbab75c1))
+* **release:** show every releasing commit type in the release notes ([2226dd4](https://github.com/verein-amazone/rebellinnen-kalender/commit/2226dd4f4bf8bd3552449dd01caf03571be8161f))
+
 # [1.0.0-rc.8](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-09-21)
 
 
