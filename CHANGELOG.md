@@ -1,3 +1,5 @@
+# [1.0.0-rc.7](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-09-21)
+
 # [1.0.0-rc.6](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.5...v1.0.0-rc.6) (2026-09-21)
 
 # [1.0.0-rc.5](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.4...v1.0.0-rc.5) (2026-09-21)
