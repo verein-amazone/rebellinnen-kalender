@@ -9,10 +9,12 @@
 # trigger workflows - so it neither loops back into this workflow nor spends a CI run on a commit
 # that only moves version numbers.
 #
-# A prerelease from `dev` continues straight into .github/workflows/store-upload.yml, which builds
-# the tag and hands the result to TestFlight and Play internal testing. Each of those two uploads is
-# gated on its own repository variable, so this workflow stays green before the store credentials
-# exist and while only one of the two stores is ready.
+# Either release continues straight into .github/workflows/store-upload.yml, which builds the tag
+# and stages the result: a prerelease from `dev` into TestFlight and Play internal testing, a
+# release from `main` into the App Store version and the Play production track. Neither is
+# published; both wait for a human in the respective console. Each of the two uploads is gated on
+# its own repository variable, so this workflow stays green before the store credentials exist and
+# while only one of the two stores is ready.
 #
 # When branch protection lands (#75), this workflow needs a bypass for `dev` and `main`: it pushes
 # straight to the branch rather than opening a pull request, and a protected branch without a bypass
@@ -79,16 +81,20 @@ jobs:
 
   # Store uploads happen in the same run, from the tag that was just created. Which platforms
   # actually upload is decided per job inside the called workflow, by one repository variable each,
-  # so one store can go live while the other is still waiting for its credentials. `main` is
-  # deliberately excluded until #75 lets it release at all and the App Store / Play production lanes
-  # exist.
+  # so one store can go live while the other is still waiting for its credentials.
+  #
+  # The branch decides the channel and nothing else: `dev` stages into TestFlight and the Play
+  # internal track, `main` stages into the App Store version and the Play production track. Neither
+  # publishes - a release from `main` still ends one deliberate click short of live in both
+  # consoles, so merging into `main` can never put a build in front of a user by itself.
   store-upload:
     name: Store upload
     needs: release
-    if: needs.release.outputs.released == 'true' && github.ref_name == 'dev'
+    if: needs.release.outputs.released == 'true'
     permissions:
       contents: read
     uses: ./.github/workflows/store-upload.yml
     with:
       tag: ${{ needs.release.outputs.tag }}
+      channel: ${{ github.ref_name == 'main' && 'release' || 'prerelease' }}
     secrets: inherit

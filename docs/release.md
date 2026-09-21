@@ -2,7 +2,8 @@
 
 How a change becomes a build in TestFlight and Play internal testing, and eventually an app in the
 stores. Everything described here is automated except the credentials, which cannot live in a public
-repository, and the final "publish to testers" action, which stays deliberate.
+repository, and the final act of going live, which stays deliberate in both stores and on both
+branches.
 
 ## The model
 
@@ -11,10 +12,28 @@ repository, and the final "publish to testers" action, which stays deliberate.
 | `dev`  | `1.0.0-rc.N`     | every merged pull request | TestFlight | Play internal testing |
 | `main` | `1.0.0`, `1.0.1` | merging `dev` into `main` | App Store  | Play production       |
 
-The `main` half is **not wired yet**. Two things are missing: the "Protect Main" ruleset has a
-pull-request rule with no bypass actor, so semantic-release cannot push its release commit there
-(#75), and the App Store / Play production lanes do not exist (#72, #73). Until then, `main` is not
-part of the pipeline.
+Both halves are wired. The branch decides the channel and nothing else: the same certificate, the
+same profile, the same keystore and the same service account serve both, pointed at a different
+track. `.github/workflows/release.yml` passes `channel: release` for `main` and
+`channel: prerelease` for `dev`; `.github/workflows/store-upload.yml` picks the fastlane lane from
+it.
+
+**Neither channel publishes.** A release from `main` stages the iOS build as an App Store version
+with its "What's New" text and leaves it in "Prepare for Submission", and puts the Android bundle on
+the **production** track as a **draft**. Merging into `main` therefore cannot put a build in front
+of a user by itself; going live is one deliberate click in each console.
+
+Before the first release from `main` actually works, three things outside this repository still
+need doing:
+
+- **`main` has to be seeded.** It is far behind `dev` and carries none of its commits, so
+  semantic-release has nothing to release from.
+- **The "Protect Main" ruleset needs a bypass actor** for the release workflow, which pushes its
+  release commit straight to the branch rather than opening a pull request (#75). Without it the
+  release fails after the merge, not during it.
+- **The App Store listing has to exist** - description, screenshots, age rating, privacy answers
+  (#74, #91). `deliver` writes only the release notes; it deliberately does not own the rest of the
+  listing, and Apple will not accept a submission without it.
 
 ## What happens when a pull request is merged into `dev`
 
@@ -79,6 +98,11 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
    Add `match_deploy_key.pub` to the certificates repository under Settings → Deploy keys, **without**
    write access. The private half becomes the `MATCH_DEPLOY_KEY` secret.
 
+   If this fails with `Deploy keys are disabled for this repository`, the block is an organisation
+   policy rather than a repository setting: enable it under the organisation's Settings → Repository,
+   or with `gh api -X PATCH orgs/<org> -f deploy_keys_enabled_for_repositories=true`. It applies to
+   every repository in the organisation, so it is a decision, not a formality.
+
 4. **Create the certificate, once, from a laptop.** Pick a strong passphrase and keep it in the
    password manager - it is the `MATCH_PASSWORD` secret and there is no way to recover the
    certificates without it.
@@ -118,9 +142,21 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
    store password are the same value.
 
 8. **Play Developer API access.** Create a service account in Google Cloud, download its JSON key,
-   then invite the service account's email address in the Play Console under Users and permissions
-   with **Release to testing tracks** and **View app information**, restricted to this app.
-   Permission changes can take up to 24 hours to take effect.
+   then invite the service account's email address in the Play Console under Users and permissions,
+   restricted to this app, with:
+
+   - **Release apps to testing tracks** - for the `dev` channel.
+   - **Release to production, exclude devices, and use Play App Signing** - for the `main` channel.
+     The production track refuses an upload without it, draft or not.
+
+   Play sets **View app information (read-only)** alongside them on its own. Grant no account-level
+   permissions: they apply to every app in the developer account, including future ones. Permission
+   changes can take up to 24 hours to take effect.
+
+   The Play Console has no "API access" page any more, and a Google Cloud project no longer needs to
+   be linked to the developer account. Create the project and the service account in the Google
+   Cloud console, enable the **Google Play Android Developer API** there, and then invite the
+   service account here like any other user.
 
 ### GitHub
 
@@ -129,7 +165,10 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
    - `testflight`
    - `play-internal`
 
-   Environments with required reviewers for the production tracks come with #75.
+   Both channels use these two environments: the credentials do not change with the track, and a
+   second pair would only be a second copy to keep in sync. If a release from `main` should need
+   sign-off, add required reviewers here - that gates the upload itself, before anything reaches a
+   store.
 
 10. **The secrets**, in their environment. Binary files go in base64 on a single line
     (`base64 -i <file> | tr -d '\n' | pbcopy` on macOS):
@@ -185,11 +224,19 @@ No key material is ever committed. `.gitignore` and `android/.gitignore` reject 
 The pipeline uploads; it never distributes. That is deliberate - it means a bad build can be thrown
 away without anyone having installed it.
 
-**TestFlight.** The build appears under the version with its "What to Test" text filled in. Add it
-to the internal testing group to send it to Verein Amazone.
+**TestFlight** (`dev`). The build appears under the version with its "What to Test" text filled in.
+Add it to the internal testing group to send it to Verein Amazone.
 
-**Play internal testing.** The bundle appears as a **draft** release on the internal track with the
-German changelog. Open it and roll it out.
+**Play internal testing** (`dev`). The bundle appears as a **draft** release on the internal track
+with the German changelog. Open it and roll it out.
+
+**App Store** (`main`). The version exists in App Store Connect with the build attached and its
+"What's New" text filled in, sitting in "Prepare for Submission". Check the rest of the listing, then
+"Add for Review" and submit. It is not set to release automatically on approval, so an approved
+version still waits for a human to release it.
+
+**Play production** (`main`). The bundle appears as a **draft** release on the production track with
+the German changelog. Open it, set the rollout percentage, and publish.
 
 Play refuses to roll out any release, internal testing included, until the "App content"
 declarations are complete - privacy policy, data safety, content rating, target audience. Those are
@@ -212,9 +259,9 @@ prerelease that never reached a tester.
   git commit --allow-empty -m 'fix: retry the release upload'
   ```
 
-- **Only one of the two platforms failed**: the manual re-run does both. For the platform that
-  already succeeded the upload will fail on the duplicate build number, which is noisy but harmless;
-  read the other job's result.
+- **Only one of the two platforms failed**: re-run **only the failed job**, from the run's page or
+  with `gh run rerun <run-id> --failed`. A full re-run would ask the platform that already succeeded
+  to upload the same build number again, which it rejects - noisy, harmless, and avoidable.
 
 ## Hotfixing a released version
 

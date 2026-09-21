@@ -2,9 +2,17 @@
 # release notes - is semantic-release's job (.releaserc.json); everything after it belongs to the
 # App Store Connect and Play consoles.
 #
-# Both lanes upload and stop there. Nothing here distributes a build to a tester: TestFlight gets a
-# build with its "What to Test" text filled in but no group, and Play gets a draft release on the
-# internal track. Publishing to testers stays a deliberate action in the console.
+# There are two channels, and every lane in both of them stages rather than publishes:
+#
+#   dev  -> `ios beta`    TestFlight, "What to Test" filled in, no group attached
+#           `android internal`  Play internal testing, draft release
+#   main -> `ios release` App Store Connect, build attached to the version with its "What's New"
+#                         text, *not* submitted for review and *not* set to auto-release
+#           `android production`  Play production track, draft release
+#
+# So a merge into `main` leaves both stores one deliberate click from live: "Submit for Review" in
+# App Store Connect, "Publish" in the Play console. Nothing here ever reaches a user on its own -
+# that is the whole point of the arrangement, and it is what makes a failed upload harmless.
 #
 # Run by .github/workflows/store-upload.yml; see docs/release.md for the credentials.
 
@@ -16,56 +24,97 @@ XCODE_SCHEME = 'App'.freeze
 # The name match gives the profile it stores; `readonly` match never invents a different one.
 MATCH_PROFILE_NAME = "match AppStore #{APP_IDENTIFIER}".freeze
 
+# The app is German-only and both listings are German-only with it. `supply` and `deliver` both
+# reject a locale the listing does not actually have, so this is one constant rather than two.
+STORE_LOCALE = 'de-DE'.freeze
+
+AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
+
+# Reads the App Store Connect API key from the environment.
+#
+# ENV.fetch rather than ENV[]: a missing secret has to fail here with the name of the secret, not
+# fifteen minutes later inside xcodebuild.
+def app_store_connect_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch('APP_STORE_CONNECT_KEY_ID'),
+    issuer_id: ENV.fetch('APP_STORE_CONNECT_ISSUER_ID'),
+    key_content: ENV.fetch('APP_STORE_CONNECT_KEY_P8_BASE64'),
+    is_key_content_base64: true
+  )
+end
+
+# Archives a signed, App Store ready .ipa. Identical for both channels: the same certificate, the
+# same profile and the same export method serve TestFlight and the App Store.
+def archive_signed_ipa(api_key)
+  # Temporary keychain on CI, no-op locally. Without it the imported certificate would have
+  # nowhere to live that xcodebuild can unlock unattended.
+  setup_ci
+
+  match(type: 'appstore', readonly: true, api_key: api_key)
+
+  # Manual signing against match's profile, written into the project rather than committed: the
+  # checked-in project keeps CODE_SIGN_STYLE = Automatic so opening it in Xcode still just works,
+  # and CI checks out a fresh tree every run, so this edit never outlives the job.
+  #
+  # It has to be a per-target edit. The same settings passed as xcargs land on the xcodebuild
+  # command line, where they apply to *every* target in the build - including the resource-bundle
+  # targets Swift Package Manager generates for dependencies, which reject a profile outright:
+  # "ZIPFoundation_ZIPFoundation does not support provisioning profiles".
+  update_code_signing_settings(
+    path: XCODE_PROJECT,
+    targets: [XCODE_SCHEME],
+    build_configurations: ['Release'],
+    use_automatic_signing: false,
+    team_id: TEAM_ID,
+    code_sign_identity: 'Apple Distribution',
+    profile_name: MATCH_PROFILE_NAME,
+    bundle_identifier: APP_IDENTIFIER
+  )
+
+  build_app(
+    project: XCODE_PROJECT,
+    scheme: XCODE_SCHEME,
+    configuration: 'Release',
+    export_method: 'app-store',
+    output_directory: 'build/ios',
+    export_options: {
+      signingStyle: 'manual',
+      provisioningProfiles: { APP_IDENTIFIER => MATCH_PROFILE_NAME }
+    }
+  )
+end
+
+# Uploads the release bundle to one Play track as a draft.
+#
+# The changelog is a file, not a parameter: `supply` reads
+# fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt, which
+# scripts/build-store-release-notes.mjs has written by the time this runs.
+#
+# `draft` rather than `completed` on both tracks: the bundle lands in the console with its notes
+# attached and a human decides when it goes out. On `internal` that is also what lets the pipeline
+# be verified before the Play "App content" declarations (#78, #79) are answered - those block the
+# rollout, not the upload.
+def upload_bundle_to_play(track)
+  upload_to_play_store(
+    track: track,
+    release_status: 'draft',
+    aab: AAB_PATH,
+    # The service account JSON stays in memory; it is never written to the runner's disk.
+    json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
+    skip_upload_metadata: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true,
+    skip_upload_changelogs: false
+  )
+end
+
 default_platform(:ios)
 
 platform :ios do
   desc 'Archive the app and upload it to TestFlight. Does not distribute it to any group.'
   lane :beta do |options|
-    # ENV.fetch rather than ENV[]: a missing secret has to fail here with the name of the secret,
-    # not fifteen minutes later inside xcodebuild.
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch('APP_STORE_CONNECT_KEY_ID'),
-      issuer_id: ENV.fetch('APP_STORE_CONNECT_ISSUER_ID'),
-      key_content: ENV.fetch('APP_STORE_CONNECT_KEY_P8_BASE64'),
-      is_key_content_base64: true
-    )
-
-    # Temporary keychain on CI, no-op locally. Without it the imported certificate would have
-    # nowhere to live that xcodebuild can unlock unattended.
-    setup_ci
-
-    match(type: 'appstore', readonly: true, api_key: api_key)
-
-    # Manual signing against match's profile, written into the project rather than committed: the
-    # checked-in project keeps CODE_SIGN_STYLE = Automatic so opening it in Xcode still just works,
-    # and CI checks out a fresh tree every run, so this edit never outlives the job.
-    #
-    # It has to be a per-target edit. The same settings passed as xcargs land on the xcodebuild
-    # command line, where they apply to *every* target in the build - including the resource-bundle
-    # targets Swift Package Manager generates for dependencies, which reject a profile outright:
-    # "ZIPFoundation_ZIPFoundation does not support provisioning profiles".
-    update_code_signing_settings(
-      path: XCODE_PROJECT,
-      targets: [XCODE_SCHEME],
-      build_configurations: ['Release'],
-      use_automatic_signing: false,
-      team_id: TEAM_ID,
-      code_sign_identity: 'Apple Distribution',
-      profile_name: MATCH_PROFILE_NAME,
-      bundle_identifier: APP_IDENTIFIER
-    )
-
-    build_app(
-      project: XCODE_PROJECT,
-      scheme: XCODE_SCHEME,
-      configuration: 'Release',
-      export_method: 'app-store',
-      output_directory: 'build/ios',
-      export_options: {
-        signingStyle: 'manual',
-        provisioningProfiles: { APP_IDENTIFIER => MATCH_PROFILE_NAME }
-      }
-    )
+    api_key = app_store_connect_key
+    archive_signed_ipa(api_key)
 
     # `skip_waiting_for_build_processing` with a changelog is not the same as without one: pilot
     # waits until the build appears in App Store Connect, sets "What to Test", and only then stops
@@ -79,29 +128,45 @@ platform :ios do
       skip_waiting_for_build_processing: true
     )
   end
+
+  desc 'Archive the app and stage it as an App Store version. Does not submit it for review.'
+  lane :release do |options|
+    api_key = app_store_connect_key
+    archive_signed_ipa(api_key)
+
+    # Everything that makes this "staged rather than published" is in these three flags:
+    # `submit_for_review: false` leaves the version in "Prepare for Submission", `automatic_release`
+    # false means an approved version still waits for a human, and `run_precheck_before_submit`
+    # false keeps precheck from running for a submission that is not happening.
+    #
+    # Only the release notes are written. `skip_screenshots` leaves the listing's screenshots alone,
+    # and nothing here touches the description, keywords or the age rating: those are the store
+    # listing's own content (#74, #91), maintained in the console, and a deliver run that thinks it
+    # owns them would overwrite them with whatever is - or is not - in this repository.
+    upload_to_app_store(
+      api_key: api_key,
+      app_version: options.fetch(:version),
+      release_notes: { STORE_LOCALE => options.fetch(:changelog) },
+      submit_for_review: false,
+      automatic_release: false,
+      skip_screenshots: true,
+      overwrite_screenshots: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      # No HTML preview to confirm: there is no terminal to confirm it in.
+      force: true
+    )
+  end
 end
 
 platform :android do
   desc 'Upload the release bundle to the Play internal testing track, as a draft.'
   lane :internal do
-    # The changelog is a file, not a parameter: `supply` reads
-    # fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt, which
-    # scripts/build-store-release-notes.mjs has written by the time this runs.
-    #
-    # `draft` rather than `completed`: the bundle lands in the console with its notes attached and
-    # a human decides when testers get it. It is also what lets the pipeline be verified before the
-    # Play "App content" declarations (#78, #79) are answered - those block the rollout, not the
-    # upload.
-    upload_to_play_store(
-      track: 'internal',
-      release_status: 'draft',
-      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
-      # The service account JSON stays in memory; it is never written to the runner's disk.
-      json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true,
-      skip_upload_changelogs: false
-    )
+    upload_bundle_to_play('internal')
+  end
+
+  desc 'Upload the release bundle to the Play production track, as a draft.'
+  lane :production do
+    upload_bundle_to_play('production')
   end
 end
