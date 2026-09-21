@@ -39,18 +39,16 @@ proguard/
 captures/
 
 # IntelliJ
+#
+# The whole directory, not the template's file-by-file list. Android Studio writes this project
+# config when anyone opens `android/` as a project, and it is machine-local throughout - SDK paths,
+# deployment targets, device streaming caches. None of it was ever tracked, and the template's list
+# does not cover what current Android Studio writes, so the directory kept showing up as untracked.
+#
+# The repository's own `.idea/` at the root is a different thing and is deliberately shared; it
+# manages itself through `.idea/.gitignore`.
 *.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-# Android Studio 3 in .gitignore file.
-.idea/caches
-.idea/modules.xml
-# Comment next line if keeping position of elements in Navigation Editor is relevant for you
-.idea/navEditor.xml
+.idea/
 
 # Keystore files
 # The upload keystore lives in a GitHub secret and a backup outside this repository, never here.

@@ -10,13 +10,12 @@
 	     its own chrome in English, most visibly the weekday headers of the native
 	     <input type="date"> picker inside the WebView. Declaring German here (and in
 	     CFBundleLocalizations below) makes iOS resolve the app language to German, so UIKit's own
-	     localizations apply. See https://developer.apple.com/library/archive/qa/qa1828/_index.html. -->
+	     localizations apply. See https://developer.apple.com/library/archive/qa/qa1828/_index.html.
+
+	     Xcode rewrites this file key-alphabetically and strips comments whenever it saves it, so
+	     if a comment goes missing after opening the project, it was Xcode - put it back. -->
 	<key>CFBundleDevelopmentRegion</key>
 	<string>de</string>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>de</string>
-	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Rebell*innen Kalender</string>
 	<key>CFBundleExecutable</key>
@@ -25,6 +24,10 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>de</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -44,13 +47,13 @@
 	<true/>
 	<!-- @ebarooni/capacitor-calendar (#20 device-calendar connection): requestFullCalendarAccess()
 	     is the only permission call the app makes, so only the full-access key is needed - write-only
-	     and Reminders access are never requested. NSCalendarsUsageDescription is the pre-iOS-17
-	     fallback key; both are required together per the plugin's setup instructions. -->
-	<key>NSCalendarsUsageDescription</key>
-	<string>Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine zusätzlich anzuzeigen.</string>
+	     and Reminders access are never requested. NSCalendarsUsageDescription below is the
+	     pre-iOS-17 fallback key; both are required together per the plugin's setup instructions. -->
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine zusätzlich anzuzeigen.</string>
-  <key>UIApplicationSceneManifest</key>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine zusätzlich anzuzeigen.</string>
+	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
