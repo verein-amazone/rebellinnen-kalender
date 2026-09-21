@@ -154,6 +154,9 @@ importers:
       axe-core:
         specifier: ^4.13.0
         version: 4.13.0
+      conventional-changelog-conventionalcommits:
+        specifier: ^10.4.0
+        version: 10.4.0
       eslint:
         specifier: ^10.11.0
         version: 10.11.0(jiti@2.7.0)(supports-color@7.2.0)

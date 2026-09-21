@@ -77,6 +77,15 @@ characters, so a long changelog is cut at a line boundary.
 The text is the generated English commit-subject changelog with a German line naming the version.
 Hand-written German release notes for the public release are #91 and #74.
 
+Which commits appear in it is `release-notes-generator`'s `presetConfig` in `.releaserc.json`, and
+it has to list **every type that can cut a release** - otherwise a release triggered by, say, a lone
+`ci:` commit generates empty notes, and the store text collapses to its version line with nothing
+under it. That is exactly what happened to `1.0.0-rc.5` through `rc.7`: the analyzer's
+`releaseRules` had been extended with `build`, `chore`, `ci`, `refactor` and `revert`, but the notes
+generator was left on the default preset, which renders only `feat`, `fix`, `perf` and reverts. Keep
+the two lists in step. `docs`, `style` and `test` stay hidden, which is consistent - they cut no
+release either.
+
 ## First-time setup
 
 In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
