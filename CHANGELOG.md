@@ -1,3 +1,11 @@
+# [1.0.0-rc.8](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-09-21)
+
+
+### Bug Fixes
+
+* **license:** added CC license and creator for Amazone Pictures ([c1aec25](https://github.com/verein-amazone/rebellinnen-kalender/commit/c1aec254db16c316452ef822bfef0a1f4f6de81a))
+* **license:** added CC license for wi-03.webp ([77e3cb5](https://github.com/verein-amazone/rebellinnen-kalender/commit/77e3cb5eb6fa9b39ac99731231e4b7f6187bfe4b))
+
 # [1.0.0-rc.7](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-09-21)
 
 # [1.0.0-rc.6](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.5...v1.0.0-rc.6) (2026-09-21)
