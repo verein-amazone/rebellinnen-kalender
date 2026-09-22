@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
-const STORAGE_KEY = 'rk.curatedCalendars';
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
+const STORAGE_KEY = scopedStorageName('rk.curatedCalendars');
 
 interface StoredState {
   readonly version: number | null;

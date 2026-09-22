@@ -1,5 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
 import {
   DEFAULT_APPEARANCE_PREFERENCES,
   IMPULSE_GREETING_IDS,
@@ -10,7 +12,7 @@ import {
   type ImpulseGreetingId,
 } from './appearance-preferences';
 
-const STORAGE_KEY = 'rk.appearance';
+const STORAGE_KEY = scopedStorageName('rk.appearance');
 
 /**
  * Persists the appearance preferences.
