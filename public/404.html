@@ -23,6 +23,13 @@
     -->
     <script>
       (function () {
+        // Already redirected once and still here: the deployment itself is missing its
+        // `index.html`, which is what the site root looks like before the first `dev` build is
+        // published. Redirecting again would only loop.
+        if (window.location.search.charAt(1) === '/') {
+          return;
+        }
+
         var segments = window.location.pathname.split('/').filter(Boolean);
         var deploymentDepth = /^pr-\d+$/.test(segments[1] || '') ? 2 : 1;
         var base = '/' + segments.slice(0, deploymentDepth).join('/') + '/';
@@ -37,5 +44,8 @@
   </head>
   <body>
     <p>Diese Seite wird geladen …</p>
+    <noscript>
+      <p>Diese Seite braucht JavaScript. Bitte aktiviere es und lade die Seite neu.</p>
+    </noscript>
   </body>
 </html>
