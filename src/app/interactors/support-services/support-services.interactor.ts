@@ -17,7 +17,7 @@ import type {
  * then Vorarlberg, Tirol, Salzburg, then the remaining federal states. A region only ever appears
  * as a filter chip when the catalog actually has an entry for it (see `listRegions`).
  */
-const REGION_ORDER: readonly { readonly id: string; readonly label: string }[] = [
+export const REGION_ORDER: readonly { readonly id: string; readonly label: string }[] = [
   { id: 'online', label: 'Online & Telefon' },
   { id: 'vorarlberg', label: 'Vorarlberg' },
   { id: 'tirol', label: 'Tirol' },
