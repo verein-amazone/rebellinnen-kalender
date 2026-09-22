@@ -57,7 +57,6 @@ function toView(item: SupportServiceCatalogItem): SupportServiceView {
     name: item.name,
     teaser: item.teaser,
     icon: item.icon,
-    logoPath: item.logoPath ?? null,
     actions: item.actions.map(toActionView),
   };
 }

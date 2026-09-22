@@ -54,7 +54,6 @@ describe('SupportServicesInteractor', () => {
           name: 'ZARA',
           teaser: 'Beratungsstellen #GegenHassimNetz und !GegenRassismus',
           icon: '✊',
-          logoPath: null,
           actions: [
             {
               type: 'website',
@@ -94,7 +93,7 @@ describe('SupportServicesInteractor', () => {
       ]);
     });
 
-    it('keeps the icon as authored, and defaults logoPath to null', async () => {
+    it('keeps the icon as authored', async () => {
       gateway.items = [
         {
           id: 'rat-auf-draht',
@@ -108,24 +107,6 @@ describe('SupportServicesInteractor', () => {
 
       const [item] = await interactor.listAll();
       expect(item.icon).toBe('🧠');
-      expect(item.logoPath).toBeNull();
-    });
-
-    it('carries logoPath through when authored', async () => {
-      gateway.items = [
-        {
-          id: 'verein-amazone',
-          region: 'vorarlberg',
-          name: 'Verein Amazone',
-          teaser: 'T',
-          icon: '🏳️‍⚧️',
-          logoPath: '/support-services/logos/verein-amazone.webp',
-          actions: [],
-        },
-      ];
-
-      const [item] = await interactor.listAll();
-      expect(item.logoPath).toBe('/support-services/logos/verein-amazone.webp');
     });
 
     it('is empty when the catalog is empty', async () => {

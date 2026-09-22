@@ -27,7 +27,6 @@
       "name": "Telefonseelsorge",
       "teaser": "Beratung bei Ängsten und Sorgen",
       "icon": "🫂",
-      "logoPath": "/support-services/logos/telefonseelsorge.webp",
       "actions": [
         {
           "type": "phone",
@@ -48,7 +47,6 @@
       "name": "Kindernotruf",
       "teaser": "Telefonberatung bei akuten Krisen",
       "icon": "🚨",
-      "logoPath": "/support-services/logos/kindernotruf.webp",
       "actions": [
         {
           "type": "phone",
@@ -157,7 +155,6 @@
       "name": "Kinder- und Jugendanwaltschaften Österreichs",
       "teaser": "Info und Rat zu deinen Rechten",
       "icon": "⚖️",
-      "logoPath": "/support-services/logos/kinder-jugendanwaltschaften-oesterreichs.webp",
       "actions": [
         {
           "type": "website",
@@ -192,7 +189,6 @@
       "name": "HelpCh@t",
       "teaser": "Beratung für Frauen* und Mädchen*, die von Gewalt betroffen sind",
       "icon": "🆘",
-      "logoPath": "/support-services/logos/helpchat.webp",
       "actions": [
         {
           "type": "chat",
@@ -207,7 +203,6 @@
       "name": "ZARA",
       "teaser": "Beratungsstellen #GegenHassimNetz und !GegenRassismus",
       "icon": "🛡️",
-      "logoPath": "/support-services/logos/zara.webp",
       "actions": [
         {
           "type": "website",

@@ -5,7 +5,13 @@
       <p class="text-muted-foreground">{{ service().teaser }}</p>
     </div>
 
-    <app-support-service-avatar [icon]="service().icon" [logoPath]="service().logoPath" />
+    <!-- The entry's emoji, drawn plain: it carries its own colour, so a frame or tint behind it
+         only competes with the card's own surface. Purely decorative - the service is named in
+         text right next to it - so it is `aria-hidden`. The fixed box keeps emoji of different
+         widths lined up down a scrolling list. -->
+    <span aria-hidden="true" class="grid size-24 shrink-0 place-content-center text-6xl">
+      {{ service().icon }}
+    </span>
   </div>
 
   @if (service().actions.length > 0) {

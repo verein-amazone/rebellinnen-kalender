@@ -10,7 +10,6 @@ import type {
   SupportServiceActionType,
   SupportServiceView,
 } from '@app/interactors/support-services/support-service.vm';
-import { SupportServiceAvatar } from '@app/view/components/support-service-avatar/support-service-avatar';
 
 /** `website`/`chat` actions open outside the app; `phone`/`sms` hand off to the OS as-is. */
 const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'chat'];
@@ -30,13 +29,7 @@ const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'ch
 @Component({
   selector: 'app-support-service-card',
   host: { class: 'block' },
-  imports: [
-    LucideExternalLink,
-    LucideMessageCircle,
-    LucideMessageSquare,
-    LucidePhone,
-    SupportServiceAvatar,
-  ],
+  imports: [LucideExternalLink, LucideMessageCircle, LucideMessageSquare, LucidePhone],
   templateUrl: './support-service-card.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
