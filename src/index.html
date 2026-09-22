@@ -11,8 +11,41 @@
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!--
+      The web demo build only (see README). Both the manifest and the icons it names are resolved
+      relative to this document, so one file serves the demo site and every pull-request preview,
+      whichever subdirectory it is deployed to. Native builds ignore all of it.
+    -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#7dbdbb" />
+    <!--
+      Restores a deep link that GitHub Pages could not serve. Pages has no rewrite rule, so
+      reloading `…/settings/theme` returns its 404 page, and `404.html` sends the request back here
+      with the route as a query (`/?/settings/theme`). This puts it back in the address bar before
+      the Angular bundle - a deferred module script - runs and reads the location.
+
+      Inert everywhere else: without that query shape it does nothing at all.
+    -->
+    <script>
+      (function () {
+        if (window.location.search.charAt(1) !== '/') {
+          return;
+        }
+
+        var parts = window.location.search.slice(2).split('&');
+        var route = parts.shift();
+        var query = parts.join('&');
+
+        window.history.replaceState(
+          null,
+          '',
+          window.location.pathname + route + (query ? '?' + query : '') + window.location.hash,
+        );
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>
+    <noscript>Bitte aktiviere JavaScript, um den Rebell*innen Kalender zu verwenden.</noscript>
   </body>
 </html>

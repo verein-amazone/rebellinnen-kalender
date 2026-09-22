@@ -53,6 +53,9 @@
               "outputHashing": "all",
               "extractLicenses": true
             },
+            "pages": {
+              "serviceWorker": "ngsw-config.json"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,

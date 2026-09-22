@@ -1,0 +1,50 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "navigationUrls": ["/**", "!/**/*.*", "!/**/*__*", "!/**/*__*/**", "!/pr-*", "!/pr-*/**"],
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/404.html",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)",
+          "/assets/sql-wasm.wasm"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "catalogs",
+      "urls": [
+        "/content/catalog.json",
+        "/curated-calendars/catalog.json",
+        "/support-services/catalog.json",
+        "/image-attributions.json",
+        "/3rdpartylicenses.txt"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 10,
+        "maxAge": "30d",
+        "timeout": "5s"
+      }
+    }
+  ]
+}
