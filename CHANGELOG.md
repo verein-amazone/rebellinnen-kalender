@@ -1,3 +1,13 @@
+## [1.0.0-rc.11](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.10...v1.0.0-rc.11) (2026-09-22)
+
+### Chores
+
+* **lint:** keep ESLint out of the generated trees ([1b4607e](https://github.com/verein-amazone/rebellinnen-kalender/commit/1b4607edfda7c226599712f942d531d3f033a21a))
+
+### Delivery
+
+* **cache:** keep the Angular and Gradle build output between runs ([b974577](https://github.com/verein-amazone/rebellinnen-kalender/commit/b97457726191243d66d1d069bc3377f8492a86a5))
+
 ## [1.0.0-rc.10](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.9...v1.0.0-rc.10) (2026-09-22)
 
 ### Delivery
