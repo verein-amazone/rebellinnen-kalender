@@ -1,3 +1,20 @@
+## [1.0.0-rc.13](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.12...v1.0.0-rc.13) (2026-09-22)
+
+### Features
+
+* **calendars:** hide calendar subscriptions on the web ([188df2a](https://github.com/verein-amazone/rebellinnen-kalender/commit/188df2a1f7279c9c74b979c0a9bcf7f85a7e81fb))
+* **data:** give every deployment its own database and storage keys ([65c9a5e](https://github.com/verein-amazone/rebellinnen-kalender/commit/65c9a5e603be5cec25017505d2ecdc4da32fe99e))
+* **pages:** publish a web demo build and one preview per pull request ([b10de64](https://github.com/verein-amazone/rebellinnen-kalender/commit/b10de64b8c8713e7dca6ecd0b7a3cead225260ce))
+
+### Bug Fixes
+
+* **pages:** publish the 404 page at the root of the branch ([5987ebb](https://github.com/verein-amazone/rebellinnen-kalender/commit/5987ebb2b839413a1e19131beab591a97fd5d01f))
+* **pages:** stop the 404 redirect from looping on an empty deployment ([674e4b6](https://github.com/verein-amazone/rebellinnen-kalender/commit/674e4b6efb6460b25a3937ebd33397e8dbc4420d))
+
+### Refactoring
+
+* **assets:** resolve bundled assets against the base href ([dd70e11](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd70e11d5fa1516ec19ad47f4a52ba3a1312aa20))
+
 ## [1.0.0-rc.12](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.11...v1.0.0-rc.12) (2026-09-22)
 
 ### Features
