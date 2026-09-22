@@ -13,7 +13,6 @@ function service(overrides: Partial<SupportServiceView> = {}): SupportServiceVie
     name: 'Rat auf Draht',
     teaser: 'Beratung für Kinder und Jugendliche',
     icon: '🧠',
-    logoPath: null,
     actions: [
       { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
       {
@@ -128,10 +127,19 @@ describe('SupportServiceCardBlock', () => {
     expect(element.querySelector('a')).toBeNull();
   });
 
-  it('renders the service avatar with its icon', async () => {
+  it("shows the entry's emoji as the lead visual, hidden from assistive tech", async () => {
     const element = await setup(service({ icon: '🧠' }));
 
-    expect(element.querySelector('app-support-service-avatar')).not.toBeNull();
-    expect(element.textContent).toContain('🧠');
+    const visual = element.querySelector('[aria-hidden="true"]');
+    expect(visual?.textContent?.trim()).toBe('🧠');
+  });
+
+  it('draws the emoji plain, with no frame or tint behind it', async () => {
+    const element = await setup(service({ icon: '🧠' }));
+
+    expect(element.querySelector('img')).toBeNull();
+    const visual = element.querySelector<HTMLElement>('[aria-hidden="true"]');
+    expect(visual?.className).not.toContain('border');
+    expect(visual?.getAttribute('style')).toBeNull();
   });
 });

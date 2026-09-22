@@ -100,7 +100,7 @@ describe('SupportServiceCatalogGateway', () => {
     expect(await gateway.fetchCatalog()).toEqual([validItem]);
   });
 
-  it('accepts an item with no logoPath and an empty action list', async () => {
+  it('accepts an item with an empty action list', async () => {
     const minimalItem = {
       id: 'zara',
       region: 'online',
@@ -113,14 +113,6 @@ describe('SupportServiceCatalogGateway', () => {
     const gateway = setup();
 
     expect(await gateway.fetchCatalog()).toEqual([minimalItem]);
-  });
-
-  it('accepts an item with a logoPath', async () => {
-    const itemWithLogo = { ...validItem, logoPath: '/support-services/logos/rat-auf-draht.webp' };
-    stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [itemWithLogo] })));
-    const gateway = setup();
-
-    expect(await gateway.fetchCatalog()).toEqual([itemWithLogo]);
   });
 
   it('drops an item missing icon', async () => {

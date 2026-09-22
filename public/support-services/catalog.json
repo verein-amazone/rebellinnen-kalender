@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "items": [
     {
       "id": "rat-auf-draht",
@@ -27,7 +27,6 @@
       "name": "Telefonseelsorge",
       "teaser": "Beratung bei Ängsten und Sorgen",
       "icon": "🫂",
-      "logoPath": "/support-services/logos/telefonseelsorge.webp",
       "actions": [
         {
           "type": "phone",
@@ -48,7 +47,6 @@
       "name": "Kindernotruf",
       "teaser": "Telefonberatung bei akuten Krisen",
       "icon": "🚨",
-      "logoPath": "/support-services/logos/kindernotruf.webp",
       "actions": [
         {
           "type": "phone",
@@ -93,7 +91,7 @@
       "region": "online",
       "name": "SMS-Notruf für gehörlose und hörbehinderte Menschen",
       "teaser": "Notruf per SMS",
-      "icon": "🚨",
+      "icon": "📳",
       "actions": [
         {
           "type": "sms",
@@ -157,7 +155,6 @@
       "name": "Kinder- und Jugendanwaltschaften Österreichs",
       "teaser": "Info und Rat zu deinen Rechten",
       "icon": "⚖️",
-      "logoPath": "/support-services/logos/kinder-jugendanwaltschaften-oesterreichs.webp",
       "actions": [
         {
           "type": "website",
@@ -192,7 +189,6 @@
       "name": "HelpCh@t",
       "teaser": "Beratung für Frauen* und Mädchen*, die von Gewalt betroffen sind",
       "icon": "🆘",
-      "logoPath": "/support-services/logos/helpchat.webp",
       "actions": [
         {
           "type": "chat",
@@ -207,7 +203,6 @@
       "name": "ZARA",
       "teaser": "Beratungsstellen #GegenHassimNetz und !GegenRassismus",
       "icon": "🛡️",
-      "logoPath": "/support-services/logos/zara.webp",
       "actions": [
         {
           "type": "website",
@@ -247,6 +242,776 @@
           "type": "website",
           "label": "Webseite",
           "uri": "https://www.amazone.or.at"
+        }
+      ]
+    },
+    {
+      "id": "maedchentreff-dornbirn",
+      "region": "vorarlberg",
+      "name": "Mädchen*treff Dornbirn (OJAD)",
+      "teaser": "Treffpunkt für Mädchen* und junge Frauen* mit Beratung, Workshops und Freizeitangeboten",
+      "icon": "🏡",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4367683650873",
+          "displayValue": "0676 83650873"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.ojad.at/"
+        }
+      ]
+    },
+    {
+      "id": "verein-aranea",
+      "region": "tirol",
+      "name": "Verein ARANEA",
+      "teaser": "Mädchen*zentrum und Beratung für Mädchen* von 10 bis 21. Kostenlos, vertraulich, anonym.",
+      "icon": "🕸️",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://aranea.or.at/"
+        }
+      ]
+    },
+    {
+      "id": "emma-berufszentrum",
+      "region": "tirol",
+      "name": "emma – Berufszentrum für junge Frauen*",
+      "teaser": "Beratung und Workshops für junge Frauen* von 15 bis 25 zu Berufs- und Ausbildungswahl und Bewerbungen",
+      "icon": "🛠️",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43512559700",
+          "displayValue": "0512 559700"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://emma.fib.at"
+        }
+      ]
+    },
+    {
+      "id": "evita-frauenberatung",
+      "region": "tirol",
+      "name": "Evita, Frauen- und Mädchen*beratungsstelle, Frauennotwohnung Unterland, Frauenservicestelle",
+      "teaser": "Psychosozial, psychologische und rechtliche Beratung für Mädchen* ab 12 Jahren",
+      "icon": "⚖️",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43537263616",
+          "displayValue": "05372 63616"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.evita-frauenberatung.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenzentrum-osttirol",
+      "region": "tirol",
+      "name": "Frauenzentrum Osttirol - Beratung für Mädchen und Frauen",
+      "teaser": "Beratung für Mädchen ab 8 Jahren, Workshops an Schulen und sozialen Einrichtungen, Sprechstunden an Schulen",
+      "icon": "🏔️",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43485267193",
+          "displayValue": "04852 67193"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauenzentrum-osttirol.at/"
+        }
+      ]
+    },
+    {
+      "id": "kompass",
+      "region": "salzburg",
+      "name": "Kompass – Fachstelle für klischeefreie Berufsorientierung und MINT-Bildung",
+      "teaser": "Einzelberatung und Workshops für Mädchen* zur Unterstützung einer selbstbestimmten Berufs- und Zukunftsplanung",
+      "icon": "🧭",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436648227213",
+          "displayValue": "0664 8227213"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://einstieg.or.at/projektkategorien/kompass/"
+        }
+      ]
+    },
+    {
+      "id": "job-success",
+      "region": "salzburg",
+      "name": "Job-Success",
+      "teaser": "Einzelberatung und Gruppentreffen für Mädchen* und junge Frauen* in technischen Lehrberufen",
+      "icon": "🎯",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436642301141",
+          "displayValue": "0664 2301141"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://einstieg.or.at/projektkategorien/job-success/"
+        }
+      ]
+    },
+    {
+      "id": "nola",
+      "region": "salzburg",
+      "name": "NOLA – No Limits Accepted",
+      "teaser": "Einzelberatung, Workshops, Gruppentreffen und Lernunterstützung für Mädchen* zwischen 10 und 18 Jahren",
+      "icon": "🚀",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436642301141",
+          "displayValue": "0664 2301141"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://einstieg.or.at/projektkategorien/nola/"
+        }
+      ]
+    },
+    {
+      "id": "frauengesundheitszentrum-salzburg",
+      "region": "salzburg",
+      "name": "FrauenGesundheitsZentrum Salzburg",
+      "teaser": "Wir möchten Sie in der Erhaltung Ihrer Gesundheit unterstützen – mit persönlicher Beratung und frauenspezifischen Angeboten",
+      "icon": "💚",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43662442255",
+          "displayValue": "0662 442255"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauengesundheitszentrum-salzburg.at/"
+        }
+      ]
+    },
+    {
+      "id": "young-fbz",
+      "region": "salzburg",
+      "name": "Young FBZ – Berufszentrum für junge Frauen",
+      "teaser": "Beratung, Berufsorientierung, Begleitung im Bewerbungsprozess und/oder Workshop für junge Frauen ab 15 Jahren",
+      "icon": "💼",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frau-und-arbeit.at/bjf/"
+        }
+      ]
+    },
+    {
+      "id": "equaliz",
+      "region": "kaernten",
+      "name": "EqualiZ – Gemeinsam vielfältig",
+      "teaser": "Beratung, Psychotherapie, Treff, Workshops, Freizeit und Berufsorientierung für Mädchen* und Frauen*",
+      "icon": "🤝",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43463508821",
+          "displayValue": "0463 508821"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.equaliz.at/"
+        }
+      ]
+    },
+    {
+      "id": "belladonna",
+      "region": "kaernten",
+      "name": "Belladonna – Frauen- & Familienberatung, Opferschutzstelle bei Gewalt",
+      "teaser": "Beratung in allen Lebenslagen für Mädchen ab 14 Jahren. Prozessbegleitung bei sexueller Gewalt.",
+      "icon": "🌸",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43676851581700",
+          "displayValue": "0676 851581700"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauenberatung-belladonna.at/"
+        }
+      ]
+    },
+    {
+      "id": "wiff-voelkermarkt",
+      "region": "kaernten",
+      "name": "WIFF Frauen- und Familienberatung Völkermarkt",
+      "teaser": "Psychologische, psychosoziale und rechtliche Beratung für Mädchen ab 14 – kostenlos und vertraulich.",
+      "icon": "🧩",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4342324750",
+          "displayValue": "04232 4750"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "http://www.wiff-vk.at"
+        }
+      ]
+    },
+    {
+      "id": "innova",
+      "region": "steiermark",
+      "name": "innova frauen*- und mädchen*servicestelle",
+      "teaser": "Beratung und Information für Mädchen* ab 13 Jahren. Vertraulich, anonym & kostenlos.",
+      "icon": "✨",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43315239554",
+          "displayValue": "03152 39554"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.innova.or.at/"
+        }
+      ]
+    },
+    {
+      "id": "mafalda",
+      "region": "steiermark",
+      "name": "Mafalda – Verein zur Förderung und Unterstützung von Mädchen und jungen Frauen",
+      "teaser": "mafalda fördert, unterstützt und begleitet Mädchen* und junge Frauen* in sämtlichen Lebenslagen.",
+      "icon": "🌻",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.mafalda.at/maedchenbereich/ja-m-maedchenzentrum/"
+        }
+      ]
+    },
+    {
+      "id": "frauenberatung-hartberg-fuerstenfeld",
+      "region": "steiermark",
+      "name": "Frauen- und Mädchenberatung Hartberg Fürstenfeld",
+      "teaser": "Wir beraten Mädchen ab 14 J. In Hartberg, Fürstenfeld oder am Telefon. Umsonst und vertraulich.",
+      "icon": "🌷",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43333262862",
+          "displayValue": "03332 62862"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauenberatung-hf.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauengesundheitszentrum-graz",
+      "region": "steiermark",
+      "name": "Frauengesundheitszentrum, Graz, Fachstelle Mädchengesundheit",
+      "teaser": "Beratung für Mädchen* ab 10 Jahren zu den Themen Periode, Mental Health, Verhütung, Essstörungen, Sex…",
+      "icon": "🩺",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436764158442",
+          "displayValue": "0676 4158442"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauengesundheitszentrum.eu/"
+        }
+      ]
+    },
+    {
+      "id": "verein-weitblick",
+      "region": "steiermark",
+      "name": "Frauen- und Mädchenberatungsstelle des Verein Weitblick",
+      "teaser": "Wir bieten Einzelberatungen und Workshops/Vorträge für Frauen und Mädchen ab 14 Jahren an.",
+      "icon": "🔭",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436503007419",
+          "displayValue": "0650 3007419"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://institut-weitblick.at/"
+        }
+      ]
+    },
+    {
+      "id": "novum-murau",
+      "region": "steiermark",
+      "name": "Novum, Zentrum für Frauen und Mädchen",
+      "teaser": "Novum bietet Mädchen ab 12+ Beratung, Workshops, Unterstützung bei all ihren Anliegen, in Murau und im Murtal.",
+      "icon": "🦋",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4366488500377",
+          "displayValue": "0664 88500377"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.novum.co.at/"
+        }
+      ]
+    },
+    {
+      "id": "freiraum-leibnitz",
+      "region": "steiermark",
+      "name": "FREIRAUM - Frauen- und Mädchenservicestelle Leibnitz",
+      "teaser": "Beratung & Mädchengruppen ab 12 Jahren: Herausforderungen, Angst, Beziehung, Gewalt, Neuorientierung, Beruf, Geld",
+      "icon": "🪁",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4367764498325",
+          "displayValue": "0677 64498325"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://freiraum-leibnitz.at/"
+        }
+      ]
+    },
+    {
+      "id": "philomena-liezen",
+      "region": "steiermark",
+      "name": "PHILOMENA | Frauen- und Mädchenberatungsstelle Liezen",
+      "teaser": "kostenlose Beratung, Begleitung und Unterstützung für Mädchen und Frauen ab 14 Jahren",
+      "icon": "🍀",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436648491422",
+          "displayValue": "0664 8491422"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.philomena.or.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenberatung-perg",
+      "region": "oberoesterreich",
+      "name": "Frauenberatung Perg",
+      "teaser": "Ziel unserer Arbeit ist die Verbesserung der Lebensqualität von Frauen und Mädchen im ländlichen Raum.",
+      "icon": "🌾",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43726254484",
+          "displayValue": "07262 54484"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://frauenberatung-perg.at/"
+        }
+      ]
+    },
+    {
+      "id": "frau-fuer-frau",
+      "region": "oberoesterreich",
+      "name": "Frau für Frau",
+      "teaser": "Beratung für Mädchen* ab 14 Jahren",
+      "icon": "👭",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43772264650",
+          "displayValue": "07722 64650"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.fraufuerfrau.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenberatung-inneres-salzkammergut",
+      "region": "oberoesterreich",
+      "name": "Frauenberatungsstelle Inneres Salzkammergut",
+      "teaser": "Kostenlose, anonyme Beratung und Begleitung für Frauen und Mädchen in schwierigen Lebenslagen",
+      "icon": "🏞️",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43613221331",
+          "displayValue": "06132 21331"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauensicht.at/"
+        }
+      ]
+    },
+    {
+      "id": "verein-spektrum",
+      "region": "oberoesterreich",
+      "name": "Verein SPEKTRUM",
+      "teaser": "Beratung zu Beruf, Gewalt und psychosozialen Themen sowie Weiterbildung für Frauen und Mädchen.",
+      "icon": "🌈",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436608400547",
+          "displayValue": "0660 8400547"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.verein-spektrum.com"
+        }
+      ]
+    },
+    {
+      "id": "maiz",
+      "region": "oberoesterreich",
+      "name": "maiz autonomes zentrum von und für migrantinnen",
+      "teaser": "Partizipative Projekte, Workshops und Beratung für junge Migrantinnen*",
+      "icon": "🌍",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43732776070",
+          "displayValue": "0732 776070"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.maiz.at/de"
+        }
+      ]
+    },
+    {
+      "id": "fit-fem-in-tech-ooe",
+      "region": "oberoesterreich",
+      "name": "FIT-Fem in Tech OÖ",
+      "teaser": "Studienberatung im Bereich Naturwissenschaften und Technik und für Mädchen* und Frauen* ab 16 Jahren",
+      "icon": "🔬",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.jku.at/schule/ueberblick-beratungsstellen/fem-in-tech/"
+        }
+      ]
+    },
+    {
+      "id": "auftrieb-lotta-girlsbase",
+      "region": "niederoesterreich",
+      "name": "Auftrieb Jugendberatung Wiener Neustadt - Lotta Girlsbase",
+      "teaser": "Beratung für Mädchen* ab 12 Jahren – vertraulich, anonym und kostenlos",
+      "icon": "🎈",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4369912130231",
+          "displayValue": "0699 12130231"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.auftrieb.co.at"
+        }
+      ]
+    },
+    {
+      "id": "verein-wendepunkt",
+      "region": "niederoesterreich",
+      "name": "Verein wendepunkt",
+      "teaser": "Frauenberatung und Fachstelle bei sexualisierter Gewalt für Frauen und Mädchen ab 14 Jahren",
+      "icon": "🔄",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43262282596",
+          "displayValue": "02622 82596"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.wendepunkt.or.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenzentrum-st-poelten",
+      "region": "niederoesterreich",
+      "name": "Verein Frauenzentrum St. Pölten",
+      "teaser": "Psychosoziale Beratung für Frauen* und Mädchen* ab 12 Jahren",
+      "icon": "💜",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436763094773",
+          "displayValue": "0676 3094773"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.frauen-zentrum.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenberatung-mostviertel",
+      "region": "niederoesterreich",
+      "name": "Frauen*beratung Mostviertel",
+      "teaser": "Beratung für Frauen* und Mädchen* ab 14 Jahren",
+      "icon": "🍎",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43747263297",
+          "displayValue": "07472 63297"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://frauenberatung.co.at/"
+        }
+      ]
+    },
+    {
+      "id": "verein-sprungbrett",
+      "region": "wien",
+      "name": "Verein sprungbrett - Beratung · Bildung · Forschung für Mädchen* und junge Frauen*",
+      "teaser": "Beratung und Berufsorientierung für Mädchen, junge Frauen und TIN* Personen zwischen 11 und 25 Jahren",
+      "icon": "🪜",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4317894545",
+          "displayValue": "01 7894545"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://sprungbrett.or.at/"
+        }
+      ]
+    },
+    {
+      "id": "schwarze-frauen-community",
+      "region": "wien",
+      "name": "Schwarze Frauen Community",
+      "teaser": "Mädchen*gruppe für alle Altersgruppen, Mädchen*beratung ab 10 Jahren, SFC Youth* für Schwarze Jugendliche von 14 bis 21",
+      "icon": "✊🏿",
+      "actions": [
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.schwarzefrauencommunity.at/"
+        }
+      ]
+    },
+    {
+      "id": "orient-express-wien",
+      "region": "wien",
+      "name": "Verein Orient Express",
+      "teaser": "Beratung für Mädchen* ab 14 Jahren zu Zwangsheirat & Verwandtschaftsgewalt (Gewalt durch die Familie).",
+      "icon": "🕊️",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4317289725",
+          "displayValue": "01 7289725"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.orientexpress-wien.com/"
+        }
+      ]
+    },
+    {
+      "id": "fem-sued",
+      "region": "wien",
+      "name": "Frauengesundheitszentrum FEM Süd (Klinik Favoriten)",
+      "teaser": "Mehrsprachige psychosoziale, psychologische und psychotherapeutische Beratung für Mädchen und Frauen",
+      "icon": "🏥",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+431601915201",
+          "displayValue": "01 601915201"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://femsued.at/"
+        }
+      ]
+    },
+    {
+      "id": "fem",
+      "region": "wien",
+      "name": "Frauengesundheitszentrum FEM (Klinik Floridsdorf)",
+      "teaser": "Mehrsprachige psychosoziale, psychologische und psychotherapeutische Beratung für Mädchen und Frauen",
+      "icon": "🏥",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+431277005600",
+          "displayValue": "01 277005600"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://fem.at/"
+        }
+      ]
+    },
+    {
+      "id": "tamar",
+      "region": "wien",
+      "name": "TAMAR - Beratungsstelle für misshandelte und sexuell missbrauchte Frauen*, Mädchen* und Kinder",
+      "teaser": "Wir unterstützen euch durch Information und Beratung sowie Begleitung durch ein Strafverfahren.",
+      "icon": "🌴",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4313340437",
+          "displayValue": "01 3340437"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://tamar.at/"
+        }
+      ]
+    },
+    {
+      "id": "maedchenberatung",
+      "region": "wien",
+      "name": "Mädchenberatung",
+      "teaser": "Beratung und Prozessbegleitung für Betroffene von sexualisierter Gewalt und deren Bezugspersonen.",
+      "icon": "🤝",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+4315871089",
+          "displayValue": "01 587 10 89"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.maedchenberatung.at/"
+        }
+      ]
+    },
+    {
+      "id": "bakhti",
+      "region": "wien",
+      "name": "BAKHTI Zentrum für Empowerment",
+      "teaser": "Kunsttherapie und Beratung für Mädchen* von 14 bis 25, die Gewalt erleben. Mehrsprachig, anonym & kostenlos.",
+      "icon": "🎨",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+436602019501",
+          "displayValue": "0660 2019501"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://www.bakhti.at/"
+        }
+      ]
+    },
+    {
+      "id": "frauenberatung-burgenland",
+      "region": "burgenland",
+      "name": "Frauen, Mädchen- und Familienberatungsstelle",
+      "teaser": "Kostenlose Beratung für Mädchen ab 14 Jahren: Beruf/Ausbildung, Gesundheit, Sexualität, Gewalt, Rechtliches",
+      "icon": "💛",
+      "actions": [
+        {
+          "type": "phone",
+          "label": "Anrufen",
+          "uri": "tel:+43332945008",
+          "displayValue": "03329 45008"
+        },
+        {
+          "type": "website",
+          "label": "Webseite",
+          "uri": "https://frauenberatung-burgenland.at/"
         }
       ]
     }

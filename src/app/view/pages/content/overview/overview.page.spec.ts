@@ -38,7 +38,6 @@ function service(overrides: Partial<SupportServiceView> = {}): SupportServiceVie
     name: 'Rat auf Draht',
     teaser: 'Beratung für Kinder und Jugendliche',
     icon: '🧠',
-    logoPath: null,
     actions: [
       { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
       {

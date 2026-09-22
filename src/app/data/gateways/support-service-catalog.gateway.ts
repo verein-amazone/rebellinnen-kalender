@@ -27,10 +27,8 @@ export interface SupportServiceCatalogItem {
   readonly region: string;
   readonly name: string;
   readonly teaser: string;
-  /** One emoji shown as the card's lead visual until a rights-cleared logo replaces it. */
+  /** One emoji, drawn plain as the card's lead visual. */
   readonly icon: string;
-  /** A real organisation logo, once its usage rights are cleared - see `docs/content-authoring.md`. */
-  readonly logoPath?: string;
   readonly actions: readonly SupportServiceCatalogAction[];
 }
 
@@ -80,7 +78,6 @@ function isCatalogItem(value: unknown): value is SupportServiceCatalogItem {
     typeof candidate.name === 'string' &&
     typeof candidate.teaser === 'string' &&
     typeof candidate.icon === 'string' &&
-    (candidate.logoPath === undefined || typeof candidate.logoPath === 'string') &&
     Array.isArray(candidate.actions) &&
     candidate.actions.every(isCatalogAction)
   );
