@@ -1,3 +1,9 @@
+## [1.0.0-rc.14](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.13...v1.0.0-rc.14) (2026-09-22)
+
+### Bug Fixes
+
+* **view:** tint Safari's bottom toolbar with the navigation colour ([2b50e7a](https://github.com/verein-amazone/rebellinnen-kalender/commit/2b50e7a570f5d76d29442dc5b7061f845169dd01))
+
 ## [1.0.0-rc.13](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.12...v1.0.0-rc.13) (2026-09-22)
 
 ### Features
