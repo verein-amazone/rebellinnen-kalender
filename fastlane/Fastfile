@@ -30,6 +30,13 @@ STORE_LOCALE = 'de-DE'.freeze
 
 AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
 
+# How App Store Connect turns down a build number it has already seen: Apple's own error code and
+# the iris code that travels with it, in the message fastlane raises. Both halves are matched
+# because both are machine-readable and neither is the prose around them, which Apple rewords.
+DUPLICATE_BUILD_ERROR = /-19232|ENTITY_ERROR\.ATTRIBUTE\.INVALID\.DUPLICATE/
+UPLOAD_ATTEMPTS = 3
+UPLOAD_RETRY_SECONDS = 30
+
 # Reads the App Store Connect API key from the environment.
 #
 # ENV.fetch rather than ENV[]: a missing secret has to fail here with the name of the secret, not
@@ -84,6 +91,46 @@ def archive_signed_ipa(api_key)
   )
 end
 
+# Runs an App Store Connect upload so that a build Apple already has cannot leave the lane red.
+#
+# altool transfers the package and *then* talks to App Store Connect about it. When the store is
+# having a bad day the transfer succeeds - "UPLOAD SUCCEEDED with no errors", Delivery UUID issued -
+# while the calls after it (GET APP SETTINGS, GET UPLOAD STATE) come back 500 or 502. altool exits
+# nonzero, and fastlane reports "Error uploading ipa file" for a build that is already on Apple's
+# side. Retrying then earns the duplicate-version rejection, which is the receipt for that first
+# upload: the build is there, so the lane is done. Run 35649195619 failed exactly this way, twice.
+#
+# Only the upload is retried, never the archive: the .ipa exists by the time this runs and both
+# upload actions take it from the lane context, so a further attempt costs seconds.
+#
+# Treating a duplicate as success does mean a build number that failed to move reads as success.
+# It cannot go unnoticed here - the number comes from the released version via
+# scripts/sync-native-version.mjs, and semantic-release moves the version on every release - so a
+# collision says this very version was delivered before, which is the state the lane wants anyway.
+def upload_tolerating_a_delivered_build
+  attempt = 0
+
+  begin
+    attempt += 1
+    yield
+  # Rescued this broadly on purpose: the class fastlane wraps an altool failure in has moved
+  # between fastlane releases, and the block holds nothing but the upload action.
+  rescue StandardError => e
+    if DUPLICATE_BUILD_ERROR.match?(e.message.to_s)
+      UI.important('App Store Connect already has this build - an earlier attempt delivered it.')
+      UI.important('Nothing left to upload; treating the upload as done.')
+      return
+    end
+
+    raise if attempt >= UPLOAD_ATTEMPTS
+
+    UI.important("Upload attempt #{attempt} of #{UPLOAD_ATTEMPTS} failed: #{e.message}")
+    UI.important("Retrying in #{UPLOAD_RETRY_SECONDS} seconds.")
+    sleep(UPLOAD_RETRY_SECONDS)
+    retry
+  end
+end
+
 # Uploads the release bundle to one Play track as a draft.
 #
 # The changelog is a file, not a parameter: `supply` reads
@@ -120,13 +167,15 @@ platform :ios do
     # waits until the build appears in App Store Connect, sets "What to Test", and only then stops
     # waiting. So the notes are attached either way and the job does not sit idle through the rest
     # of Apple's processing.
-    upload_to_testflight(
-      api_key: api_key,
-      changelog: options[:changelog],
-      distribute_external: false,
-      notify_external_testers: false,
-      skip_waiting_for_build_processing: true
-    )
+    upload_tolerating_a_delivered_build do
+      upload_to_testflight(
+        api_key: api_key,
+        changelog: options[:changelog],
+        distribute_external: false,
+        notify_external_testers: false,
+        skip_waiting_for_build_processing: true
+      )
+    end
   end
 
   desc 'Archive the app and stage it as an App Store version. Does not submit it for review.'
@@ -143,19 +192,21 @@ platform :ios do
     # and nothing here touches the description, keywords or the age rating: those are the store
     # listing's own content (#74, #91), maintained in the console, and a deliver run that thinks it
     # owns them would overwrite them with whatever is - or is not - in this repository.
-    upload_to_app_store(
-      api_key: api_key,
-      app_version: options.fetch(:version),
-      release_notes: { STORE_LOCALE => options.fetch(:changelog) },
-      submit_for_review: false,
-      automatic_release: false,
-      skip_screenshots: true,
-      overwrite_screenshots: false,
-      run_precheck_before_submit: false,
-      precheck_include_in_app_purchases: false,
-      # No HTML preview to confirm: there is no terminal to confirm it in.
-      force: true
-    )
+    upload_tolerating_a_delivered_build do
+      upload_to_app_store(
+        api_key: api_key,
+        app_version: options.fetch(:version),
+        release_notes: { STORE_LOCALE => options.fetch(:changelog) },
+        submit_for_review: false,
+        automatic_release: false,
+        skip_screenshots: true,
+        overwrite_screenshots: false,
+        run_precheck_before_submit: false,
+        precheck_include_in_app_purchases: false,
+        # No HTML preview to confirm: there is no terminal to confirm it in.
+        force: true
+      )
+    end
   end
 end
 

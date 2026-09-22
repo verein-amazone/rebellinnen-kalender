@@ -260,9 +260,16 @@ prerelease that never reached a tester.
 - **The build never uploaded** (signing, credentials, a Gradle or Xcode failure): fix the cause and
   re-run the **Store upload** workflow manually with the same tag. Actions → Store upload → Run
   workflow → enter `v1.0.0-rc.N`.
-- **The build uploaded and something after it failed**: do not re-run. Both stores reject a build
-  number that has been used, permanently. Push an empty commit to cut the next `rc`, which gets a
-  fresh build number:
+- **The build uploaded and something after it failed**: on iOS this mostly resolves itself. `altool`
+  hands the package over and only then talks to App Store Connect about it, so a bad day at Apple
+  can fail the step for a build that has already arrived. The lane retries the upload three times,
+  and it reads App Store Connect's duplicate-build rejection - "the bundle version must be higher
+  than the previously uploaded version" - as the receipt for the delivery that already happened, so
+  it finishes green. Re-running the iOS job is therefore safe; it will report the build as
+  delivered rather than fail on the duplicate.
+
+  Play has no such tolerance. If the bundle reached Play and a later step failed, push an empty
+  commit to cut the next `rc`, which gets a fresh build number:
 
   ```bash
   git commit --allow-empty -m 'fix: retry the release upload'
@@ -270,7 +277,8 @@ prerelease that never reached a tester.
 
 - **Only one of the two platforms failed**: re-run **only the failed job**, from the run's page or
   with `gh run rerun <run-id> --failed`. A full re-run would ask the platform that already succeeded
-  to upload the same build number again, which it rejects - noisy, harmless, and avoidable.
+  to upload the same build number again - harmless on iOS now, still a rejection on Play, and
+  avoidable either way.
 
 ## Hotfixing a released version
 
