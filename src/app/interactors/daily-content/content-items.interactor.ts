@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
 import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
@@ -35,7 +36,8 @@ function toView(record: ContentItemRecord): ContentItemView {
     title: record.title,
     teaser: record.teaser,
     bodyMarkdown: record.bodyMarkdown,
-    imagePath: record.imagePath,
+    // Stored as a root-relative path; the deployment's base href is only known at runtime.
+    imagePath: record.imagePath === null ? null : assetUrl(record.imagePath),
     imageAlt: record.imageAlt,
     imageAttribution: record.imageAttribution,
     sourceLabel: record.sourceLabel,

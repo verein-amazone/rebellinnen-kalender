@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+
 import { BookmarkDao } from '../daos/bookmark.dao';
 import { ContentItemDao } from '../daos/content-item.dao';
 import type {
@@ -112,7 +114,7 @@ export class ContentCatalogSync {
   /** `null` on any failure - a missing/unreachable/malformed asset must never break the app. */
   private async fetchCatalog(): Promise<Catalog | null> {
     try {
-      const response = await fetch(CATALOG_URL);
+      const response = await fetch(assetUrl(CATALOG_URL));
       if (!response.ok) {
         return null;
       }

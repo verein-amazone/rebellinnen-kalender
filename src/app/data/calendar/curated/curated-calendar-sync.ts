@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
 import { CalendarRepository, icsCalendarRowId } from '@app/data/calendar/calendar.repository';
 import { normalizeIcsUrl } from '@app/data/calendar/ics/ics-url';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
@@ -169,7 +170,7 @@ export class CuratedCalendarSync {
   /** `null` on any failure - a missing/unreachable/malformed asset must never break the app. */
   private async fetchCatalog(): Promise<Catalog | null> {
     try {
-      const response = await fetch(CATALOG_URL);
+      const response = await fetch(assetUrl(CATALOG_URL));
       if (!response.ok) {
         return null;
       }
