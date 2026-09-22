@@ -107,6 +107,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Angular's disk cache is off on a runner by default - `cli.cache.environment` defaults to
+      # `local`, which means "not when CI is set" - so angular.json sets it to `all` and this keeps
+      # it between runs. It holds the Angular compiler and Babel output keyed by file content, which
+      # is what makes a build of a mostly unchanged tree cheap: 19.9s cold against 6.5s warm here,
+      # for under 4 MB.
+      #
+      # The key ends in the commit because a cache entry is immutable once written, so a key that
+      # never changes would freeze the first run's cache forever. The restore-keys prefix is what
+      # actually matches - the newest entry built against this lockfile.
+      - name: Cache the Angular build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-
+
       - name: Build
         run: pnpm build
 

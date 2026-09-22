@@ -30,6 +30,11 @@ STORE_LOCALE = 'de-DE'.freeze
 
 AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
 
+# Where CI keeps its cached Swift package clones, so a release does not re-clone SQLCipher,
+# ZIPFoundation and capacitor-swift-pm from github.com. Unset locally, where Xcode's own
+# ~/Library/Caches/org.swift.swiftpm is already warm; fastlane treats a nil option as not given.
+SPM_CLONE_PATH = ENV.fetch('SPM_CLONE_PATH', nil)
+
 # How App Store Connect turns down a build number it has already seen: Apple's own error code and
 # the iris code that travels with it, in the message fastlane raises. Both halves are matched
 # because both are machine-readable and neither is the prose around them, which Apple rewords.
@@ -84,6 +89,9 @@ def archive_signed_ipa(api_key)
     configuration: 'Release',
     export_method: 'app-store',
     output_directory: 'build/ios',
+    # Applies to both xcodebuild calls gym makes - the package resolution it runs first and the
+    # archive itself - because fastlane builds one parameter list for the two.
+    cloned_source_packages_path: SPM_CLONE_PATH,
     export_options: {
       signingStyle: 'manual',
       provisioningProfiles: { APP_IDENTIFIER => MATCH_PROFILE_NAME }

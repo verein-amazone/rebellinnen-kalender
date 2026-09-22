@@ -118,11 +118,36 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # The same cache the CI build job keeps, for the same reason: a release builds the web app
+      # too, and Angular's disk cache is what makes that build cheap. See .github/workflows/ci.yml
+      # for why the key ends in the commit.
+      - name: Cache the Angular build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-
+
       - name: Build the web app
         run: pnpm build
 
       - name: Sync the iOS project
         run: pnpm exec cap sync ios
+
+      # gym resolves the Swift packages itself before it archives, so without this every release
+      # clones SQLCipher, ZIPFoundation and capacitor-swift-pm from github.com again. The key is the
+      # one the CI iOS job writes, deliberately - the clones are the same, so a release reads what
+      # the last CI run on this branch already stored. It buys a handful of seconds; what it really
+      # buys is a step that no longer needs github.com to be up, at the point in the run where the
+      # tag and the GitHub release already exist and a failure is expensive.
+      - name: Cache resolved Swift packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       - name: Build the store release notes
         env:
@@ -154,6 +179,8 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           CHANNEL: ${{ inputs.channel }}
           TAG: ${{ inputs.tag }}
+          # Read by the Fastfile and passed to build_app; unset outside CI.
+          SPM_CLONE_PATH: ${{ runner.temp }}/spm
         run: |
           notes="$(cat "$RUNNER_TEMP/notes/testflight.txt")"
           if [ "$CHANNEL" = 'release' ]; then
@@ -217,6 +244,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # See the iOS job above.
+      - name: Cache the Angular build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .angular/cache
+          key: ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-
 
       - name: Build the web app
         run: pnpm build
