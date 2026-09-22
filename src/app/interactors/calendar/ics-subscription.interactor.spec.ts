@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import { OccurrenceDao } from '@app/data/daos/occurrence.dao';
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import {
   IcsDownloadError,
@@ -88,6 +89,7 @@ describe('IcsSubscriptionInteractor', () => {
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: IcsHttpGateway, useValue: http },
         { provide: NativeEmojiPicker, useValue: emojiPicker },
+        { provide: DevicePlatformService, useValue: { platform: 'ios' } },
       ],
     });
 
@@ -487,5 +489,61 @@ describe('IcsSubscriptionInteractor', () => {
     expect(rows[0].id).toBe(subscriptionId);
     expect(rows[0].state).toBe('error');
     expect(rows[0].lastError).not.toBeNull();
+  });
+});
+
+describe('IcsSubscriptionInteractor on the web', () => {
+  let database: InMemorySqliteDatabase;
+  let interactor: IcsSubscriptionInteractor;
+  let http: FakeIcsHttpGateway;
+  let subscriptions: IcsSubscriptionDao;
+
+  beforeEach(() => {
+    database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+    http = new FakeIcsHttpGateway();
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SQLITE_DATABASE, useValue: database },
+        { provide: IcsHttpGateway, useValue: http },
+        { provide: NativeEmojiPicker, useValue: new FakeEmojiPicker() },
+        { provide: DevicePlatformService, useValue: { platform: 'web' } },
+      ],
+    });
+
+    interactor = TestBed.inject(IcsSubscriptionInteractor);
+    subscriptions = TestBed.inject(IcsSubscriptionDao);
+  });
+
+  afterEach(() => {
+    database.close();
+  });
+
+  // A browser cannot fetch a calendar feed - no calendar server sends CORS headers - so the
+  // refresh is skipped rather than failing and flagging a healthy subscription.
+  it('downloads nothing and flags nothing', async () => {
+    await subscriptions.insert({
+      id: 'sub-1',
+      url: 'https://example.org/cal.ics',
+      allowInsecure: false,
+      etag: null,
+      lastModified: null,
+      lastSuccessAt: null,
+      lastCheckedAt: null,
+      lastAttemptAt: null,
+      lastError: null,
+      activeRevisionId: null,
+      rawIcs: null,
+      createdAt: '2026-08-01T09:00:00.000Z',
+      updatedAt: '2026-08-01T09:00:00.000Z',
+      curatedId: null,
+    });
+
+    await expect(interactor.refresh('sub-1', { force: true })).resolves.toBe('unchanged');
+    await interactor.refreshAllDue();
+
+    expect(http.downloads).toBe(0);
   });
 });

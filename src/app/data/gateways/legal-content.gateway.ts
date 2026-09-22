@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+
 const THIRD_PARTY_LICENSES_URL = '/3rdpartylicenses.txt';
 const IMAGE_ATTRIBUTIONS_URL = '/image-attributions.json';
 
@@ -31,7 +33,7 @@ export class LegalContentGateway {
   /** `null` on any failure - a missing/unreachable file must never break the settings page. */
   async fetchThirdPartyLicenses(): Promise<string | null> {
     try {
-      const response = await fetch(THIRD_PARTY_LICENSES_URL);
+      const response = await fetch(assetUrl(THIRD_PARTY_LICENSES_URL));
       return response.ok ? await response.text() : null;
     } catch {
       return null;
@@ -41,7 +43,7 @@ export class LegalContentGateway {
   /** Empty on any failure - same reasoning as `fetchThirdPartyLicenses`. */
   async fetchImageAttributions(): Promise<readonly ImageAttribution[]> {
     try {
-      const response = await fetch(IMAGE_ATTRIBUTIONS_URL);
+      const response = await fetch(assetUrl(IMAGE_ATTRIBUTIONS_URL));
       if (!response.ok) {
         return [];
       }

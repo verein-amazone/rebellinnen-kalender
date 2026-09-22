@@ -132,23 +132,28 @@ describe('CalendarsPage, navigation to sub-pages', () => {
     expect(link?.textContent).toContain('Gerätekalender');
   });
 
-  it('hides the device-calendar link on web', async () => {
-    const { element } = await setup({ platform: 'web' });
-
-    expect(element.querySelector('a[href="/settings/calendars/device"]')).toBeNull();
-  });
-
-  it('always links to the ICS-subscriptions screen', async () => {
-    const { element } = await setup({ platform: 'web' });
+  it('links to the ICS-subscriptions screen on a native platform', async () => {
+    const { element } = await setup({ platform: 'android' });
 
     const link = element.querySelector('a[href="/settings/calendars/ics"]');
     expect(link?.textContent).toContain('Abonnierte Kalender');
   });
 
-  it('always links to the curated-calendars screen', async () => {
-    const { element } = await setup({ platform: 'web' });
+  it('links to the curated-calendars screen on a native platform', async () => {
+    const { element } = await setup({ platform: 'android' });
 
     const link = element.querySelector('a[href="/settings/calendars/curated"]');
     expect(link?.textContent).toContain('Amazone & Partnerkalender');
+  });
+
+  // Device calendars have no browser equivalent, and both ICS flows download through
+  // `IcsHttpGateway`, which only escapes CORS on a device.
+  it('replaces all three links with an explanation on web', async () => {
+    const { element } = await setup({ platform: 'web' });
+
+    expect(element.querySelector('a[href="/settings/calendars/device"]')).toBeNull();
+    expect(element.querySelector('a[href="/settings/calendars/ics"]')).toBeNull();
+    expect(element.querySelector('a[href="/settings/calendars/curated"]')).toBeNull();
+    expect(element.textContent).toContain('im Web nicht verfügbar');
   });
 });

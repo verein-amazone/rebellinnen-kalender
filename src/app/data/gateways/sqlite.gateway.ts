@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import type { SQLiteDBConnection, capSQLiteVersionUpgrade } from '@capacitor-community/sqlite';
 
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
 import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
 
 import { DATABASE_VERSION, MIGRATIONS } from '../migrations/migrations';
@@ -13,7 +14,12 @@ import {
   type SqliteExecutor,
 } from './sqlite-database';
 
-const DATABASE_NAME = 'rebellinnen-kalender';
+/**
+ * One database per deployment. Unchanged on a device and at the server root; the web demo build
+ * and every pull-request preview share an origin and therefore need their own, see
+ * `scopedStorageName`.
+ */
+const DATABASE_NAME = scopedStorageName('rebellinnen-kalender');
 
 /**
  * The application database.

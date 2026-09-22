@@ -26,6 +26,13 @@
  *   padding is invisible.
  * - `public/app-icons/<id>.webp` - the preview shown on the „App-Symbol“ settings screen.
  *
+ * And, once, from the default icon only:
+ *
+ * - `public/icons/icon-<size>.png` and `icon-512-maskable.png` - the web app manifest's icons, used
+ *   when the web demo build (see README) is installed to a home screen. The maskable one carries
+ *   the same adaptive safe-zone padding as the Android foreground, because a browser applies a mask
+ *   of its own.
+ *
  * Adding a fourth icon means dropping a square PNG into `resources/app-icons/`, adding an entry to
  * `ICONS` below, registering an `activity-alias` in `AndroidManifest.xml`, adding the catalog name
  * to `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES` in the Xcode project, and adding the option to
@@ -68,14 +75,19 @@ const SAFE_ZONE_RATIO = 72 / 108;
 const IOS_ICON_SIZE = 1024;
 const PREVIEW_SIZE = 192;
 
+/** Web app manifest icons, from the default icon. 192 and 512 are what every browser asks for. */
+const MANIFEST_ICON_SIZES = [192, 512];
+
 const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
+const manifestIconDir = join(root, 'public/icons');
 
 await main();
 
 async function main() {
   await mkdir(previewDir, { recursive: true });
+  await mkdir(manifestIconDir, { recursive: true });
 
   const backgrounds = [];
 
@@ -88,6 +100,10 @@ async function main() {
     await writeAndroidBitmaps(icon, source, background);
     await writeAdaptiveXml(icon);
     await writePreview(icon, source);
+
+    if (icon.catalog === 'AppIcon') {
+      await writeManifestIcons(source, background);
+    }
 
     console.log(`${icon.id}: background ${background}`);
   }
@@ -252,4 +268,40 @@ async function writePreview(icon, source) {
     .resize(PREVIEW_SIZE, PREVIEW_SIZE, { fit: 'cover' })
     .webp({ quality: 90 })
     .toFile(join(previewDir, `${icon.id}.webp`));
+}
+
+/**
+ * The web app manifest's icons. `any` icons are drawn as they are, so they stay full-bleed like the
+ * iOS icon; the extra `maskable` one is padded into the same safe zone the Android adaptive
+ * foreground uses, because an installing browser is free to crop it to its own shape.
+ */
+async function writeManifestIcons(source, background) {
+  for (const size of MANIFEST_ICON_SIZES) {
+    await sharp(source)
+      .resize(size, size, { fit: 'cover' })
+      .png({ compressionLevel: 9 })
+      .toFile(join(manifestIconDir, `icon-${size}.png`));
+  }
+
+  const maskableSize = MANIFEST_ICON_SIZES.at(-1);
+  const artwork = Math.round(maskableSize * SAFE_ZONE_RATIO);
+  const inset = Math.round((maskableSize - artwork) / 2);
+
+  await sharp({
+    create: {
+      width: maskableSize,
+      height: maskableSize,
+      channels: 4,
+      background,
+    },
+  })
+    .composite([
+      {
+        input: await sharp(source).resize(artwork, artwork, { fit: 'cover' }).png().toBuffer(),
+        left: inset,
+        top: inset,
+      },
+    ])
+    .png({ compressionLevel: 9 })
+    .toFile(join(manifestIconDir, `icon-${maskableSize}-maskable.png`));
 }
