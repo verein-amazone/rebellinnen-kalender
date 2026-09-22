@@ -9,6 +9,7 @@ import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
 import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
 
@@ -54,6 +55,7 @@ export class IcsSubscriptionInteractor {
   private readonly http = inject(IcsHttpGateway);
   private readonly emojiPicker = inject(NativeEmojiPicker);
   private readonly sources = inject(CalendarSourceDao);
+  private readonly isWeb = inject(DevicePlatformService).platform === 'web';
 
   /** One download per subscription at a time; see `refresh`. */
   private readonly inFlight = new Map<string, Promise<IcsRefreshOutcome>>();
@@ -145,6 +147,15 @@ export class IcsSubscriptionInteractor {
    * strictly the stronger refresh.
    */
   refresh(subscriptionId: string, options: { force?: boolean } = {}): Promise<IcsRefreshOutcome> {
+    // A browser cannot download a calendar feed: `IcsHttpGateway` only escapes CORS through
+    // `CapacitorHttp` on a device, and calendar servers send no `Access-Control-Allow-Origin`.
+    // Skipping here rather than letting every attempt fail keeps the web demo build from flagging
+    // perfectly healthy subscriptions as broken - the screens that would show that flag are hidden
+    // there anyway. Nothing was downloaded, and nothing was marked failed.
+    if (this.isWeb) {
+      return Promise.resolve('unchanged');
+    }
+
     const pending = this.inFlight.get(subscriptionId);
     if (pending !== undefined) {
       return pending;

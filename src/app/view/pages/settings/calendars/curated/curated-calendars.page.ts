@@ -2,6 +2,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { CuratedCalendarsInteractor } from '@app/interactors/calendar/curated-calendars.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ToggleField } from '@app/view/components/field/toggle-field';
@@ -34,6 +35,14 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class CuratedCalendarsPage {
   private readonly curated = inject(CuratedCalendarsInteractor);
+
+  /**
+   * A curated source is an ICS subscription underneath and refreshes through `IcsHttpGateway`,
+   * which only escapes CORS on a device - the catalog's own feeds send no
+   * `Access-Control-Allow-Origin`. Same treatment as „Abonnierte Kalender“: hidden on the web,
+   * explained when a link leads here anyway.
+   */
+  protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
 

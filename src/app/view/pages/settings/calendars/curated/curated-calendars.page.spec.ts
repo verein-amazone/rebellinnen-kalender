@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
   CuratedCalendarsInteractor,
   type CuratedCalendarRow,
@@ -66,7 +67,9 @@ class StubLiveAnnouncer {
   }
 }
 
-async function setup(options: { rows?: CuratedCalendarRow[] } = {}) {
+async function setup(
+  options: { rows?: CuratedCalendarRow[]; platform?: 'ios' | 'android' | 'web' } = {},
+) {
   const curated = new FakeCuratedCalendarsInteractor();
   if (options.rows !== undefined) {
     curated.rows = options.rows;
@@ -81,6 +84,7 @@ async function setup(options: { rows?: CuratedCalendarRow[] } = {}) {
       { provide: CuratedCalendarsInteractor, useValue: curated },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
     ],
   });
 
@@ -195,5 +199,15 @@ describe('CuratedCalendarsPage, manage', () => {
         b.textContent?.includes('hinzufügen'),
       ),
     ).toBe(false);
+  });
+});
+
+describe('CuratedCalendarsPage, web', () => {
+  // A curated source is an ICS subscription underneath; the catalog's feeds send no CORS headers.
+  it('replaces the whole screen with an explanation', async () => {
+    const { element } = await setup({ rows: [curatedRow()], platform: 'web' });
+
+    expect(element.querySelector('app-toggle-field')).toBeNull();
+    expect(element.textContent).toContain('im Web nicht verfügbar');
   });
 });

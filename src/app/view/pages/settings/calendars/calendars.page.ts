@@ -37,7 +37,12 @@ export class CalendarsPage {
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
 
-  /** Device calendars are an OS concept; there is nothing to connect to in a browser tab. */
+  /**
+   * Device calendars are an OS concept; there is nothing to connect to in a browser tab. Curated
+   * and subscribed calendars are hidden on the web for a different reason: both download their ICS
+   * feed through `IcsHttpGateway`, which only bypasses CORS on a device, and calendar servers do
+   * not send the headers a browser would need (see the gateway).
+   */
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
 
   private readonly appCalendarsResource = resource({
