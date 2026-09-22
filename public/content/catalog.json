@@ -615,6 +615,21 @@
       "validTo": null,
       "eligibleForDaily": true,
       "dailyRender": "image"
+    },
+    {
+      "id": "reb-20",
+      "kind": "rebellin",
+      "title": "Olivia Rodrigo",
+      "teaser": "Sängerin und Schauspielerin",
+      "bodyMarkdown": "> Ich habe schon früh gelernt, dass Verletzlichkeit stark ist – und das setze ich in meinen Songs um.\n\nOlivia spielt Klavier und schreibt ihre Lieder selbst. Mit ihrem Song „drivers license“ bricht sie mehrere Rekorde und gehört seitdem zu den größten Popstars der Welt. Bevor sie ihren Plattenvertrag unterschreibt, besteht sie darauf, die Rechte an ihrer Musik zu behalten und nicht, wie meist üblich, der Plattenfirma zu übergeben. Mit einem Teil ihrer Ticketeinnahmen bei Konzerten unterstützt Olivia Mädchen- und Frauenrechtsorganisationen im Kampf für das Recht auf Bildung, reproduktive Gesundheit und gegen geschlechtsspezifische Gewalt.",
+      "imageAlt": "Foto von Olivia Rodrigo: sie lächelt in die Kamera, hat lange dunkle wellige Haare, die ihr über die Schultern fallen, sie steht vor einer weißen Wand, seitlich ist ein Teil von einem Bilderrahmen zu sehen.",
+      "imageAttribution": "White House staff, Public domain, via Wikimedia Commons",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "dailyRender": "image"
     }
   ]
 }
