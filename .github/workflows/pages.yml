@@ -169,6 +169,12 @@ jobs:
             cp -R ../site/. "$DIRECTORY/"
           fi
 
+          # Pages answers every missing path with the 404 page at the root of the site, whichever
+          # subdirectory was asked for - a 404.html inside one is not documented to be used. The
+          # file is the same in every build and carries the redirect that hands a deep link back to
+          # its own deployment, so the root copy is refreshed even when a preview was published.
+          cp ../site/404.html ./404.html
+
           # Without it, Pages runs the output through Jekyll, which drops files starting with `_`.
           touch .nojekyll
 
