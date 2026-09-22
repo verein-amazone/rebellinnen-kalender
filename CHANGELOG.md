@@ -1,3 +1,13 @@
+## [1.0.0-rc.12](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.11...v1.0.0-rc.12) (2026-09-22)
+
+### Features
+
+* **anlaufstellen:** add the Bundesländer from the final handover ([e5be3f7](https://github.com/verein-amazone/rebellinnen-kalender/commit/e5be3f76945c7e863d193f29f9885aa3c4535401))
+
+### Refactoring
+
+* **anlaufstellen:** drop organisation logos ([a7825bf](https://github.com/verein-amazone/rebellinnen-kalender/commit/a7825bfccaae232d4e831fc70bba95d3b7b0ba2f))
+
 ## [1.0.0-rc.11](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.10...v1.0.0-rc.11) (2026-09-22)
 
 ### Chores
