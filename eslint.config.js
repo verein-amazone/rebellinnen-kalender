@@ -23,6 +23,29 @@ const NATIVE_PACKAGE_MESSAGE =
   'Import a Capacitor plugin only in src/app/cross-cutting/plugins/, behind an injection token, and inject the token instead. See src/app/cross-cutting/plugins/README.md.';
 
 module.exports = defineConfig([
+  // Nothing generated is ours to lint. `pnpm lint` runs `ng lint`, which is already confined to
+  // `src/` by angular.json's lintFilePatterns and never sees any of this - but an editor's ESLint
+  // integration, an `eslint --fix`, or anything else that invokes ESLint directly walks the whole
+  // working tree, and then reports on Capacitor's native-bridge.js and on Vite's dependency cache.
+  // The list is .prettierignore's, minus the entries that hold nothing ESLint would read anyway.
+  {
+    ignores: [
+      // Angular build output & cache
+      'dist/',
+      '.angular/',
+      'out-tsc/',
+      // Test / tooling output
+      'coverage/',
+      'test-results/',
+      'playwright-report/',
+      'playwright/.cache/',
+      'blob-report/',
+      // Capacitor native projects (managed by Xcode / Gradle & Capacitor CLI). Their JavaScript is
+      // Capacitor's own, copied in by `cap sync`, and android/app/build is Gradle's.
+      'ios/',
+      'android/',
+    ],
+  },
   {
     files: ['**/*.ts'],
     extends: [
