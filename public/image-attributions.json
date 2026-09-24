@@ -588,5 +588,510 @@
     ],
     "needsReview": true,
     "reviewNote": "Flickr source page identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-20.webp",
+    "title": "Olivia Rodrigo",
+    "creator": "White House staff",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Olivia_Rodrigo_at_White_House.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-21.webp",
+    "title": "Marlene Engelhorn",
+    "creator": "Martin Kraft",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:MKr30714_Geraldine_de_Bastion_und_Marlene_Engelhorn_(re-publica_2023).jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-22.webp",
+    "title": "Isabel und Melati Wijsen",
+    "creator": "UPROXX Life + Adventure",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Isabel_and_Melati_Wijsen_on_UPROXX.jpg",
+    "license": "CC-BY-3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-23.webp",
+    "title": "Nemo",
+    "creator": "Arkland",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nemo_Eurovision_Song_Contest_2024_Final_Malm%C3%B6_dress_rehearsal_semi_2_07.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-24.webp",
+    "title": "Timnit Gebru",
+    "creator": "TechCrunch",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:TechCrunch_Disrupt_San_Francisco_2018_-_day_3_(30671211838).jpg",
+    "license": "CC-BY-2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-25.webp",
+    "title": "Emma Pallant-Browne",
+    "creator": "Kagaoua",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Emma_Pallant_2019.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-26.webp",
+    "title": "Malala Yousafzai",
+    "creator": "flowcomm",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Malala_Yousafzai_at_the_2023_Nelson_Mandela_Annual_Lecture_(53378313973).jpg",
+    "license": "CC-BY-2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-27.webp",
+    "title": "Luisa Neubauer",
+    "creator": "Stefan Müller",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Luisa_Neubauer_spricht_auf_dem_Klimastreik_von_Fridays_For_Future_(51515120335).jpg",
+    "license": "CC-BY-2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-28.webp",
+    "title": "Zendaya",
+    "creator": "PhilipRomano",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zendaya-byPhilipRomano2.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-29.webp",
+    "title": "Frida Kahlo",
+    "creator": "Guillermo Kahlo",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Frida_Kahlo,_by_Guillermo_Kahlo.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-30.webp",
+    "title": "Rosa Parks",
+    "creator": "Associated Press",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rosa_Parks_1955_3.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-31.webp",
+    "title": "Sophie Scholl",
+    "creator": "Unknown German police officer",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gestapo_photos_of_Sophie_Scholl_taken_after_her_capture_on_February_18,_1943.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-32.webp",
+    "title": "Zuriel Oduwole",
+    "creator": "Afiamarie",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Time_Woman_of_The_Year_RED_CARPET_Arrival_2023_-_Zuriel_Oduwole.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-33.webp",
+    "title": "Marie Curie",
+    "creator": "Unknown author",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Maria_Sk%C5%82odowska-Curie_1903.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-34.webp",
+    "title": "Gitanjali Rao",
+    "creator": "Ramachb",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rao_Gitanjali_RSI.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-35.webp",
+    "title": "Mai Thi Nguyen-Kim",
+    "creator": "Viet Nguyen-Kim",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:2017_-_Mai_Thi_Nguyen-Kim_credit_Viet_Nguyen-Kim.jpg",
+    "license": "CC-BY-SA-3.0-DE",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-36.webp",
+    "title": "Nenda",
+    "creator": "Manfred Werner (Tsui)",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nenda_and_Gilewicz_Popfest_2023_47.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-37.webp",
+    "title": "Katharina Rogenhofer",
+    "creator": "Pikpi",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Katharina_Rogenhofer_Presse.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-38.webp",
+    "title": "Carola Rackete",
+    "creator": "Paul Lovis Wagner / Sea-Watch.org",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carola_Rackete.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-39.webp",
+    "title": "Emma Watson",
+    "creator": "Mars Movies",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:3_Emma_Watson_Circle.png",
+    "license": "CC-BY-3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-40.webp",
+    "title": "Tommy Dorfman",
+    "creator": "Jessicaosber",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tommy_Dorfman-1.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-41.webp",
+    "title": "Laura Gehlhaar",
+    "creator": "Andi Weiland | www.andiweiland.de",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Laura_Gehlhaar_by_Andi_Weiland.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-42.webp",
+    "title": "Yusra Mardini",
+    "creator": "ONU Brasil",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yusra_Mardini_Olimpics.jpg",
+    "license": "CC-BY-3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-43.webp",
+    "title": "Marsha P. Johnson",
+    "creator": "Photographed by Brandon English, Sculpted by Jesse Pallotta",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Marsha_P._Johnson_Bust.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-44.webp",
+    "title": "X González",
+    "creator": "The United States Army Band",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:US_Army_Band_223_(42650141701)_(1).jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-45.webp",
+    "title": "Marjane Satrapi",
+    "creator": "Rama",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Marjane_Satrapi_mg_7531.jpg",
+    "license": "CC-BY-2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-46.webp",
+    "title": "Lili Elbe",
+    "creator": "Unknown author",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lili_Elbe_1926.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-47.webp",
+    "title": "Claudette Colvin",
+    "creator": "The Visibility Project, Claudette Colvin",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Claudette_Colvin.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-48.webp",
+    "title": "Kübra Gümüşay",
+    "creator": "Kritzolina",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:K%C3%BCbra_G%C3%BCm%C3%BC%C5%9Fay_-_Republica_2023_09.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-49.webp",
+    "title": "Clara Josephine Zetkin",
+    "creator": "Unknown author",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:C_Zetkin_1.jpg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "publicDomainBasis": "Released into the public domain (per Wikimedia Commons file description).",
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-50.webp",
+    "title": "Enheduanna",
+    "creator": "Ramblings of the Claury",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Enheduanna.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-51.webp",
+    "title": "Maria Popov",
+    "creator": "Kaethe17",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Maria-popov-republica-2025.jpg",
+    "license": "CC-BY-SA-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
+  },
+  {
+    "path": "/content/rebellinnen/reb-52.webp",
+    "title": "Ninia „LaGrande“ Binias",
+    "creator": "AVE Digital",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ninia_Binias_2015_-_2.jpg",
+    "license": "CC-BY-3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/deed.en",
+    "changes": [
+      "cropped",
+      "resized",
+      "converted to WebP"
+    ],
+    "needsReview": true,
+    "reviewNote": "Wikimedia Commons file identified matching this licence and creator; not visually cross-checked against the bundled image - confirm it is the exact photo before treating this as final."
   }
 ]
+
+
