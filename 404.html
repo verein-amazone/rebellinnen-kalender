@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rebell*innen Kalender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      GitHub Pages serves static files and has no rewrite rule, so every route of this app except
+      the entry point is a missing file to it: opening or reloading `…/settings/theme` lands here.
+
+      This page hands the request back to the app, by redirecting to the deployment's own
+      `index.html` with the route as a query (`/?/settings/theme`); the inline script in
+      `src/index.html` puts it back into the address bar before Angular starts. Both halves have to
+      stay in step.
+
+      Which prefix is the deployment differs: the demo site is served from
+      `/rebellinnen-kalender/`, a pull-request preview from `/rebellinnen-kalender/pr-<n>/`. Only
+      the root deployment's copy of this file is ever used - a 404 inside a subdirectory is not
+      documented to resolve to that subdirectory's own 404 page - so it has to recognise both.
+
+      This file ships in `public/`, which means every build carries it, native ones included, where
+      nothing ever requests it.
+    -->
+    <script>
+      (function () {
+        // Already redirected once and still here: the deployment itself is missing its
+        // `index.html`, which is what the site root looks like before the first `dev` build is
+        // published. Redirecting again would only loop.
+        if (window.location.search.charAt(1) === '/') {
+          return;
+        }
+
+        var segments = window.location.pathname.split('/').filter(Boolean);
+        var deploymentDepth = /^pr-\d+$/.test(segments[1] || '') ? 2 : 1;
+        var base = '/' + segments.slice(0, deploymentDepth).join('/') + '/';
+        var route = segments.slice(deploymentDepth).join('/');
+        var query = window.location.search.slice(1);
+
+        window.location.replace(
+          base + '?/' + route + (query ? '&' + query : '') + window.location.hash,
+        );
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Diese Seite wird geladen …</p>
+    <noscript>
+      <p>Diese Seite braucht JavaScript. Bitte aktiviere es und lade die Seite neu.</p>
+    </noscript>
+  </body>
+</html>

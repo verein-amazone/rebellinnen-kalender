@@ -1,0 +1,1 @@
+var C=(function(r){return r.Heavy=`HEAVY`,r.Light=`LIGHT`,r.Medium=`MEDIUM`,r.Rigid=`RIGID`,r.Soft=`SOFT`,r})(C||{});var E=(function(r){return r.Error=`ERROR`,r.Success=`SUCCESS`,r.Warning=`WARNING`,r})(E||{});export{E as n,C as t};

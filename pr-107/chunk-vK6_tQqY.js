@@ -1,0 +1,1 @@
+function n(e){return new URL(e.replace(/^\/+/,``),document.baseURI).pathname}export{n as t};
