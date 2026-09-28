@@ -6,4 +6,4 @@
 # with `bundle install --deployment`, so a run can never resolve a version that was not reviewed.
 source 'https://rubygems.org'
 
-gem 'fastlane', '~> 2.239'
+gem 'fastlane', '~> 2.240'
