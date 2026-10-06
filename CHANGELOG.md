@@ -1,3 +1,9 @@
+## [1.0.0-rc.17](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2026-10-06)
+
+### Delivery
+
+* **deps:** bump fastlane from 2.239.0 to 2.240.1 in the fastlane group ([07fe448](https://github.com/verein-amazone/rebellinnen-kalender/commit/07fe448c983b7efaa3eef9ffb8faf8860dd070a5))
+
 ## [1.0.0-rc.16](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.15...v1.0.0-rc.16) (2026-10-06)
 
 ### Chores
