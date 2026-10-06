@@ -24,8 +24,18 @@
 /*
  * Hover only means something with a fine pointer. On touch the hover state sticks after a tap, so
  * the design system has no bare `hover:` styles - use `hoverable:` and `active:` instead.
+ *
+ * Both halves are needed: the media query keeps a finger from ever getting the style, and `:hover`
+ * limits it to the element under the pointer. With the media query alone, every control on a
+ * desktop browser wore its hover style at rest - every button was permanently 5% darker.
  */
-@custom-variant hoverable (@media (hover: hover) and (pointer: fine));
+@custom-variant hoverable {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
 
 /*
  * Mirrors how base.css resolves motion: the in-app override wins, and the device preference only
