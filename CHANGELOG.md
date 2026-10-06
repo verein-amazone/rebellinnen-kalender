@@ -1,3 +1,22 @@
+## [1.0.0-rc.15](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.14...v1.0.0-rc.15) (2026-10-06)
+
+### Features
+
+* **reminders:** drop the placement choice for completed entries ([09d9e09](https://github.com/verein-amazone/rebellinnen-kalender/commit/09d9e091afdceff709795bccb8ea94f627be0662))
+* **settings:** give the Tagesimpuls its own settings and add a vibration switch ([57a7957](https://github.com/verein-amazone/rebellinnen-kalender/commit/57a7957d66c0cd63b7d4fd5be4a4312c303b5ee7))
+
+### Bug Fixes
+
+* **anlaufstellen:** show the second action as an outlined button ([dd7fe9e](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd7fe9ea2f988806a249e3b2006bb6ea7b12a227))
+* **calendar:** give „Mein Kalender“ a colour so its appointments get a dot ([5fbccb4](https://github.com/verein-amazone/rebellinnen-kalender/commit/5fbccb456c37609b8c79cfedff8885c623f4edec))
+* **styles:** apply `hoverable:` styles only under the pointer ([4bc27ad](https://github.com/verein-amazone/rebellinnen-kalender/commit/4bc27ad8c55fac75c056ca0862f7f697484ee9bc))
+* **today:** close the greeting with „!“ and never hyphenate the name ([541cbdf](https://github.com/verein-amazone/rebellinnen-kalender/commit/541cbdf546332076427aad0eaa0ea1c4e9da60f5))
+* **view:** keep the gender star raised in titles ([3d63140](https://github.com/verein-amazone/rebellinnen-kalender/commit/3d631406eae8d2c24bf664d02a4cfe666a4bf08c))
+
+### Delivery
+
+* **release:** hand every dev build to the TestFlight groups ([cacfc6b](https://github.com/verein-amazone/rebellinnen-kalender/commit/cacfc6b0d0641faff180c48e868869a7e197a9fe))
+
 ## [1.0.0-rc.14](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.13...v1.0.0-rc.14) (2026-09-22)
 
 ### Bug Fixes
