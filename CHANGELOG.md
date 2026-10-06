@@ -1,3 +1,9 @@
+## [1.0.0-rc.19](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.18...v1.0.0-rc.19) (2026-10-06)
+
+### Features
+
+* **settings:** tick when another option is picked ([d063e88](https://github.com/verein-amazone/rebellinnen-kalender/commit/d063e88504605ac3d886d718b4ca5849626e76ff))
+
 ## [1.0.0-rc.18](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.17...v1.0.0-rc.18) (2026-10-06)
 
 ### Features
