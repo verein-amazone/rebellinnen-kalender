@@ -13,6 +13,7 @@ import {
   type OccurrenceFilter,
 } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 
 import { CalendarOverviewPage } from './overview.page';
@@ -99,10 +100,20 @@ class FakeDeviceCalendarSyncInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  selections = 0;
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 interface Setup {
   readonly element: HTMLElement;
   readonly interactor: FakeCalendarOccurrencesInteractor;
   readonly filters: FakeCalendarFiltersInteractor;
+  readonly haptics: FakeHapticsInteractor;
   readonly navigate: ReturnType<typeof vi.fn>;
   readonly setInputs: (inputs: { view?: string; day?: string }) => Promise<void>;
   readonly whenStable: () => Promise<void>;
@@ -117,6 +128,7 @@ async function setup(
   interactor.items = items;
   const filters = new FakeCalendarFiltersInteractor();
   filters.calendars = filterableCalendars;
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.configureTestingModule({
     providers: [
@@ -126,6 +138,7 @@ async function setup(
       { provide: CalendarFiltersInteractor, useValue: filters },
       { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
       { provide: LocalDay, useClass: StubLocalDay },
+      { provide: HapticsInteractor, useValue: haptics },
     ],
   });
 
@@ -141,6 +154,7 @@ async function setup(
     element: fixture.nativeElement as HTMLElement,
     interactor,
     filters,
+    haptics,
     navigate,
     setInputs: async (next) => {
       fixture.componentRef.setInput('view', next.view);
@@ -325,7 +339,7 @@ describe('CalendarOverviewPage', () => {
   });
 
   it('filters the agenda client-side after hiding a calendar, without re-querying the interactor', async () => {
-    const { element, interactor, whenStable } = await setup(
+    const { element, interactor, haptics, whenStable } = await setup(
       { day: '2026-08-05' },
       [
         occurrence({ id: 'a', calendarId: 'cal-1', title: 'Von Mein Kalender' }),
@@ -351,6 +365,7 @@ describe('CalendarOverviewPage', () => {
     // The fix for the scroll-jump-on-toggle bug: filtering must never re-trigger the occurrences
     // resource, only recompute from what is already loaded.
     expect(interactor.calls).toHaveLength(1);
+    expect(haptics.selections).toBe(1);
   });
 
   it('shows the sources-hidden explanation once every filterable calendar is toggled off', async () => {

@@ -11,6 +11,7 @@ import {
   type DeviceCalendarPermission,
   type DeviceCalendarsSnapshot,
 } from '@app/interactors/calendar/device-calendars.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { DeviceCalendarsPage } from './device-calendars.page';
@@ -67,6 +68,27 @@ class FakeDeviceCalendarsInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 class StubSheetService {
   results: unknown[] = [];
 
@@ -100,6 +122,7 @@ async function setup(
   }
   const sheets = new StubSheetService();
   const announcer = new StubLiveAnnouncer();
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -108,6 +131,7 @@ async function setup(
       { provide: DeviceCalendarsInteractor, useValue: deviceCalendars },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: HapticsInteractor, useValue: haptics },
       // This suite exercises the device-calendar flow directly, so it defaults to a native
       // platform; only the platform-gating test passes a different one.
       { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
@@ -123,6 +147,7 @@ async function setup(
     deviceCalendars,
     sheets,
     announcer,
+    haptics,
     settle: () => fixture.whenStable(),
   };
 }
@@ -152,6 +177,7 @@ describe('DeviceCalendarsPage, not connected', () => {
     await page.settle();
 
     expect(page.announcer.announcements).toContain('Gerätekalender verbunden');
+    expect(page.haptics.confirms).toBe(1);
   });
 
   it('offers the system settings deep link after a denied permission', async () => {
@@ -226,6 +252,7 @@ describe('DeviceCalendarsPage, connected', () => {
     expect(page.deviceCalendars.setEnabledCalls).toEqual([
       { calendarId: 'device-cal:cal-1', enabled: false },
     ]);
+    expect(page.haptics.ticks).toBe(1);
   });
 
   it('opens the emoji picker from the avatar and saves the picked emoji', async () => {

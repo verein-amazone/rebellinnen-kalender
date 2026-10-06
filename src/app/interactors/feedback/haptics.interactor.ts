@@ -58,14 +58,17 @@ export class HapticsInteractor {
     }
   }
 
-  /** A small state change the user caused: an entry ticked off, a bookmark set. */
+  /** A small state change the user caused: an entry ticked off, a bookmark set, a calendar switched. */
   async tick(): Promise<void> {
     if (await this.mayVibrate()) {
       await this.haptics.lightImpact();
     }
   }
 
-  /** An entry picked up or put down while reordering a list, or another option picked in a choice. */
+  /**
+   * An entry picked up or put down while reordering a list, another option picked in a choice, or a
+   * filter chip toggled.
+   */
   async selection(): Promise<void> {
     if (await this.mayVibrate()) {
       await this.haptics.selectionChanged();

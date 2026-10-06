@@ -23,6 +23,7 @@ import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { CalendarFiltersInteractor } from '@app/interactors/calendar/calendar-filters.interactor';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { CalendarAgendaBlock } from '@app/view/blocks/calendar-agenda/calendar-agenda.block';
 import {
@@ -79,6 +80,7 @@ export class CalendarOverviewPage {
   private readonly calendarFilters = inject(CalendarFiltersInteractor);
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
   private readonly localDay = inject(LocalDay);
+  private readonly haptics = inject(HapticsInteractor);
 
   constructor() {
     // The "calendar screen" trigger `DeviceCalendarSyncInteractor`'s own doc comment promises:
@@ -228,6 +230,7 @@ export class CalendarOverviewPage {
 
   protected toggleCalendar(calendarId: string): void {
     this.calendarFilters.toggleHidden(calendarId);
+    void this.haptics.selection();
   }
 
   private step(direction: -1 | 1): string {

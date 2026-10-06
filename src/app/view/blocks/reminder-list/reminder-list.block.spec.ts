@@ -7,6 +7,7 @@ import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ReminderListBlock } from './reminder-list.block';
@@ -73,6 +74,27 @@ class FakeReminderListInteractor {
 }
 
 /** Answers with a fixed result instead of opening a real overlay; the sheet chrome has its own spec. */
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 class StubSheetService {
   results: unknown[] = [];
   readonly headings: string[] = [];
@@ -103,6 +125,7 @@ async function setup(items: Reminder[] = []) {
   interactor.items = items;
   const sheets = new StubSheetService();
   const announcer = new StubLiveAnnouncer();
+  const haptics = new FakeHapticsInteractor();
   const day = signal('2026-08-06');
 
   TestBed.resetTestingModule();
@@ -111,6 +134,7 @@ async function setup(items: Reminder[] = []) {
       { provide: ReminderListInteractor, useValue: interactor },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: HapticsInteractor, useValue: haptics },
       { provide: LocalDay, useValue: { day: day.asReadonly() } },
     ],
   });
@@ -126,6 +150,7 @@ async function setup(items: Reminder[] = []) {
     interactor,
     sheets,
     announcer,
+    haptics,
     day,
     reminderChanges,
     settle: () => fixture.whenStable(),
@@ -267,6 +292,7 @@ describe('ReminderListBlock', () => {
 
     expect(block.interactor.added).toEqual(['Blumen gießen']);
     expect(block.rows()).toHaveLength(1);
+    expect(block.haptics.confirms).toBe(1);
   });
 
   it('adds nothing when the add sheet is cancelled', async () => {
@@ -276,6 +302,7 @@ describe('ReminderListBlock', () => {
     await block.openAdd();
 
     expect(block.interactor.added).toEqual([]);
+    expect(block.haptics.confirms).toBe(0);
   });
 
   it('completes an open entry and reopens a completed one', async () => {
@@ -303,10 +330,12 @@ describe('ReminderListBlock', () => {
     block.sheets.results = ['Blumen gießen und lüften'];
     await block.chooseAction(0, 'Bearbeiten');
     expect(block.interactor.renamed).toEqual([{ id: 'a', text: 'Blumen gießen und lüften' }]);
+    expect(block.haptics.confirms).toBe(1);
 
     block.sheets.results = [undefined];
     await block.chooseAction(0, 'Bearbeiten');
     expect(block.interactor.renamed).toHaveLength(1);
+    expect(block.haptics.confirms).toBe(1);
   });
 
   it('deletes only after the confirmation is accepted', async () => {
