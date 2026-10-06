@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { greetingText, selectGreeting } from './today-greeting';
+import { greetingLine, greetingText, selectGreeting } from './today-greeting';
 
 describe('selectGreeting', () => {
   it('picks morning before noon', () => {
@@ -24,5 +24,16 @@ describe('greetingText', () => {
     expect(greetingText('morning')).toBe('Guten Morgen');
     expect(greetingText('day')).toBe('Hallo');
     expect(greetingText('evening')).toBe('Guten Abend');
+  });
+});
+
+describe('greetingLine', () => {
+  it('appends the name without a comma and closes with an exclamation mark', () => {
+    expect(greetingLine('day', 'Nina')).toBe('Hallo Nina!');
+  });
+
+  it('closes with an exclamation mark when there is no name', () => {
+    expect(greetingLine('evening', null)).toBe('Guten Abend!');
+    expect(greetingLine('morning', '')).toBe('Guten Morgen!');
   });
 });

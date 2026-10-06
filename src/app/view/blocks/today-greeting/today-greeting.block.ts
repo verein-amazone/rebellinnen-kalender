@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
-import { greetingText, selectGreeting } from '@app/interactors/today/today-greeting';
+import { greetingLine, selectGreeting } from '@app/interactors/today/today-greeting';
 import { ProfileInteractor } from '@app/interactors/settings/profile.interactor';
 
 /**
@@ -24,10 +24,9 @@ export class TodayGreetingBlock {
 
   protected readonly greeting = computed(() => {
     this.currentDay.day();
-    return greetingText(selectGreeting(new Date().getHours()));
+    return greetingLine(selectGreeting(new Date().getHours()), this.profile.name());
   });
 
-  protected readonly name = this.profile.name;
   protected readonly emoji = this.profile.emoji;
 
   protected async openEmojiPicker(): Promise<void> {
