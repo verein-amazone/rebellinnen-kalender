@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/c
 import { LucideTrash2 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ToggleField } from '@app/view/components/field/toggle-field';
@@ -38,6 +39,14 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class IcsCalendarsPage {
   private readonly icsSubscriptions = inject(IcsSubscriptionInteractor);
+
+  /**
+   * A subscription is downloaded through `IcsHttpGateway`, which only escapes CORS on a device;
+   * calendar servers send no `Access-Control-Allow-Origin`, so every refresh fails in a browser.
+   * The screen is unreachable from „Kalender verwalten“ on the web and explains itself when a link
+   * leads here anyway.
+   */
+  protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
 

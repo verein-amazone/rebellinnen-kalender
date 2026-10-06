@@ -55,6 +55,18 @@
     @apply hoverable:bg-muted active:bg-muted;
   }
 
+  /* A labelled button that is clearly a button without carrying primary weight: the second action
+     on an Anlaufstellen card next to a filled „Anrufen“. Testers did not recognise the ghost
+     variant there as tappable at all. `bg-card` rather than `bg-input-background` on purpose: the
+     button sits on a card, and only the card surface keeps the primary text above 4.5:1 in every
+     theme (Amazone 4.6, Sonnenuntergang 4.7, Lavendel 6.6, Mitternacht 6.8 - the field surface
+     drops Amazone and Sonnenuntergang below it). `brightness` rather than `bg-muted` for the
+     pressed state for the same reason. */
+  .rk-button-outline-primary {
+    @apply border-primary text-primary bg-card border-2;
+    @apply hoverable:brightness-95 active:brightness-90;
+  }
+
   /* Destructive actions. Never the only signal - pair it with an explicit verb, an icon and a
      confirmation step. See the note in theme.css. */
   .rk-button-danger {

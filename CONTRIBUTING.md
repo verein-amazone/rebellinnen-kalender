@@ -38,6 +38,13 @@ Merging into `dev` also builds and uploads the prerelease to TestFlight and Play
 [docs/release.md](./docs/release.md) describes the whole path, the credentials it needs and what to
 do when an upload fails.
 
+Every pull request into `dev` also gets a browser preview of its own, commented on the pull request
+as soon as it is built, and removed again when the pull request closes. It is the web demo build
+(see the README): good for looking at a screen or handing a link to somebody without a device
+build, but device calendars and calendar subscriptions do not exist there, and the preview keeps its
+own database - what you do in it never reaches the demo site or another preview. A pull request from
+a fork gets no preview, because publishing it would mean giving fork code a write token.
+
 ### Commit messages
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`,

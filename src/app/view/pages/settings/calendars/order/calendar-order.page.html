@@ -30,7 +30,12 @@
           (cdkDropListDropped)="drop($event)"
         >
           @for (calendar of rows(); track calendar.id; let index = $index) {
-            <li class="rk-row relative" cdkDrag [cdkDragData]="calendar">
+            <li
+              class="rk-row relative"
+              cdkDrag
+              [cdkDragData]="calendar"
+              (cdkDragStarted)="pickedUp()"
+            >
               <!--
                 Decoration, not a control: it does nothing without a pointer drag, and a focusable
                 element with no keyboard behaviour would be a stop in the tab order that does

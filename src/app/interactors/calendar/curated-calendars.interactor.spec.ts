@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import type { Catalog } from '@app/data/calendar/curated/curated-calendar-sync';
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import {
   IcsHttpGateway,
@@ -85,6 +86,7 @@ describe('CuratedCalendarsInteractor', () => {
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: IcsHttpGateway, useValue: http },
         { provide: NativeEmojiPicker, useValue: new FakeEmojiPicker() },
+        { provide: DevicePlatformService, useValue: { platform: 'ios' } },
       ],
     });
 

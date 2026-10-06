@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 
+import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
 import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
+import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
 
 import { DailyImpulseInteractor } from './daily-impulse.interactor';
 
@@ -52,20 +54,38 @@ class FakeContentCatalogSync {
   ensureSynced = vi.fn().mockResolvedValue(undefined);
 }
 
+class FakeAppLifecycle {
+  private readonly handlers = new Set<() => void>();
+
+  onResume(handler: () => void): () => void {
+    this.handlers.add(handler);
+    return () => this.handlers.delete(handler);
+  }
+
+  resume(): void {
+    for (const handler of this.handlers) {
+      handler();
+    }
+  }
+}
+
 describe('DailyImpulseInteractor', () => {
   let dao: FakeContentItemDao;
   let sync: FakeContentCatalogSync;
+  let lifecycle: FakeAppLifecycle;
 
   beforeEach(() => {
     localStorage.clear();
     dao = new FakeContentItemDao();
     sync = new FakeContentCatalogSync();
+    lifecycle = new FakeAppLifecycle();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: ContentItemDao, useValue: dao },
         { provide: ContentCatalogSync, useValue: sync },
+        { provide: AppLifecycle, useValue: lifecycle },
       ],
     });
   });
@@ -149,6 +169,51 @@ describe('DailyImpulseInteractor', () => {
     expect(interactor.featuredItemId('2027-02-05')).toBe('b');
     expect((await interactor.featuredItem('2027-02-05'))?.id).toBe('b');
     // The override is announced like any other new impulse.
-    expect(interactor.isUnseen('2027-02-05')).toBe(true);
+    expect(interactor.shouldGreet('2027-02-05')).toBe(true);
+  });
+
+  describe('when the impulse greets', () => {
+    it('greets once per opening of the app by default, and again after a return from the background', () => {
+      const interactor = TestBed.inject(DailyImpulseInteractor);
+
+      expect(interactor.shouldGreet('2027-02-05')).toBe(true);
+      interactor.markGreeted('2027-02-05');
+      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+
+      lifecycle.resume();
+
+      expect(interactor.shouldGreet('2027-02-05')).toBe(true);
+    });
+
+    it('greets only once a day when set to „Einmal am Tag“, however often the app is reopened', () => {
+      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'daily' });
+      const interactor = TestBed.inject(DailyImpulseInteractor);
+
+      interactor.markGreeted('2027-02-05');
+      lifecycle.resume();
+
+      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+      expect(interactor.shouldGreet('2027-02-06')).toBe(true);
+    });
+
+    it('never greets when set to „Ohne Animation“, and does not answer a shake either', () => {
+      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'off' });
+      const interactor = TestBed.inject(DailyImpulseInteractor);
+
+      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+      lifecycle.resume();
+      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+      expect(interactor.greetingEnabled()).toBe(false);
+    });
+
+    it('records the day as seen when it greets, so switching to „Einmal am Tag“ does not repeat it', () => {
+      const interactor = TestBed.inject(DailyImpulseInteractor);
+      interactor.markGreeted('2027-02-05');
+
+      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'daily' });
+
+      expect(TestBed.inject(DailyImpulseStore).hasSeen('2027-02-05')).toBe(true);
+      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+    });
   });
 });

@@ -1,3 +1,51 @@
+## [1.0.0-rc.16](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.15...v1.0.0-rc.16) (2026-10-06)
+
+### Chores
+
+* **deps:** weekly app dependency update ([e5b562e](https://github.com/verein-amazone/rebellinnen-kalender/commit/e5b562e8ae228a2369b9619a37c7163f96b88a66))
+
+## [1.0.0-rc.15](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.14...v1.0.0-rc.15) (2026-10-06)
+
+### Features
+
+* **reminders:** drop the placement choice for completed entries ([09d9e09](https://github.com/verein-amazone/rebellinnen-kalender/commit/09d9e091afdceff709795bccb8ea94f627be0662))
+* **settings:** give the Tagesimpuls its own settings and add a vibration switch ([57a7957](https://github.com/verein-amazone/rebellinnen-kalender/commit/57a7957d66c0cd63b7d4fd5be4a4312c303b5ee7))
+
+### Bug Fixes
+
+* **anlaufstellen:** show the second action as an outlined button ([dd7fe9e](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd7fe9ea2f988806a249e3b2006bb6ea7b12a227))
+* **calendar:** give „Mein Kalender“ a colour so its appointments get a dot ([5fbccb4](https://github.com/verein-amazone/rebellinnen-kalender/commit/5fbccb456c37609b8c79cfedff8885c623f4edec))
+* **styles:** apply `hoverable:` styles only under the pointer ([4bc27ad](https://github.com/verein-amazone/rebellinnen-kalender/commit/4bc27ad8c55fac75c056ca0862f7f697484ee9bc))
+* **today:** close the greeting with „!“ and never hyphenate the name ([541cbdf](https://github.com/verein-amazone/rebellinnen-kalender/commit/541cbdf546332076427aad0eaa0ea1c4e9da60f5))
+* **view:** keep the gender star raised in titles ([3d63140](https://github.com/verein-amazone/rebellinnen-kalender/commit/3d631406eae8d2c24bf664d02a4cfe666a4bf08c))
+
+### Delivery
+
+* **release:** hand every dev build to the TestFlight groups ([cacfc6b](https://github.com/verein-amazone/rebellinnen-kalender/commit/cacfc6b0d0641faff180c48e868869a7e197a9fe))
+
+## [1.0.0-rc.14](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.13...v1.0.0-rc.14) (2026-09-22)
+
+### Bug Fixes
+
+* **view:** tint Safari's bottom toolbar with the navigation colour ([2b50e7a](https://github.com/verein-amazone/rebellinnen-kalender/commit/2b50e7a570f5d76d29442dc5b7061f845169dd01))
+
+## [1.0.0-rc.13](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.12...v1.0.0-rc.13) (2026-09-22)
+
+### Features
+
+* **calendars:** hide calendar subscriptions on the web ([188df2a](https://github.com/verein-amazone/rebellinnen-kalender/commit/188df2a1f7279c9c74b979c0a9bcf7f85a7e81fb))
+* **data:** give every deployment its own database and storage keys ([65c9a5e](https://github.com/verein-amazone/rebellinnen-kalender/commit/65c9a5e603be5cec25017505d2ecdc4da32fe99e))
+* **pages:** publish a web demo build and one preview per pull request ([b10de64](https://github.com/verein-amazone/rebellinnen-kalender/commit/b10de64b8c8713e7dca6ecd0b7a3cead225260ce))
+
+### Bug Fixes
+
+* **pages:** publish the 404 page at the root of the branch ([5987ebb](https://github.com/verein-amazone/rebellinnen-kalender/commit/5987ebb2b839413a1e19131beab591a97fd5d01f))
+* **pages:** stop the 404 redirect from looping on an empty deployment ([674e4b6](https://github.com/verein-amazone/rebellinnen-kalender/commit/674e4b6efb6460b25a3937ebd33397e8dbc4420d))
+
+### Refactoring
+
+* **assets:** resolve bundled assets against the base href ([dd70e11](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd70e11d5fa1516ec19ad47f4a52ba3a1312aa20))
+
 ## [1.0.0-rc.12](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.11...v1.0.0-rc.12) (2026-09-22)
 
 ### Features

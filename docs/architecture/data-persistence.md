@@ -48,8 +48,8 @@ inside, and serializes statements and transactions on the single shared connecti
 
 ### SQLite in the browser
 
-The app ships to iOS and Android only. The browser is used for `ng serve` and the Playwright suite,
-and it gets **real** SQLite there: `data/gateways/web-sqlite-store.ts` lazily loads the `jeep-sqlite`
+The app ships to iOS and Android. The browser is used for `ng serve`, the Playwright suite and the
+web demo build (see the README), and it gets **real** SQLite there: `data/gateways/web-sqlite-store.ts` lazily loads the `jeep-sqlite`
 custom element (`sql.js` compiled to WebAssembly, persisted in IndexedDB) and calls `initWebStore()`,
 and every successful write is followed by `saveToStore()`. That way the handwritten SQL and the
 migrations that run on a phone are the same ones a developer clicks through.
@@ -75,8 +75,10 @@ Two things to keep in mind:
   `SQLITE_DATABASE` token - was sketched on 2026-08-07 and can be built if #694 stalls for good.)
 - `sql-wasm.wasm` is copied by **every** build (see `angular.json`). CI runs the e2e suite against
   the production bundle served statically, so the production web build must be able to open a
-  database too. There is still no web product; the asset also ships in the native bundles, which is
-  accepted for now.
+  database too. The asset also ships in the native bundles, which is accepted for now.
+- Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`), like every other
+  asset the app requests by hand. The demo build is served from a subdirectory, and `--base-href`
+  rewrites `index.html` and the bundles but never a string in TypeScript.
 
 ### No ORM
 
@@ -236,6 +238,12 @@ last day, `CalendarContract` the exclusive one). The form used to write the excl
 which made every all-day appointment render a day too long - migration 016 repairs the rows it
 wrote.
 
+**Every calendar the user creates has a colour.** „Mein Kalender“ and ICS subscriptions start with
+`DEFAULT_CALENDAR_COLOR` (`interactors/calendar/calendar-colors.ts`), because the week and month
+grid only draws a dot for a coloured calendar; migration 017 fills in the ones created before that.
+Device calendars keep whatever colour the OS reports, and the grid falls back to a muted dot for one
+that reports none.
+
 ### Occurrence identity
 
 Identity is always source-scoped: `app:<series>#<originalStart>`,
@@ -324,24 +332,46 @@ subscription explicitly opts into `http`.
 ## Stores
 
 `data/stores/*.store.ts` hold small persisted values that do not belong in a relational table - the
-appearance preferences (`appearance.store.ts`), the preferences of the „Nicht vergessen“ list
+appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
+greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
 (`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
 hidden and in which order the chips appear (`calendar-chips.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 
-`reminders.store.ts` is the one to look at for the boundary: it holds where a new or completed entry
-enters its section and whether completed entries disappear at the day change - three scalars. The
+`reminders.store.ts` is the one to look at for the boundary: it holds where a new entry enters its
+section and whether completed entries disappear at the day change - two scalars. The
 entries themselves stay in SQLite. `calendar-chips.store.ts` draws the same line for calendars: two
 lists of ids that say how the chip row is arranged, while whether a calendar is connected at all
 stays in `calendars.enabled`.
 
 Stores expose their state as signals and **validate on read**: a stored value may come from an older
 app version or from a manually edited storage entry, so an unrecognised value falls back to the
-documented default instead of reaching the rest of the app.
+documented default instead of reaching the rest of the app. When a preference moves or changes
+shape, the reader carries the old value over rather than dropping it - the Tagesimpuls greeting
+moved out of the appearance preferences that way, and `ImpulsePreferencesStore` writes the carried
+value straight away so it survives the appearance store dropping the old field.
+
+Not everything in a store is persisted: `DailyImpulseStore` also holds whether the Tagesimpuls has
+greeted since the app was last opened, which has to start over on every cold start and is reset on
+every return from the background.
 
 `localStorage` access throws in some privacy modes, so it is never touched directly - reads and
 writes are guarded, and a lost preference is preferable to a broken app.
+
+### One database per deployment
+
+A browser scopes IndexedDB and `localStorage` to the **origin**, never to the path. The web demo
+build and its pull-request previews are all served from `verein-amazone.github.io`, so without a
+discriminator a preview would open, migrate and write the very database the demo site uses: a pull
+request carrying a new migration would silently upgrade a tester's data, and the demo build would
+then meet a schema from the future.
+
+`scopedStorageName()` (`cross-cutting/infrastructure/deployment-scope.ts`) therefore appends the
+deployment - derived from the document's `<base href>` - to the SQLite database name
+(`sqlite.gateway.ts`) and to every store's `localStorage` key. At the server root the slug is empty
+and every name stays exactly what it was, which is what keeps a device, `ng serve`, `pnpm
+serve:dist` and `e2e/support/calendar-seed.ts` on the names they already use.
 
 A store is **not** where a table-backed list belongs. The screen that shows one holds it in a
 `resource()` and reloads after each write (see

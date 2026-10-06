@@ -14,6 +14,7 @@ import { ADD_SOURCE_CONTENT_FINGERPRINT } from './013-add-source-content-fingerp
 import { ADD_ICS_LAST_CHECKED_AT } from './014-add-ics-last-checked-at';
 import { ADD_CONTENT_ITEM_IMAGE_ALT } from './015-add-content-item-image-alt';
 import { REPAIR_ALL_DAY_END } from './016-repair-all-day-end';
+import { DEFAULT_CALENDAR_COLORS } from './017-default-calendar-colors';
 import type { Migration } from './migration';
 
 /**
@@ -40,6 +41,7 @@ export const MIGRATIONS: readonly Migration[] = [
   ADD_ICS_LAST_CHECKED_AT,
   ADD_CONTENT_ITEM_IMAGE_ALT,
   REPAIR_ALL_DAY_END,
+  DEFAULT_CALENDAR_COLORS,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

@@ -22,6 +22,28 @@ class StubHapticsPlugin {
     this.patterns.push(options);
     return Promise.resolve();
   }
+
+  calls: string[] = [];
+
+  notification(options: { type: string }): Promise<void> {
+    return this.record(`notification:${options.type}`);
+  }
+
+  impact(options: { style: string }): Promise<void> {
+    return this.record(`impact:${options.style}`);
+  }
+
+  selectionChanged(): Promise<void> {
+    return this.record('selectionChanged');
+  }
+
+  private record(call: string): Promise<void> {
+    if (this.failing) {
+      return Promise.reject(new Error('no engine'));
+    }
+    this.calls.push(call);
+    return Promise.resolve();
+  }
 }
 
 function setup(): { gateway: DeviceHaptics; plugin: StubHapticsPlugin } {
@@ -57,5 +79,18 @@ describe('DeviceHaptics', () => {
 
     await expect(gateway.isAvailable()).resolves.toBe(false);
     await expect(gateway.playPattern([{ time: 0, intensity: 1 }])).resolves.toBeUndefined();
+    await expect(gateway.success()).resolves.toBeUndefined();
+    await expect(gateway.lightImpact()).resolves.toBeUndefined();
+    await expect(gateway.selectionChanged()).resolves.toBeUndefined();
+  });
+
+  it('maps the small moments onto the platform feedback types', async () => {
+    const { gateway, plugin } = setup();
+
+    await gateway.success();
+    await gateway.lightImpact();
+    await gateway.selectionChanged();
+
+    expect(plugin.calls).toEqual(['notification:SUCCESS', 'impact:LIGHT', 'selectionChanged']);
   });
 });

@@ -27,28 +27,33 @@
 
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Weitere Kalender</h2>
-      <ul class="rk-list">
-        <li>
-          <a routerLink="/settings/calendars/curated" class="rk-row">
-            <span class="rk-row-label">Amazone & Partnerkalender</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        @if (isNativePlatform) {
+      @if (isNativePlatform) {
+        <ul class="rk-list">
+          <li>
+            <a routerLink="/settings/calendars/curated" class="rk-row">
+              <span class="rk-row-label">Amazone & Partnerkalender</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
           <li>
             <a routerLink="/settings/calendars/device" class="rk-row">
               <span class="rk-row-label">Gerätekalender</span>
               <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
             </a>
           </li>
-        }
-        <li>
-          <a routerLink="/settings/calendars/ics" class="rk-row">
-            <span class="rk-row-label">Abonnierte Kalender</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-      </ul>
+          <li>
+            <a routerLink="/settings/calendars/ics" class="rk-row">
+              <span class="rk-row-label">Abonnierte Kalender</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
+        </ul>
+      } @else {
+        <p class="text-muted-foreground text-sm">
+          Gerätekalender und abonnierte Kalender sind im Web nicht verfügbar. Öffne die App auf
+          deinem Gerät, um sie einzurichten.
+        </p>
+      }
     </section>
 
     <section class="space-y-2">

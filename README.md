@@ -36,8 +36,8 @@ friend lists, real shared calendars, chat, automatic location search, or automat
 
 ## Supported products
 
-iOS and Android only. There is deliberately **no** browser/PWA release target, no SSR, no Angular
-service worker, and no backend or cloud synchronization.
+iOS and Android are the products that ship. There is deliberately no SSR, no backend and no cloud
+synchronization.
 
 | Property           | Value                               |
 | ------------------ | ----------------------------------- |
@@ -45,6 +45,32 @@ service worker, and no backend or cloud synchronization.
 | Display name       | `Rebell*innen Kalender`             |
 | Minimum iOS        | 16.4                                |
 | Minimum Android    | API 24 (Android 7.0)                |
+
+### Web demo build
+
+Alongside them, the current state of `dev` is published as a browser build so the Verein and
+testers can look at it without an App Store or Play Store release:
+
+| What          | Where                                                           |
+| ------------- | --------------------------------------------------------------- |
+| Demo site     | `https://verein-amazone.github.io/rebellinnen-kalender/`        |
+| Pull requests | `https://verein-amazone.github.io/rebellinnen-kalender/pr-<n>/` |
+
+It is a tool for looking at the app, not a third release target, and part of it is missing by
+nature:
+
+- **No device calendars.** They are an operating-system feature with no browser equivalent.
+- **No calendar subscriptions**, curated ones included. A feed is downloaded through
+  `CapacitorHttp` on a device precisely because that escapes the WebView's CORS rules; calendar
+  servers send no `Access-Control-Allow-Origin`, so a browser cannot read them at all. The screens
+  are hidden there rather than offering controls that only ever fail.
+- **Data lives in the browser.** Appointments, reminders and settings are stored in that browser
+  profile, not on a device and not on a server, and a browser may evict them. The demo site and
+  every preview keep their own database, so nothing one of them does reaches another.
+
+The pull-request preview is deleted when its pull request closes. See
+[.github/workflows/pages.yml](./.github/workflows/pages.yml) for how both are published, and
+[Data & persistence](./docs/architecture/data-persistence.md) for the storage details.
 
 ## Architecture
 
@@ -115,8 +141,13 @@ pnpm e2e          # Playwright smoke test incl. Axe accessibility scan
 
 ```bash
 pnpm build        # Production build to dist/rebellinnen-kalender/browser
+pnpm build:pages  # The same, plus the service worker of the web demo build
 pnpm cap:sync     # Build + sync both native projects
 ```
+
+`pnpm build` is what `cap sync` and the e2e suite consume. `pnpm build:pages` is only used by the
+GitHub Pages workflow, together with the `--base-href` of the deployment it publishes to, for
+example `pnpm build:pages --base-href /rebellinnen-kalender/`.
 
 ### Open the native projects
 

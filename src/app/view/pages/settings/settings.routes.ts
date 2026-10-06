@@ -10,6 +10,7 @@ import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
 import { ContentCatalogPage } from './content-catalog/content-catalog.page';
 import { DevToolsPage } from './dev-tools/dev-tools.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
+import { ImpulsePage } from './impulse/impulse.page';
 import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
 import { ProfilePage } from './profile/profile.page';
@@ -17,6 +18,7 @@ import { SettingsOverviewPage } from './overview/overview.page';
 import { SettingsRemindersPage } from './reminders/reminders.page';
 import { TextSizePage } from './text-size/text-size.page';
 import { ThemePage } from './theme/theme.page';
+import { VibrationPage } from './vibration/vibration.page';
 
 // Settings is reached from Today and is a focused area throughout, so no route declares a `tab`
 // and the bottom navigation stays hidden.
@@ -26,7 +28,9 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'theme', component: ThemePage, title: 'Farbthema' },
   { path: 'text-size', component: TextSizePage, title: 'Textgröße' },
   { path: 'app-icon', component: AppIconPage, title: 'App-Symbol' },
-  { path: 'motion', component: MotionPage, title: 'Bewegung & Animationen' },
+  { path: 'motion', component: MotionPage, title: 'Animationen' },
+  { path: 'vibration', component: VibrationPage, title: 'Vibration' },
+  { path: 'impulse', component: ImpulsePage, title: 'Tagesimpuls' },
   { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
   {

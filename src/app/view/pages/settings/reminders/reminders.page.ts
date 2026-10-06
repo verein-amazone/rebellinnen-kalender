@@ -23,10 +23,6 @@ export class SettingsRemindersPage {
     this.preferences.selectNewItemPlacement(placement);
   }
 
-  protected selectCompletedItemPlacement(placement: ReminderPlacementId): void {
-    this.preferences.selectCompletedItemPlacement(placement);
-  }
-
   protected selectCompletedVisibility(visibility: CompletedVisibilityId): void {
     this.preferences.selectCompletedVisibility(visibility);
   }

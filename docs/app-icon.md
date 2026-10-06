@@ -53,6 +53,17 @@ Per icon that writes:
 | `android/…/values/ic_launcher_background.xml`      | The background colours, averaged from each source's own corners.      |
 | `public/app-icons/<id>.webp`                       | The 192 px preview shown on the settings screen.                      |
 
+And, from the default icon (`klassisch`) only:
+
+| Output                               | What it is                                                                                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/icons/icon-192.png`          | Web app manifest icon, full-bleed.                                                                                                              |
+| `public/icons/icon-512.png`          | The same at 512 px.                                                                                                                             |
+| `public/icons/icon-512-maskable.png` | The `maskable` variant: artwork in the adaptive safe zone on the source's own background, because an installing browser crops to its own shape. |
+
+Those three belong to the web demo build (see the README) and are what a browser uses when the app
+is installed to a home screen. The demo build has no icon switcher, so the alternates need none.
+
 Two details are worth knowing before editing an icon:
 
 - **Android crops.** Launchers mask adaptive icons to a circle, a squircle or a rounded square, and

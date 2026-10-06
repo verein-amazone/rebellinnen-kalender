@@ -1,12 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
 import {
   DEFAULT_PROFILE_PREFERENCES,
   NAME_MAX_LENGTH,
   type ProfilePreferences,
 } from './profile-preferences';
 
-const STORAGE_KEY = 'rk.profile';
+const STORAGE_KEY = scopedStorageName('rk.profile');
 
 /**
  * Persists the profile preferences (name and personal emoji) the same way `AppearanceStore`

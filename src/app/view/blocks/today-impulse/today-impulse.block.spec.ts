@@ -33,20 +33,36 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
   };
 }
 
+/**
+ * Stands in for the greeting decision: greets until marked, again after `reopen()`, never when
+ * `enabled` is off. The real rules (per opening, per day, never) are covered by the interactor's
+ * own spec; a signal, like the real store, so the block's effect notices a reopening.
+ */
 class FakeDailyImpulseInteractor {
   item: ContentItemView | null = null;
-  seenDays = new Set<string>();
+  enabled = true;
+  readonly greeted = signal(false);
+  greetedDays: string[] = [];
 
   featuredItem(): Promise<ContentItemView | null> {
     return Promise.resolve(this.item);
   }
 
-  isUnseen(day: string): boolean {
-    return !this.seenDays.has(day);
+  shouldGreet(): boolean {
+    return this.enabled && !this.greeted();
   }
 
-  markSeen(day: string): void {
-    this.seenDays.add(day);
+  greetingEnabled(): boolean {
+    return this.enabled;
+  }
+
+  markGreeted(day: string): void {
+    this.greeted.set(true);
+    this.greetedDays.push(day);
+  }
+
+  reopen(): void {
+    this.greeted.set(false);
   }
 }
 
@@ -77,14 +93,17 @@ class FakeShakeInteractor {
   }
 }
 
-async function setup(config: { item?: ContentItemView | null; seenToday?: boolean } = {}) {
+async function setup(
+  config: { item?: ContentItemView | null; alreadyGreeted?: boolean; greetingOff?: boolean } = {},
+) {
   const daily = new FakeDailyImpulseInteractor();
   daily.item = config.item === undefined ? item() : config.item;
+  daily.enabled = config.greetingOff !== true;
 
   const haptics = new FakeHapticsInteractor();
   const shake = new FakeShakeInteractor();
-  if (config.seenToday) {
-    daily.seenDays.add(TODAY);
+  if (config.alreadyGreeted) {
+    daily.greeted.set(true);
   }
 
   TestBed.resetTestingModule();
@@ -188,37 +207,64 @@ describe('TodayImpulseBlock', () => {
     expect(links[0].textContent).toContain('Mehr lesen');
   });
 
-  it('announces a new impulse once, then records the day as seen', async () => {
+  it('greets when the interactor says so, then records the greeting for the day', async () => {
     const { element, daily } = await setup();
 
     // jsdom never runs CSS animations, so the class is what there is to assert - the keyframes
     // themselves live in styles/components/arrived.css.
     expect(element.querySelector('.rk-arrived')).not.toBeNull();
-    expect(daily.seenDays.has(TODAY)).toBe(true);
+    expect(daily.greetedDays).toEqual([TODAY]);
   });
 
-  it("stays still once the day's impulse has already been seen", async () => {
-    const { element } = await setup({ seenToday: true });
+  it('stays still once it has already greeted', async () => {
+    const { element } = await setup({ alreadyGreeted: true });
 
     expect(element.querySelector('.rk-arrived')).toBeNull();
   });
 
-  it('greets a new impulse with the haptic pattern as well as the wave', async () => {
+  it('greets with the haptic pattern as well as the wave', async () => {
     const { haptics } = await setup();
 
     expect(haptics.plays).toBe(1);
   });
 
-  it("stays silent when the day's impulse has already been seen", async () => {
-    const { haptics } = await setup({ seenToday: true });
+  it('stays silent once it has already greeted', async () => {
+    const { haptics } = await setup({ alreadyGreeted: true });
 
+    expect(haptics.plays).toBe(0);
+  });
+
+  it('greets again when the app is reopened while Today is on screen', async () => {
+    const { element, daily, haptics, settle } = await setup();
+    expect(haptics.plays).toBe(1);
+
+    daily.reopen();
+    await settle();
+    // The class is still on the card from the first greeting, so it leaves for a frame first.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await settle();
+
+    expect(element.querySelector('.rk-arrived')).not.toBeNull();
+    expect(element.querySelector('.rk-arrived-stretched')).toBeNull();
+    expect(haptics.plays).toBe(2);
+    expect(daily.greetedDays).toEqual([TODAY, TODAY]);
+  });
+
+  it('does not answer a shake when the greeting is switched off', async () => {
+    const { element, shake, haptics, settle } = await setup({ greetingOff: true });
+
+    shake.shake?.();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await settle();
+
+    expect(element.querySelector('.rk-arrived')).toBeNull();
     expect(haptics.plays).toBe(0);
   });
 
   it('stretches the replayed greeting on both channels, but not the arrival one', async () => {
     const { element, settle, shake, haptics } = await setup();
 
-    // The once-a-day arrival plays at its ordinary length.
+    // The arrival plays at its ordinary length.
     expect(element.querySelector('.rk-arrived-stretched')).toBeNull();
     expect(haptics.lastOptions).toEqual({ replay: false });
 
@@ -237,7 +283,7 @@ describe('TodayImpulseBlock', () => {
   });
 
   it('replays the greeting when the phone is shaken', async () => {
-    const { element, settle, shake, haptics } = await setup({ seenToday: true });
+    const { element, settle, shake, haptics } = await setup({ alreadyGreeted: true });
     expect(element.querySelector('.rk-arrived')).toBeNull();
 
     shake.shake?.();

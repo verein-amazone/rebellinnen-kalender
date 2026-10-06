@@ -1,12 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
 import {
   DEFAULT_CALENDAR_CHIP_PREFERENCES,
   MAX_STORED_CALENDAR_IDS,
   type CalendarChipPreferences,
 } from './calendar-chip-preferences';
 
-const STORAGE_KEY = 'rk.calendarChips';
+const STORAGE_KEY = scopedStorageName('rk.calendarChips');
 
 /**
  * Persists how the Kalender screen's filter chips are presented - which calendars are hidden and

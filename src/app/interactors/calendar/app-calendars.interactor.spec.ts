@@ -6,6 +6,7 @@ import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
 import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
 import { MIGRATIONS } from '@app/data/migrations/migrations';
 import { AppCalendarsInteractor } from './app-calendars.interactor';
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
 
 class FakeEmojiPicker {
   result: string | null = '🌻';
@@ -251,7 +252,12 @@ describe('AppCalendarsInteractor', () => {
     const result = await interactor.listWritable();
 
     expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ name: 'Mein Kalender', color: null, emoji: null });
+    // With a colour from the start: an uncoloured calendar got no dot in the week and month grid.
+    expect(result[0]).toMatchObject({
+      name: 'Mein Kalender',
+      color: DEFAULT_CALENDAR_COLOR,
+      emoji: null,
+    });
 
     const allSources = await sources.listSources();
     expect(allSources.filter((source) => source.type === 'app')).toHaveLength(1);

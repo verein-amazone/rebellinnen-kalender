@@ -70,6 +70,12 @@ components:
     rounded: '{rounded.lg}'
     padding: '8px 16px'
     height: '{spacing.touch}'
+  button-outline-primary:
+    backgroundColor: '{colors.card}'
+    textColor: '{colors.primary}'
+    rounded: '{rounded.lg}'
+    padding: '8px 16px'
+    height: '{spacing.touch}'
   button-danger:
     backgroundColor: '{colors.danger}'
     textColor: '{colors.danger-foreground}'
@@ -265,7 +271,11 @@ must not scale with the root font size.
   fixed height so a wrapped label doesn't clip.
 - **Primary:** filled `primary` on `primary-foreground`, `px-4 py-2`, semibold label.
 - **Secondary:** filled `secondary` on `secondary-foreground`, same shape.
-- **Ghost:** transparent, `foreground` text, `muted` fill on `hoverable:`/`active:`.
+- **Ghost:** transparent, `foreground` text, `muted` fill on `hoverable:`/`active:`. Reads as text
+  at rest, so never use it where the user has to recognise a second action as a button.
+- **Outline-primary:** a `border-2` outline and label in `primary` on the `card` surface, for a
+  second action next to a primary one (e.g. „Chat“ beside „Anrufen“ on an Anlaufstellen card). Only
+  the card surface keeps the primary label above 4.5:1 in every theme.
 - **Danger / Danger-secondary:** filled `danger` for a destructive primary action; a `border-2`
   outline in `danger` on the field surface (`input-background`) for a destructive action that
   should not carry primary-button weight - never signaled by color alone (see Colors' Named Rules).

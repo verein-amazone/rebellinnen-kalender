@@ -19,6 +19,27 @@
   }
 
   /*
+   * Safari on iOS tints its own top and bottom bars from the page. It ignores `theme-color` and
+   * samples a `fixed` or `sticky` element that reaches the viewport edge instead, falling back to
+   * the <body> background when there is none. The tab bar is an ordinary flex child of the shell's
+   * `100dvh` frame, so the fallback wins and the strip behind the browser's bottom toolbar comes
+   * out in the screen background rather than the navigation colour.
+   *
+   * This element is that sampling target and nothing else: it sits in the browser's chin, below
+   * the frame, and the few pixels of it that reach into the viewport land on the tab bar, which is
+   * the same colour. It is inert everywhere the chin does not exist - the native WebView, an
+   * installed PWA - because the tab bar covers it there.
+   */
+  .rk-tab-bar-tint {
+    @apply bg-nav-bg;
+    position: fixed;
+    inset-inline: 0;
+    bottom: -8px;
+    height: 12px;
+    pointer-events: none;
+  }
+
+  /*
    * `min-h-touch`, not a fixed height: the label has to be able to wrap onto a second line without
    * being clipped.
    */

@@ -6,6 +6,8 @@ import { placementRank } from '@app/data/stores/calendar-chip-preferences';
 import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
+
 /**
  * A calendar the create/edit form's picker may offer, stripped of everything view-irrelevant.
  * `sourceType` defaults to `'app'` when absent, which every fixture predating device calendars in
@@ -122,7 +124,7 @@ export class AppCalendarsInteractor {
           id: crypto.randomUUID(),
           sourceId,
           name: 'Mein Kalender',
-          color: null,
+          color: DEFAULT_CALENDAR_COLOR,
           emoji: null,
           enabled: true,
           writable: true,

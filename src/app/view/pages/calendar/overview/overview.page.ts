@@ -36,6 +36,12 @@ import { HorizontalSwipeDirective } from './horizontal-swipe.directive';
 type ViewMode = 'week' | 'month';
 
 /**
+ * The dot for an occurrence whose calendar has no colour. New calendars always get one, but a
+ * device calendar may report none - and an appointment must never be the one without a dot.
+ */
+const UNCOLOURED_CALENDAR_DOT = 'var(--color-muted-foreground)';
+
+/**
  * The calendar screen: week or month grid on top, the selected day's agenda below.
  *
  * The Woche/Monat switch is an `@angular/aria/tabs` widget - the same one the content overview uses
@@ -185,8 +191,8 @@ export class CalendarOverviewPage {
         const day = cursor.toString();
         const marker = perDay.get(day) ?? { colors: [], count: 0 };
         marker.count += 1;
-        const color = occurrence.calendarColor;
-        if (color !== null && !marker.colors.includes(color)) {
+        const color = occurrence.calendarColor ?? UNCOLOURED_CALENDAR_DOT;
+        if (!marker.colors.includes(color)) {
           marker.colors.push(color);
         }
         perDay.set(day, marker);

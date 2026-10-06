@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
   IcsSubscriptionInteractor,
   type IcsRefreshOutcome,
@@ -72,7 +73,9 @@ class StubLiveAnnouncer {
   }
 }
 
-async function setup(options: { icsSubscriptions?: IcsSubscriptionRow[] } = {}) {
+async function setup(
+  options: { icsSubscriptions?: IcsSubscriptionRow[]; platform?: 'ios' | 'android' | 'web' } = {},
+) {
   const icsSubscriptions = new FakeIcsSubscriptionInteractor();
   if (options.icsSubscriptions !== undefined) {
     icsSubscriptions.rows = options.icsSubscriptions;
@@ -87,6 +90,7 @@ async function setup(options: { icsSubscriptions?: IcsSubscriptionRow[] } = {}) 
       { provide: IcsSubscriptionInteractor, useValue: icsSubscriptions },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
     ],
   });
 
@@ -278,5 +282,20 @@ describe('IcsCalendarsPage, manage', () => {
     await page.settle();
 
     expect(page.icsSubscriptions.removeCalls).toEqual([]);
+  });
+});
+
+describe('IcsCalendarsPage, web', () => {
+  // Every refresh goes through `IcsHttpGateway`, which only escapes CORS on a device.
+  it('replaces the whole screen with an explanation', async () => {
+    const { element } = await setup({ icsSubscriptions: [icsRow()], platform: 'web' });
+
+    expect(element.querySelector('app-toggle-field')).toBeNull();
+    expect(
+      Array.from(element.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('hinzufügen'),
+      ),
+    ).toBe(false);
+    expect(element.textContent).toContain('im Web nicht verfügbar');
   });
 });

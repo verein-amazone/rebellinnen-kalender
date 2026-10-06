@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
-const STORAGE_KEY = 'rk.calendar-maintenance';
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
+const STORAGE_KEY = scopedStorageName('rk.calendar-maintenance');
 
 interface CalendarMaintenanceState {
   readonly lastTimeZone: string | null;

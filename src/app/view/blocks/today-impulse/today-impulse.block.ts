@@ -7,6 +7,7 @@ import {
   inject,
   resource,
   signal,
+  untracked,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -16,7 +17,6 @@ import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
 import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-impulse.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
-import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
 
 /**
@@ -35,15 +35,15 @@ import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
  * Falls back to the page's original "Heute gibt es noch keinen Tagesimpuls." copy when nothing is
  * eligible, rather than rendering a broken or misleading card.
  *
- * The first time a day's impulse is shown the card announces itself with a short wave and a haptic
- * greeting in the same rhythm, so it reads as "this is new" rather than as the same card that was
- * there yesterday. It plays once per day: `DailyImpulseInteractor` remembers that the day's impulse
- * was seen, so a reopened app or a return to Today stays still. Shaking the phone replays it, which
- * is an extra on top of a card that is always reachable by tapping, never the only way to anything.
+ * The card greets with a short wave and a haptic pattern in the same rhythm. When is the user's
+ * call on the Tagesimpuls settings page, and `DailyImpulseInteractor` decides it: by default every
+ * time the app is opened - a cold start or a return from the background, not a switch between
+ * tabs - otherwise once a day or never. Shaking the phone replays it, which is an extra on top of a
+ * card that is always reachable by tapping, never the only way to anything.
  *
  * Both channels are decoration: the card's content never depends on either, a reduced-motion
- * preference neutralises the animation via `base.css`, and the Tagesimpuls preference on
- * „Bewegung & Animationen“ turns the buzz, or the whole greeting, off.
+ * preference neutralises the animation via `base.css`, and the app-wide vibration setting turns the
+ * buzz off.
  */
 @Component({
   selector: 'app-today-impulse',
@@ -56,7 +56,6 @@ export class TodayImpulseBlock {
   private readonly daily = inject(DailyImpulseInteractor);
   private readonly currentDay = inject(LocalDay);
   private readonly haptics = inject(HapticsInteractor);
-  private readonly appearance = inject(AppearanceInteractor);
   private readonly shake = inject(ShakeInteractor);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -78,7 +77,7 @@ export class TodayImpulseBlock {
   });
 
   /**
-   * Latched rather than derived: marking the day as seen immediately flips the interactor's answer,
+   * Latched rather than derived: marking the greeting done immediately flips the interactor's answer,
    * and a computed would drop the class again in the same tick and cut the animation short.
    */
   protected readonly isNew = signal(false);
@@ -87,46 +86,53 @@ export class TodayImpulseBlock {
   protected readonly isStretched = signal(false);
 
   constructor() {
+    // `shouldGreet` reads signals only, so this runs again when the app is reopened while Today is
+    // on screen, or when the day changes - no resume listener of its own needed here.
     effect(() => {
       const today = this.currentDay.day();
-      if (this.item() === null || !this.daily.isUnseen(today)) {
+      if (this.item() === null || !this.daily.shouldGreet(today)) {
         return;
       }
 
-      this.greet(false);
-      this.daily.markSeen(today);
+      untracked(() => {
+        this.daily.markGreeted(today);
+        this.playGreeting(false);
+      });
     });
 
     void this.watchShakes();
   }
 
-  /**
-   * „Ohne Begrüßung“ means neither channel, so nothing happens at all - not even the class, which
-   * is what the animation hangs off. The haptics interactor gates its own channel on the same
-   * preference, and `base.css` still neutralises the wave under reduced motion on top of this.
-   */
-  private greet(replay: boolean): void {
-    if (this.appearance.impulseGreeting() === 'none') {
+  /** A shake asks for the greeting again - unless the user switched it off. */
+  private replayGreeting(): void {
+    if (this.item() === null || !this.daily.greetingEnabled()) {
       return;
     }
 
-    this.isStretched.set(replay);
-    this.isNew.set(true);
-    void this.haptics.playArrival({ replay });
+    this.playGreeting(true);
   }
 
   /**
-   * Replays the greeting. The class has to leave the element and come back for the CSS animation to
-   * restart, and the two writes have to land in different frames - hence the `requestAnimationFrame`
-   * rather than a plain reset-then-set.
+   * Plays the greeting, restarting it if the class is still on the card from an earlier one. The
+   * class has to leave the element and come back for the CSS animation to restart, and the two
+   * writes have to land in different frames - hence the `requestAnimationFrame` rather than a plain
+   * reset-then-set. The haptics interactor gates its own channel on the vibration setting, and
+   * `base.css` neutralises the wave under reduced motion.
    */
-  private replayGreeting(): void {
-    if (this.item() === null) {
+  private playGreeting(replay: boolean): void {
+    const start = (): void => {
+      this.isStretched.set(replay);
+      this.isNew.set(true);
+      void this.haptics.playArrival({ replay });
+    };
+
+    if (!this.isNew()) {
+      start();
       return;
     }
 
     this.isNew.set(false);
-    requestAnimationFrame(() => this.greet(true));
+    requestAnimationFrame(start);
   }
 
   /**

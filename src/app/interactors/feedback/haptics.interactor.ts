@@ -29,25 +29,51 @@ const REPLAY_STRETCH = 1.5;
 /**
  * Haptic feedback as an application concern: what a moment should feel like, and whether the user
  * wants to feel it at all.
+ *
+ * Every haptic in the app goes through here, behind the one vibration setting. They confirm an
+ * outcome the user caused and cares about - an appointment saved, an entry ticked off, a bookmark
+ * set, an entry dropped into place - and never accompany navigation, scrolling or an ordinary tap:
+ * a phone that buzzes all the time stops meaning anything by it.
  */
 @Injectable({ providedIn: 'root' })
 export class HapticsInteractor {
   private readonly haptics = inject(DeviceHaptics);
   private readonly appearance = inject(AppearanceStore);
 
-  /** Plays the arrival greeting, unless the user asked for a quieter one or the device has none. */
+  /** Plays the Tagesimpuls greeting, unless vibration is off or the device has no haptics. */
   async playArrival(options: { readonly replay?: boolean } = {}): Promise<void> {
-    if (this.appearance.preferences().impulseGreeting !== 'full') {
-      return;
-    }
-
-    if (!(await this.haptics.isAvailable())) {
+    if (!(await this.mayVibrate())) {
       return;
     }
 
     await this.haptics.playPattern(
       options.replay === true ? stretch(ARRIVAL_PATTERN, REPLAY_STRETCH) : ARRIVAL_PATTERN,
     );
+  }
+
+  /** Something the user created was saved - an appointment, for instance. */
+  async confirm(): Promise<void> {
+    if (await this.mayVibrate()) {
+      await this.haptics.success();
+    }
+  }
+
+  /** A small state change the user caused: an entry ticked off, a bookmark set. */
+  async tick(): Promise<void> {
+    if (await this.mayVibrate()) {
+      await this.haptics.lightImpact();
+    }
+  }
+
+  /** An entry picked up or put down while reordering a list. */
+  async selection(): Promise<void> {
+    if (await this.mayVibrate()) {
+      await this.haptics.selectionChanged();
+    }
+  }
+
+  private async mayVibrate(): Promise<boolean> {
+    return this.appearance.preferences().vibration === 'on' && (await this.haptics.isAvailable());
   }
 }
 

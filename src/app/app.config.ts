@@ -3,6 +3,7 @@ import localeDe from '@angular/common/locales/de';
 import {
   ApplicationConfig,
   inject,
+  isDevMode,
   LOCALE_ID,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -16,8 +17,12 @@ import {
   withPreloading,
   PreloadAllModules,
 } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 
-import { supportsViewTransitions } from '@app/cross-cutting/infrastructure/device-platform';
+import {
+  devicePlatform,
+  supportsViewTransitions,
+} from '@app/cross-cutting/infrastructure/device-platform';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 import { routes } from './app.routes';
 
@@ -47,5 +52,13 @@ export const appConfig: ApplicationConfig = {
     // renders at the wrong size for a frame. It also re-applies Android's `textZoom` reset, which
     // does not survive a restart.
     provideAppInitializer(() => inject(SystemTextScale).initialize()),
+    // The web demo build only (see README). The worker and its manifest are emitted by the
+    // `pages` build configuration alone, so a native build has no `ngsw-worker.js` to register -
+    // and must not try: a WebView already serves the bundle from the app package, and a worker
+    // caching it on top would keep serving the previous release's assets after an app update.
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: devicePlatform() === 'web' && !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

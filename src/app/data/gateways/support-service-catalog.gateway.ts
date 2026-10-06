@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+
 const CATALOG_URL = '/support-services/catalog.json';
 
 const ACTION_TYPES = ['phone', 'sms', 'website', 'chat'] as const;
@@ -44,7 +46,7 @@ export class SupportServiceCatalogGateway {
   /** Empty on any failure - a missing/unreachable/malformed file must never break the page. */
   async fetchCatalog(): Promise<readonly SupportServiceCatalogItem[]> {
     try {
-      const response = await fetch(CATALOG_URL);
+      const response = await fetch(assetUrl(CATALOG_URL));
       if (!response.ok) {
         return [];
       }

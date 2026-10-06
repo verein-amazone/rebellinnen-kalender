@@ -1,0 +1,16 @@
+<app-focused-screen heading="Vibration" fallbackLink="/settings">
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Vibration wählen</legend>
+
+    @for (option of appearance.vibrationOptions; track option.id) {
+      <app-choice-row
+        name="vibration"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.vibration() === option.id"
+        (selected)="select($event)"
+      />
+    }
+  </fieldset>
+</app-focused-screen>

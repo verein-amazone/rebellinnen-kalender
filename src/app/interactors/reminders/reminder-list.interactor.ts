@@ -76,11 +76,14 @@ export class ReminderListInteractor {
     await this.reminders.updateText(id, normalized, new Date().toISOString());
   }
 
+  /**
+   * A just-completed entry always lands on top of the completed section, so the one the user just
+   * ticked off stays in view. This used to be a setting; testers found it more confusing than useful.
+   */
   async complete(id: string): Promise<void> {
     const now = new Date().toISOString();
-    const placement = this.preferences.preferences().completedItemPlacement;
 
-    await this.reminders.updateCompletion(id, now, await this.entryPosition(true, placement), now);
+    await this.reminders.updateCompletion(id, now, await this.entryPosition(true, 'top'), now);
   }
 
   /**

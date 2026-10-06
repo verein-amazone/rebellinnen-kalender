@@ -21,7 +21,16 @@ const GREETING_TEXT: Record<GreetingId, string> = {
   evening: 'Guten Abend',
 };
 
-/** The German greeting text for a bucket, without the name - the caller appends that itself. */
+/** The German greeting text for a bucket, without the name or the closing punctuation. */
 export function greetingText(id: GreetingId): string {
   return GREETING_TEXT[id];
+}
+
+/**
+ * The full greeting line: „Guten Morgen Nina!“, or „Guten Morgen!“ without a name. No comma before
+ * the name - that read like a formal letter - and an exclamation mark at the end, because the
+ * testers found the greeting flat without one.
+ */
+export function greetingLine(id: GreetingId, name: string | null): string {
+  return name ? `${greetingText(id)} ${name}!` : `${greetingText(id)}!`;
 }

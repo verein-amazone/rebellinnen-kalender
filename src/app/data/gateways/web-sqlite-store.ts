@@ -28,7 +28,13 @@
  */
 import type { SQLiteConnection } from '@capacitor-community/sqlite';
 
-/** Where `jeep-sqlite` looks for `sql-wasm.wasm`; see the build assets in angular.json. */
+import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+
+/**
+ * Where `jeep-sqlite` looks for `sql-wasm.wasm`; see the build assets in angular.json. Resolved
+ * against the base href, because the element concatenates this with `/sql-wasm.wasm` and the web
+ * build is served from a subdirectory (see `assetUrl`).
+ */
 const WASM_PATH = '/assets';
 
 let initialization: Promise<void> | null = null;
@@ -66,7 +72,7 @@ async function initialize(sqlite: SQLiteConnection): Promise<void> {
   // #19: every write through `CalendarRepository` (create/update/delete an appointment) uses
   // `transaction()` and hit this on the web platform, which is also what the e2e suite runs
   // against - iOS and Android never load jeep-sqlite and are unaffected either way.
-  element.setAttribute('wasmPath', WASM_PATH);
+  element.setAttribute('wasmPath', assetUrl(WASM_PATH));
   document.body.appendChild(element);
 
   await sqlite.initWebStore();

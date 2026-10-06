@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
-const STORAGE_KEY = 'rk.contentCatalog';
+import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
+
+const STORAGE_KEY = scopedStorageName('rk.contentCatalog');
 
 interface StoredState {
   readonly version: number | null;
