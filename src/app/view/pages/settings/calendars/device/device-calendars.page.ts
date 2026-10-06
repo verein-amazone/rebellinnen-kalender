@@ -7,6 +7,7 @@ import {
   DeviceCalendarsInteractor,
   type DeviceCalendarPermission,
 } from '@app/interactors/calendar/device-calendars.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ToggleField } from '@app/view/components/field/toggle-field';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -36,6 +37,7 @@ export class DeviceCalendarsPage {
   private readonly deviceCalendars = inject(DeviceCalendarsInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
 
   /** Device calendars are an OS concept; there is nothing to connect to in a browser tab. */
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
@@ -57,6 +59,7 @@ export class DeviceCalendarsPage {
     this.deviceResource.reload();
 
     if (permission === 'granted') {
+      void this.haptics.confirm();
       this.announcer.announce('Gerätekalender verbunden');
     } else {
       this.announcer.announce('Zugriff auf den Gerätekalender wurde nicht erteilt');
@@ -69,6 +72,8 @@ export class DeviceCalendarsPage {
 
   protected async toggleDeviceCalendar(calendarId: string, enabled: boolean): Promise<void> {
     await this.deviceCalendars.setCalendarEnabled(calendarId, enabled);
+    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
+    void this.haptics.tick();
     this.deviceResource.reload();
   }
 
@@ -91,6 +96,7 @@ export class DeviceCalendarsPage {
     enabled: boolean,
   ): Promise<void> {
     await this.deviceCalendars.setCalendarsEnabledByNativeSource(nativeSourceId, enabled);
+    void this.haptics.tick();
     this.deviceResource.reload();
   }
 

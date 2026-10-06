@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
@@ -36,6 +37,7 @@ export class CalendarsPage {
   private readonly appCalendars = inject(AppCalendarsInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
 
   /**
    * Device calendars are an OS concept; there is nothing to connect to in a browser tab. Curated
@@ -84,6 +86,7 @@ export class CalendarsPage {
     }
 
     await this.appCalendars.updateIdentity(calendar.id, result);
+    void this.haptics.confirm();
     this.appCalendarsResource.reload();
     this.announcer.announce('Kalender gespeichert');
   }

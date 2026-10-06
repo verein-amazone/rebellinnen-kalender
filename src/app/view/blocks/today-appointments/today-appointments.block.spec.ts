@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
@@ -69,6 +69,14 @@ async function setup(day: string, occurrences: CalendarOccurrence[] = []) {
 describe('TodayAppointmentsBlock', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
+    // Noon on the fixtures' day, before their 14:00 appointment. Only `Date` is faked, so the
+    // fixture's own timers still run.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-08-11T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('shows the empty state when today has no appointments', async () => {
@@ -82,6 +90,48 @@ describe('TodayAppointmentsBlock', () => {
 
     expect(element.textContent).toContain('Beratungsgespräch');
     expect(element.textContent).not.toContain('Heute steht noch nichts an.');
+  });
+
+  it('lists only the next three, leaving the rest to „Alle Termine"', async () => {
+    const { element } = await setup(
+      '2026-08-11',
+      ['13', '14', '15', '16'].map((hour) =>
+        occurrence({
+          id: `occ-${hour}`,
+          title: `Termin um ${hour}`,
+          startUtc: `2026-08-11T${hour}:00:00Z`,
+          endUtc: `2026-08-11T${hour}:30:00Z`,
+        }),
+      ),
+    );
+
+    expect(element.querySelectorAll('app-occurrence-card')).toHaveLength(3);
+    expect(element.textContent).toContain('Termin um 13');
+    expect(element.textContent).not.toContain('Termin um 16');
+  });
+
+  it('leaves out an appointment that has already ended', async () => {
+    const { element } = await setup('2026-08-11', [
+      occurrence({
+        id: 'occ-past',
+        title: 'Frühstück',
+        startUtc: '2026-08-11T08:00:00Z',
+        endUtc: '2026-08-11T09:00:00Z',
+      }),
+      occurrence(),
+    ]);
+
+    expect(element.textContent).not.toContain('Frühstück');
+    expect(element.textContent).toContain('Beratungsgespräch');
+  });
+
+  it('says nothing more is coming once every appointment today is over', async () => {
+    const { element } = await setup('2026-08-11', [
+      occurrence({ startUtc: '2026-08-11T08:00:00Z', endUtc: '2026-08-11T09:00:00Z' }),
+    ]);
+
+    expect(element.querySelector('app-occurrence-card')).toBeNull();
+    expect(element.textContent).toContain('Heute steht nichts mehr an.');
   });
 
   it('links „Alle Termine" to the Calendar area', async () => {

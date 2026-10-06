@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { CuratedCalendarsInteractor } from '@app/interactors/calendar/curated-calendars.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ToggleField } from '@app/view/components/field/toggle-field';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -45,6 +46,7 @@ export class CuratedCalendarsPage {
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected readonly curatedResource = resource({
     loader: () => this.curated.listForManagement(),
@@ -70,12 +72,15 @@ export class CuratedCalendarsPage {
     }
 
     await this.curated.updateIdentity(sourceId, result);
+    void this.haptics.confirm();
     this.curatedResource.reload();
     this.announcer.announce('Kalender gespeichert');
   }
 
   protected async toggleCurated(sourceId: string, enabled: boolean): Promise<void> {
     await this.curated.setEnabled(sourceId, enabled);
+    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
+    void this.haptics.tick();
     this.curatedResource.reload();
   }
 

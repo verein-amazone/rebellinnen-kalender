@@ -167,6 +167,7 @@ export class ReminderListBlock {
         }
 
         await this.reminders.add(text);
+        void this.haptics.confirm();
         this.reload();
       });
   }
@@ -320,6 +321,7 @@ export class ReminderListBlock {
         }
 
         await this.reminders.rename(item.id, text);
+        void this.haptics.confirm();
         this.reload();
       });
   }

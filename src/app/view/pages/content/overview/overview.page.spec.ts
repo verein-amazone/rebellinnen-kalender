@@ -9,6 +9,7 @@ import type {
   SupportServiceRegion,
   SupportServiceView,
 } from '@app/interactors/support-services/support-service.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
 
 import { ContentOverviewPage } from './overview.page';
@@ -77,6 +78,27 @@ class FakeSupportServicesInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 async function setup(
   options: {
     items?: ContentItemView[];
@@ -91,6 +113,7 @@ async function setup(
   const supportServices = new FakeSupportServicesInteractor();
   supportServices.services = options.services ?? [];
   supportServices.regions = options.regions ?? [];
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -98,6 +121,7 @@ async function setup(
       provideRouter([]),
       { provide: BookmarksInteractor, useValue: bookmarks },
       { provide: SupportServicesInteractor, useValue: supportServices },
+      { provide: HapticsInteractor, useValue: haptics },
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams ?? {}) } },
@@ -123,6 +147,7 @@ async function setup(
       await fixture.whenStable();
     },
     bookmarks,
+    haptics,
     bookmarkChanges: TestBed.inject(BookmarkChanges),
   };
 }
@@ -184,6 +209,28 @@ describe('ContentOverviewPage', () => {
     expect(element.textContent).not.toContain('Rat auf Draht');
   });
 
+  it('ticks when another region is picked, and not when the selected one is tapped again', async () => {
+    const { element, whenStable, haptics } = await setup({
+      queryParams: { area: 'services' },
+      regions: [
+        { id: 'online', label: 'Online & Telefon' },
+        { id: 'vorarlberg', label: 'Vorarlberg' },
+      ],
+    });
+    const region = (label: string) =>
+      Array.from(element.querySelectorAll<HTMLButtonElement>('button[role="radio"]')).find(
+        (button) => button.textContent?.includes(label),
+      )!;
+
+    region('Online & Telefon').click();
+    await whenStable();
+    expect(haptics.selections).toBe(0);
+
+    region('Vorarlberg').click();
+    await whenStable();
+    expect(haptics.selections).toBe(1);
+  });
+
   it('shows an empty state for a region with no entries', async () => {
     const { element } = await setup({
       queryParams: { area: 'services' },
@@ -239,7 +286,7 @@ describe('ContentOverviewPage', () => {
   }
 
   it('shows every content type by default and switches one off independently', async () => {
-    const { element, whenStable } = await setup({
+    const { element, whenStable, haptics } = await setup({
       items: [
         item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
         item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
@@ -255,6 +302,7 @@ describe('ContentOverviewPage', () => {
     await whenStable();
 
     expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('false');
+    expect(haptics.selections).toBe(1);
     expect(element.textContent).toContain('Eine Rebellin');
     expect(element.textContent).not.toContain('Wissensimpuls');
   });

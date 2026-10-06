@@ -408,11 +408,17 @@ confirm an outcome the user caused and cares about, and nothing else:
 | Moment                                            | Feedback                                          |
 | ------------------------------------------------- | ------------------------------------------------- |
 | Appointment created or saved                      | `confirm()` - the platform's success notification |
+| „Nicht vergessen“ entry added or edited           | `confirm()`                                       |
+| Calendar name, colour or symbol saved             | `confirm()`                                       |
+| Calendar subscribed by link (and loaded)          | `confirm()`                                       |
+| Device calendars connected                        | `confirm()`                                       |
 | „Nicht vergessen“ entry ticked off (not reopened) | `tick()` - one light impact                       |
 | Bookmark set (not removed)                        | `tick()`                                          |
+| Calendar switched on or off in settings           | `tick()`                                          |
 | Row picked up and put down while reordering       | `selection()` - the platform's detent tick        |
 | Another option picked in a settings choice group  | `selection()`                                     |
 | Another calendar colour picked                    | `selection()`                                     |
+| Filter chip toggled, another region picked        | `selection()`                                     |
 | Tagesimpuls greeting                              | `playArrival()` - the pattern above               |
 
 A selection tick follows a choice that takes effect, or shows its effect, right away - a settings
@@ -420,6 +426,11 @@ radio, a colour swatch. Choices inside a form that still has to be submitted sta
 submit is the moment that counts. The tick comes from the presenter after the choice is stored, not
 from `ChoiceRow`, which as a component does not inject interactors. Switching vibration on is felt;
 switching it off is not.
+
+A switch that shows or hides a calendar is felt both ways: on and off are equal choices there, unlike
+ticking an entry off and reopening it. Removing something - an entry, a subscription, a bookmark, a
+device connection - stays silent; it was already confirmed in a sheet, and a buzz would celebrate a
+loss.
 
 Never on navigation, tab switches, scrolling or an ordinary tap: a phone that buzzes all the time
 stops meaning anything by it. Like the wave, a haptic never carries information on its own - the

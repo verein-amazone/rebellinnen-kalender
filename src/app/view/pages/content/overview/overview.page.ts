@@ -16,6 +16,7 @@ import type {
   ContentItemView,
 } from '@app/interactors/daily-content/content-item.vm';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
 import {
   ContentKindFilterBlock,
@@ -74,6 +75,7 @@ export class ContentOverviewPage {
   private readonly bookmarks = inject(BookmarksInteractor);
   private readonly bookmarkChanges = inject(BookmarkChanges);
   private readonly supportServices = inject(SupportServicesInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   /**
    * The selected area is route state (`?area=…`), the same way the calendar overview keeps its
@@ -143,6 +145,7 @@ export class ContentOverviewPage {
       }
       return next;
     });
+    void this.haptics.selection();
   }
 
   protected readonly servicesData = resource({
@@ -177,7 +180,13 @@ export class ContentOverviewPage {
   });
 
   protected selectRegion(regionId: string): void {
+    // Tapping the region that is already selected changes nothing, so it is not felt either.
+    if (regionId === this.effectiveRegion()) {
+      return;
+    }
+
     this.selectedRegion.set(regionId);
+    void this.haptics.selection();
   }
 
   /** The tab list hands back the selected tab's `value`; anything else cannot come from the DOM. */

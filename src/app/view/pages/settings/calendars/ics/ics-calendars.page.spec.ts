@@ -10,6 +10,7 @@ import {
   type IcsRefreshOutcome,
   type IcsSubscriptionRow,
 } from '@app/interactors/calendar/ics-subscription.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import type { CalendarIdentityEditResult } from '@app/view/dialogs/calendar-identity-edit/calendar-identity-edit.dialog';
 
@@ -56,6 +57,27 @@ class FakeIcsSubscriptionInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 class StubSheetService {
   results: unknown[] = [];
 
@@ -82,6 +104,7 @@ async function setup(
   }
   const sheets = new StubSheetService();
   const announcer = new StubLiveAnnouncer();
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -90,6 +113,7 @@ async function setup(
       { provide: IcsSubscriptionInteractor, useValue: icsSubscriptions },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: HapticsInteractor, useValue: haptics },
       { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
     ],
   });
@@ -103,6 +127,7 @@ async function setup(
     icsSubscriptions,
     sheets,
     announcer,
+    haptics,
     settle: () => fixture.whenStable(),
   };
 }
@@ -147,6 +172,7 @@ describe('IcsCalendarsPage, add', () => {
 
     expect(page.element.textContent).toContain('Schule');
     expect(page.announcer.announcements).toContain('Kalender hinzugefügt');
+    expect(page.haptics.confirms).toBe(1);
   });
 
   it('announces that loading is still pending when the first refresh failed', async () => {
@@ -162,6 +188,7 @@ describe('IcsCalendarsPage, add', () => {
     expect(page.announcer.announcements).toContain(
       'Kalender hinzugefügt, konnte aber noch nicht geladen werden',
     );
+    expect(page.haptics.confirms).toBe(0);
   });
 
   it('does nothing when the add sheet is cancelled', async () => {
@@ -197,6 +224,7 @@ describe('IcsCalendarsPage, manage', () => {
     expect(page.icsSubscriptions.setEnabledCalls).toEqual([
       { subscriptionId: 'ics-1', enabled: false },
     ]);
+    expect(page.haptics.ticks).toBe(1);
   });
 
   it('opens the identity editor with the ICS emoji picker and saves the result', async () => {

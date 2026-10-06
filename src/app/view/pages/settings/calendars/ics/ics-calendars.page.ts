@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ToggleField } from '@app/view/components/field/toggle-field';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -49,6 +50,7 @@ export class IcsCalendarsPage {
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected readonly icsResource = resource({
     loader: () => this.icsSubscriptions.listForManagement(),
@@ -66,6 +68,10 @@ export class IcsCalendarsPage {
     }
 
     this.icsResource.reload();
+    // Only a calendar that also loaded is a success; a failed first download is not one to confirm.
+    if (result.outcome !== 'failed') {
+      void this.haptics.confirm();
+    }
     this.announcer.announce(
       result.outcome === 'failed'
         ? 'Kalender hinzugefügt, konnte aber noch nicht geladen werden'
@@ -93,12 +99,15 @@ export class IcsCalendarsPage {
     }
 
     await this.icsSubscriptions.updateIdentity(subscriptionId, result);
+    void this.haptics.confirm();
     this.icsResource.reload();
     this.announcer.announce('Kalender gespeichert');
   }
 
   protected async toggleIcs(subscriptionId: string, enabled: boolean): Promise<void> {
     await this.icsSubscriptions.setEnabled(subscriptionId, enabled);
+    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
+    void this.haptics.tick();
     this.icsResource.reload();
   }
 

@@ -10,6 +10,7 @@ import {
   type CuratedCalendarRow,
 } from '@app/interactors/calendar/curated-calendars.interactor';
 import type { IcsRefreshOutcome } from '@app/interactors/calendar/ics-subscription.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import type { CalendarIdentityEditResult } from '@app/view/dialogs/calendar-identity-edit/calendar-identity-edit.dialog';
 
@@ -50,6 +51,27 @@ class FakeCuratedCalendarsInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 class StubSheetService {
   results: unknown[] = [];
 
@@ -76,6 +98,7 @@ async function setup(
   }
   const sheets = new StubSheetService();
   const announcer = new StubLiveAnnouncer();
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -84,6 +107,7 @@ async function setup(
       { provide: CuratedCalendarsInteractor, useValue: curated },
       { provide: SheetService, useValue: sheets },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: HapticsInteractor, useValue: haptics },
       { provide: DevicePlatformService, useValue: { platform: options.platform ?? 'ios' } },
     ],
   });
@@ -97,6 +121,7 @@ async function setup(
     curated,
     sheets,
     announcer,
+    haptics,
     settle: () => fixture.whenStable(),
   };
 }
@@ -143,6 +168,18 @@ describe('CuratedCalendarsPage, manage', () => {
     expect(page.curated.setEnabledCalls).toEqual([{ sourceId: 'curated-1', enabled: false }]);
   });
 
+  it('ticks whichever way a source is switched', async () => {
+    const page = await setup({ rows: [curatedRow()] });
+
+    const toggle = page.element.querySelector<HTMLInputElement>('#curated-calendar-curated-1')!;
+    toggle.click();
+    await page.settle();
+    toggle.click();
+    await page.settle();
+
+    expect(page.haptics.ticks).toBe(2);
+  });
+
   it('opens the identity editor with the curated emoji picker and saves the result', async () => {
     const page = await setup({ rows: [curatedRow()] });
     const result: CalendarIdentityEditResult = {
@@ -160,6 +197,7 @@ describe('CuratedCalendarsPage, manage', () => {
 
     expect(page.curated.updateIdentityCalls).toEqual([{ sourceId: 'curated-1', identity: result }]);
     expect(page.announcer.announcements).toContain('Kalender gespeichert');
+    expect(page.haptics.confirms).toBe(1);
   });
 
   it('shows a retry action and error text for a source in error state', async () => {
