@@ -230,11 +230,27 @@ No key material is ever committed. `.gitignore` and `android/.gitignore` reject 
 
 ## Publishing to testers
 
-The pipeline uploads; it never distributes. That is deliberate - it means a bad build can be thrown
-away without anyone having installed it.
+The pipeline stages rather than publishes - with one exception, TestFlight on `dev`, where waiting
+for a human to attach each build meant testers sat on rc.8 while rc.14 was out.
 
-**TestFlight** (`dev`). The build appears under the version with its "What to Test" text filled in.
-Add it to the internal testing group to send it to Verein Amazone.
+**TestFlight** (`dev`). The build appears under the version with its "What to Test" text filled in,
+and goes straight to the testing groups named in the repository variable `TESTFLIGHT_GROUPS` -
+names exactly as App Store Connect shows them, comma-separated:
+
+```bash
+gh variable set TESTFLIGHT_GROUPS --body 'Internal,Public'
+```
+
+- **Internal groups** get the build as soon as Apple has processed it. A group with automatic
+  distribution switched on already gets every build and is skipped.
+- **External groups** make the lane submit the build to Apple's beta review. Their testers get it
+  once Apple approves; for a later build of an already reviewed version that is usually minutes,
+  and the beta review details (contact, notes) have to be filled in once in App Store Connect.
+
+The lane checks the names before it archives and fails within seconds on a group that does not
+exist. With the variable empty it only uploads, as before, and the build has to be added to a group
+by hand. Handing a build to a group waits for Apple's processing, so the TestFlight job runs 5-20
+minutes longer than an upload alone.
 
 **Play internal testing** (`dev`). The bundle appears as a **draft** release on the internal track
 with the German changelog. Open it and roll it out.
@@ -311,7 +327,7 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
   works on `dev` today and fails on `main`.
 - **Environments and secrets** as listed above.
 - **`TESTFLIGHT_UPLOADS_ENABLED`** and **`PLAY_UPLOADS_ENABLED`**, the variables that gate the
-  two uploads.
+  two uploads, and **`TESTFLIGHT_GROUPS`**, the TestFlight groups every `dev` build is handed to.
 
 ## What is not automated yet
 

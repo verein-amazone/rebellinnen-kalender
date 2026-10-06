@@ -86,10 +86,10 @@ jobs:
     # deploy key are the same credentials whichever track the build is staged into, and a second
     # environment would only be a second copy of them to keep in sync.
     environment: testflight
-    # The archive dominates the run; `pilot` then waits only until the build appears in App Store
-    # Connect, long enough to attach the release notes, and leaves the rest of Apple's processing to
-    # finish on its own.
-    timeout-minutes: 60
+    # The archive dominates the run. A `dev` build handed to TestFlight groups then waits for Apple's
+    # processing to finish (the Fastfile caps that at 45 minutes); otherwise `pilot` waits only until
+    # the build appears in App Store Connect, long enough to attach the release notes.
+    timeout-minutes: 100
     permissions:
       contents: read
     steps:
@@ -181,6 +181,9 @@ jobs:
           TAG: ${{ inputs.tag }}
           # Read by the Fastfile and passed to build_app; unset outside CI.
           SPM_CLONE_PATH: ${{ runner.temp }}/spm
+          # The TestFlight groups a `dev` build goes to, comma-separated. Only `ios beta`
+          # reads it; empty means upload only. See docs/release.md.
+          TESTFLIGHT_GROUPS: ${{ vars.TESTFLIGHT_GROUPS }}
         run: |
           notes="$(cat "$RUNNER_TEMP/notes/testflight.txt")"
           if [ "$CHANNEL" = 'release' ]; then

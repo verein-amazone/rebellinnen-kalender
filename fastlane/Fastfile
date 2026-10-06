@@ -2,17 +2,21 @@
 # release notes - is semantic-release's job (.releaserc.json); everything after it belongs to the
 # App Store Connect and Play consoles.
 #
-# There are two channels, and every lane in both of them stages rather than publishes:
+# There are two channels:
 #
-#   dev  -> `ios beta`    TestFlight, "What to Test" filled in, no group attached
+#   dev  -> `ios beta`    TestFlight, "What to Test" filled in, handed to the testing groups
+#                         named in TESTFLIGHT_GROUPS (upload only when that is empty)
 #           `android internal`  Play internal testing, draft release
 #   main -> `ios release` App Store Connect, build attached to the version with its "What's New"
 #                         text, *not* submitted for review and *not* set to auto-release
 #           `android production`  Play production track, draft release
 #
 # So a merge into `main` leaves both stores one deliberate click from live: "Submit for Review" in
-# App Store Connect, "Publish" in the Play console. Nothing here ever reaches a user on its own -
-# that is the whole point of the arrangement, and it is what makes a failed upload harmless.
+# App Store Connect, "Publish" in the Play console. Nothing on `main` ever reaches a user on its own.
+#
+# TestFlight on `dev` is the one exception, on purpose: leaving each build for someone to attach by
+# hand meant nobody did, and testers sent a whole round of feedback from rc.8 while rc.14 was out,
+# about bugs fixed four releases earlier. External groups still pass Apple's beta review first.
 #
 # Run by .github/workflows/store-upload.yml; see docs/release.md for the credentials.
 
@@ -41,6 +45,10 @@ SPM_CLONE_PATH = ENV.fetch('SPM_CLONE_PATH', nil)
 DUPLICATE_BUILD_ERROR = /-19232|ENTITY_ERROR\.ATTRIBUTE\.INVALID\.DUPLICATE/
 UPLOAD_ATTEMPTS = 3
 UPLOAD_RETRY_SECONDS = 30
+
+# Handing a build to a group needs Apple to have finished processing it, which usually takes 5-20
+# minutes after the upload. Past this the lane gives up rather than holding the runner.
+PROCESSING_TIMEOUT_SECONDS = 45 * 60
 
 # Reads the App Store Connect API key from the environment.
 #
@@ -111,6 +119,10 @@ end
 # Only the upload is retried, never the archive: the .ipa exists by the time this runs and both
 # upload actions take it from the lane context, so a further attempt costs seconds.
 #
+# Returns `:uploaded`, or `:delivered_before` when the build turned out to be there already - in
+# which case whatever the upload action would have done after the transfer (waiting for processing,
+# handing the build to groups) has not happened, and the caller has to catch up on it.
+#
 # Treating a duplicate as success does mean a build number that failed to move reads as success.
 # It cannot go unnoticed here - the number comes from the released version via
 # scripts/sync-native-version.mjs, and semantic-release moves the version on every release - so a
@@ -121,13 +133,14 @@ def upload_tolerating_a_delivered_build
   begin
     attempt += 1
     yield
+    :uploaded
   # Rescued this broadly on purpose: the class fastlane wraps an altool failure in has moved
   # between fastlane releases, and the block holds nothing but the upload action.
   rescue StandardError => e
     if DUPLICATE_BUILD_ERROR.match?(e.message.to_s)
       UI.important('App Store Connect already has this build - an earlier attempt delivered it.')
       UI.important('Nothing left to upload; treating the upload as done.')
-      return
+      return :delivered_before
     end
 
     raise if attempt >= UPLOAD_ATTEMPTS
@@ -137,6 +150,55 @@ def upload_tolerating_a_delivered_build
     sleep(UPLOAD_RETRY_SECONDS)
     retry
   end
+end
+
+# The TestFlight groups a `dev` build is handed to, from the TESTFLIGHT_GROUPS repository variable:
+# group names exactly as App Store Connect shows them, comma-separated. Empty or unset means upload
+# only, which is what a fork or a fresh setup without testers gets.
+def testflight_groups
+  ENV.fetch('TESTFLIGHT_GROUPS', '').split(',').map(&:strip).reject(&:empty?)
+end
+
+# How a `dev` build is handed out: the groups that still need it attached, and whether any of them
+# is external.
+TestflightDistribution = Struct.new(:groups, :external) do
+  def none?
+    groups.empty?
+  end
+end
+
+# Checks the configured groups against App Store Connect before the archive, so a typo fails the
+# lane in seconds rather than after twenty minutes of xcodebuild - pilot itself skips a group name
+# it cannot match without a word, which is how a misnamed group would go unnoticed for good.
+#
+# An internal group with automatic distribution ("hasAccessToAllBuilds") already receives every
+# build by itself and is left out. An external group makes the whole distribution external: pilot
+# then submits the build to Apple's beta review, and its testers get it once Apple approves - for
+# later builds of an already reviewed version usually within minutes.
+def testflight_distribution(names)
+  return TestflightDistribution.new([], false) if names.empty?
+
+  app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
+  UI.user_error!("App Store Connect has no app #{APP_IDENTIFIER}.") if app.nil?
+
+  available = app.get_beta_groups
+  selected = names.map do |name|
+    group = available.find { |candidate| candidate.name == name }
+    next group unless group.nil?
+
+    known = available.map(&:name).join(', ')
+    UI.user_error!("TESTFLIGHT_GROUPS names \"#{name}\", which App Store Connect does not have. " \
+                   "Groups for this app: #{known}")
+  end
+
+  needing = selected.reject do |group|
+    next false unless group.is_internal_group && group.has_access_to_all_builds
+
+    UI.message("\"#{group.name}\" receives every build automatically; nothing to attach.")
+    true
+  end
+
+  TestflightDistribution.new(needing.map(&:name), needing.any? { |group| !group.is_internal_group })
 end
 
 # Uploads the release bundle to one Play track as a draft.
@@ -166,24 +228,44 @@ end
 default_platform(:ios)
 
 platform :ios do
-  desc 'Archive the app and upload it to TestFlight. Does not distribute it to any group.'
+  desc 'Archive the app, upload it to TestFlight and hand it to the internal TESTFLIGHT_GROUPS.'
   lane :beta do |options|
     api_key = app_store_connect_key
+    distribution = testflight_distribution(testflight_groups)
     archive_signed_ipa(api_key)
 
-    # `skip_waiting_for_build_processing` with a changelog is not the same as without one: pilot
-    # waits until the build appears in App Store Connect, sets "What to Test", and only then stops
-    # waiting. So the notes are attached either way and the job does not sit idle through the rest
-    # of Apple's processing.
-    upload_tolerating_a_delivered_build do
+    # With groups to hand the build to, pilot has to wait for Apple's processing to finish - a build
+    # still processing cannot be attached to a group. Without any, it only waits until the build
+    # appears in App Store Connect, long enough to set "What to Test", and the job ends there.
+    delivery = upload_tolerating_a_delivered_build do
       upload_to_testflight(
         api_key: api_key,
         changelog: options[:changelog],
-        distribute_external: false,
-        notify_external_testers: false,
-        skip_waiting_for_build_processing: true
+        groups: distribution.none? ? nil : distribution.groups,
+        distribute_external: distribution.external,
+        notify_external_testers: distribution.external,
+        skip_waiting_for_build_processing: distribution.none?,
+        wait_processing_timeout_duration: PROCESSING_TIMEOUT_SECONDS
       )
     end
+    next if delivery == :uploaded || distribution.none?
+
+    # The build was delivered by an earlier attempt whose follow-up failed - the App Store Connect
+    # hiccup `upload_tolerating_a_delivered_build` describes, or a processing wait that ran out. So
+    # it may never have reached the groups: hand it over now, by the version and number in the .ipa
+    # this run archived, which are the ones App Store Connect already has.
+    ipa = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    upload_to_testflight(
+      api_key: api_key,
+      distribute_only: true,
+      app_version: FastlaneCore::IpaFileAnalyser.fetch_app_version(ipa),
+      build_number: FastlaneCore::IpaFileAnalyser.fetch_app_build(ipa),
+      changelog: options[:changelog],
+      groups: distribution.groups,
+      distribute_external: distribution.external,
+      notify_external_testers: distribution.external,
+      wait_processing_timeout_duration: PROCESSING_TIMEOUT_SECONDS
+    )
   end
 
   desc 'Archive the app and stage it as an App Store version. Does not submit it for review.'
