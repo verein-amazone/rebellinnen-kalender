@@ -50,6 +50,20 @@ test.describe('application shell', () => {
     await expect(page.getByRole('heading', { name: 'Kalender', level: 1 })).toBeFocused();
   });
 
+  test('returns from a page under „Über die App“ to „Über die App“, not to the settings', async ({
+    page,
+  }) => {
+    for (const name of ['Bildnachweise', 'Open-Source-Lizenzen']) {
+      await page.goto('/settings/about');
+      await page.getByRole('link', { name }).click();
+      await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
+
+      await page.getByRole('button', { name: 'Zurück' }).click();
+
+      await expect(page).toHaveURL(/\/settings\/about$/);
+    }
+  });
+
   test('pages the calendar by dragging the grid sideways, and still selects a tapped day', async ({
     page,
   }) => {
