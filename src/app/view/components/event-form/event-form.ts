@@ -10,6 +10,7 @@ import {
   resource,
 } from '@angular/core';
 import {
+  FormField,
   FormRoot,
   applyWhen,
   disabled,
@@ -40,7 +41,9 @@ import {
   type RecurrenceRule,
   type Weekday,
 } from '@app/interactors/calendar/recurrence';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { CalendarPickerField } from '@app/view/components/field/calendar-picker-field';
+import { ReminderListField } from '@app/view/components/reminder-list-field/reminder-list-field';
 import { TextareaField } from '@app/view/components/field/textarea-field';
 import { TextField } from '@app/view/components/field/text-field';
 import { DateTimeField } from './date-time-field';
@@ -82,6 +85,8 @@ interface EventFormModel {
   /** `YYYY-MM-DD`, the last day an occurrence may start on; only read for `repeatEnd: 'until'`. */
   readonly untilDate: string;
   readonly count: number;
+  /** Minutes before the start, prefilled with the defaults or the appointment's own list. */
+  readonly reminders: number[];
 }
 
 /** The fields that describe when the appointment takes place, compared to tell an edit apart. */
@@ -110,6 +115,7 @@ function blankModel(): EventFormModel {
     endDate: '',
     endTime: '',
     ...noRepeat(),
+    reminders: [],
   };
 }
 
@@ -154,13 +160,16 @@ function noRepeat(): Pick<EventFormModel, (typeof REPEAT_FIELDS)[number]> {
     TextareaField,
     CalendarPickerField,
     DateTimeField,
+    FormField,
     RecurrenceField,
+    ReminderListField,
   ],
   templateUrl: './event-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventForm {
   private readonly calendarsInteractor = inject(AppCalendarsInteractor);
+  protected readonly notificationPreferences = inject(NotificationPreferencesInteractor);
 
   readonly mode = input.required<AppEventFormMode>();
   /** Edit mode's prefill source. Ignored in create mode. */
@@ -182,6 +191,11 @@ export class EventForm {
    * appointment.
    */
   readonly initialSeriesStart = input<TemporalValue | null>(null);
+  /**
+   * Edit mode's own reminders of the appointment, supplied like `initialNote`. `null` when it
+   * follows the default reminders.
+   */
+  readonly initialReminders = input<readonly number[] | null>(null);
   /**
    * Create mode's date prefill, e.g. the day the user was viewing when they tapped „Neuer Termin“.
    * Ignored in edit mode, where the date comes from `initialOccurrence` instead.
@@ -221,19 +235,24 @@ export class EventForm {
   private readonly initialModel = computed<EventFormModel>(() => {
     if (this.mode() === 'edit') {
       const occurrence = this.initialOccurrence();
-      return occurrence === null
-        ? blankModel()
-        : modelFromOccurrence(
-            occurrence,
-            this.initialNote(),
-            this.initialRrule(),
-            this.initialSeriesStart() ?? occurrence.start,
-          );
+      if (occurrence === null) {
+        return blankModel();
+      }
+      const model = modelFromOccurrence(
+        occurrence,
+        this.initialNote(),
+        this.initialRrule(),
+        this.initialSeriesStart() ?? occurrence.start,
+      );
+      return {
+        ...model,
+        reminders: [...(this.initialReminders() ?? this.defaultReminders(model.allDay))],
+      };
     }
 
     const date = this.initialDate();
     if (date === null) {
-      return blankModel();
+      return { ...blankModel(), reminders: [...this.defaultReminders(false)] };
     }
 
     // Mirrors the date prefill: a fresh appointment starts from "now", rounded up to the next
@@ -249,6 +268,7 @@ export class EventForm {
       startTime: startTime.toString({ smallestUnit: 'minute' }),
       endDate: date,
       endTime: startTime.add({ hours: 1 }).toString({ smallestUnit: 'minute' }),
+      reminders: [...this.defaultReminders(false)],
     };
   });
 
@@ -519,6 +539,25 @@ export class EventForm {
   });
 
   /**
+   * Switching between timed and all-day swaps the reminders to the other default list - „15 minutes
+   * before“ means nothing at midnight - as long as the user has not chosen reminders themselves.
+   */
+  private previousAllDay: boolean | null = null;
+  private readonly swapRemindersWithAllDay = effect(() => {
+    const allDay = this.form.allDay().value();
+    const previous = this.previousAllDay;
+    this.previousAllDay = allDay;
+
+    const reminders = this.form.reminders();
+    if (previous === null || previous === allDay || reminders.dirty()) {
+      return;
+    }
+    if (sameReminders(reminders.value(), this.defaultReminders(previous))) {
+      reminders.value.set([...this.defaultReminders(allDay)]);
+    }
+  });
+
+  /**
    * Whether an external save button (living in the surrounding screen's header, wired to this form
    * via `form="event-form"`) should be enabled. Public and unprefixed so a parent template can read
    * it through a `#`-reference on `<app-event-form>` - Angular only allows a parent template to
@@ -538,6 +577,11 @@ export class EventForm {
       ...start,
       value: `${this.recurrenceStartDate()}${start.value.slice(10)}`,
     });
+    // A list equal to the current defaults is stored as „follow the defaults“, so changing them in
+    // the settings later still reaches this appointment.
+    const reminders = sameReminders(value.reminders, this.defaultReminders(value.allDay))
+      ? null
+      : value.reminders;
 
     if (this.mode() === 'create') {
       return {
@@ -551,6 +595,7 @@ export class EventForm {
           start,
           end,
           rrule,
+          reminders,
         },
       };
     }
@@ -566,8 +611,21 @@ export class EventForm {
         note,
         ...(changed(value, initial, TIMING_FIELDS) ? { start, end } : {}),
         ...(changed(value, initial, REPEAT_FIELDS) ? { rrule } : {}),
+        // Only a list the user edited counts: switching to all-day swaps untouched defaults, and a
+        // series following the defaults already gets the right list for each occurrence. Emitting
+        // it anyway would make the edit series-wide and rule out „Nur dieser Termin“.
+        ...(this.form.reminders().dirty() &&
+        !sameStoredReminders(reminders, this.initialReminders())
+          ? { reminders }
+          : {}),
       },
     };
+  }
+
+  private defaultReminders(allDay: boolean): readonly number[] {
+    return allDay
+      ? this.notificationPreferences.allDayDefaults()
+      : this.notificationPreferences.timedDefaults();
   }
 
   /** `start` is the start on the day the rule is anchored on; see `recurrenceStartDate`. */
@@ -607,6 +665,8 @@ function modelFromOccurrence(
     endDate,
     endTime: end?.time ?? '',
     ...repeatFromRule(initialRrule, seriesStart),
+    // Filled in by the caller, which knows the defaults.
+    reminders: [],
   };
 }
 
@@ -645,6 +705,14 @@ function ruleOf(value: EventFormModel, frequency: RecurrenceRule['frequency']): 
           ? { kind: 'count', count: value.count }
           : { kind: 'never' },
   };
+}
+
+function sameReminders(a: readonly number[], b: readonly number[]): boolean {
+  return a.length === b.length && a.every((minutes) => b.includes(minutes));
+}
+
+function sameStoredReminders(a: readonly number[] | null, b: readonly number[] | null): boolean {
+  return a === null || b === null ? a === b : sameReminders(a, b);
 }
 
 function isFrequency(repeat: RepeatChoice): repeat is RecurrenceRule['frequency'] {

@@ -22,6 +22,22 @@
     [customSummary]="customRepeatSummary()"
   />
 
+  @if (notificationPreferences.isSupported) {
+    @if (notificationPreferences.enabled()) {
+      <app-reminder-list-field
+        id="event-form-reminders"
+        label="Erinnerungen"
+        [allDay]="form.allDay().value()"
+        [formField]="form.reminders"
+      />
+    } @else {
+      <p class="text-muted-foreground text-sm">
+        Erinnerungen sind ausgeschaltet. Du kannst sie in den Einstellungen unter
+        „Benachrichtigungen“ einschalten.
+      </p>
+    }
+  }
+
   <app-text-field id="event-form-location" label="Ort" [field]="form.location" />
 
   @if (hasNoWritableCalendars()) {

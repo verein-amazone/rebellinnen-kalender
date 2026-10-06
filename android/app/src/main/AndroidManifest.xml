@@ -97,4 +97,14 @@
     <!-- @ebarooni/capacitor-calendar (#20 device-calendar connection) -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <!-- @capacitor/local-notifications (#81 appointment reminders). The plugin itself declares
+         POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED and SCHEDULE_EXACT_ALARM. A calendar app may hold
+         USE_EXACT_ALARM, which Android 13+ grants without asking, so a reminder arrives on time
+         instead of in the next inexact batch; it needs the "exact alarm" declaration in the Play
+         Console. SCHEDULE_EXACT_ALARM only remains for Android 12, where USE_EXACT_ALARM does not
+         exist yet. -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
 </manifest>

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
 
@@ -12,6 +13,7 @@ import {
   type WritableAppCalendar,
 } from '@app/interactors/calendar/app-calendars.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { EventForm, type AppEventFormResult } from './event-form';
@@ -90,7 +92,10 @@ async function setup(inputs: {
   initialDate?: string | null;
   initialRrule?: string | null;
   initialSeriesStart?: TemporalValue | null;
+  initialReminders?: readonly number[] | null;
   calendars?: WritableAppCalendar[];
+  /** Reminders on, with these defaults; leave out for the web, where the section is hidden. */
+  reminderDefaults?: { timed: number[]; allDay: number[] };
 }) {
   const interactor = new FakeAppCalendarsInteractor();
   if (inputs.calendars !== undefined) {
@@ -103,6 +108,19 @@ async function setup(inputs: {
     providers: [
       { provide: AppCalendarsInteractor, useValue: interactor },
       { provide: SheetService, useValue: sheets },
+      ...(inputs.reminderDefaults === undefined
+        ? []
+        : [
+            {
+              provide: NotificationPreferencesInteractor,
+              useValue: {
+                isSupported: true,
+                enabled: signal(true),
+                timedDefaults: signal(inputs.reminderDefaults.timed),
+                allDayDefaults: signal(inputs.reminderDefaults.allDay),
+              },
+            },
+          ]),
     ],
   });
 
@@ -122,6 +140,9 @@ async function setup(inputs: {
   }
   if (inputs.initialSeriesStart !== undefined) {
     fixture.componentRef.setInput('initialSeriesStart', inputs.initialSeriesStart);
+  }
+  if (inputs.initialReminders !== undefined) {
+    fixture.componentRef.setInput('initialReminders', inputs.initialReminders);
   }
   await fixture.whenStable();
 
@@ -255,6 +276,7 @@ describe('EventForm, create mode', () => {
       start: { kind: 'zoned', value: '2026-09-01T18:00:00', timeZone: deviceZone },
       end: { kind: 'zoned', value: '2026-09-01T19:30:00', timeZone: deviceZone },
       rrule: null,
+      reminders: null,
     });
   });
 
@@ -866,5 +888,121 @@ describe('EventForm, repetition', () => {
 
     const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
     expect(changes).not.toHaveProperty('rrule');
+  });
+});
+
+describe('EventForm, reminders', () => {
+  const reminderDefaults = { timed: [15], allDay: [900] };
+
+  function reminderLabels(element: HTMLElement): string[] {
+    return [...element.querySelectorAll('app-reminder-list-field .rk-row-label')].map(
+      (label) => label.textContent?.trim() ?? '',
+    );
+  }
+
+  it('starts a new appointment with the default reminders and stores them as „follow defaults“', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    expect(reminderLabels(form.element)).toContain('15 Minuten vorher');
+
+    await form.submit();
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toBeNull();
+  });
+
+  it("adds a reminder from the presets and stores the list as the appointment's own", async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    form.sheets.results = [60];
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('Erinnerung hinzufügen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    expect(form.sheets.opens[0].heading).toBe('Erinnerung hinzufügen');
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toEqual([
+      60, 15,
+    ]);
+  });
+
+  it('removes a reminder by its labelled button', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('15 Minuten vorher entfernen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toEqual([]);
+  });
+
+  it('swaps to the all-day defaults when the appointment becomes all-day', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.expandDateTime();
+    await form.pickAllDay(true);
+
+    expect(reminderLabels(form.element)).toContain('1 Tag vorher um 09:00');
+  });
+
+  it('leaves default reminders out of a switch to all-day, so one occurrence can change alone', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({ seriesId: 'series-1' }),
+      initialNote: '',
+      initialRrule: 'FREQ=WEEKLY;BYDAY=MO',
+      initialReminders: null,
+      reminderDefaults,
+    });
+    await form.expandDateTime();
+    await form.pickAllDay(true);
+
+    expect(reminderLabels(form.element)).toContain('1 Tag vorher um 09:00');
+
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).toHaveProperty('start');
+    expect(changes).not.toHaveProperty('reminders');
+  });
+
+  it('emits reminders the user changed in an edit', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+      initialReminders: null,
+      reminderDefaults,
+    });
+
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('15 Minuten vorher entfernen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.reminders).toEqual([]);
+  });
+
+  it('leaves the reminders out of an edit that does not touch them', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+      initialReminders: [60],
+      reminderDefaults,
+    });
+
+    expect(reminderLabels(form.element)).toContain('1 Stunde vorher');
+
+    await form.type('event-form-title', 'Zahnarzt (verschoben)');
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).not.toHaveProperty('reminders');
   });
 });

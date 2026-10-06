@@ -354,7 +354,7 @@ Only create cross-cutting code when it is actually shared.
 
 - `infrastructure/` - stateless wrappers around technical UI/device capabilities: the launcher icon,
   haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard,
-  the OS text scale, the app lifecycle, page focus, change notifications. Interactors and presenters
+  the OS text scale, the app lifecycle, local notifications, page focus, change notifications. Interactors and presenters
   both use them. The dividing line against `data/gateways/` is whether the thing is a **data
   source**: the device calendar is queryable data and therefore a gateway, while haptics are not.
   `app-lifecycle.ts` is the single owner of "the app came back to the foreground"; nothing else

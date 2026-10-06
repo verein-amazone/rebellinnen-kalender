@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  LucideBell,
   LucideCheck,
   LucideExternalLink,
   LucidePencil,
@@ -33,6 +34,8 @@ import {
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { describeStoredRecurrence } from '@app/interactors/calendar/recurrence';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
+import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
@@ -65,6 +68,7 @@ import {
   imports: [
     DatePipe,
     EventForm,
+    LucideBell,
     FocusedScreenScaffold,
     LucideCheck,
     LucideExternalLink,
@@ -82,6 +86,7 @@ export class EventDetailPage {
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly haptics = inject(HapticsInteractor);
+  private readonly notificationPreferences = inject(NotificationPreferencesInteractor);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
@@ -139,6 +144,34 @@ export class EventDetailPage {
   protected readonly seriesStart = computed(() => {
     const record = this.recordResource.value();
     return record?.rrule ? record.start : null;
+  });
+  protected readonly reminders = computed(() => this.recordResource.value()?.reminders ?? null);
+
+  /**
+   * „15 Minuten vorher, 1 Stunde vorher“ for an app-owned appointment while reminders are on -
+   * the appointment's own list or the defaults it follows. `null` when nothing will remind.
+   */
+  protected readonly reminderSummary = computed(() => {
+    const record = this.recordResource.value();
+    const occurrence = this.occurrence();
+    if (
+      record === undefined ||
+      record === null ||
+      occurrence === null ||
+      !this.notificationPreferences.isSupported ||
+      !this.notificationPreferences.enabled()
+    ) {
+      return null;
+    }
+
+    const reminders =
+      record.reminders ??
+      (occurrence.allDay
+        ? this.notificationPreferences.allDayDefaults()
+        : this.notificationPreferences.timedDefaults());
+    return reminders.length === 0
+      ? null
+      : reminders.map((minutes) => reminderLabel(minutes, occurrence.allDay)).join(', ');
   });
 
   /** „Jede Woche am Montag“ for an app-owned series; `null` for anything else. */
@@ -233,12 +266,13 @@ export class EventDetailPage {
     }
 
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
-      // A changed rule describes the series, never a single occurrence.
-      const ruleChanged = result.changes.rrule !== undefined;
+      // A changed rule or changed reminders describe the series, never a single occurrence.
+      const ruleChanged =
+        result.changes.rrule !== undefined || result.changes.reminders !== undefined;
       const scope = await this.askRecurrenceScope(
         'Was möchtest du ändern?',
         ruleChanged
-          ? 'Dieser Termin gehört zu einer Serie. Ab wann soll die neue Wiederholung gelten?'
+          ? 'Dieser Termin gehört zu einer Serie. Ab wann soll die Änderung gelten?'
           : 'Dieser Termin gehört zu einer Serie. Was soll geändert werden?',
         !ruleChanged,
       );

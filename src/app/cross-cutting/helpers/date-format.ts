@@ -31,6 +31,11 @@ export function formatDayLong(day: string): string {
   return formatDate(day, 'fullDate', LOCALE);
 }
 
+/** `2026-08-03` → „Mo., 3. Aug.", for a day close enough that the year goes without saying. */
+export function formatDayShort(day: string): string {
+  return formatDate(day, 'EEE, d. MMM', LOCALE);
+}
+
 /** `2026-08-15` → „August 2026". */
 export function formatMonthYear(day: string): string {
   return formatDate(day, 'MMMM y', LOCALE);

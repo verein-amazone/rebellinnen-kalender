@@ -75,6 +75,13 @@
           </p>
         }
 
+        @if (reminderSummary(); as summary) {
+          <p class="text-muted-foreground flex items-start gap-2">
+            <svg lucideBell class="rk-icon-sm mt-1 shrink-0" aria-hidden="true"></svg>
+            <span><span class="sr-only">Erinnerung: </span>{{ summary }}</span>
+          </p>
+        }
+
         @if (currentOccurrence.location; as location) {
           <p class="text-muted-foreground">{{ location }}</p>
         }
@@ -140,6 +147,7 @@
         [initialNote]="note()"
         [initialRrule]="rrule()"
         [initialSeriesStart]="seriesStart()"
+        [initialReminders]="reminders()"
         (save)="handleSave($event)"
       />
     }

@@ -6,11 +6,12 @@ import {
   inject,
   Injector,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
@@ -28,12 +29,20 @@ export class App {
   private readonly deviceCalendarSync = inject(DeviceCalendarSyncInteractor);
   private readonly calendarMaintenance = inject(CalendarMaintenanceInteractor);
   private readonly lifecycle = inject(AppLifecycle);
+  private readonly reminders = inject(ReminderSchedulerInteractor);
+  private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
   /** Guards the asynchronous refresh chain against resolving into a torn-down injector. */
   private destroyed = false;
 
   constructor() {
+    // Registered first thing: a tap on a reminder may be what launched the app, and the OS holds
+    // that tap back only until a handler exists.
+    this.reminders.onReminderTapped(
+      (occurrenceId) => void this.router.navigate(['/calendar', 'event', occurrenceId]),
+    );
+
     // The selected appearance is applied in one place, for the whole app, whenever it changes. The
     // OS scale is part of it because it is what applies while the text size is left on `system`.
     effect(() => {
@@ -88,6 +97,9 @@ export class App {
       return;
     }
 
+    // Recomputed from the repaired occurrences on every start and resume, which also covers a zone
+    // change, an app update and reminders that fired while the app was closed.
+    void this.reminders.reschedule();
     void this.deviceCalendarSync.refresh();
     void import('@app/interactors/calendar/ics-subscription.interactor').then(
       ({ IcsSubscriptionInteractor }) =>

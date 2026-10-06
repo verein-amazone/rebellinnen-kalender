@@ -24,7 +24,9 @@ import {
   NativeCalendarGateway,
   type DeviceEventRecurrence,
 } from '@app/data/gateways/native-calendar.gateway';
+import { NotificationPreferencesStore } from '@app/data/stores/notification-preferences.store';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 
 // Views describe times through the interactor's types; the storage type is the domain language.
 export type { TemporalValue } from '@app/data/entities/temporal-value';
@@ -48,6 +50,11 @@ export interface AppEventDraft {
   readonly start: TemporalValue;
   readonly end: TemporalValue | null;
   readonly rrule: string | null;
+  /**
+   * Minutes before the start to be reminded at. Absent or `null` follows the default reminders in
+   * the settings; `[]` is an explicit „no reminder“.
+   */
+  readonly reminders?: readonly number[] | null;
 }
 
 /** A partial edit; absent fields keep their current value. */
@@ -58,6 +65,8 @@ export interface AppEventChanges {
   readonly start?: TemporalValue;
   readonly end?: TemporalValue | null;
   readonly rrule?: string | null;
+  /** Reminders belong to the whole series, like the rule; see `AppEventDraft.reminders`. */
+  readonly reminders?: readonly number[] | null;
 }
 
 /**
@@ -71,6 +80,8 @@ export class AppEventEditingInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly nativeCalendar = inject(NativeCalendarGateway);
   private readonly deviceSync = inject(DeviceCalendarSyncInteractor);
+  private readonly reminders = inject(ReminderSchedulerInteractor);
+  private readonly notificationPreferences = inject(NotificationPreferencesStore);
 
   /**
    * The full canonical record behind an item, for a consumer that needs a field the read-model
@@ -107,11 +118,13 @@ export class AppEventEditingInteractor {
       rrule: draft.rrule,
       predecessorSeriesId: null,
       ruleRevision: 0,
+      reminders: draft.reminders ?? null,
       createdAt: context.nowUtc,
       updatedAt: context.nowUtc,
     };
 
     await this.repository.createItem(record, context);
+    void this.reminders.reschedule();
     return record.id;
   }
 
@@ -141,12 +154,25 @@ export class AppEventEditingInteractor {
       startUtc,
       endUtc,
       isAllDay,
+      alertMinutesBefore: this.deviceAlerts(draft, isAllDay),
       recurrence:
         draft.rrule === null ? null : toDeviceRecurrence(draft.rrule, draft.start, deviceZone),
     });
 
     await this.deviceSync.refresh({ force: true });
     return eventId;
+  }
+
+  /**
+   * The reminders a device event is written with. The OS calendar delivers them, so they follow the
+   * same switch and defaults as the app's own reminders: none while reminders are off.
+   */
+  private deviceAlerts(draft: AppEventDraft, isAllDay: boolean): readonly number[] {
+    const preferences = this.notificationPreferences.preferences();
+    if (!preferences.enabled) {
+      return [];
+    }
+    return draft.reminders ?? (isAllDay ? preferences.allDayDefaults : preferences.timedDefaults);
   }
 
   /** Edits a standalone item, or every occurrence of a series. */
@@ -179,10 +205,12 @@ export class AppEventEditingInteractor {
         end: changes.end !== undefined ? changes.end : item.end,
         rrule,
         ruleRevision: patternChanged ? item.ruleRevision + 1 : item.ruleRevision,
+        reminders: changes.reminders !== undefined ? changes.reminders : item.reminders,
         updatedAt: context.nowUtc,
       },
       context,
     );
+    void this.reminders.reschedule();
   }
 
   /**
@@ -228,6 +256,7 @@ export class AppEventEditingInteractor {
     };
 
     await this.repository.applyException(exception, context);
+    void this.reminders.reschedule();
   }
 
   /** Cancels only one occurrence of a series. */
@@ -248,6 +277,7 @@ export class AppEventEditingInteractor {
       },
       context,
     );
+    void this.reminders.reschedule();
   }
 
   /**
@@ -296,21 +326,25 @@ export class AppEventEditingInteractor {
       ),
       predecessorSeriesId: seriesId,
       ruleRevision: 0,
+      reminders: changes.reminders !== undefined ? changes.reminders : master.reminders,
       createdAt: context.nowUtc,
       updatedAt: context.nowUtc,
     };
 
     await this.repository.splitSeries(seriesId, originalStart, continuation, context);
+    void this.reminders.reschedule();
   }
 
   /** Deletes this and all following occurrences by ending the series before the selected one. */
   async deleteFollowing(seriesId: string, originalStart: string): Promise<void> {
     await this.repository.deleteFollowing(seriesId, originalStart, this.context());
+    void this.reminders.reschedule();
   }
 
   /** Deletes a standalone item or an entire series. */
   async deleteItem(itemId: string): Promise<void> {
     await this.repository.deleteItem(itemId);
+    void this.reminders.reschedule();
   }
 
   private context(): CalendarContext {

@@ -12,6 +12,7 @@ dependencies {
     implementation project(':capacitor-community-sqlite')
     implementation project(':capacitor-app')
     implementation project(':capacitor-keyboard')
+    implementation project(':capacitor-local-notifications')
     implementation project(':capacitor-text-zoom')
     implementation project(':capawesome-capacitor-accessibility-preferences')
     implementation project(':capawesome-capacitor-app-icon')

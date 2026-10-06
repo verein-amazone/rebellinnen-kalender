@@ -336,6 +336,40 @@ views. Permissions are only ever requested from the explicit „connect device c
 never on startup. Writing goes the other way only once: `createEvent` creates a standalone event or a
 native series and leaves it to the OS from then on.
 
+## Appointment reminders
+
+Reminders (#81) are stored as **minutes before the start**, never as instants, so a moved
+appointment or a whole series needs no rewrite. For an all-day appointment the start is midnight of
+its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Tag um 09:00“ is `-540`.
+
+- `app_items.reminders` (migration 018) holds a JSON array, or `NULL` for „follow the default
+  reminders“ - every row from before the migration, and every appointment whose list equals the
+  defaults when it is saved, so changing the defaults later still reaches it. `[]` is an explicit
+  „no reminder“. Reminders belong to the whole series, like the rule: an occurrence override has
+  none of its own, and the scope dialog does not offer „Nur dieser Termin“ for a changed list.
+- The switch and the two default lists (timed `[15]`, all-day `[900]`, at most five each) live in
+  `notification-preferences.store.ts`. Reminders are off until the user turns them on, in the
+  settings or the introduction's last step - the only places the app asks for the notification
+  permission, always from a tap.
+- `ReminderSchedulerInteractor` hands the OS the **complete set** on every app start, resume and
+  edit: the next 60 reminders of app-owned occurrences in enabled calendars, computed from the
+  materialized `occurrences` rows (`CalendarRepository.upcomingReminderCandidates`). iOS keeps at
+  most 64 pending notifications per app and silently drops the rest; staying below that keeps the
+  choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
+  a zone change and an app update with one code path. Runs are serialized and coalesced.
+- A notification id is a stable 31-bit FNV-1a hash of `<occurrence id>|<minutes>`, moved to the
+  next free number on a collision within one batch. The occurrence id travels in the
+  notification's `extra`, and `App` opens `/calendar/event/<id>` when it is tapped.
+- Device-calendar appointments are never scheduled locally: their reminders are written as native
+  alerts (`DeviceEventDraft.alertMinutesBefore`), so the OS calendar delivers them. While reminders
+  are off, a new device event gets none.
+- Android: `USE_EXACT_ALARM` (granted without asking from Android 13, needs the Play Console's
+  „exact alarm“ declaration as a calendar app) keeps reminders on time. Without the grant, the
+  scheduler falls back to inexact delivery instead of letting the plugin open the system settings
+  from a background reschedule.
+- The web build cannot deliver a reminder while the page is closed; the settings say so and the form
+  hides the section.
+
 ## What is and is not stored in SQLite
 
 Stored locally:
@@ -366,8 +400,9 @@ subscription explicitly opts into `http`.
 appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
 greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
 (`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
-hidden and in which order the chips appear (`calendar-chips.store.ts`), and whether the first-launch
-introduction was seen and which step it reached (`intro.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+hidden and in which order the chips appear (`calendar-chips.store.ts`), whether the first-launch
+introduction was seen and which step it reached (`intro.store.ts`), and the reminder switch and default reminders
+(`notification-preferences.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 

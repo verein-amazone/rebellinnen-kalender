@@ -13,6 +13,7 @@ import { ImageCreditsPage } from './image-credits/image-credits.page';
 import { ImpulsePage } from './impulse/impulse.page';
 import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
+import { NotificationsPage } from './notifications/notifications.page';
 import { ProfilePage } from './profile/profile.page';
 import { SettingsOverviewPage } from './overview/overview.page';
 import { SettingsRemindersPage } from './reminders/reminders.page';
@@ -33,6 +34,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'impulse', component: ImpulsePage, title: 'Tagesimpuls' },
   { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
+  { path: 'notifications', component: NotificationsPage, title: 'Benachrichtigungen' },
   {
     path: 'calendars/curated',
     component: CuratedCalendarsPage,

@@ -18,6 +18,12 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: 'native',
     },
+    // Appointment reminders (#81). Android draws the status-bar icon as a white silhouette, so it
+    // needs its own monochrome drawable rather than the launcher icon; the colour is the brand red.
+    LocalNotifications: {
+      smallIcon: 'ic_stat_notification',
+      iconColor: '#E92F2A',
+    },
   },
 };
 

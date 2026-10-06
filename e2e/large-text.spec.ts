@@ -35,6 +35,7 @@ test.describe('large text', () => {
         '/settings/vibration',
         '/settings/reminders',
         '/settings/calendars',
+        '/settings/notifications',
         '/calendar/event/new',
         '/intro/1',
         '/intro/2',

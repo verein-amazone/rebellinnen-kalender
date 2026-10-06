@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  LucideBell,
   LucideBookOpen,
   LucideCalendarDays,
   LucideSettings,
@@ -11,10 +12,12 @@ import {
 
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
+import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { IntroInteractor } from '@app/interactors/onboarding/intro.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
-type IntroStepId = 'welcome' | 'areas' | 'privacy';
+type IntroStepId = 'welcome' | 'areas' | 'privacy' | 'reminders';
 
 interface IntroStep {
   readonly id: IntroStepId;
@@ -27,6 +30,9 @@ const STEPS: readonly IntroStep[] = [
   { id: 'privacy', heading: 'Deine Daten bleiben bei dir' },
 ];
 
+/** Only the apps can deliver a reminder, so the browser build skips this step. */
+const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'Erinnerungen' };
+
 /**
  * The first-launch introduction (#82): a few short, skippable screens before the app opens on
  * Heute, and reopenable from the settings.
@@ -38,14 +44,16 @@ const STEPS: readonly IntroStep[] = [
  * back through it; „Zurück“ is a visible button instead. The step reached is remembered, so an
  * introduction interrupted by closing the app continues where it was left on the next launch.
  *
- * Nothing here asks for a permission: calendar access is explained, and requested only from the
- * explicit „connect“ action in the settings.
+ * Calendar access is only explained here, and requested from the explicit „connect“ action in the
+ * settings. The one permission the introduction can ask for is the notification permission (#81),
+ * and only when the user taps „Ja, erinnere mich“ on the last step.
  */
 @Component({
   selector: 'app-intro',
   host: { class: 'block' },
   imports: [
     FocusedScreenScaffold,
+    LucideBell,
     LucideBookOpen,
     LucideCalendarDays,
     LucideSettings,
@@ -59,6 +67,7 @@ const STEPS: readonly IntroStep[] = [
 export class IntroPage {
   private readonly intro = inject(IntroInteractor);
   private readonly router = inject(Router);
+  protected readonly notificationPreferences = inject(NotificationPreferencesInteractor);
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
 
   /** Bound from the `:step` route parameter, 1-based. */
@@ -66,16 +75,36 @@ export class IntroPage {
   /** Bound from `?returnTo=`: where finishing goes when reopened from the settings. */
   readonly returnTo = input<string | null>(null);
 
-  protected readonly steps = STEPS;
+  protected readonly steps = this.notificationPreferences.isSupported
+    ? [...STEPS, REMINDERS_STEP]
+    : STEPS;
 
   protected readonly index = computed(() => {
     const parsed = Number.parseInt(this.step(), 10);
-    return Number.isInteger(parsed) ? Math.min(Math.max(parsed, 1), STEPS.length) - 1 : 0;
+    return Number.isInteger(parsed) ? Math.min(Math.max(parsed, 1), this.steps.length) - 1 : 0;
   });
 
-  protected readonly current = computed(() => STEPS[this.index()]);
+  protected readonly current = computed(() => this.steps[this.index()]);
   protected readonly isFirst = computed(() => this.index() === 0);
-  protected readonly isLast = computed(() => this.index() === STEPS.length - 1);
+  protected readonly isLast = computed(() => this.index() === this.steps.length - 1);
+
+  /** „15 Minuten vorher“ and „1 Tag vorher um 09:00“ - what saying yes turns on. */
+  protected readonly defaultReminders = computed(() => ({
+    timed: this.notificationPreferences
+      .timedDefaults()
+      .map((minutes) => reminderLabel(minutes, false))
+      .join(', '),
+    allDay: this.notificationPreferences
+      .allDayDefaults()
+      .map((minutes) => reminderLabel(minutes, true))
+      .join(', '),
+  }));
+
+  /** Asks for the permission from this tap, then finishes whatever the answer. */
+  protected async enableReminders(): Promise<void> {
+    await this.notificationPreferences.setEnabled(true);
+    await this.finish();
+  }
 
   protected readonly destination = computed(() => safeInAppUrl(this.returnTo()) ?? '/today');
 

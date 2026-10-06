@@ -190,6 +190,32 @@ export class OccurrenceDao {
     return row ? toRecord(row) : null;
   }
 
+  /**
+   * The next rows of one source type in enabled sources and calendars starting at or after
+   * `fromUtc`, earliest first - what the reminder scheduler looks ahead at. Bounded, because only the next few dozen reminders can be
+   * pending with the operating system at once anyway.
+   */
+  async listUpcomingInEnabledCalendars(
+    sourceType: OccurrenceRecord['sourceType'],
+    fromUtc: string,
+    limit: number,
+    executor: SqliteExecutor = this.database,
+  ): Promise<OccurrenceRecord[]> {
+    // Disabled sources and calendars are filtered before the limit, so a busy hidden calendar
+    // cannot fill the window and push later visible appointments out of it.
+    const rows = await executor.query<OccurrenceRow>(
+      `SELECT ${COLUMNS} FROM occurrences
+       WHERE source_type = ? AND start_utc >= ?
+         AND source_id IN (SELECT id FROM calendar_sources WHERE enabled = 1)
+         AND calendar_id IN (SELECT id FROM calendars WHERE enabled = 1)
+       ORDER BY start_utc ASC, id ASC
+       LIMIT ?`,
+      [sourceType, fromUtc, limit],
+    );
+
+    return rows.map(toRecord);
+  }
+
   /** Cached device instances - the rows a device-zone change repairs locally, without a refetch. */
   async listOfSourceType(
     sourceType: OccurrenceRecord['sourceType'],

@@ -92,13 +92,50 @@
           }
         </div>
       }
+      @case ('reminders') {
+        <div class="rk-card space-y-3 px-4 py-4">
+          <svg lucideBell class="rk-icon text-primary" aria-hidden="true"></svg>
+          @if (notificationPreferences.enabled()) {
+            <p class="text-lg font-semibold">Erinnerungen sind eingeschaltet.</p>
+            <p>Vor jedem Termin bekommst du eine Mitteilung - auch wenn die App geschlossen ist.</p>
+          } @else {
+            <p class="text-lg font-semibold">Sollen wir dich an deine Termine erinnern?</p>
+            <p>
+              Dann bekommst du vor jedem Termin eine Mitteilung - auch wenn die App geschlossen ist.
+            </p>
+          }
+          <dl class="text-muted-foreground space-y-1">
+            <div>
+              <dt class="inline">Termine:</dt>
+              <dd class="inline">{{ defaultReminders().timed }}</dd>
+            </div>
+            <div>
+              <dt class="inline">Ganztägige Termine:</dt>
+              <dd class="inline">{{ defaultReminders().allDay }}</dd>
+            </div>
+          </dl>
+          <p class="text-muted-foreground text-sm">
+            Du kannst das jederzeit in den Einstellungen unter „Benachrichtigungen“ ändern, und bei
+            jedem Termin eigene Erinnerungen wählen.
+          </p>
+        </div>
+      }
     }
   </div>
 
   <div footer #focusedScreenFooter class="flex flex-col gap-2">
-    <button type="button" class="rk-button rk-button-primary w-full" (click)="next()">
-      {{ isLast() ? 'Los geht’s' : 'Weiter' }}
-    </button>
+    @if (current().id === 'reminders' && !notificationPreferences.enabled()) {
+      <button type="button" class="rk-button rk-button-primary w-full" (click)="enableReminders()">
+        Ja, erinnere mich
+      </button>
+      <button type="button" class="rk-button rk-button-ghost w-full" (click)="finish()">
+        Nein, danke
+      </button>
+    } @else {
+      <button type="button" class="rk-button rk-button-primary w-full" (click)="next()">
+        {{ isLast() ? 'Los geht’s' : 'Weiter' }}
+      </button>
+    }
     <div class="flex flex-wrap gap-2">
       @if (!isFirst()) {
         <button type="button" class="rk-button rk-button-ghost flex-1" (click)="back()">
