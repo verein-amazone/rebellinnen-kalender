@@ -14,7 +14,6 @@ describe('RemindersStore', () => {
   it('should start with the default preferences when nothing is stored', () => {
     expect(TestBed.inject(RemindersStore).preferences()).toEqual({
       newItemPlacement: 'top',
-      completedItemPlacement: 'top',
       hideCompletedAtDayChange: true,
     });
   });
@@ -34,6 +33,18 @@ describe('RemindersStore', () => {
   it('should restore persisted preferences', () => {
     localStorage.setItem(
       STORAGE_KEY,
+      JSON.stringify({ newItemPlacement: 'bottom', hideCompletedAtDayChange: false }),
+    );
+
+    expect(TestBed.inject(RemindersStore).preferences()).toEqual({
+      newItemPlacement: 'bottom',
+      hideCompletedAtDayChange: false,
+    });
+  });
+
+  it('should drop the completed-entry placement an older version stored', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
       JSON.stringify({
         newItemPlacement: 'bottom',
         completedItemPlacement: 'bottom',
@@ -43,7 +54,6 @@ describe('RemindersStore', () => {
 
     expect(TestBed.inject(RemindersStore).preferences()).toEqual({
       newItemPlacement: 'bottom',
-      completedItemPlacement: 'bottom',
       hideCompletedAtDayChange: false,
     });
   });

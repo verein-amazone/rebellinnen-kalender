@@ -12,8 +12,6 @@ export type ReminderPlacementId = (typeof REMINDER_PLACEMENT_IDS)[number];
 export interface ReminderPreferences {
   /** Where a newly added entry appears among the open ones. */
   readonly newItemPlacement: ReminderPlacementId;
-  /** Where a just-completed entry appears among the completed ones. */
-  readonly completedItemPlacement: ReminderPlacementId;
   /**
    * Whether a completed entry disappears once the local day it was completed on is over. It is only
    * hidden - the row stays in the database.
@@ -23,6 +21,5 @@ export interface ReminderPreferences {
 
 export const DEFAULT_REMINDER_PREFERENCES: ReminderPreferences = {
   newItemPlacement: 'top',
-  completedItemPlacement: 'top',
   hideCompletedAtDayChange: true,
 };
