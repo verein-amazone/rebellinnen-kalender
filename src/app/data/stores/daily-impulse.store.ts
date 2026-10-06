@@ -41,6 +41,15 @@ const EMPTY_STATE: StoredState = { day: null, itemId: null, recentIds: [], seenD
 export class DailyImpulseStore {
   private readonly state = signal<StoredState>(this.read());
 
+  /**
+   * Whether the impulse has greeted since the app was last opened. Deliberately not persisted: a
+   * cold start begins with `false`, and `DailyImpulseInteractor` resets it whenever the app returns
+   * from the background - that is what „Bei jedem Öffnen“ counts as an opening.
+   */
+  private readonly greetedThisSessionState = signal(false);
+
+  readonly greetedThisSession = this.greetedThisSessionState.asReadonly();
+
   readonly pick = () => {
     const { day, itemId } = this.state();
     return day !== null && itemId !== null ? { day, itemId } : null;
@@ -62,13 +71,24 @@ export class DailyImpulseStore {
   /**
    * Forces the day's pick to a specific item, for the debug catalog. Unlike `setPick` it leaves the
    * recent-ids cooldown alone - a hand-picked impulse is not a real selection and must not push a
-   * genuine one out of the window - and clears `seenDay`, so Today announces the new pick the same
-   * way it announces a fresh one.
+   * genuine one out of the window - and clears `seenDay` and the session flag, so Today announces
+   * the new pick the same way it announces a fresh one.
    */
   overridePick(day: string, itemId: string): void {
     const next: StoredState = { ...this.state(), day, itemId, seenDay: null };
     this.state.set(next);
     this.write(next);
+    this.greetedThisSessionState.set(false);
+  }
+
+  /** Records that the impulse has greeted since the app was opened. */
+  markGreetedThisSession(): void {
+    this.greetedThisSessionState.set(true);
+  }
+
+  /** Starts a new opening of the app: the next time Today shows the impulse, it may greet again. */
+  startSession(): void {
+    this.greetedThisSessionState.set(false);
   }
 
   /** Records that the user has seen the given day's impulse. */

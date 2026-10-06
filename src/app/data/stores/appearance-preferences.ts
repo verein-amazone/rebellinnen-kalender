@@ -24,27 +24,26 @@ export const MOTION_IDS = ['system', 'reduced', 'standard'] as const;
 export type MotionId = (typeof MOTION_IDS)[number];
 
 /**
- * How the Tagesimpuls announces itself the first time it is shown on a given day: with both
- * channels, with the wave alone, or not at all.
+ * Whether the app may vibrate at all - the Tagesimpuls greeting and the short confirmations
+ * (appointment saved, entry ticked off, …) alike. One switch for every haptic, next to the motion
+ * setting, because it is the same kind of decision: how much the app may make itself felt.
  *
- * One preference rather than two switches, because the two channels are two ways of saying the same
- * single thing and people think of it that way: „soll der Tagesimpuls sich melden, und wie laut“.
- * It is separate from `motion`, which governs animation everywhere in the app - a reduced-motion
- * setting still silences the wave here, whichever value this one has.
+ * Independent of `motion`: reduced motion is about what moves on screen, and someone who turns
+ * animations down may still want the confirmation taps.
  */
-export const IMPULSE_GREETING_IDS = ['full', 'motion', 'none'] as const;
-export type ImpulseGreetingId = (typeof IMPULSE_GREETING_IDS)[number];
+export const VIBRATION_IDS = ['on', 'off'] as const;
+export type VibrationId = (typeof VIBRATION_IDS)[number];
 
 export interface AppearancePreferences {
   readonly theme: ThemeId;
   readonly textSize: TextSizeId;
   readonly motion: MotionId;
-  readonly impulseGreeting: ImpulseGreetingId;
+  readonly vibration: VibrationId;
 }
 
 export const DEFAULT_APPEARANCE_PREFERENCES: AppearancePreferences = {
   theme: 'amazone',
   textSize: 'system',
   motion: 'system',
-  impulseGreeting: 'full',
+  vibration: 'on',
 };

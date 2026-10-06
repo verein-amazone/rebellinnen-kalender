@@ -1,6 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 
-import { HAPTICS_PLUGIN } from '@app/cross-cutting/plugins/haptics.plugin';
+import {
+  HAPTICS_PLUGIN,
+  ImpactStyle,
+  NotificationType,
+} from '@app/cross-cutting/plugins/haptics.plugin';
 
 /**
  * One beat of a haptic pattern, in the app's own terms so `@capawesome/capacitor-haptics` types stay
@@ -43,6 +47,33 @@ export class DeviceHaptics {
       await this.plugin.playPattern({ events: pulses.map((pulse) => ({ ...pulse })) });
     } catch {
       // See the class comment: a pattern that cannot play is not an error worth surfacing.
+    }
+  }
+
+  /** The platform's own „done“ feedback - the one the OS uses for a completed task. */
+  async success(): Promise<void> {
+    try {
+      await this.plugin.notification({ type: NotificationType.Success });
+    } catch {
+      // See the class comment.
+    }
+  }
+
+  /** A single light tap, the subtlest physical feedback the platform has. */
+  async lightImpact(): Promise<void> {
+    try {
+      await this.plugin.impact({ style: ImpactStyle.Light });
+    } catch {
+      // See the class comment.
+    }
+  }
+
+  /** The detent tick the platform plays while something is being picked up, moved and put down. */
+  async selectionChanged(): Promise<void> {
+    try {
+      await this.plugin.selectionChanged();
+    } catch {
+      // See the class comment.
     }
   }
 }

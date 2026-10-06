@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { APP_VERSION } from '@app/cross-cutting/infrastructure/app-version';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
+import { ImpulsePreferencesInteractor } from '@app/interactors/daily-content/impulse-preferences.interactor';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
@@ -17,6 +18,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class SettingsOverviewPage {
   protected readonly appearance = inject(AppearanceInteractor);
+  protected readonly impulse = inject(ImpulsePreferencesInteractor);
 
   /** Shown at the end of the list, so a support request can name the exact version. */
   protected readonly version = APP_VERSION;

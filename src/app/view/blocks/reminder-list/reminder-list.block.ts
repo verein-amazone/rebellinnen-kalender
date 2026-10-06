@@ -30,6 +30,7 @@ import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
   ConfirmationDialog,
@@ -87,6 +88,7 @@ export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
 })
 export class ReminderListBlock {
   private readonly reminders = inject(ReminderListInteractor);
+  private readonly haptics = inject(HapticsInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly currentDay = inject(LocalDay);
@@ -174,9 +176,16 @@ export class ReminderListBlock {
       await this.reminders.reopen(item.id);
     } else {
       await this.reminders.complete(item.id);
+      // Only ticking off is felt: it is the outcome the list exists for. Reopening is a correction.
+      void this.haptics.tick();
     }
 
     this.reload();
+  }
+
+  /** A row was lifted for dragging. Felt together with the drop, like a detent. */
+  protected pickedUp(): void {
+    void this.haptics.selection();
   }
 
   /** The label states what activating the control will do, not what the current state is. */
@@ -203,6 +212,7 @@ export class ReminderListBlock {
 
   /** A row was dropped. The index is over the whole list, so it is read back into its group. */
   protected async drop(event: CdkDragDrop<readonly Reminder[]>): Promise<void> {
+    void this.haptics.selection();
     if (event.previousIndex === event.currentIndex) {
       return;
     }

@@ -27,6 +27,7 @@ import {
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -71,6 +72,7 @@ export class EventDetailPage {
   private readonly deviceSync = inject(DeviceCalendarSyncInteractor);
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
@@ -230,6 +232,7 @@ export class EventDetailPage {
     }
 
     this.editing.set(false);
+    void this.haptics.confirm();
     this.announcer.announce('Termin gespeichert');
     // The user may have moved the appointment to a different day; navigate to wherever it ended up
     // rather than back to the day it used to be on. `result.changes.start` is only set when the

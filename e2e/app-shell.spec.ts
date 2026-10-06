@@ -118,10 +118,8 @@ test.describe('application shell', () => {
 
     for (const [heading, entries] of [
       ['Persönlich', ['Profil']],
-      [
-        'Darstellung & Bedienung',
-        ['Farbthema', 'Textgröße', 'Bewegung & Animationen', 'Nicht vergessen'],
-      ],
+      ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
+      ['Heute', ['Tagesimpuls', 'Nicht vergessen']],
       ['Kalender', ['Kalender verwalten']],
       ['App & Rechtliches', ['Über die App', 'Datenschutz', 'Impressum']],
     ] as const) {
@@ -150,6 +148,51 @@ test.describe('application shell', () => {
     await expect(page.getByRole('radio', { name: 'Reduziert', exact: false })).toBeChecked();
   });
 
+  test('greets with the Tagesimpuls on every opening, but not on a tab switch', async ({
+    page,
+  }) => {
+    const greeting = page.locator('app-today-impulse .rk-arrived');
+
+    await page.goto('/today');
+    await expect(greeting).toHaveCount(1);
+
+    // Switching tabs inside the app is not an opening.
+    await page.getByRole('link', { name: 'Kalender' }).click();
+    await page.getByRole('link', { name: 'Heute' }).click();
+    await expect(page.locator('app-today-impulse')).toBeVisible();
+    await expect(greeting).toHaveCount(0);
+
+    // A return from the background is. In the browser build `visibilitychange` stands in for it.
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+    await expect(greeting).toHaveCount(1);
+  });
+
+  test('keeps the Tagesimpuls and vibration choices after a reload', async ({ page }) => {
+    await page.goto('/settings/impulse');
+    await page.getByRole('radio', { name: 'Einmal am Tag', exact: false }).check();
+    await page.goto('/settings/vibration');
+    await page.getByRole('radio', { name: 'Aus', exact: false }).check();
+
+    await page.goto('/settings');
+
+    await expect(page.getByRole('link', { name: 'Tagesimpuls', exact: false })).toContainText(
+      'Einmal am Tag',
+    );
+    await expect(page.getByRole('link', { name: 'Vibration', exact: false })).toContainText('Aus');
+  });
+
+  test('explains on the Tagesimpuls screen why it holds still under reduced animations', async ({
+    page,
+  }) => {
+    await page.goto('/settings/motion');
+    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+
+    await page.goto('/settings/impulse');
+
+    await expect(page.getByText('Animationen sind reduziert', { exact: false })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Animationen ändern' })).toBeVisible();
+  });
+
   /**
    * WCAG 2.2 SC 2.4.2: every view needs a title that describes it. Angular's default
    * `TitleStrategy` writes the route's `title` to `document.title`, so this only holds as long as
@@ -165,7 +208,9 @@ test.describe('application shell', () => {
       ['/settings', 'Einstellungen'],
       ['/settings/theme', 'Farbthema'],
       ['/settings/text-size', 'Textgröße'],
-      ['/settings/motion', 'Bewegung & Animationen'],
+      ['/settings/motion', 'Animationen'],
+      ['/settings/vibration', 'Vibration'],
+      ['/settings/impulse', 'Tagesimpuls'],
       ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/about', 'Über die App'],
@@ -193,6 +238,14 @@ test.describe('application shell', () => {
     page,
   }) => {
     await page.goto('/settings/theme');
+
+    await expectNoBlockingViolations(page);
+  });
+
+  test('has no serious or critical accessibility violations on the Tagesimpuls settings', async ({
+    page,
+  }) => {
+    await page.goto('/settings/impulse');
 
     await expectNoBlockingViolations(page);
   });

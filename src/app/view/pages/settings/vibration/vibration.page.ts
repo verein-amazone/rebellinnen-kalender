@@ -2,23 +2,23 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import {
   AppearanceInteractor,
-  type MotionId,
+  type VibrationId,
 } from '@app/interactors/settings/appearance.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 @Component({
-  selector: 'app-settings-motion',
+  selector: 'app-settings-vibration',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
   imports: [FocusedScreenScaffold, ChoiceRow],
-  templateUrl: './motion.page.html',
+  templateUrl: './vibration.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MotionPage {
+export class VibrationPage {
   protected readonly appearance = inject(AppearanceInteractor);
 
-  protected select(motion: MotionId): void {
-    this.appearance.selectMotion(motion);
+  protected select(vibration: VibrationId): void {
+    this.appearance.selectVibration(vibration);
   }
 }

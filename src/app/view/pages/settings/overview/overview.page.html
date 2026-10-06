@@ -41,12 +41,33 @@
         </li>
         <li>
           <a routerLink="/settings/motion" class="rk-row">
-            <span class="rk-row-label">Bewegung &amp; Animationen</span>
+            <span class="rk-row-label">Animationen</span>
             <span class="rk-row-value">{{ appearance.motionLabel() }}</span>
             <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
           </a>
         </li>
-        <!-- No value here: three separate choices have no single label that would summarise them. -->
+        <li>
+          <a routerLink="/settings/vibration" class="rk-row">
+            <span class="rk-row-label">Vibration</span>
+            <span class="rk-row-value">{{ appearance.vibrationLabel() }}</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Named after the tab: both features live on the Today screen. -->
+    <section class="space-y-2">
+      <h2 class="text-muted-foreground text-sm">Heute</h2>
+      <ul class="rk-list">
+        <li>
+          <a routerLink="/settings/impulse" class="rk-row">
+            <span class="rk-row-label">Tagesimpuls</span>
+            <span class="rk-row-value">{{ impulse.greetingLabel() }}</span>
+            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+          </a>
+        </li>
+        <!-- No value here: two separate choices have no single label that would summarise them. -->
         <li>
           <a routerLink="/settings/reminders" class="rk-row">
             <span class="rk-row-label">Nicht vergessen</span>
