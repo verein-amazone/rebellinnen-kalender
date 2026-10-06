@@ -320,8 +320,11 @@ Owns persistence and external data-source access. See
   shake gesture, the launcher icon - is not a gateway; it belongs in
   `cross-cutting/infrastructure/`.
 - `data/calendar/` - the calendar domain's data machinery: `calendar.repository.ts` (see below),
-  the recurrence materializer (sole importer of `rrule-temporal`), the ICS parser/normalizer (sole
-  importer of `ical.js`) and the device-instance normalizer.
+  the recurrence materializer (sole importer of `rrule-temporal`), the ICS parser/normalizer and
+  the RRULE codec in `recurrence/` (the only importers of `ical.js`), and the device-instance
+  normalizer. Recurrence logic goes to these libraries wherever they cover it: `ical.js` reads and
+  writes RRULE values, `rrule-temporal` expands and matches them. App code only keeps what is
+  product policy (the authorable subset, UNTIL as the end of a chosen day, the German sentences).
 
 Repositories (`*Repository`) are **not** introduced automatically; reserve them for a meaningful
 abstraction that combines or selects between multiple data sources.

@@ -68,6 +68,13 @@
           </p>
         }
 
+        @if (recurrenceSummary(); as summary) {
+          <p class="text-muted-foreground flex items-start gap-2">
+            <svg lucideRepeat class="rk-icon-sm mt-1 shrink-0" aria-hidden="true"></svg>
+            <span>{{ summary }}</span>
+          </p>
+        }
+
         @if (currentOccurrence.location; as location) {
           <p class="text-muted-foreground">{{ location }}</p>
         }
@@ -131,6 +138,8 @@
         mode="edit"
         [initialOccurrence]="currentOccurrence"
         [initialNote]="note()"
+        [initialRrule]="rrule()"
+        [initialSeriesStart]="seriesStart()"
         (save)="handleSave($event)"
       />
     }

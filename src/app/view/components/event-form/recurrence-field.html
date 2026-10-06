@@ -1,0 +1,140 @@
+<ul class="rk-list">
+  <li>
+    <button
+      type="button"
+      class="rk-row w-full text-left"
+      [attr.aria-expanded]="expanded()"
+      (click)="toggleExpanded()"
+    >
+      <span class="rk-row-label flex flex-col">
+        <span>Wiederholen</span>
+        <span class="text-muted-foreground text-sm font-normal">{{ summary() }}</span>
+      </span>
+      <svg
+        lucideChevronDown
+        class="rk-icon-sm transition-transform"
+        [class.rotate-180]="expanded()"
+        aria-hidden="true"
+      ></svg>
+    </button>
+  </li>
+
+  @if (expanded()) {
+    <li class="space-y-4 px-4 py-3">
+      <div>
+        <label class="rk-label" [for]="id() + '-frequency'">Wiederholung</label>
+        <div class="rk-field">
+          <select [id]="id() + '-frequency'" class="rk-input" [formField]="repeatField()">
+            @for (option of frequencyOptions(); track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          <svg lucideChevronDown class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+        </div>
+      </div>
+
+      @if (repeat() === 'custom') {
+        <p class="text-muted-foreground text-sm">
+          Diese Wiederholung wurde nach einer Regel angelegt, die hier nicht bearbeitet werden kann.
+          Sie bleibt erhalten, solange du keine andere Wiederholung wählst.
+        </p>
+      }
+
+      @if (frequency(); as currentFrequency) {
+        <label class="flex flex-wrap items-center gap-2" [for]="id() + '-interval'">
+          <span>Alle</span>
+          <span class="rk-field w-24">
+            <input
+              [id]="id() + '-interval'"
+              class="rk-input tabular-nums"
+              type="number"
+              inputmode="numeric"
+              placeholder="1"
+              [formField]="intervalField()"
+              [attr.aria-invalid]="
+                intervalField()().touched() && intervalField()().invalid() ? 'true' : null
+              "
+            />
+          </span>
+          <span>{{ intervalUnit() }}</span>
+        </label>
+
+        @if (currentFrequency === 'weekly') {
+          <fieldset>
+            <legend class="rk-label">An diesen Tagen</legend>
+            <div class="flex flex-wrap gap-1">
+              @for (option of weekdayOptions(); track option.day) {
+                <label
+                  class="min-h-touch flex min-w-10 flex-1 flex-col items-center justify-center gap-1"
+                >
+                  <input
+                    type="checkbox"
+                    class="rk-check"
+                    [checked]="option.checked"
+                    [disabled]="option.isStart"
+                    (change)="onWeekdayChange(option.day, $event)"
+                  />
+                  <span aria-hidden="true">{{ option.short }}</span>
+                  <span class="sr-only">{{ option.long }}</span>
+                </label>
+              }
+            </div>
+            <p class="rk-hint">Der Wochentag des Beginns ist immer dabei.</p>
+          </fieldset>
+        }
+
+        <app-radio-group-field
+          [id]="id() + '-end'"
+          legend="Endet"
+          [field]="endField()"
+          [options]="endOptions"
+        />
+
+        @if (endField()().value() === 'until') {
+          <div>
+            <label class="rk-label" [for]="id() + '-until'">Letzter Tag</label>
+            <div class="rk-field">
+              <input
+                [id]="id() + '-until'"
+                class="rk-input"
+                type="date"
+                [formField]="untilDateField()"
+                [attr.aria-invalid]="
+                  untilDateField()().touched() && untilDateField()().invalid() ? 'true' : null
+                "
+              />
+            </div>
+          </div>
+        } @else if (endField()().value() === 'count') {
+          <label class="flex flex-wrap items-center gap-2" [for]="id() + '-count'">
+            <span>Nach</span>
+            <span class="rk-field w-24">
+              <input
+                [id]="id() + '-count'"
+                class="rk-input tabular-nums"
+                type="number"
+                inputmode="numeric"
+                placeholder="1"
+                [formField]="countField()"
+                [attr.aria-invalid]="
+                  countField()().touched() && countField()().invalid() ? 'true' : null
+                "
+              />
+            </span>
+            <span>Terminen</span>
+          </label>
+        }
+      }
+    </li>
+  }
+</ul>
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (error(); as message) {
+    <p class="rk-error">{{ message }}</p>
+  }
+</div>

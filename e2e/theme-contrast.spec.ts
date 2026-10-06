@@ -86,7 +86,7 @@ test.describe('colour contrast per theme', () => {
         day: '2026-09-11',
         recurring: true,
       });
-      await page.goto(`/calendar/event/${app.occurrenceId}`);
+      await page.goto(`/calendar/event/${encodeURIComponent(app.occurrenceId)}`);
       await expect(page.getByRole('button', { name: 'Bearbeiten' })).toBeVisible();
       await checkContrast();
 
@@ -113,7 +113,7 @@ test.describe('colour contrast per theme', () => {
         title: 'Geräte-Termin',
         day: '2026-09-12',
       });
-      await page.goto(`/calendar/event/${device.occurrenceId}`);
+      await page.goto(`/calendar/event/${encodeURIComponent(device.occurrenceId)}`);
       await expect(page.getByRole('button', { name: 'In Kalender-App bearbeiten' })).toBeVisible();
       await checkContrast();
 
@@ -122,7 +122,7 @@ test.describe('colour contrast per theme', () => {
         title: 'ICS-Termin',
         day: '2026-09-13',
       });
-      await page.goto(`/calendar/event/${readOnly.occurrenceId}`);
+      await page.goto(`/calendar/event/${encodeURIComponent(readOnly.occurrenceId)}`);
       await expect(page.getByText('schreibgeschützt')).toBeVisible();
       await checkContrast();
     });

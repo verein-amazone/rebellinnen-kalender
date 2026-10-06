@@ -14,7 +14,9 @@ import {
   applyWhen,
   disabled,
   form,
+  max,
   maxLengthError,
+  min,
   required,
   requiredError,
   validate,
@@ -30,10 +32,19 @@ import {
   type TemporalValue,
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import {
+  describeStoredRecurrence,
+  fromStoredRecurrence,
+  RECURRENCE_MAX_COUNT,
+  toStoredRecurrence,
+  type RecurrenceRule,
+  type Weekday,
+} from '@app/interactors/calendar/recurrence';
 import { CalendarPickerField } from '@app/view/components/field/calendar-picker-field';
 import { TextareaField } from '@app/view/components/field/textarea-field';
 import { TextField } from '@app/view/components/field/text-field';
 import { DateTimeField } from './date-time-field';
+import { RecurrenceField, type RepeatChoice, type RepeatEndChoice } from './recurrence-field';
 
 export type AppEventFormMode = 'create' | 'edit';
 
@@ -63,7 +74,29 @@ interface EventFormModel {
    */
   readonly endDate: string;
   readonly endTime: string;
+  readonly repeat: RepeatChoice;
+  /** Only read while `repeat` is a frequency; see `RecurrenceRule`. */
+  readonly interval: number;
+  readonly weekdays: Weekday[];
+  readonly repeatEnd: RepeatEndChoice;
+  /** `YYYY-MM-DD`, the last day an occurrence may start on; only read for `repeatEnd: 'until'`. */
+  readonly untilDate: string;
+  readonly count: number;
 }
+
+/** The fields that describe when the appointment takes place, compared to tell an edit apart. */
+const TIMING_FIELDS = ['allDay', 'date', 'startTime', 'endDate', 'endTime'] as const;
+/** The fields that describe how it repeats. */
+const REPEAT_FIELDS = [
+  'repeat',
+  'interval',
+  'weekdays',
+  'repeatEnd',
+  'untilDate',
+  'count',
+] as const;
+
+const MAX_INTERVAL = 99;
 
 function blankModel(): EventFormModel {
   return {
@@ -76,6 +109,18 @@ function blankModel(): EventFormModel {
     startTime: '',
     endDate: '',
     endTime: '',
+    ...noRepeat(),
+  };
+}
+
+function noRepeat(): Pick<EventFormModel, (typeof REPEAT_FIELDS)[number]> {
+  return {
+    repeat: 'none',
+    interval: 1,
+    weekdays: [],
+    repeatEnd: 'never',
+    untilDate: '',
+    count: 10,
   };
 }
 
@@ -95,15 +140,22 @@ function blankModel(): EventFormModel {
  * `docs/architecture/frontend-architecture.md`), so the form loads its own choices instead of every
  * caller repeating that fetch.
  *
- * Recurrence is out of scope here - the form always writes `rrule: null` and edits always go through
- * `AppEventChanges`, which has no `rrule`/scope concept either; the recurrence-scope decision (this
- * occurrence / this and following / all) belongs to the presenter that owns save, per the brief for
- * #19.
+ * Repetition (#80) is authored through `RecurrenceField` and stored as an RRULE value. An edit only
+ * carries the fields that actually changed in the time and repetition groups, so the presenter that
+ * owns save can tell a renamed occurrence from a moved one and offer the right recurrence scopes
+ * (this occurrence / this and following / all).
  */
 @Component({
   selector: 'app-event-form',
   host: { class: 'block' },
-  imports: [FormRoot, TextField, TextareaField, CalendarPickerField, DateTimeField],
+  imports: [
+    FormRoot,
+    TextField,
+    TextareaField,
+    CalendarPickerField,
+    DateTimeField,
+    RecurrenceField,
+  ],
   templateUrl: './event-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -119,6 +171,17 @@ export class EventForm {
    * reads the full record for the detail page.
    */
   readonly initialNote = input<string | null>(null);
+  /**
+   * Edit mode's stored RRULE value of the series, supplied the same way as `initialNote`. `null`
+   * for a standalone appointment.
+   */
+  readonly initialRrule = input<string | null>(null);
+  /**
+   * Edit mode's start of the series the occurrence belongs to - the day its rule is anchored on,
+   * which is not the opened occurrence's day for any but the first one. `null` for a standalone
+   * appointment.
+   */
+  readonly initialSeriesStart = input<TemporalValue | null>(null);
   /**
    * Create mode's date prefill, e.g. the day the user was viewing when they tapped „Neuer Termin“.
    * Ignored in edit mode, where the date comes from `initialOccurrence` instead.
@@ -155,12 +218,17 @@ export class EventForm {
    * resolved the bindings) - and it keeps the user's edits until one of those inputs actually
    * changes, instead of recomputing on every change detection.
    */
-  protected readonly model = linkedSignal<EventFormModel>(() => {
+  private readonly initialModel = computed<EventFormModel>(() => {
     if (this.mode() === 'edit') {
       const occurrence = this.initialOccurrence();
       return occurrence === null
         ? blankModel()
-        : modelFromOccurrence(occurrence, this.initialNote());
+        : modelFromOccurrence(
+            occurrence,
+            this.initialNote(),
+            this.initialRrule(),
+            this.initialSeriesStart() ?? occurrence.start,
+          );
     }
 
     const date = this.initialDate();
@@ -182,6 +250,47 @@ export class EventForm {
       endDate: date,
       endTime: startTime.add({ hours: 1 }).toString({ smallestUnit: 'minute' }),
     };
+  });
+
+  protected readonly model = linkedSignal<EventFormModel>(() => this.initialModel());
+
+  /**
+   * The summary of a stored rule the form cannot represent, which `RecurrenceField` shows instead
+   * of offering to edit it. `null` when the series uses a rule the form understands, or none.
+   */
+  protected readonly customRepeatSummary = computed(() => {
+    const rrule = this.initialRrule();
+    const occurrence = this.initialOccurrence();
+    if (this.mode() !== 'edit' || rrule === null || occurrence === null) {
+      return null;
+    }
+    const seriesStart = this.initialSeriesStart() ?? occurrence.start;
+    return fromStoredRecurrence(rrule, seriesStart) === null
+      ? describeStoredRecurrence(rrule, seriesStart)
+      : null;
+  });
+
+  /**
+   * The day the repetition is authored against (`YYYY-MM-DD`): the series' own start, moved by as
+   * many days as the user moved the opened occurrence - the same shift „Alle Termine“ applies to the
+   * series. Its weekday is the one a weekly series always includes. For a new or standalone
+   * appointment, simply its date.
+   */
+  protected readonly recurrenceStartDate = computed(() => {
+    const date = this.form.date().value();
+    const seriesStart = this.initialSeriesStart();
+    if (this.mode() !== 'edit' || seriesStart === null || date === '') {
+      return date;
+    }
+
+    const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const shift = Temporal.PlainDate.from(this.initialModel().date).until(
+      Temporal.PlainDate.from(date),
+      { largestUnit: 'days' },
+    ).days;
+    return Temporal.PlainDate.from(toDeviceParts(seriesStart, deviceZone).date)
+      .add({ days: shift })
+      .toString();
   });
 
   protected readonly form = form(
@@ -229,6 +338,55 @@ export class EventForm {
         }
         return undefined;
       });
+
+      applyWhen(
+        schemaPath,
+        ({ valueOf }) => isFrequency(valueOf(schemaPath.repeat)),
+        (scoped) => {
+          const intervalMessage = `Bitte gib einen Abstand zwischen 1 und ${MAX_INTERVAL} ein.`;
+          min(scoped.interval, 1, { message: intervalMessage });
+          max(scoped.interval, MAX_INTERVAL, { message: intervalMessage });
+          validate(scoped.interval, ({ value }) =>
+            Number.isInteger(value()) ? undefined : { kind: 'interval', message: intervalMessage },
+          );
+
+          applyWhen(
+            scoped,
+            ({ valueOf }) => valueOf(schemaPath.repeatEnd) === 'until',
+            (untilScoped) => {
+              required(untilScoped.untilDate, { message: 'Bitte wähle den letzten Tag.' });
+              validate(untilScoped.untilDate, ({ value, valueOf }) => {
+                const date = valueOf(schemaPath.date);
+                if (value() === '' || date === '') {
+                  return undefined;
+                }
+                return Temporal.PlainDate.compare(
+                  Temporal.PlainDate.from(value()),
+                  Temporal.PlainDate.from(date),
+                ) < 0
+                  ? {
+                      kind: 'untilOrder',
+                      message: 'Der letzte Tag darf nicht vor dem Beginn liegen.',
+                    }
+                  : undefined;
+              });
+            },
+          );
+
+          applyWhen(
+            scoped,
+            ({ valueOf }) => valueOf(schemaPath.repeatEnd) === 'count',
+            (countScoped) => {
+              const countMessage = `Bitte gib eine Anzahl zwischen 1 und ${RECURRENCE_MAX_COUNT} ein.`;
+              min(countScoped.count, 1, { message: countMessage });
+              max(countScoped.count, RECURRENCE_MAX_COUNT, { message: countMessage });
+              validate(countScoped.count, ({ value }) =>
+                Number.isInteger(value()) ? undefined : { kind: 'count', message: countMessage },
+              );
+            },
+          );
+        },
+      );
 
       applyWhen(
         schemaPath,
@@ -376,6 +534,11 @@ export class EventForm {
     const location = emptyToNull(value.location);
     const note = emptyToNull(value.note);
 
+    const rrule = this.storedRule(value, {
+      ...start,
+      value: `${this.recurrenceStartDate()}${start.value.slice(10)}`,
+    });
+
     if (this.mode() === 'create') {
       return {
         mode: 'create',
@@ -387,27 +550,44 @@ export class EventForm {
           note,
           start,
           end,
-          rrule: null,
+          rrule,
         },
       };
     }
 
+    // Unchanged time or repetition fields are left out, so a renamed occurrence stays where it is
+    // and an edit of the whole series does not restart it on the occurrence that was opened.
+    const initial = this.initialModel();
     return {
       mode: 'edit',
       changes: {
         title: value.title.trim(),
         location,
         note,
-        start,
-        end,
+        ...(changed(value, initial, TIMING_FIELDS) ? { start, end } : {}),
+        ...(changed(value, initial, REPEAT_FIELDS) ? { rrule } : {}),
       },
     };
+  }
+
+  /** `start` is the start on the day the rule is anchored on; see `recurrenceStartDate`. */
+  private storedRule(value: EventFormModel, start: TemporalValue): string | null {
+    switch (value.repeat) {
+      case 'none':
+        return null;
+      case 'custom':
+        return this.initialRrule();
+      default:
+        return toStoredRecurrence(ruleOf(value, value.repeat), start);
+    }
   }
 }
 
 function modelFromOccurrence(
   occurrence: CalendarOccurrence,
   initialNote: string | null,
+  initialRrule: string | null,
+  seriesStart: TemporalValue,
 ): EventFormModel {
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const start = toDeviceParts(occurrence.start, deviceZone);
@@ -426,7 +606,57 @@ function modelFromOccurrence(
     startTime: start.time,
     endDate,
     endTime: end?.time ?? '',
+    ...repeatFromRule(initialRrule, seriesStart),
   };
+}
+
+function repeatFromRule(
+  rrule: string | null,
+  start: TemporalValue,
+): Pick<EventFormModel, (typeof REPEAT_FIELDS)[number]> {
+  if (rrule === null) {
+    return noRepeat();
+  }
+
+  const rule = fromStoredRecurrence(rrule, start);
+  if (rule === null) {
+    return { ...noRepeat(), repeat: 'custom' };
+  }
+
+  return {
+    repeat: rule.frequency,
+    interval: rule.interval,
+    weekdays: [...rule.weekdays],
+    repeatEnd: rule.end.kind,
+    untilDate: rule.end.kind === 'until' ? rule.end.date : '',
+    count: rule.end.kind === 'count' ? rule.end.count : noRepeat().count,
+  };
+}
+
+function ruleOf(value: EventFormModel, frequency: RecurrenceRule['frequency']): RecurrenceRule {
+  return {
+    frequency,
+    interval: value.interval,
+    weekdays: value.weekdays,
+    end:
+      value.repeatEnd === 'until'
+        ? { kind: 'until', date: value.untilDate }
+        : value.repeatEnd === 'count'
+          ? { kind: 'count', count: value.count }
+          : { kind: 'never' },
+  };
+}
+
+function isFrequency(repeat: RepeatChoice): repeat is RecurrenceRule['frequency'] {
+  return repeat !== 'none' && repeat !== 'custom';
+}
+
+function changed(
+  value: EventFormModel,
+  initial: EventFormModel,
+  fields: readonly (keyof EventFormModel)[],
+): boolean {
+  return fields.some((field) => JSON.stringify(value[field]) !== JSON.stringify(initial[field]));
 }
 
 function emptyToNull(value: string): string | null {

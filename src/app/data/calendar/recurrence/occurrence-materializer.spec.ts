@@ -1,5 +1,9 @@
 import type { AppItemExceptionRecord, AppItemRecord } from '../../entities/app-item.record';
-import { materializeAppItem, type MaterializationContext } from './occurrence-materializer';
+import {
+  countGeneratedBefore,
+  materializeAppItem,
+  type MaterializationContext,
+} from './occurrence-materializer';
 
 function item(overrides: Partial<AppItemRecord> = {}): AppItemRecord {
   return {
@@ -268,5 +272,33 @@ describe('materializeAppItem', () => {
 
     expect(truncated).toBe(true);
     expect(occurrences).toHaveLength(5);
+  });
+});
+
+describe('countGeneratedBefore', () => {
+  it('counts the occurrences generated before the split, cancelled ones included', () => {
+    // Mondays 12, 19 and 26 October come before 2 November.
+    expect(countGeneratedBefore(item(), '2026-11-02T18:00:00', 'Europe/Vienna')).toBe(3);
+  });
+
+  it('is 0 at the first occurrence and for a standalone item', () => {
+    expect(countGeneratedBefore(item(), '2026-10-12T18:00:00', 'Europe/Vienna')).toBe(0);
+    expect(
+      countGeneratedBefore(item({ rrule: null }), '2026-11-02T18:00:00', 'Europe/Vienna'),
+    ).toBe(0);
+  });
+
+  it('counts an all-day series on its days', () => {
+    expect(
+      countGeneratedBefore(
+        item({
+          start: { kind: 'date', value: '2026-10-12', timeZone: null },
+          end: { kind: 'date', value: '2026-10-12', timeZone: null },
+          rrule: 'FREQ=DAILY;COUNT=10',
+        }),
+        '2026-10-15',
+        'Europe/Vienna',
+      ),
+    ).toBe(3);
   });
 });

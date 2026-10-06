@@ -1,16 +1,29 @@
 import { inject, Injectable } from '@angular/core';
 import { Temporal } from 'temporal-polyfill';
 
+import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
-import { shiftEnd } from '@app/data/calendar/recurrence/occurrence-materializer';
-import { toUtcInstantString, withoutEndBound } from '@app/data/calendar/recurrence/rrule-tools';
+import {
+  countGeneratedBefore,
+  shiftEnd,
+} from '@app/data/calendar/recurrence/occurrence-materializer';
+import { continuedAfter, toUtcInstantString } from '@app/data/calendar/recurrence/rrule-tools';
 import type {
   AppItemExceptionRecord,
   AppItemKind,
   AppItemRecord,
 } from '@app/data/entities/app-item.record';
 import type { TemporalValue } from '@app/data/entities/temporal-value';
-import { NativeCalendarGateway } from '@app/data/gateways/native-calendar.gateway';
+import {
+  parseRecurrenceRule,
+  rebaseRecurrenceRule,
+  WEEKDAYS,
+  weekdayOf,
+} from '@app/data/calendar/recurrence/recurrence-rule';
+import {
+  NativeCalendarGateway,
+  type DeviceEventRecurrence,
+} from '@app/data/gateways/native-calendar.gateway';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 
 // Views describe times through the interactor's types; the storage type is the domain language.
@@ -72,8 +85,8 @@ export class AppEventEditingInteractor {
   /**
    * Creates a standalone item or a new series and returns its id - unless `calendarId` names a
    * writable device calendar, in which case the appointment is written straight into the OS
-   * calendar via `createDeviceEvent` instead. `EventForm` never sets `rrule` on a draft, so a
-   * device destination never has to represent recurrence the plugin write does not accept.
+   * calendar via `createDeviceEvent` instead. A rule on such a draft becomes a native series that
+   * the OS owns from then on.
    */
   async create(draft: AppEventDraft): Promise<string> {
     const target = await this.repository.findCalendarWithSource(draft.calendarId);
@@ -128,6 +141,8 @@ export class AppEventEditingInteractor {
       startUtc,
       endUtc,
       isAllDay,
+      recurrence:
+        draft.rrule === null ? null : toDeviceRecurrence(draft.rrule, draft.start, deviceZone),
     });
 
     await this.deviceSync.refresh({ force: true });
@@ -142,8 +157,16 @@ export class AppEventEditingInteractor {
       return;
     }
 
+    // A moved series keeps its pattern relative to its start: the weekdays move along and UNTIL
+    // follows a switch between all-day and timed.
+    const rrule =
+      changes.rrule !== undefined
+        ? changes.rrule
+        : item.rrule !== null && changes.start !== undefined
+          ? rebaseRecurrenceRule(item.rrule, item.start, changes.start, context.timeZone)
+          : item.rrule;
     const patternChanged =
-      (changes.rrule !== undefined && changes.rrule !== item.rrule) ||
+      rrule !== item.rrule ||
       (changes.start !== undefined && changes.start.value !== item.start.value);
 
     await this.repository.updateItem(
@@ -154,11 +177,33 @@ export class AppEventEditingInteractor {
         note: changes.note !== undefined ? changes.note : item.note,
         start: changes.start ?? item.start,
         end: changes.end !== undefined ? changes.end : item.end,
-        rrule: changes.rrule !== undefined ? changes.rrule : item.rrule,
+        rrule,
         ruleRevision: patternChanged ? item.ruleRevision + 1 : item.ruleRevision,
         updatedAt: context.nowUtc,
       },
       context,
+    );
+  }
+
+  /**
+   * Edits every occurrence of a series from the form of one of them. The form shows that
+   * occurrence's day, so a changed start is read as a shift relative to it and applied to the
+   * series' own start - moving „all appointments“ from Wednesday to Thursday moves the whole
+   * series by a day, instead of restarting it on the Thursday the user happened to open.
+   */
+  async updateSeries(
+    seriesId: string,
+    occurrenceStart: TemporalValue,
+    changes: AppEventChanges,
+  ): Promise<void> {
+    const item = await this.repository.findItem(seriesId);
+    if (item === null) {
+      return;
+    }
+
+    await this.updateAll(
+      seriesId,
+      rebasedOnSeries(item, occurrenceStart, changes, this.context().timeZone),
     );
   }
 
@@ -220,11 +265,12 @@ export class AppEventEditingInteractor {
       return;
     }
 
-    const start: TemporalValue = changes.start ?? {
+    const splitStart: TemporalValue = {
       kind: master.start.kind,
       value: originalStart,
       timeZone: master.start.timeZone,
     };
+    const start = changes.start ?? splitStart;
     const end =
       changes.end !== undefined
         ? changes.end
@@ -239,8 +285,15 @@ export class AppEventEditingInteractor {
       note: changes.note !== undefined ? changes.note : master.note,
       start,
       end,
-      // COUNT and UNTIL do not carry over: the continuation is a fresh series from the split on.
-      rrule: changes.rrule !== undefined ? changes.rrule : withoutEndBound(master.rrule),
+      rrule: continuationRule(
+        master,
+        master.rrule,
+        originalStart,
+        splitStart,
+        start,
+        changes,
+        context.timeZone,
+      ),
       predecessorSeriesId: seriesId,
       ruleRevision: 0,
       createdAt: context.nowUtc,
@@ -268,6 +321,35 @@ export class AppEventEditingInteractor {
   }
 }
 
+/**
+ * The rule of a „this and following“ continuation. An unchanged rule carries on where the old
+ * series stops - a finite series stays finite, with what is left of its COUNT - and moves along
+ * with a changed start. A rule from the form is anchored on the continuation's own start, which is
+ * its first occurrence.
+ */
+function continuationRule(
+  master: AppItemRecord,
+  masterRule: string,
+  originalStart: string,
+  splitStart: TemporalValue,
+  start: TemporalValue,
+  changes: AppEventChanges,
+  deviceZone: string,
+): string | null {
+  if (changes.rrule === null) {
+    return null;
+  }
+  if (changes.rrule !== undefined) {
+    return rebaseRecurrenceRule(changes.rrule, start, start, deviceZone);
+  }
+
+  const remaining = continuedAfter(
+    masterRule,
+    countGeneratedBefore(master, originalStart, deviceZone),
+  );
+  return rebaseRecurrenceRule(remaining, splitStart, start, deviceZone);
+}
+
 function validatedTitle(title: string): string {
   const trimmed = title.trim();
   if (trimmed.length === 0 || trimmed.length > APP_EVENT_TITLE_MAX_LENGTH) {
@@ -275,6 +357,94 @@ function validatedTitle(title: string): string {
   }
 
   return trimmed;
+}
+
+/**
+ * The changes with a changed start/end moved from the edited occurrence's day onto the series'
+ * own start day, keeping the shift between the two.
+ */
+function rebasedOnSeries(
+  item: AppItemRecord,
+  occurrenceStart: TemporalValue,
+  changes: AppEventChanges,
+  deviceZone: string,
+): AppEventChanges {
+  if (changes.start === undefined) {
+    return changes;
+  }
+
+  const editedDay = Temporal.PlainDate.from(deviceLocalDay(changes.start, deviceZone));
+  const shift = Temporal.PlainDate.from(deviceLocalDay(occurrenceStart, deviceZone)).until(
+    editedDay,
+    {
+      largestUnit: 'days',
+    },
+  ).days;
+  const seriesDay = Temporal.PlainDate.from(deviceLocalDay(item.start, deviceZone)).add({
+    days: shift,
+  });
+  const offset = editedDay.until(seriesDay, { largestUnit: 'days' }).days;
+
+  return {
+    ...changes,
+    start: onDay(changes.start, seriesDay),
+    end:
+      changes.end === undefined || changes.end === null
+        ? changes.end
+        : onDay(
+            changes.end,
+            Temporal.PlainDate.from(deviceLocalDay(changes.end, deviceZone)).add({ days: offset }),
+          ),
+  };
+}
+
+/** The same wall time (or the same all-day kind) on another day. */
+function onDay(value: TemporalValue, day: Temporal.PlainDate): TemporalValue {
+  if (value.kind === 'utc') {
+    // Never authored by the form, which writes zoned or date values; left untouched.
+    return value;
+  }
+  return { ...value, value: `${day.toString()}${value.value.slice(10)}` };
+}
+
+/**
+ * A stored rule in the shape the OS calendar can hold. The form only authors rules
+ * `parseRecurrenceRule` understands; anything else would be written as a single event.
+ */
+function toDeviceRecurrence(
+  rrule: string,
+  start: TemporalValue,
+  deviceZone: string,
+): DeviceEventRecurrence | null {
+  const rule = parseRecurrenceRule(rrule, start, deviceZone);
+  if (rule === null) {
+    return null;
+  }
+
+  const weekdays =
+    rule.frequency === 'weekly'
+      ? WEEKDAYS.flatMap((day, index) =>
+          rule.weekdays.includes(day) || weekdayOf(deviceLocalDay(start, deviceZone)) === day
+            ? [index + 1]
+            : [],
+        )
+      : [];
+
+  return {
+    frequency: rule.frequency,
+    interval: rule.interval,
+    weekdays,
+    count: rule.end.kind === 'count' ? rule.end.count : null,
+    untilUtc:
+      rule.end.kind === 'until'
+        ? Temporal.PlainDate.from(rule.end.date)
+            .add({ days: 1 })
+            .toZonedDateTime(deviceZone)
+            .subtract({ seconds: 1 })
+            .toInstant()
+            .toString()
+        : null,
+  };
 }
 
 /** The day after an all-day appointment's last day, as a `date` value. */

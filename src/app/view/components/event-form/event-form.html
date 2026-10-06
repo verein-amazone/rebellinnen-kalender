@@ -10,6 +10,18 @@
     [allDayField]="form.allDay"
   />
 
+  <app-recurrence-field
+    id="event-form-repeat"
+    [repeatField]="form.repeat"
+    [intervalField]="form.interval"
+    [weekdaysField]="form.weekdays"
+    [endField]="form.repeatEnd"
+    [untilDateField]="form.untilDate"
+    [countField]="form.count"
+    [startDate]="recurrenceStartDate()"
+    [customSummary]="customRepeatSummary()"
+  />
+
   <app-text-field id="event-form-location" label="Ort" [field]="form.location" />
 
   @if (hasNoWritableCalendars()) {

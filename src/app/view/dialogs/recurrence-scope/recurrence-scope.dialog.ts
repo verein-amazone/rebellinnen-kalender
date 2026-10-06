@@ -8,6 +8,11 @@ export type RecurrenceScope = 'occurrence' | 'following' | 'all';
 export interface RecurrenceScopeDialogData {
   /** Context message explaining why the choice is needed. */
   readonly message: string;
+  /**
+   * `false` hides „Nur dieser Termin“ - for a changed repetition, which always describes the
+   * series. Defaults to `true`.
+   */
+  readonly allowSingleOccurrence?: boolean;
 }
 
 /**
@@ -27,7 +32,10 @@ export class RecurrenceScopeDialog {
   protected readonly data = inject(SHEET_DATA) as RecurrenceScopeDialogData;
   private readonly sheetRef = inject<SheetRef<RecurrenceScope>>(SheetRef);
 
-  protected readonly selectedScope = signal<RecurrenceScope>('occurrence');
+  protected readonly allowSingleOccurrence = this.data.allowSingleOccurrence ?? true;
+  protected readonly selectedScope = signal<RecurrenceScope>(
+    this.allowSingleOccurrence ? 'occurrence' : 'following',
+  );
 
   protected confirm(): void {
     this.sheetRef.close(this.selectedScope());

@@ -57,12 +57,7 @@ export function materializeAppItem(
     return { occurrences: [standaloneRow(item, context, branding)], truncated: false };
   }
 
-  const rule = new RRuleTemporal({
-    rruleString: `${dtstartLine(item.start)}\nRRULE:${item.rrule}`,
-    tzid: expansionZone(item.start, context.timeZone),
-    maxIterations: MAX_RULE_ITERATIONS,
-    includeDtstart: true,
-  });
+  const rule = engineRule(item.start, item.rrule, context.timeZone);
 
   const generated = rule.between(
     new Date(context.windowStartUtc),
@@ -116,9 +111,51 @@ export function materializeAppItem(
 }
 
 /**
- * Whether the rule actually produces an occurrence at this exact original start - verified with a
- * one-second probe window around it rather than trusted blindly, so a stale exception left over
- * from a since-changed rule is not resurrected just because its override moved it into view.
+ * How many occurrences a series' rule generates before the given original start - what a series
+ * split there has already used up of its COUNT. Cancelled occurrences count too: RFC 5545 applies
+ * COUNT to the generated set, before any exception is taken away.
+ */
+export function countGeneratedBefore(
+  item: AppItemRecord,
+  originalStart: string,
+  deviceZone: string,
+): number {
+  if (item.rrule === null) {
+    return 0;
+  }
+
+  const split: TemporalValue = {
+    kind: item.start.kind,
+    value: originalStart,
+    timeZone: item.start.timeZone,
+  };
+  const splitMs = Date.parse(toUtcInstantString(split, deviceZone));
+  const firstMs = Date.parse(toUtcInstantString(item.start, deviceZone));
+  if (splitMs <= firstMs) {
+    return 0;
+  }
+
+  return engineRule(item.start, item.rrule, deviceZone).between(
+    new Date(firstMs),
+    new Date(splitMs - 1),
+    true,
+  ).length;
+}
+
+function engineRule(start: TemporalValue, rrule: string, deviceZone: string): RRuleTemporal {
+  return new RRuleTemporal({
+    rruleString: `RRULE:${rrule}`,
+    dtstart: toZoned(start, deviceZone),
+    tzid: expansionZone(start, deviceZone),
+    maxIterations: MAX_RULE_ITERATIONS,
+    includeDtstart: true,
+  });
+}
+
+/**
+ * Whether the rule actually produces an occurrence at this exact original start, so a stale
+ * exception left over from a since-changed rule is not resurrected just because its override moved
+ * it into view.
  */
 function ruleGeneratesOriginalStart(
   rule: RRuleTemporal,
@@ -126,15 +163,12 @@ function ruleGeneratesOriginalStart(
   originalStart: string,
   deviceZone: string,
 ): boolean {
-  const target: TemporalValue = {
-    kind: masterStart.kind,
-    value: originalStart,
-    timeZone: masterStart.timeZone,
-  };
-  const targetMs = Date.parse(toUtcInstantString(target, deviceZone));
-  const probe = rule.between(new Date(targetMs - 1000), new Date(targetMs + 1000), true);
-
-  return probe.some((zoned) => formatInKind(zoned, masterStart) === originalStart);
+  return rule.matches(
+    toZoned(
+      { kind: masterStart.kind, value: originalStart, timeZone: masterStart.timeZone },
+      deviceZone,
+    ),
+  );
 }
 
 function standaloneRow(
@@ -357,22 +391,6 @@ function formatInKind(zoned: Temporal.ZonedDateTime, masterStart: TemporalValue)
   }
 }
 
-/** The DTSTART property for the engine, in the value's own RFC 5545 form. */
-function dtstartLine(start: TemporalValue): string {
-  switch (start.kind) {
-    case 'date':
-      return `DTSTART;VALUE=DATE:${compactDate(start.value)}`;
-    case 'zoned':
-      return `DTSTART;TZID=${start.timeZone}:${compactDateTime(start.value)}`;
-    case 'floating':
-      return `DTSTART:${compactDateTime(start.value)}`;
-    case 'utc': {
-      const instant = Temporal.Instant.from(start.value).toZonedDateTimeISO('UTC');
-      return `DTSTART:${compactDateTime(instant.toPlainDateTime().toString())}Z`;
-    }
-  }
-}
-
 /** The zone the engine expands in: the value's own for `zoned`, otherwise the device's. */
 function expansionZone(start: TemporalValue, deviceZone: string): string {
   switch (start.kind) {
@@ -383,13 +401,4 @@ function expansionZone(start: TemporalValue, deviceZone: string): string {
     default:
       return deviceZone;
   }
-}
-
-function compactDate(value: string): string {
-  return value.replaceAll('-', '');
-}
-
-function compactDateTime(value: string): string {
-  const dateTime = Temporal.PlainDateTime.from(value);
-  return dateTime.toString({ smallestUnit: 'second' }).replaceAll('-', '').replaceAll(':', '');
 }

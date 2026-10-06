@@ -138,10 +138,11 @@ export interface SeedOccurrenceOptions {
   /** Device-local day (`YYYY-MM-DD`) the occurrence should be bucketed under. */
   readonly day?: string;
   /**
-   * `app` only: gives the occurrence a `seriesId`/`originalStart`, which is what
-   * `EventDetailPage.confirmDelete()`/`handleSave()` check to decide whether to ask
-   * `RecurrenceScopeDialog` first. Renders and opens that dialog correctly; a full scoped
-   * edit/delete through it is out of scope here (`app_items.rrule` is left `null`).
+   * `app` only: makes the occurrence the first one of a real weekly series (`FREQ=WEEKLY`), with
+   * the `seriesId`/`originalStart` that `EventDetailPage.confirmDelete()`/`handleSave()` check
+   * to decide whether to ask `RecurrenceScopeDialog` first. Only this one row is seeded; the
+   * repository materializes the rest on the next write to the series. Series created through the
+   * form are covered in `recurrence.spec.ts`.
    */
   readonly recurring?: boolean;
   /**
@@ -205,7 +206,8 @@ export async function seedOccurrence(
 
       const sourceName =
         sourceType === 'app' ? 'App' : sourceType === 'device' ? 'Gerätekalender' : 'ICS-Kalender';
-      const provenance = sourceType === 'app' ? 'standalone' : 'device-cached';
+      const provenance =
+        sourceType !== 'app' ? 'device-cached' : isRecurring ? 'generated' : 'standalone';
       // `end_utc` is exclusive (the midnight after), while a `date` end names the last day the
       // appointment covers - a one-day all-day row therefore ends on the day it starts.
       const endDay = localDay;
@@ -217,7 +219,17 @@ export async function seedOccurrence(
       // `standaloneRow()` (`occurrence-materializer.ts`) uses, and edit/delete rewrite the row by
       // deleting exactly that id (`CalendarRepository.deleteItem`/`updateItem`) before reinserting
       // it; a mismatched id would leave a stale row an edit or delete cannot ever touch.
-      const occurrenceId = itemId !== null ? `app:${itemId}` : `e2e-occ-${crypto.randomUUID()}`;
+      // A series occurrence is `app:${itemId}#${originalStart}`, the same convention the
+      // materializer uses for generated rows; for a `date` start the original start is the day.
+      const occurrenceId =
+        itemId === null
+          ? `e2e-occ-${crypto.randomUUID()}`
+          : isRecurring
+            ? `app:${itemId}#${localDay}`
+            : `app:${itemId}`;
+      // A real weekly rule behind a recurring row, so the detail page describes it and every
+      // recurrence scope operates on an actual series.
+      const rrule = isRecurring && itemId !== null ? 'FREQ=WEEKLY' : null;
 
       if (existingCalendar === null) {
         await run(
@@ -259,7 +271,7 @@ export async function seedOccurrence(
             'date',
             endDay,
             null,
-            null,
+            rrule,
             null,
             0,
             now,

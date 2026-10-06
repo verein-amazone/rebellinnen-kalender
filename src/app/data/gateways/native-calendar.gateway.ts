@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import type { CreateEventOptions } from '@ebarooni/capacitor-calendar';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
@@ -36,6 +37,19 @@ export interface DeviceEventDraft {
   /** Exclusive, like every other `*Utc` end in the data layer - midnight after an all-day's last day. */
   readonly endUtc: string;
   readonly isAllDay: boolean;
+  /** Makes the event a native series; the OS owns and expands it from then on. */
+  readonly recurrence: DeviceEventRecurrence | null;
+}
+
+/** A repetition pattern in the shape the OS calendar stores can hold - plugin-free. */
+export interface DeviceEventRecurrence {
+  readonly frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  readonly interval: number;
+  /** ISO weekdays, 1 = Monday … 7 = Sunday; only for a weekly pattern. */
+  readonly weekdays: readonly number[];
+  readonly count: number | null;
+  /** The last instant an occurrence may start at, inclusive. */
+  readonly untilUtc: string | null;
 }
 
 /**
@@ -143,6 +157,7 @@ export class NativeCalendarGateway {
       endDate: this.nativeEndDate(draft),
       isAllDay: draft.isAllDay,
       alerts: draft.isAllDay ? undefined : [-DEFAULT_ALERT_MINUTES_BEFORE_START],
+      recurrence: draft.recurrence === null ? undefined : toPluginRecurrence(draft.recurrence),
     });
     // The plugin types `id` as nullable because its web implementation produces an `.ics` file
     // instead of writing to a calendar store. On iOS and Android a successful create always
@@ -167,6 +182,23 @@ export class NativeCalendarGateway {
 
     return isLastDayInclusive ? endUtc - 1 : endUtc;
   }
+}
+
+/** The package exports the options but not the rule type itself. */
+type PluginRecurrence = NonNullable<CreateEventOptions['recurrence']>;
+
+function toPluginRecurrence(recurrence: DeviceEventRecurrence): PluginRecurrence {
+  return {
+    frequency: recurrence.frequency,
+    interval: recurrence.interval,
+    byWeekDay: recurrence.weekdays.length > 0 ? [...recurrence.weekdays] : undefined,
+    // The plugin ignores `end` once `count` is set, so only one of them is ever passed.
+    count: recurrence.count ?? undefined,
+    end:
+      recurrence.count === null && recurrence.untilUtc !== null
+        ? Date.parse(recurrence.untilUtc)
+        : undefined,
+  };
 }
 
 function toPermission(state: string): DeviceCalendarPermission {

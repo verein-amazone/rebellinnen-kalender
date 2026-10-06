@@ -144,7 +144,7 @@ test.describe('large text', () => {
         });
       };
 
-      await page.goto(`/calendar/event/${occurrenceId}`);
+      await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
       await expect(page.getByRole('heading', { name: longTitle })).toBeVisible();
       await checkNoOverflow('detail read view');
 
@@ -191,6 +191,31 @@ test.describe('large text', () => {
         });
 
         expect(overflow, `a long calendar name at ${size}`).toBeLessThanOrEqual(1);
+      }
+    });
+
+    test('the expanded repetition does not scroll sideways at large text', async ({ page }) => {
+      await seedAppCalendar(page, 'Testkalender');
+      await page.goto('/calendar/event/new?day=2026-08-10');
+      await page.getByRole('button', { name: /Wiederholen/ }).click();
+      await page.getByLabel('Wiederholung').selectOption('weekly');
+      await page.getByRole('radio', { name: 'Nach einer Anzahl von Terminen' }).check();
+
+      for (const size of ['200%', '300%']) {
+        await page.evaluate((value) => {
+          document.documentElement.style.fontSize = value;
+        }, size);
+
+        const overflow = await page.evaluate(() => {
+          const document_ = document.scrollingElement ?? document.documentElement;
+          const region = document.querySelector('main');
+          return Math.max(
+            document_.scrollWidth - document_.clientWidth,
+            region === null ? 0 : region.scrollWidth - region.clientWidth,
+          );
+        });
+
+        expect(overflow, `the weekly repetition at ${size}`).toBeLessThanOrEqual(1);
       }
     });
   });

@@ -13,19 +13,20 @@ import type { TemporalValue } from '@app/data/entities/temporal-value';
  * - `'utc'` is the one kind that needs an actual conversion, from the stored instant into the
  *   device's zone, before its date can be read.
  */
-export function deviceLocalDay(value: TemporalValue): string {
+export function deviceLocalDay(
+  value: TemporalValue,
+  deviceZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
+): string {
   switch (value.kind) {
     case 'date':
       return value.value;
     case 'zoned':
     case 'floating':
       return value.value.slice(0, 10);
-    case 'utc': {
-      const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    case 'utc':
       return Temporal.Instant.from(value.value)
         .toZonedDateTimeISO(deviceZone)
         .toPlainDate()
         .toString();
-    }
   }
 }

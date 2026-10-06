@@ -3,13 +3,15 @@
 <fieldset class="border-0 p-0 pb-4">
   <legend class="sr-only">Gültigkeitsbereich</legend>
 
-  <app-choice-row
-    name="recurrenceScope"
-    value="occurrence"
-    label="Nur dieser Termin"
-    [checked]="selectedScope() === 'occurrence'"
-    (selected)="selectedScope.set($event)"
-  />
+  @if (allowSingleOccurrence) {
+    <app-choice-row
+      name="recurrenceScope"
+      value="occurrence"
+      label="Nur dieser Termin"
+      [checked]="selectedScope() === 'occurrence'"
+      (selected)="selectedScope.set($event)"
+    />
+  }
 
   <app-choice-row
     name="recurrenceScope"
