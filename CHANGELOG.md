@@ -1,3 +1,26 @@
+## [1.0.0-rc.18](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.17...v1.0.0-rc.18) (2026-10-06)
+
+### Features
+
+* **content:** added photo reb-20.webp ([e811a1a](https://github.com/verein-amazone/rebellinnen-kalender/commit/e811a1afa30ca357b7e56f9ef3062b7c5e9603ec))
+* **content:** added Rebellin [#20](https://github.com/verein-amazone/rebellinnen-kalender/issues/20) to catalog.json ([c37584c](https://github.com/verein-amazone/rebellinnen-kalender/commit/c37584c885161bf4632e29759478836e45c1c221))
+* **content:** added Rebellinnen [#20](https://github.com/verein-amazone/rebellinnen-kalender/issues/20) to [#52](https://github.com/verein-amazone/rebellinnen-kalender/issues/52) ([c07ca3a](https://github.com/verein-amazone/rebellinnen-kalender/commit/c07ca3af067bb8b62094684a53a5ab610aa78e70))
+* **content:** added Rebellinnen [#20](https://github.com/verein-amazone/rebellinnen-kalender/issues/20) to [#52](https://github.com/verein-amazone/rebellinnen-kalender/issues/52) ([1f1ed41](https://github.com/verein-amazone/rebellinnen-kalender/commit/1f1ed419444dc4255ce6210a2aac2692e54d1fed))
+
+### Bug Fixes
+
+* **content:** align image licences with their Commons sources ([746c2f7](https://github.com/verein-amazone/rebellinnen-kalender/commit/746c2f7ae6a80272c2a80e40cba09fe6ae1dc368))
+* **content:** close the truncated catalog JSON ([5ce8faa](https://github.com/verein-amazone/rebellinnen-kalender/commit/5ce8faab3cb53dd15c0034ccb4fabe45a1368a99))
+* **content:** tidy whitespace, quotes and gender stars in Rebellinnen 20-52 ([5c1acd1](https://github.com/verein-amazone/rebellinnen-kalender/commit/5c1acd1c00f02031c67e1330a75222c439001582))
+
+### Performance
+
+* **content:** re-encode Rebellinnen 20-52 photos per the image pipeline ([b5bddab](https://github.com/verein-amazone/rebellinnen-kalender/commit/b5bddab01dab0ccb0e39282d8b639b3687ea797b))
+
+### Delivery
+
+* **deps:** bump the github-actions group across 1 directory with 2 updates ([2991706](https://github.com/verein-amazone/rebellinnen-kalender/commit/2991706df800080bd9f8721b802dfc97b7968232))
+
 ## [1.0.0-rc.17](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.16...v1.0.0-rc.17) (2026-10-06)
 
 ### Delivery
