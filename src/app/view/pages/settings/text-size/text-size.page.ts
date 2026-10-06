@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   AppearanceInteractor,
   type TextSizeId,
@@ -17,8 +18,10 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class TextSizePage {
   protected readonly appearance = inject(AppearanceInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected select(textSize: TextSizeId): void {
     this.appearance.selectTextSize(textSize);
+    void this.haptics.selection();
   }
 }

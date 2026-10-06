@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   AppearanceInteractor,
   type VibrationId,
@@ -17,8 +18,11 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class VibrationPage {
   protected readonly appearance = inject(AppearanceInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected select(vibration: VibrationId): void {
     this.appearance.selectVibration(vibration);
+    // After the switch, so turning vibration on is felt and turning it off is not.
+    void this.haptics.selection();
   }
 }

@@ -72,7 +72,7 @@
               [value]="swatch.hex"
               [attr.aria-label]="swatch.name"
               [checked]="color() === swatch.hex"
-              (change)="color.set(swatch.hex)"
+              (change)="selectColor(swatch.hex)"
             />
           </label>
         }

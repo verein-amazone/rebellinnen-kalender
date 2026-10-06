@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   AppIconInteractor,
   type AppIconId,
@@ -42,6 +43,15 @@ class FakeAppIconInteractor {
   }
 }
 
+class FakeHapticsInteractor {
+  selections = 0;
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 class StubLiveAnnouncer {
   readonly announcements: string[] = [];
 
@@ -57,6 +67,7 @@ async function setup(snapshot?: AppIconSnapshot) {
     appIcon.snapshot = snapshot;
   }
   const announcer = new StubLiveAnnouncer();
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -64,13 +75,14 @@ async function setup(snapshot?: AppIconSnapshot) {
       provideRouter([]),
       { provide: AppIconInteractor, useValue: appIcon },
       { provide: LiveAnnouncer, useValue: announcer },
+      { provide: HapticsInteractor, useValue: haptics },
     ],
   });
 
   const fixture = TestBed.createComponent(AppIconPage);
   await fixture.whenStable();
 
-  return { element: fixture.nativeElement as HTMLElement, appIcon, announcer, fixture };
+  return { element: fixture.nativeElement as HTMLElement, appIcon, announcer, haptics, fixture };
 }
 
 describe('AppIconPage', () => {
@@ -99,6 +111,15 @@ describe('AppIconPage', () => {
     await fixture.whenStable();
 
     expect(announcer.announcements).toEqual(['App-Symbol: Pixel']);
+  });
+
+  it('confirms the switch with one selection tick', async () => {
+    const { element, haptics, fixture } = await setup();
+
+    element.querySelector<HTMLInputElement>('input[value="pixel"]')!.click();
+    await fixture.whenStable();
+
+    expect(haptics.selections).toBe(1);
   });
 
   it('offers no choice where alternate icons are unavailable', async () => {

@@ -1,6 +1,7 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { AppIconInteractor, type AppIconId } from '@app/interactors/settings/app-icon.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
@@ -22,6 +23,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class AppIconPage {
   private readonly appIcon = inject(AppIconInteractor);
+  private readonly haptics = inject(HapticsInteractor);
   private readonly announcer = inject(LiveAnnouncer);
 
   protected readonly options = this.appIcon.options;
@@ -34,6 +36,7 @@ export class AppIconPage {
   protected async select(id: AppIconId): Promise<void> {
     await this.appIcon.select(id);
     this.iconResource.reload();
+    void this.haptics.selection();
 
     // The radios are not a visible confirmation on their own here: the icon that changed lives on
     // the home screen, outside the app.

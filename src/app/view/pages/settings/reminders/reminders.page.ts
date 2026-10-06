@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   type CompletedVisibilityId,
   ReminderPreferencesInteractor,
@@ -18,12 +19,15 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class SettingsRemindersPage {
   protected readonly preferences = inject(ReminderPreferencesInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected selectNewItemPlacement(placement: ReminderPlacementId): void {
     this.preferences.selectNewItemPlacement(placement);
+    void this.haptics.selection();
   }
 
   protected selectCompletedVisibility(visibility: CompletedVisibilityId): void {
     this.preferences.selectCompletedVisibility(visibility);
+    void this.haptics.selection();
   }
 }
