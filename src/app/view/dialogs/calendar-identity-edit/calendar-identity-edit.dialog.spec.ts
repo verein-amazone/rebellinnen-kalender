@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
+import { CALENDAR_COLOR_PALETTE } from '@app/interactors/calendar/calendar-colors';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
 import {
-  CALENDAR_COLOR_PALETTE,
   CalendarIdentityEditDialog,
   EMOJI_PICKER,
   type CalendarIdentityEditDialogData,

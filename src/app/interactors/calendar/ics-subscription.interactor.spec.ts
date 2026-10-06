@@ -19,6 +19,7 @@ import {
   IcsSubscriptionNameInvalidError,
   IcsUrlInvalidError,
 } from './ics-subscription.interactor';
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
 
 class FakeEmojiPicker {
   result: string | null = '🌻';
@@ -421,7 +422,7 @@ describe('IcsSubscriptionInteractor', () => {
       {
         id: subscriptionId,
         name: 'Verein',
-        color: null,
+        color: DEFAULT_CALENDAR_COLOR,
         emoji: null,
         enabled: true,
         state: 'ok',

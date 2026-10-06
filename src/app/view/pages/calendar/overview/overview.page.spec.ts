@@ -301,6 +301,15 @@ describe('CalendarOverviewPage', () => {
     expect(element.textContent).toContain('Mittwoch, 5. August 2026');
   });
 
+  it('still draws a dot for an appointment whose calendar has no colour', async () => {
+    const { element } = await setup({ day: '2026-08-05' }, [occurrence({ calendarColor: null })]);
+
+    const dots = Array.from(element.querySelectorAll('span.rounded-full[style]'));
+    expect(dots.map((dot) => dot.getAttribute('style'))).toEqual([
+      expect.stringContaining('var(--color-muted-foreground)'),
+    ]);
+  });
+
   it('renders a filter chip for every filterable calendar', async () => {
     const { element } = await setup(
       { day: '2026-08-05' },
