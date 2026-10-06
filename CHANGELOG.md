@@ -1,3 +1,9 @@
+## [1.0.0-rc.21](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.20...v1.0.0-rc.21) (2026-10-06)
+
+### Bug Fixes
+
+* **theme:** make Amazone's delete actions red instead of brown ([40dea16](https://github.com/verein-amazone/rebellinnen-kalender/commit/40dea1632b61698d55d3c6b3ebdad040532a79ca)), closes [#761512](https://github.com/verein-amazone/rebellinnen-kalender/issues/761512) [#c62a24](https://github.com/verein-amazone/rebellinnen-kalender/issues/c62a24) [#761512](https://github.com/verein-amazone/rebellinnen-kalender/issues/761512)
+
 ## [1.0.0-rc.20](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2026-10-06)
 
 ### Features
