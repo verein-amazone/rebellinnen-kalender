@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   AppearanceInteractor,
   type ThemeId,
@@ -17,8 +18,10 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class ThemePage {
   protected readonly appearance = inject(AppearanceInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected select(theme: ThemeId): void {
     this.appearance.selectTheme(theme);
+    void this.haptics.selection();
   }
 }

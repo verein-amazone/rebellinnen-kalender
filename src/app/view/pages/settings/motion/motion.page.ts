@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import {
   AppearanceInteractor,
   type MotionId,
@@ -17,8 +18,10 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class MotionPage {
   protected readonly appearance = inject(AppearanceInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected select(motion: MotionId): void {
     this.appearance.selectMotion(motion);
+    void this.haptics.selection();
   }
 }

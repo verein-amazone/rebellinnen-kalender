@@ -5,6 +5,7 @@ import {
   ImpulsePreferencesInteractor,
   type ImpulseGreetingId,
 } from '@app/interactors/daily-content/impulse-preferences.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
@@ -25,8 +26,10 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 export class ImpulsePage {
   protected readonly preferences = inject(ImpulsePreferencesInteractor);
   protected readonly appearance = inject(AppearanceInteractor);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected select(greeting: ImpulseGreetingId): void {
     this.preferences.selectGreeting(greeting);
+    void this.haptics.selection();
   }
 }

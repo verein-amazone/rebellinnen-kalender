@@ -32,8 +32,8 @@ const REPLAY_STRETCH = 1.5;
  *
  * Every haptic in the app goes through here, behind the one vibration setting. They confirm an
  * outcome the user caused and cares about - an appointment saved, an entry ticked off, a bookmark
- * set, an entry dropped into place - and never accompany navigation, scrolling or an ordinary tap:
- * a phone that buzzes all the time stops meaning anything by it.
+ * set, an entry dropped into place, another option picked - and never accompany navigation,
+ * scrolling or an ordinary tap: a phone that buzzes all the time stops meaning anything by it.
  */
 @Injectable({ providedIn: 'root' })
 export class HapticsInteractor {
@@ -65,7 +65,7 @@ export class HapticsInteractor {
     }
   }
 
-  /** An entry picked up or put down while reordering a list. */
+  /** An entry picked up or put down while reordering a list, or another option picked in a choice. */
   async selection(): Promise<void> {
     if (await this.mayVibrate()) {
       await this.haptics.selectionChanged();

@@ -411,7 +411,15 @@ confirm an outcome the user caused and cares about, and nothing else:
 | „Nicht vergessen“ entry ticked off (not reopened) | `tick()` - one light impact                       |
 | Bookmark set (not removed)                        | `tick()`                                          |
 | Row picked up and put down while reordering       | `selection()` - the platform's detent tick        |
+| Another option picked in a settings choice group  | `selection()`                                     |
+| Another calendar colour picked                    | `selection()`                                     |
 | Tagesimpuls greeting                              | `playArrival()` - the pattern above               |
+
+A selection tick follows a choice that takes effect, or shows its effect, right away - a settings
+radio, a colour swatch. Choices inside a form that still has to be submitted stay silent; the
+submit is the moment that counts. The tick comes from the presenter after the choice is stored, not
+from `ChoiceRow`, which as a component does not inject interactors. Switching vibration on is felt;
+switching it off is not.
 
 Never on navigation, tab switches, scrolling or an ordinary tap: a phone that buzzes all the time
 stops meaning anything by it. Like the wave, a haptic never carries information on its own - the

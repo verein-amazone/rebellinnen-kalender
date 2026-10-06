@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CALENDAR_COLOR_PALETTE } from '@app/interactors/calendar/calendar-colors';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
 import {
@@ -18,10 +19,20 @@ class FakeEmojiPicker {
   }
 }
 
+class FakeHapticsInteractor {
+  selections = 0;
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
 async function setup(data: CalendarIdentityEditDialogData) {
   const results: (CalendarIdentityEditResult | undefined)[] = [];
   const sheetRef = { close: (result?: CalendarIdentityEditResult) => results.push(result) };
   const emojiPicker = new FakeEmojiPicker();
+  const haptics = new FakeHapticsInteractor();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -29,6 +40,7 @@ async function setup(data: CalendarIdentityEditDialogData) {
       { provide: SHEET_DATA, useValue: data },
       { provide: SheetRef, useValue: sheetRef },
       { provide: EMOJI_PICKER, useValue: () => emojiPicker.pickEmoji() },
+      { provide: HapticsInteractor, useValue: haptics },
     ],
   });
 
@@ -51,6 +63,7 @@ async function setup(data: CalendarIdentityEditDialogData) {
     element,
     results,
     emojiPicker,
+    haptics,
     nameInput: element.querySelector<HTMLInputElement>('#calendar-identity-name')!,
     colorSwatch: (hex: string) =>
       element.querySelector<HTMLInputElement>(`input[type="radio"][value="${hex}"]`)!,
@@ -140,6 +153,15 @@ describe('CalendarIdentityEditDialog', () => {
 
     await dialog.submit();
     expect(dialog.results).toEqual([{ name: 'Mein Kalender', color: newColor, emoji: null }]);
+  });
+
+  it('confirms each colour switch with one selection tick', async () => {
+    const dialog = await setup({ name: 'Mein Kalender', color: null, emoji: null });
+
+    await dialog.selectColor(CALENDAR_COLOR_PALETTE[2].hex);
+    await dialog.selectColor(CALENDAR_COLOR_PALETTE[4].hex);
+
+    expect(dialog.haptics.selections).toBe(2);
   });
 
   it('opens the emoji picker and adopts the picked emoji', async () => {

@@ -4,6 +4,7 @@ import {
   CALENDAR_COLOR_PALETTE,
   DEFAULT_CALENDAR_COLOR,
 } from '@app/interactors/calendar/calendar-colors';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
 /** The dialog's colour/emoji-editing calendar name limit; ICS subscription names share it. */
@@ -50,6 +51,7 @@ export class CalendarIdentityEditDialog {
   private readonly data = inject(SHEET_DATA) as CalendarIdentityEditDialogData;
   private readonly sheetRef = inject<SheetRef<CalendarIdentityEditResult>>(SheetRef);
   private readonly pickEmojiFn = inject(EMOJI_PICKER);
+  private readonly haptics = inject(HapticsInteractor);
 
   protected readonly maxLength = CALENDAR_NAME_MAX_LENGTH;
   protected readonly palette = CALENDAR_COLOR_PALETTE;
@@ -70,6 +72,11 @@ export class CalendarIdentityEditDialog {
     if (emoji !== null) {
       this.emoji.set(emoji);
     }
+  }
+
+  protected selectColor(hex: string): void {
+    this.color.set(hex);
+    void this.haptics.selection();
   }
 
   protected clearEmoji(): void {
