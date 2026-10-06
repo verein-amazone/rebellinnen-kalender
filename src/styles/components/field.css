@@ -43,7 +43,7 @@
     }
 
     &:has(input[aria-invalid='true']) {
-      @apply border-danger;
+      @apply border-error;
     }
   }
 
@@ -67,6 +67,6 @@
   }
 
   .rk-error {
-    @apply text-danger mt-1 text-sm;
+    @apply text-error mt-1 text-sm;
   }
 }

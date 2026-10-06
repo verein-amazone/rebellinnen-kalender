@@ -17,6 +17,7 @@ colors:
   nav-bg: 'var(--color-nav-bg)'
   danger: 'var(--color-danger)'
   danger-foreground: 'var(--color-danger-foreground)'
+  error: 'var(--color-error)'
   success: 'var(--color-success)'
   success-foreground: 'var(--color-success-foreground)'
   warning: 'var(--color-warning)'
@@ -128,7 +129,8 @@ reflow because only a container query reacts to root-font-size growth.
 ## Colors
 
 Four independent, complete themes share one role structure (`primary`, `secondary`, `background`,
-`card`, `muted`, `accent`, `danger`/`success`/`warning`, each with a matching `-foreground`), defined
+`card`, `muted`, `accent`, `danger`/`success`/`warning`, each with a matching `-foreground`, and
+`error` for validation text), defined
 once as raw `--rk-*` values per `[data-theme='…']` block in `theme.css` and exposed to Tailwind as
 `--color-*` custom properties via `@theme inline`. **`theme.css` is the only source of truth for
 color values; nothing below restates a hex code** - every color is named by its role token
@@ -168,9 +170,8 @@ values rather than being described separately.
 
 ### Named Rules
 
-**The No Color-Only Signal Rule.** In every theme, `danger` is deliberately much darker than
-`primary` - on `amazone` specifically, the brand primary is itself red, which would collide with the
-conventional "danger" red if the two weren't kept clearly apart. Every destructive action pairs its
+**The No Color-Only Signal Rule.** On `amazone` the brand primary is itself red, so `danger` - a
+darker shade of that red - cannot keep the two apart by color. Every destructive action pairs its
 color with an explicit verb, an icon, and a confirmation step - never color alone. The same rule
 governs status colors generally: none of `danger`/`success`/`warning` is the sole carrier of meaning
 anywhere in the app.
@@ -314,7 +315,7 @@ must not scale with the root font size.
 - **Focus:** the border grows from 2px to 4px while padding shrinks by the same amount (no reflow);
   a filled (non-empty) field keeps the emphasized `ring`-colored border so a completed form reads at
   a glance without re-focusing each field.
-- **Error / Disabled:** an invalid field (`aria-invalid="true"`) turns its border `danger`; the error
+- **Error / Disabled:** an invalid field (`aria-invalid="true"`) turns its border `error`; the error
   text below it is the primary signal, always present in the DOM inside an `aria-live="polite"`
   region - the red border is a redundant cue, never the only one.
 
