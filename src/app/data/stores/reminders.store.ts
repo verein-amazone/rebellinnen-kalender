@@ -13,12 +13,14 @@ const STORAGE_KEY = scopedStorageName('rk.reminders');
 /**
  * Persists the preferences of the „Nicht vergessen“ list.
  *
- * Three scalar values read on every startup, so they live in `localStorage` rather than in SQLite,
+ * Two scalar values read on every startup, so they live in `localStorage` rather than in SQLite,
  * exactly like the appearance preferences. The entries themselves stay in the database - a store is
  * not where a table-backed list belongs.
  *
  * Every read is validated: stored values may come from an older app version or from a manually
- * edited storage entry, and an unknown value must never decide where an entry lands.
+ * edited storage entry, and an unknown value must never decide where an entry lands. Fields an
+ * older version stored and this one no longer knows (`completedItemPlacement`) are dropped on read
+ * and disappear with the next write.
  */
 @Injectable({ providedIn: 'root' })
 export class RemindersStore {
@@ -55,11 +57,6 @@ export class RemindersStore {
         candidate.newItemPlacement,
         REMINDER_PLACEMENT_IDS,
         DEFAULT_REMINDER_PREFERENCES.newItemPlacement,
-      ),
-      completedItemPlacement: pick(
-        candidate.completedItemPlacement,
-        REMINDER_PLACEMENT_IDS,
-        DEFAULT_REMINDER_PREFERENCES.completedItemPlacement,
       ),
       hideCompletedAtDayChange:
         typeof candidate.hideCompletedAtDayChange === 'boolean'

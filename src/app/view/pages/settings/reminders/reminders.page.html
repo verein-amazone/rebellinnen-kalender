@@ -18,24 +18,8 @@
       </fieldset>
     </section>
 
-    <section class="space-y-2">
-      <h2 class="text-muted-foreground text-sm">Erledigte Punkte</h2>
-      <fieldset class="space-y-2">
-        <legend class="sr-only">Wo erledigte Punkte erscheinen</legend>
-
-        @for (option of preferences.completedItemPlacementOptions; track option.id) {
-          <app-choice-row
-            name="reminder-completed-placement"
-            [value]="option.id"
-            [label]="option.label"
-            [description]="option.description"
-            [checked]="preferences.completedItemPlacement() === option.id"
-            (selected)="selectCompletedItemPlacement($event)"
-          />
-        }
-      </fieldset>
-    </section>
-
+    <!-- No choice for where a completed entry lands: testers found a second „Oben/Unten“ pair
+         confusing next to the first. The most recently completed one always tops its section. -->
     <section class="space-y-2">
       <h2 class="text-muted-foreground text-sm">Am Tageswechsel</h2>
       <fieldset class="space-y-2">

@@ -24,7 +24,6 @@ export class ReminderPreferencesInteractor {
   private readonly store = inject(RemindersStore);
 
   readonly newItemPlacement = computed(() => this.store.preferences().newItemPlacement);
-  readonly completedItemPlacement = computed(() => this.store.preferences().completedItemPlacement);
   readonly completedVisibility = computed<CompletedVisibilityId>(() =>
     this.store.preferences().hideCompletedAtDayChange ? 'hide' : 'keep',
   );
@@ -32,19 +31,6 @@ export class ReminderPreferencesInteractor {
   readonly newItemPlacementOptions: readonly ChoiceOption<ReminderPlacementId>[] = [
     { id: 'top', label: 'Oben', description: 'Neue Punkte stehen ganz oben in der Liste.' },
     { id: 'bottom', label: 'Unten', description: 'Neue Punkte stehen am Ende der Liste.' },
-  ];
-
-  readonly completedItemPlacementOptions: readonly ChoiceOption<ReminderPlacementId>[] = [
-    {
-      id: 'top',
-      label: 'Oben',
-      description: 'Zuletzt erledigte Punkte stehen oben bei den erledigten.',
-    },
-    {
-      id: 'bottom',
-      label: 'Unten',
-      description: 'Zuletzt erledigte Punkte stehen unten bei den erledigten.',
-    },
   ];
 
   readonly completedVisibilityOptions: readonly ChoiceOption<CompletedVisibilityId>[] = [
@@ -65,10 +51,6 @@ export class ReminderPreferencesInteractor {
 
   selectNewItemPlacement(newItemPlacement: ReminderPlacementId): void {
     this.store.update({ newItemPlacement });
-  }
-
-  selectCompletedItemPlacement(completedItemPlacement: ReminderPlacementId): void {
-    this.store.update({ completedItemPlacement });
   }
 
   selectCompletedVisibility(visibility: CompletedVisibilityId): void {

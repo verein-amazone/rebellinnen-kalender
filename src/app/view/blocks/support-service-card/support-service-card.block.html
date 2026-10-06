@@ -23,7 +23,7 @@
           [attr.rel]="isExternal(action.type) ? 'noopener noreferrer' : null"
           class="rk-button flex-1"
           [class.rk-button-primary]="first"
-          [class.rk-button-ghost]="!first"
+          [class.rk-button-outline-primary]="!first"
           [attr.aria-label]="actionAriaLabel(service().name, action.label, action.displayValue)"
         >
           @switch (action.type) {
@@ -46,7 +46,11 @@
               <!-- The visible number, not just the aria-label's spoken one: a sighted user reading
                    the card (e.g. to note it down or dial from another device) needs to see the
                    actual digits, not just "Anrufen". -->
-              <span class="text-xs font-normal opacity-90">{{ action.displayValue }}</span>
+              <!-- Dimmed only on the filled button: on the outline variant the primary text has no
+                   contrast to spare (see `.rk-button-outline-primary`). -->
+              <span class="text-xs font-normal" [class.opacity-90]="first">{{
+                action.displayValue
+              }}</span>
             }
           </span>
         </a>

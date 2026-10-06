@@ -56,7 +56,12 @@
             No enter or leave animation on purpose - see the header of reorder.css: both fought the
             drag, which owns this element's `transform` and reads the list by document position.
           -->
-          <li class="rk-row relative" cdkDrag [cdkDragData]="row.item">
+          <li
+            class="rk-row relative"
+            cdkDrag
+            [cdkDragData]="row.item"
+            (cdkDragStarted)="pickedUp()"
+          >
             <!--
                 Decoration, not a control: it does nothing without a pointer drag, and a focusable
                 element with no keyboard behaviour would be a stop in the tab order that does nothing.

@@ -13,6 +13,8 @@ import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
 
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
+
 export { IcsUrlInvalidError } from '@app/data/calendar/ics/ics-url';
 
 /** Foreground auto-refresh only bothers the network when the last check is older than this. */
@@ -105,7 +107,7 @@ export class IcsSubscriptionInteractor {
         id: icsCalendarRowId(subscriptionId),
         sourceId: subscriptionId,
         name: trimmedName,
-        color: null,
+        color: DEFAULT_CALENDAR_COLOR,
         emoji: null,
         enabled: true,
         writable: false,

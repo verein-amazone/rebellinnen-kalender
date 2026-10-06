@@ -253,8 +253,8 @@ describe('ReminderListInteractor', () => {
       ]);
     });
 
-    it('puts a completed entry below the others when the preference says so', async () => {
-      preferences.set({ ...DEFAULT_REMINDER_PREFERENCES, completedItemPlacement: 'bottom' });
+    it('puts a completed entry on top even when new entries go to the bottom', async () => {
+      preferences.set({ ...DEFAULT_REMINDER_PREFERENCES, newItemPlacement: 'bottom' });
       const today = new Date().toISOString();
       dao.records = [
         record({ id: 'open', position: 1000 }),
@@ -263,7 +263,7 @@ describe('ReminderListInteractor', () => {
 
       await interactor.complete('open');
 
-      expect(dao.completionUpdates[0].position).toBe(1700);
+      expect(dao.completionUpdates[0].position).toBe(-300);
     });
 
     it('reopens an entry using the placement for new entries', async () => {

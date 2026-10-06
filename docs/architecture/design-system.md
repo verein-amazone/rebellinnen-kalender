@@ -122,9 +122,10 @@ generates the whole variant family for free.
 
 Two custom variants:
 
-- **`hoverable:`** - `(hover: hover) and (pointer: fine)`. Use this instead of bare `hover:`. On a
-  touch device a hover state sticks after a tap and the control stays visibly lit until the user taps
-  somewhere else.
+- **`hoverable:`** - `:hover`, but only inside `(hover: hover) and (pointer: fine)`. Use this instead
+  of bare `hover:`. On a touch device a hover state sticks after a tap and the control stays visibly
+  lit until the user taps somewhere else. The `:hover` half matters as much as the media query:
+  without it the style applies at rest to every element on a desktop browser.
 - **`motion-reduced:`** - mirrors how `base.css` resolves motion: the in-app override wins, and the
   device preference applies only when the user has not explicitly chosen `standard`.
 
@@ -392,12 +393,29 @@ alert, and the only thing wearing this class is today's Tagesimpuls saying hello
 never opacity, for the same contrast reason the reorderable list records above.
 
 The card pairs it with a haptic pattern on the same envelope (`HapticsInteractor`): four taps whose
-intensity and sharpness fall away across the same 1.2s. Both channels are governed by one
-three-way preference on „Bewegung & Animationen“ - „Animation und Vibration“, „Nur Animation“,
-„Ohne Begrüßung“ - because the two are two ways of saying the same single thing, and people think
-of them that way. It is separate from the app-wide motion radio group on the same screen, which
-still silences the wave under „Reduziert“ whichever greeting is picked. Neither channel ever
-carries information on its own: the card is fully readable with both switched off.
+intensity and sharpness fall away across the same 1.2s. _When_ it greets is the Tagesimpuls
+screen's call - „Bei jedem Öffnen“ (the default: a cold start or a return from the background, not
+a tab switch), „Einmal am Tag“ or „Ohne Animation“. _Whether_ the phone vibrates along is the
+app-wide „Vibration“ setting, and the app-wide „Animationen“ setting still silences the wave under
+„Reduziert“ whichever greeting is picked; the Tagesimpuls screen says so when that is the case.
+Neither channel ever carries information on its own: the card is fully readable with both off.
+
+### Haptics
+
+Every vibration goes through `HapticsInteractor`, behind the one „Vibration“ setting. Haptics
+confirm an outcome the user caused and cares about, and nothing else:
+
+| Moment                                            | Feedback                                          |
+| ------------------------------------------------- | ------------------------------------------------- |
+| Appointment created or saved                      | `confirm()` - the platform's success notification |
+| „Nicht vergessen“ entry ticked off (not reopened) | `tick()` - one light impact                       |
+| Bookmark set (not removed)                        | `tick()`                                          |
+| Row picked up and put down while reordering       | `selection()` - the platform's detent tick        |
+| Tagesimpuls greeting                              | `playArrival()` - the pattern above               |
+
+Never on navigation, tab switches, scrolling or an ordinary tap: a phone that buzzes all the time
+stops meaning anything by it. Like the wave, a haptic never carries information on its own - the
+visible change or the announcement does.
 
 Shaking the phone replays the greeting. That gesture is an extra on a card that is always reachable
 by tapping, never the only path to anything.

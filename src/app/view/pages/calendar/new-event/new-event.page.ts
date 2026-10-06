@@ -5,6 +5,7 @@ import { LucideCheck } from '@lucide/angular';
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import { AppEventEditingInteractor } from '@app/interactors/calendar/app-event-editing.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
@@ -26,6 +27,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 export class NewEventPage {
   private readonly eventEditing = inject(AppEventEditingInteractor);
   private readonly router = inject(Router);
+  private readonly haptics = inject(HapticsInteractor);
 
   /**
    * Bound from the `?day=` query param the agenda's „Neuer Termin“ link sets, so the form defaults
@@ -69,6 +71,7 @@ export class NewEventPage {
     }
 
     await this.eventEditing.create(result.draft);
+    void this.haptics.confirm();
 
     // Replaces rather than pushes: the form is finished and must not be reachable again by the
     // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.

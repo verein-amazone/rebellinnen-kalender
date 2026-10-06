@@ -22,6 +22,7 @@ import type {
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
@@ -64,6 +65,7 @@ export interface RelatedSourceRow {
 export class ContentDetailPage {
   private readonly contentItems = inject(ContentItemsInteractor);
   private readonly bookmarks = inject(BookmarksInteractor);
+  private readonly haptics = inject(HapticsInteractor);
   private readonly sheets = inject(SheetService);
   private readonly router = inject(Router);
 
@@ -122,6 +124,7 @@ export class ContentDetailPage {
     }
 
     await this.bookmarks.toggle(current.id);
+    void this.haptics.tick();
     this.data.update((value) => (value === undefined ? value : { ...value, bookmarked: true }));
   }
 

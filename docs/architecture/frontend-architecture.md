@@ -442,9 +442,12 @@ needs a colour literal.
 
 The selection follows the normal layer direction:
 
-- `data/stores/appearance.store.ts` persists the three values and exposes them as signals.
+- `data/stores/appearance.store.ts` persists the values (theme, text size, motion, and the
+  vibration switch, which has no attribute) and exposes them as signals.
 - `interactors/settings/appearance.interactor.ts` validates the ids, owns the labelled option lists
-  and exposes the current selection.
+  and exposes the current selection, plus `motionReduced` - the app setting resolved against the
+  device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
+  know in code rather than in CSS.
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
   `--rk-os-scale` onto `<html>`. It is the only code that touches them.
 - `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).

@@ -17,6 +17,15 @@
      */
     hyphens: auto;
     overflow-wrap: anywhere;
+
+    /*
+     * Inter's contextual alternates centre an asterisk between capitals and closing punctuation, so
+     * the gender star in „FLINTA*?“ sat on the middle of the line while the same star in body text
+     * stays raised, and testers asked for it raised in titles too. Off everywhere rather than per
+     * title, since the star turns up in titles, teasers, calendar names and entries alike; Inter's
+     * other alternates (arrow ligatures, case-sensitive brackets) are nothing this app relies on.
+     */
+    font-feature-settings: 'calt' 0;
   }
 
   h1,

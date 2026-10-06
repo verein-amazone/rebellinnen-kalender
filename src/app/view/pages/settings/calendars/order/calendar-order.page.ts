@@ -26,6 +26,7 @@ import {
   CalendarFiltersInteractor,
   type CalendarFilterOption,
 } from '@app/interactors/calendar/calendar-filters.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
@@ -67,6 +68,7 @@ export type CalendarOrderAction = 'move-up' | 'move-down';
 export class CalendarOrderPage {
   private readonly calendarFilters = inject(CalendarFiltersInteractor);
   private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
 
   private readonly calendars = resource({
     loader: () => this.calendarFilters.listFilterable(),
@@ -86,8 +88,14 @@ export class CalendarOrderPage {
   protected readonly isLoading = computed(() => this.calendars.isLoading());
   protected readonly canReorder = computed(() => this.rows().length > 1);
 
+  /** A row was lifted for dragging. Felt together with the drop, like a detent. */
+  protected pickedUp(): void {
+    void this.haptics.selection();
+  }
+
   /** A row was dropped somewhere else in the list. */
   protected async drop(event: CdkDragDrop<readonly CalendarFilterOption[]>): Promise<void> {
+    void this.haptics.selection();
     if (event.previousIndex === event.currentIndex) {
       return;
     }

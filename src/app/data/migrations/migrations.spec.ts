@@ -2,6 +2,7 @@ import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
 import { CREATE_REMINDERS } from './001-create-reminders';
 import { ADD_REMINDER_POSITION } from './002-add-reminder-position';
 import { REPAIR_ALL_DAY_END } from './016-repair-all-day-end';
+import { DEFAULT_CALENDAR_COLORS } from './017-default-calendar-colors';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -204,6 +205,46 @@ describe('MIGRATIONS', () => {
       expect(coverage).toEqual([
         { source_id: 'src-app', engine_version: 'repair-016-all-day-end' },
         { source_id: 'src-device', engine_version: 'rrule-temporal@1.0.0' },
+      ]);
+
+      database.close();
+    });
+  });
+
+  describe('the default calendar colours', () => {
+    it('colours app and ICS calendars that have none, and leaves every other calendar alone', async () => {
+      const database = new InMemorySqliteDatabase();
+      database.migrate(MIGRATIONS.filter((migration) => migration.toVersion < 17));
+
+      const now = '2026-10-06T08:00:00.000Z';
+      await database.run(
+        `INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at)
+         VALUES ('src-app', 'app', 'App', 1, 'ok', ?, ?),
+                ('src-ics', 'ics', 'Verein', 1, 'ok', ?, ?),
+                ('src-device', 'device', 'Gerät', 1, 'ok', ?, ?)`,
+        [now, now, now, now, now, now],
+      );
+      const calendar = (id: string, sourceId: string, color: string | null) =>
+        database.run(
+          `INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, NULL, 1, 1, NULL, ?, ?)`,
+          [id, sourceId, id, color, now, now],
+        );
+      await calendar('app-uncoloured', 'src-app', null);
+      await calendar('app-coloured', 'src-app', '#43A047');
+      await calendar('ics-uncoloured', 'src-ics', null);
+      await calendar('device-uncoloured', 'src-device', null);
+
+      database.migrate([DEFAULT_CALENDAR_COLORS]);
+
+      const rows = await database.query<{ readonly id: string; readonly color: string | null }>(
+        `SELECT id, color FROM calendars ORDER BY id`,
+      );
+      expect(rows).toEqual([
+        { id: 'app-coloured', color: '#43A047' },
+        { id: 'app-uncoloured', color: '#E92F2A' },
+        { id: 'device-uncoloured', color: null },
+        { id: 'ics-uncoloured', color: '#E92F2A' },
       ]);
 
       database.close();

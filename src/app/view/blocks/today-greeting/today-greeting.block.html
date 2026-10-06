@@ -2,9 +2,10 @@
   <!-- The screen's own title, so `PageFocus` announces the greeting on arrival rather than a
        generic „Heute“. The emoji button stays a sibling: inside the heading it would end up in
        that announcement. -->
-  <!-- No comma before the name: „Hallo Nina“ is how the app's testers greet each other, and the
-       comma made the heading read like a formal letter. -->
-  <h1 class="text-3xl leading-snug">{{ greeting() }}{{ name() ? ' ' + name() : '' }}</h1>
+  <!-- `hyphens-manual`: the global `hyphens: auto` split names at a syllable („Ka-rin“), which
+       testers found disappointing. A name now moves to the next line whole; the base styles'
+       `overflow-wrap: anywhere` still breaks one wider than the line at large text sizes. -->
+  <h1 class="text-3xl leading-snug hyphens-manual">{{ greeting() }}</h1>
 
   <button
     type="button"

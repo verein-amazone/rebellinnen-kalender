@@ -31,6 +31,8 @@ test.describe('large text', () => {
         '/settings/theme',
         '/settings/text-size',
         '/settings/motion',
+        '/settings/impulse',
+        '/settings/vibration',
         '/settings/reminders',
         '/settings/calendars',
         '/calendar/event/new',

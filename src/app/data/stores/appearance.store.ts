@@ -4,12 +4,12 @@ import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-
 
 import {
   DEFAULT_APPEARANCE_PREFERENCES,
-  IMPULSE_GREETING_IDS,
   MOTION_IDS,
   THEME_IDS,
   TEXT_SIZE_IDS,
+  VIBRATION_IDS,
   type AppearancePreferences,
-  type ImpulseGreetingId,
+  type VibrationId,
 } from './appearance-preferences';
 
 const STORAGE_KEY = scopedStorageName('rk.appearance');
@@ -58,7 +58,7 @@ export class AppearanceStore {
       theme: pick(candidate.theme, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme),
       textSize: pick(candidate.textSize, TEXT_SIZE_IDS, DEFAULT_APPEARANCE_PREFERENCES.textSize),
       motion: pick(candidate.motion, MOTION_IDS, DEFAULT_APPEARANCE_PREFERENCES.motion),
-      impulseGreeting: readImpulseGreeting(candidate),
+      vibration: readVibration(candidate),
     };
   }
 
@@ -85,16 +85,20 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 }
 
 /**
- * The three-way Tagesimpuls preference replaced an on/off `haptics` switch. An install that had
- * switched the vibration off asked for a quieter greeting, not for the default one, so the old
- * value is carried over rather than dropped: `off` becomes „nur Animation“.
+ * The vibration switch replaced two older preferences that also decided whether the phone buzzed:
+ * an on/off `haptics` switch, and after it the three-way `impulseGreeting` whose „Nur Animation“
+ * (`motion`) meant the wave without the buzz. An install that had turned the vibration off either
+ * way keeps it off. `impulseGreeting: 'none'` is not carried over here - it meant no greeting at
+ * all, which the Tagesimpuls preference now holds (see `ImpulsePreferencesStore`).
  */
-function readImpulseGreeting(
-  candidate: Partial<Record<keyof AppearancePreferences | 'haptics', unknown>>,
-): ImpulseGreetingId {
-  if (IMPULSE_GREETING_IDS.includes(candidate.impulseGreeting as ImpulseGreetingId)) {
-    return candidate.impulseGreeting as ImpulseGreetingId;
+function readVibration(
+  candidate: Partial<Record<keyof AppearancePreferences | 'haptics' | 'impulseGreeting', unknown>>,
+): VibrationId {
+  if (VIBRATION_IDS.includes(candidate.vibration as VibrationId)) {
+    return candidate.vibration as VibrationId;
   }
 
-  return candidate.haptics === 'off' ? 'motion' : DEFAULT_APPEARANCE_PREFERENCES.impulseGreeting;
+  return candidate.haptics === 'off' || candidate.impulseGreeting === 'motion'
+    ? 'off'
+    : DEFAULT_APPEARANCE_PREFERENCES.vibration;
 }

@@ -1,10 +1,12 @@
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 
 import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
+import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
 
 import type { ContentItemView } from './content-item.vm';
 import { selectDailyImpulse } from './select-daily-impulse';
@@ -19,6 +21,15 @@ export class DailyImpulseInteractor {
   private readonly contentItems = inject(ContentItemDao);
   private readonly store = inject(DailyImpulseStore);
   private readonly catalogSync = inject(ContentCatalogSync);
+  private readonly preferences = inject(ImpulsePreferencesStore);
+
+  constructor() {
+    // A return from the background is an opening of the app, so „Bei jedem Öffnen“ may greet again.
+    // Registered here rather than in the Today block, so an opening counts even when the app comes
+    // back on another tab and Today is only visited afterwards.
+    const stop = inject(AppLifecycle).onResume(() => this.store.startSession());
+    inject(DestroyRef).onDestroy(stop);
+  }
 
   async featuredItem(today: string): Promise<ContentItemView | null> {
     await this.catalogSync.ensureSynced();
@@ -39,14 +50,29 @@ export class DailyImpulseInteractor {
   }
 
   /**
-   * Whether the given day's impulse still has to be announced to the user - true until the card has
-   * been shown once, so the arrival animation plays once a day rather than on every render.
+   * Whether the impulse should greet with its wave now, per the user's Tagesimpuls preference: once
+   * per opening of the app, once per day, or never. Reads signals only, so an effect that calls it
+   * runs again when the app is reopened or the day changes.
    */
-  isUnseen(day: string): boolean {
-    return !this.store.hasSeen(day);
+  shouldGreet(day: string): boolean {
+    switch (this.preferences.preferences().greeting) {
+      case 'every-open':
+        return !this.store.greetedThisSession();
+      case 'daily':
+        return !this.store.hasSeen(day);
+      case 'off':
+        return false;
+    }
   }
 
-  markSeen(day: string): void {
+  /** Whether the impulse may greet at all - a shake asks for it again, but not when it is off. */
+  greetingEnabled(): boolean {
+    return this.preferences.preferences().greeting !== 'off';
+  }
+
+  /** Records that the impulse has just greeted, for both the per-opening and the per-day rule. */
+  markGreeted(day: string): void {
+    this.store.markGreetedThisSession();
     this.store.markSeen(day);
   }
 

@@ -17,6 +17,23 @@ class FakeDeviceHaptics {
     this.patterns.push(pulses);
     return Promise.resolve();
   }
+
+  moments: string[] = [];
+
+  success(): Promise<void> {
+    this.moments.push('success');
+    return Promise.resolve();
+  }
+
+  lightImpact(): Promise<void> {
+    this.moments.push('lightImpact');
+    return Promise.resolve();
+  }
+
+  selectionChanged(): Promise<void> {
+    this.moments.push('selectionChanged');
+    return Promise.resolve();
+  }
 }
 
 function setup(): { interactor: HapticsInteractor; gateway: FakeDeviceHaptics } {
@@ -67,15 +84,27 @@ describe('HapticsInteractor', () => {
     });
   });
 
-  it('stays silent for every greeting setting except the full one', async () => {
-    for (const impulseGreeting of ['motion', 'none'] as const) {
-      const { interactor, gateway } = setup();
-      TestBed.inject(AppearanceStore).update({ impulseGreeting });
+  it('maps each small moment onto its platform feedback', async () => {
+    const { interactor, gateway } = setup();
 
-      await interactor.playArrival();
+    await interactor.confirm();
+    await interactor.tick();
+    await interactor.selection();
 
-      expect(gateway.patterns).toHaveLength(0);
-    }
+    expect(gateway.moments).toEqual(['success', 'lightImpact', 'selectionChanged']);
+  });
+
+  it('stays silent everywhere when vibration is switched off', async () => {
+    const { interactor, gateway } = setup();
+    TestBed.inject(AppearanceStore).update({ vibration: 'off' });
+
+    await interactor.playArrival();
+    await interactor.confirm();
+    await interactor.tick();
+    await interactor.selection();
+
+    expect(gateway.patterns).toHaveLength(0);
+    expect(gateway.moments).toHaveLength(0);
   });
 
   it('stays silent on a device without haptics', async () => {
@@ -83,7 +112,9 @@ describe('HapticsInteractor', () => {
     gateway.available = false;
 
     await interactor.playArrival();
+    await interactor.confirm();
 
     expect(gateway.patterns).toHaveLength(0);
+    expect(gateway.moments).toHaveLength(0);
   });
 });
