@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, type Observable } from 'rxjs';
 import { vi } from 'vitest';
 
+import { IntroInteractor } from '@app/interactors/onboarding/intro.interactor';
 import { AppDataInteractor } from '@app/interactors/settings/app-data.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
@@ -36,10 +37,11 @@ async function setup(confirmations: unknown[] = []) {
   const sheets = new StubSheetService();
   sheets.results = confirmations;
 
+  localStorage.clear();
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
-      provideRouter([]),
+      provideRouter([{ path: 'today', children: [] }]),
       { provide: AppDataInteractor, useValue: appData },
       { provide: SheetService, useValue: sheets },
     ],
@@ -63,6 +65,10 @@ async function setup(confirmations: unknown[] = []) {
     sheets,
     reload,
     settle: () => fixture.whenStable(),
+    replayIntro: () =>
+      [...element.querySelectorAll<HTMLButtonElement>('button')]
+        .find((button) => button.textContent?.includes('Einführung zurücksetzen'))!
+        .click(),
     reset: () =>
       [...element.querySelectorAll<HTMLButtonElement>('button')]
         .find((button) => button.textContent?.includes('löschen'))!
@@ -80,6 +86,21 @@ describe('DevToolsPage', () => {
     expect(sheets.opens[0]?.heading).toContain('App-Daten löschen');
     expect(appData.calls).toBe(1);
     expect(reload).toHaveBeenCalled();
+  });
+
+  it('brings back only the introduction, from its first step, and goes to Heute', async () => {
+    const { replayIntro, settle, appData } = await setup();
+    const intro = TestBed.inject(IntroInteractor);
+    intro.rememberStep(3);
+    intro.markSeen();
+
+    replayIntro();
+    await settle();
+
+    expect(intro.hasSeen()).toBe(false);
+    expect(intro.resumeStep()).toBe(1);
+    expect(TestBed.inject(Router).url).toBe('/today');
+    expect(appData.calls).toBe(0);
   });
 
   it('does nothing when the confirmation is declined', async () => {

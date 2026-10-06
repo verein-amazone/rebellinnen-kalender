@@ -5,6 +5,19 @@
     </p>
 
     <div class="rk-card space-y-3 px-4 py-4">
+      <h2 class="text-lg">Einführung zurücksetzen</h2>
+      <p class="text-muted-foreground">
+        Zeigt die Einführung sofort wieder ab dem ersten Schritt, wie beim ersten Start. Alle
+        anderen Daten bleiben erhalten. Eine schon erteilte Erlaubnis für Benachrichtigungen bleibt
+        im System bestehen.
+      </p>
+      <button type="button" class="rk-button rk-button-secondary w-full" (click)="replayIntro()">
+        <svg lucideRotateCcw class="rk-icon-sm" aria-hidden="true"></svg>
+        Einführung zurücksetzen
+      </button>
+    </div>
+
+    <div class="rk-card space-y-3 px-4 py-4">
       <h2 class="text-lg">App-Daten löschen</h2>
       <p class="text-muted-foreground">
         Setzt die App auf den Zustand direkt nach der Installation zurück: alle Termine,

@@ -135,7 +135,7 @@ test.describe('application shell', () => {
       ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
       ['Heute', ['Tagesimpuls', 'Nicht vergessen']],
       ['Kalender', ['Kalender verwalten']],
-      ['App & Rechtliches', ['Über die App', 'Datenschutz', 'Impressum']],
+      ['App & Rechtliches', ['Über die App', 'Einführung ansehen', 'Datenschutz', 'Impressum']],
     ] as const) {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
       for (const entry of entries) {
@@ -229,6 +229,7 @@ test.describe('application shell', () => {
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/about', 'Über die App'],
       ['/settings/dev-tools', 'Entwickler-Werkzeuge'],
+      ['/intro/1', 'Einführung'],
     ] as const) {
       await page.goto(path);
 

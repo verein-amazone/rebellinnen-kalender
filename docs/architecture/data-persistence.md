@@ -366,7 +366,8 @@ subscription explicitly opts into `http`.
 appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
 greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
 (`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
-hidden and in which order the chips appear (`calendar-chips.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+hidden and in which order the chips appear (`calendar-chips.store.ts`), and whether the first-launch
+introduction was seen and which step it reached (`intro.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 

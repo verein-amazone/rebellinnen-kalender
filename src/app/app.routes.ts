@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { firstLaunchGuard } from '@app/view/guards/first-launch.guard';
 import { MainNavigationScaffold } from '@app/view/scaffolds/main-navigation/main-navigation.scaffold';
 
 /**
@@ -17,6 +18,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'today' },
       {
         path: 'today',
+        canActivate: [firstLaunchGuard],
         loadChildren: () =>
           import('@app/view/pages/today/today.routes').then((m) => m.TODAY_ROUTES),
       },
@@ -29,6 +31,13 @@ export const routes: Routes = [
         path: 'content',
         loadChildren: () =>
           import('@app/view/pages/content/content.routes').then((m) => m.CONTENT_ROUTES),
+      },
+      {
+        // A child of the scaffold like every other screen, so `PageFocus` finds its heading.
+        path: 'intro/:step',
+        title: 'Einführung',
+        loadComponent: () =>
+          import('@app/view/pages/onboarding/intro.page').then((m) => m.IntroPage),
       },
       {
         path: 'settings',

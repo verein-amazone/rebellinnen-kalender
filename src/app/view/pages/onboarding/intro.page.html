@@ -1,0 +1,115 @@
+<app-focused-screen
+  [heading]="current().heading"
+  dismissal="close"
+  dismissLabel="Einführung schließen"
+  [fallbackLink]="destination()"
+  [beforeDismiss]="markSeenBeforeDismiss"
+>
+  <div class="space-y-4">
+    <p class="text-muted-foreground text-sm">Schritt {{ index() + 1 }} von {{ steps.length }}</p>
+
+    @switch (current().id) {
+      @case ('welcome') {
+        <div class="rk-card space-y-3 px-4 py-4">
+          <svg lucideSparkles class="rk-icon text-primary" aria-hidden="true"></svg>
+          <p class="text-lg font-semibold">Schön, dass du da bist!</p>
+          <p>
+            Der Rebell*innen Kalender ist dein Kalender für den Alltag - mit Porträts von
+            Rebell*innen und Wissensimpulsen von Verein Amazone.
+          </p>
+          <p class="text-muted-foreground">
+            In ein paar kurzen Schritten zeigen wir dir, wie die App aufgebaut ist. Du kannst
+            jederzeit überspringen.
+          </p>
+        </div>
+      }
+      @case ('areas') {
+        <ul class="rk-list">
+          <li class="flex items-start gap-3 px-4 py-3">
+            <svg lucideSun class="rk-icon text-primary mt-0.5 shrink-0" aria-hidden="true"></svg>
+            <div class="min-w-0 space-y-1">
+              <p class="font-semibold">Heute</p>
+              <p class="text-muted-foreground">
+                Deine nächsten Termine, deine „Nicht vergessen“-Liste und ein Tagesimpuls.
+              </p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3 px-4 py-3">
+            <svg
+              lucideCalendarDays
+              class="rk-icon text-primary mt-0.5 shrink-0"
+              aria-hidden="true"
+            ></svg>
+            <div class="min-w-0 space-y-1">
+              <p class="font-semibold">Kalender</p>
+              <p class="text-muted-foreground">
+                Termine ansehen und anlegen - auch wiederkehrende, und zusammen mit den Kalendern
+                von Verein Amazone.
+              </p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3 px-4 py-3">
+            <svg
+              lucideBookOpen
+              class="rk-icon text-primary mt-0.5 shrink-0"
+              aria-hidden="true"
+            ></svg>
+            <div class="min-w-0 space-y-1">
+              <p class="font-semibold">Inhalte</p>
+              <p class="text-muted-foreground">Rebell*innen, Wissen und Anlaufstellen.</p>
+            </div>
+          </li>
+        </ul>
+        <p class="text-muted-foreground flex items-start gap-3 px-1">
+          <svg lucideSettings class="rk-icon mt-0.5 shrink-0" aria-hidden="true"></svg>
+          <span>Die Einstellungen erreichst du über das Zahnrad oben auf „Heute“.</span>
+        </p>
+      }
+      @case ('privacy') {
+        <div class="rk-card space-y-3 px-4 py-4">
+          <svg lucideShieldCheck class="rk-icon text-primary" aria-hidden="true"></svg>
+          <p>
+            Die App braucht kein Konto und keine eigenen Server. Deine Termine, deine Erinnerungen
+            und deine gemerkten Inhalte bleiben auf deinem Gerät.
+          </p>
+          <p class="text-muted-foreground">
+            Deshalb funktioniert die App auch ohne Internetverbindung - und deshalb sind deine Daten
+            weg, wenn du die App löschst.
+          </p>
+        </div>
+        <div class="rk-card space-y-2 px-4 py-4">
+          <p class="font-semibold">Kalender von deinem Gerät</p>
+          @if (isNativePlatform) {
+            <p class="text-muted-foreground">
+              Du kannst später in den Einstellungen unter „Kalender verwalten“ die Kalender von
+              deinem Gerät verbinden. Erst dann fragt die App nach dem Zugriff darauf.
+            </p>
+          } @else {
+            <p class="text-muted-foreground">
+              Kalender von deinem Gerät gibt es nur in der App auf dem Handy. Im Browser bleiben
+              deine Termine in diesem Browser.
+            </p>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <div footer #focusedScreenFooter class="flex flex-col gap-2">
+    <button type="button" class="rk-button rk-button-primary w-full" (click)="next()">
+      {{ isLast() ? 'Los geht’s' : 'Weiter' }}
+    </button>
+    <div class="flex flex-wrap gap-2">
+      @if (!isFirst()) {
+        <button type="button" class="rk-button rk-button-ghost flex-1" (click)="back()">
+          Zurück
+        </button>
+      }
+      @if (!isLast()) {
+        <button type="button" class="rk-button rk-button-ghost flex-1" (click)="finish()">
+          Überspringen
+        </button>
+      }
+    </div>
+  </div>
+</app-focused-screen>

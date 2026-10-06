@@ -114,6 +114,22 @@ belongs back on Heute, even if it was created for another day. And the value arr
 so it is validated with `safeInAppUrl()` (`cross-cutting/helpers/in-app-url.ts`) before it reaches
 the router; anything that is not a route of this app falls back to the screen's static target.
 
+#### The first-launch introduction
+
+`/intro/:step` (#82) is a focused screen like any other, and a child of `MainNavigationScaffold` so
+`PageFocus` finds its heading. Each step is its own URL, which is what moves focus to the new
+heading and announces it - the page manages neither. Steps replace each other in the history, so the
+back gesture leaves the introduction; „Zurück“ is a visible button.
+
+`firstLaunchGuard` (`view/guards/`) is the app's one route guard. It sits on `today` only and sends
+a launch there to the introduction until `IntroInteractor.hasSeen()`, on the step it last reached
+(`resumeStep()`), so an introduction interrupted by closing the app continues where it was left. A deep link elsewhere is never
+diverted. Guards are view-layer code: they may navigate, and they reach state only through an
+interactor. Finishing, skipping and closing all mark the introduction as seen; the settings reopen
+it with `?returnTo=/settings`. The e2e config marks it as seen for every spec except
+`onboarding.spec.ts`. Settings → Entwickler-Werkzeuge resets it (`IntroInteractor.reset()`) to walk
+it again from the first step without wiping the other app data.
+
 #### Page state and navigation
 
 **State that must survive navigation goes in the URL** - as a route parameter or a query parameter,
