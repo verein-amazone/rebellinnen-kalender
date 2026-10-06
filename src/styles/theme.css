@@ -75,11 +75,16 @@
   --color-rebel-text: var(--rk-rebel-text);
   --color-rebel-text-muted: var(--rk-rebel-text-muted);
 
-  /* Status. Each is legible as text on both `card` and `background`, and carries its `-foreground`
-     when used as a fill. There are deliberately no `-subtle` variants: `bg-danger/10` covers a
-     tinted surface, because `inline` keeps the `var()` for Tailwind to wrap in `color-mix()`. */
+  /* Status. `success` and `warning` are legible as text on both `card` and `background`, and carry
+     their `-foreground` when used as a fill. `danger` is the colour of destructive actions - fills,
+     outlines and menu items - and is only guaranteed legible on `card` and the field surfaces it
+     sits on. `error` is the text colour for validation messages, which sit directly on `background`
+     too; on most themes it is the same value as `danger`. There are deliberately no `-subtle`
+     variants: `bg-danger/10` covers a tinted surface, because `inline` keeps the `var()` for
+     Tailwind to wrap in `color-mix()`. */
   --color-danger: var(--rk-danger);
   --color-danger-foreground: var(--rk-danger-foreground);
+  --color-error: var(--rk-error);
   --color-success: var(--rk-success);
   --color-success-foreground: var(--rk-success-foreground);
   --color-warning: var(--rk-warning);
@@ -170,11 +175,14 @@
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #a8d4d3;
   --rk-dot-color: rgb(21 25 95 / 0.12);
-  /* Amazone's background is a mid teal, so status colours have to be dark to stay legible on it as
-     well as on the near-white card. Danger is also deliberately much darker than
-     `--rk-primary` (#de2c27), which is itself red - see the note on destructive actions below. */
-  --rk-danger: #761512;
+  /* Amazone's background is a mid teal, so status colours that appear as text on it have to be
+     dark. Danger is the exception: it only ever sits on the card or a field surface, so it can stay
+     a red from the brand palette - a darker shade of `--rk-primary` (#de2c27) - where the old dark
+     red read as brown to testers. Validation text sits on the teal itself and keeps the dark red as
+     `--rk-error`. See the note on destructive actions below. */
+  --rk-danger: #c62a24;
   --rk-danger-foreground: #fffdf6;
+  --rk-error: #761512;
   --rk-success: #0a4434;
   --rk-success-foreground: #fffdf6;
   --rk-warning: #563400;
@@ -206,6 +214,7 @@
   --rk-dot-color: rgb(90 65 40 / 0.1);
   --rk-danger: #9c2b18;
   --rk-danger-foreground: #fffdf9;
+  --rk-error: #9c2b18;
   --rk-success: #2f6b4f;
   --rk-success-foreground: #fffdf9;
   --rk-warning: #7a4e12;
@@ -239,6 +248,7 @@
      the same way `--rk-primary` / `--rk-primary-foreground` already behave here. */
   --rk-danger: #ff9b96;
   --rk-danger-foreground: #0e1240;
+  --rk-error: #ff9b96;
   --rk-success: #7fd6b3;
   --rk-success-foreground: #0e1240;
   --rk-warning: #f2b25c;
@@ -270,6 +280,7 @@
   --rk-dot-color: rgb(45 27 105 / 0.12);
   --rk-danger: #a3242b;
   --rk-danger-foreground: #fffdf6;
+  --rk-error: #a3242b;
   --rk-success: #2b6850;
   --rk-success-foreground: #fffdf6;
   --rk-warning: #7a4a12;

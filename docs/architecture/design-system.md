@@ -98,13 +98,24 @@ Colour values never live in TypeScript.
 
 ### Status colours
 
-`danger`, `success` and `warning`, each with a `-foreground`, defined in all four themes. Each is
-legible as text on both `card` and `background` and carries its foreground when used as a fill.
+`danger`, `success` and `warning`, each with a `-foreground`, plus `error`, defined in all four
+themes. `success` and `warning` are legible as text on both `card` and `background` and carry their
+foreground when used as a fill.
 
-Two constraints worth knowing before changing them:
+`danger` is the colour of destructive actions: the filled and outline delete buttons, a destructive
+menu item, a delete icon in a row. Those only ever sit on `card` or a field surface, so `danger` is
+only guaranteed legible there. `error` is the text colour of validation messages and the border of
+an invalid field, which sit directly on `background` as well. On most themes the two are the same
+value; on Amazone they differ.
 
-- Amazone's `--rk-primary` is itself red and its `background` is a mid teal, which forces its status
-  colours quite dark. Orange is unavailable - it collides with `--rk-accent`.
+Constraints worth knowing before changing them:
+
+- Amazone's `background` is a mid teal, which forces any status colour used as text on it quite
+  dark. A dark enough red reads as brown, which testers flagged on the delete buttons as foreign to
+  the Amazone palette - hence the split: Amazone's `danger` is a darker shade of the brand red
+  (`#c62a24`, against `--rk-primary` `#de2c27`), and only `error` keeps the dark `#761512`. Orange
+  is unavailable - it collides with `--rk-accent`.
+- Never use `danger` for text on `background`; use `error`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
   how `--rk-primary` already behaves there.
 
