@@ -1,3 +1,14 @@
+## [1.0.0-rc.20](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.19...v1.0.0-rc.20) (2026-10-06)
+
+### Features
+
+* **feedback:** vibrate on calendar switches, filters and saves ([b4ca0cf](https://github.com/verein-amazone/rebellinnen-kalender/commit/b4ca0cf6a149c2ccb0f2ae740d74d384d1ca811e))
+* **today:** list only the next three appointments ([97417fe](https://github.com/verein-amazone/rebellinnen-kalender/commit/97417fe49f28243074379f136b7dbf4b657f469e))
+
+### Bug Fixes
+
+* **settings:** return from licences and image credits to „Über die App“ ([4117dd3](https://github.com/verein-amazone/rebellinnen-kalender/commit/4117dd3be4bcd312f24fd35b0a59c6b347e789da))
+
 ## [1.0.0-rc.19](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.18...v1.0.0-rc.19) (2026-10-06)
 
 ### Features
