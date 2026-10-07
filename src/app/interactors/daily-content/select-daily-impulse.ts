@@ -1,3 +1,6 @@
+import { Temporal } from 'temporal-polyfill';
+
+import { stringHash } from '@app/cross-cutting/helpers/string-hash';
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 
 export interface SelectDailyImpulseInput {
@@ -55,9 +58,7 @@ function windowDays(item: ContentItemRecord): number {
     return EVERGREEN_WINDOW_DAYS;
   }
 
-  const from = Date.parse(`${item.validFrom}T00:00:00Z`);
-  const to = Date.parse(`${item.validTo}T00:00:00Z`);
-  const spanDays = Math.round((to - from) / (24 * 60 * 60 * 1000)) + 1;
+  const spanDays = Temporal.PlainDate.from(item.validFrom).until(item.validTo).days + 1;
   return Math.max(1, spanDays);
 }
 
@@ -74,7 +75,7 @@ function weightedPick(
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
 
   const HASH_RESOLUTION = 1_000_000;
-  const target = ((dayHash(today) % HASH_RESOLUTION) / HASH_RESOLUTION) * totalWeight;
+  const target = ((stringHash(today) % HASH_RESOLUTION) / HASH_RESOLUTION) * totalWeight;
 
   let cumulative = 0;
   for (let i = 0; i < candidates.length; i++) {
@@ -85,13 +86,4 @@ function weightedPick(
   }
 
   return candidates[candidates.length - 1] ?? null;
-}
-
-/** A small, deterministic, non-cryptographic hash of a day string, used only to pick a weight. */
-function dayHash(day: string): number {
-  let hash = 0;
-  for (let i = 0; i < day.length; i++) {
-    hash = (hash * 31 + day.charCodeAt(i)) >>> 0;
-  }
-  return hash;
 }

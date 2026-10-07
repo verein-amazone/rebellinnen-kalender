@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { Temporal } from 'temporal-polyfill';
 
 import { AppLifecycle } from './app-lifecycle';
 
@@ -42,13 +43,9 @@ export class LocalDay {
 }
 
 /**
- * The local day as `YYYY-MM-DD`. Built from the local getters rather than `toISOString`, which would
- * return the UTC day and be wrong for most of the evening in this app's time zone.
+ * The local day as `YYYY-MM-DD`, in the device zone - not the UTC day `toISOString` would give,
+ * which is wrong for most of the evening in this app's time zone.
  */
 function currentDay(): string {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, '0');
-  const day = `${now.getDate()}`.padStart(2, '0');
-
-  return `${now.getFullYear()}-${month}-${day}`;
+  return Temporal.Now.plainDateISO().toString();
 }

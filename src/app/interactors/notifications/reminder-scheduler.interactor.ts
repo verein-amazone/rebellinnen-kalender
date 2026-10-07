@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Temporal } from 'temporal-polyfill';
 
 import { formatDayShort } from '@app/cross-cutting/helpers/date-format';
+import { stringHash } from '@app/cross-cutting/helpers/string-hash';
 import {
   DeviceNotifications,
   type PlannedNotification,
@@ -175,17 +176,11 @@ function reminderBody(
 }
 
 /**
- * A stable positive 31-bit id (FNV-1a) - the same reminder keeps its id across reschedules - moved
- * to the next free number in the rare case two reminders hash alike.
+ * A stable positive 31-bit id - the same reminder keeps its id across reschedules - moved to the
+ * next free number in the rare case two reminders hash alike.
  */
 function uniqueId(key: string, used: Set<number>): number {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < key.length; index++) {
-    hash ^= key.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
-  }
-
-  let id = hash & 0x7fffffff || 1;
+  let id = stringHash(key) & 0x7fffffff || 1;
   while (used.has(id)) {
     id = id === 0x7fffffff ? 1 : id + 1;
   }

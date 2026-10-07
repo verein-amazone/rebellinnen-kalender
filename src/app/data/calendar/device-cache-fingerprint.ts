@@ -1,3 +1,5 @@
+import { stringHash } from '@app/cross-cutting/helpers/string-hash';
+
 import type { OccurrenceRecord } from '../entities/occurrence.record';
 
 /**
@@ -5,9 +7,10 @@ import type { OccurrenceRecord } from '../entities/occurrence.record';
  * begins - cannot hash the same. A unit separator, because no value the calendar layer produces can
  * contain one.
  */
-const FIELD_SEPARATOR = 0x1f;
+const FIELD_SEPARATOR = '\u001f';
 
-const FNV_PRIME = 0x01000193;
+/** The second hash's seed: any value other than the FNV offset basis the first one starts from. */
+const SECOND_SEED = 0x01000193;
 
 /**
  * A short digest of the rows a device refresh would write.
@@ -19,9 +22,9 @@ const FNV_PRIME = 0x01000193;
  * an unchanged launch from a full delete-and-rebuild of the window into no writes at all.
  *
  * Deliberately not a cryptographic digest: this detects change, it does not defend against anyone,
- * and `crypto.subtle` is async. Two FNV-1a accumulators with different offset bases are folded over
- * the same bytes, so a change has to collide in both 32-bit hashes at once to go unnoticed - far
- * below the odds of the database being wrong for some other reason.
+ * and `crypto.subtle` is async. Two `stringHash` runs with different seeds go over the same fields,
+ * so a change has to collide in both 32-bit hashes at once to go unnoticed - far below the odds of
+ * the database being wrong for some other reason.
  */
 export function fingerprintOccurrences(rows: readonly OccurrenceRecord[]): string {
   // Sorted by id, because the fingerprint has to describe the *set* of rows: the native provider is
@@ -31,25 +34,19 @@ export function fingerprintOccurrences(rows: readonly OccurrenceRecord[]): strin
     left.id < right.id ? -1 : left.id > right.id ? 1 : 0,
   );
 
-  let hashA = 0x811c9dc5;
-  let hashB = 0x01000193;
+  let hashA = stringHash('');
+  let hashB = SECOND_SEED;
 
   for (const row of sorted) {
     for (const field of fieldsOf(row)) {
-      for (let index = 0; index < field.length; index += 1) {
-        const code = field.charCodeAt(index);
-        hashA = Math.imul(hashA ^ code, FNV_PRIME);
-        hashB = Math.imul(hashB ^ code, FNV_PRIME);
-      }
-
-      hashA = Math.imul(hashA ^ FIELD_SEPARATOR, FNV_PRIME);
-      hashB = Math.imul(hashB ^ FIELD_SEPARATOR, FNV_PRIME);
+      hashA = stringHash(field + FIELD_SEPARATOR, hashA);
+      hashB = stringHash(field + FIELD_SEPARATOR, hashB);
     }
   }
 
   // The count is carried in the open rather than only folded in: it is the cheap half of the
   // comparison and it reads well in a log or a debugger.
-  return `${sorted.length}-${(hashA >>> 0).toString(36)}-${(hashB >>> 0).toString(36)}`;
+  return `${sorted.length}-${hashA.toString(36)}-${hashB.toString(36)}`;
 }
 
 /**

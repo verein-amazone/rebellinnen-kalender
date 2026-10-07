@@ -21,16 +21,21 @@ describe('formatMonthYear', () => {
 });
 
 describe('formatWeekRangeLabel', () => {
+  // `formatRange` sets the dash between thin spaces (U+2009), as German typography wants.
   it('collapses a week inside one month to a day span', () => {
     expect(formatWeekRangeLabel('2026-08-03', '2026-08-09')).toBe('3.–9. August 2026');
   });
 
   it('names both months when the week crosses one', () => {
-    expect(formatWeekRangeLabel('2026-08-31', '2026-09-06')).toBe('31. Aug. – 6. Sept. 2026');
+    expect(formatWeekRangeLabel('2026-08-31', '2026-09-06')).toBe(
+      '31. Aug.\u2009–\u20096. Sept. 2026',
+    );
   });
 
   it('names both years when the week crosses one', () => {
-    expect(formatWeekRangeLabel('2026-12-28', '2027-01-03')).toBe('28. Dez. 2026 – 3. Jan. 2027');
+    expect(formatWeekRangeLabel('2026-12-28', '2027-01-03')).toBe(
+      '28. Dez. 2026\u2009–\u20093. Jan. 2027',
+    );
   });
 });
 

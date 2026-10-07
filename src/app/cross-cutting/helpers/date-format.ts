@@ -1,5 +1,6 @@
 import { formatDate, registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import { Temporal } from 'temporal-polyfill';
 
 /**
  * German date labels, built on Angular's own formatting mechanism (`formatDate`, the function
@@ -42,20 +43,36 @@ export function formatMonthYear(day: string): string {
 }
 
 /**
- * A week's header label. Inside one month the month is named once („3.–9. August 2026"); across a
- * month or year boundary both ends are dated in short form.
+ * A week's header label, from `Intl.DateTimeFormat#formatRange`, which leaves out what both ends
+ * share. Inside one month the month is named once, in full („3.–9. August 2026"); across a month or
+ * year boundary both ends are dated in short form („31. Aug. – 6. Sept. 2026").
  */
 export function formatWeekRangeLabel(fromDay: string, toDay: string): string {
-  const [fromYear, fromMonth] = fromDay.split('-');
-  const [toYear, toMonth] = toDay.split('-');
+  const from = Temporal.PlainDate.from(fromDay);
+  const to = Temporal.PlainDate.from(toDay);
+  const sameMonth = from.year === to.year && from.month === to.month;
+  return (sameMonth ? WEEK_RANGE_IN_MONTH : WEEK_RANGE_ACROSS_MONTHS).formatRange(
+    atNoonUtc(from),
+    atNoonUtc(to),
+  );
+}
 
-  if (fromYear === toYear && fromMonth === toMonth) {
-    return `${formatDate(fromDay, 'd', LOCALE)}.–${formatDate(toDay, 'd', LOCALE)}. ${formatMonthYear(toDay)}`;
-  }
+const WEEK_RANGE_IN_MONTH = new Intl.DateTimeFormat(LOCALE, {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const WEEK_RANGE_ACROSS_MONTHS = new Intl.DateTimeFormat(LOCALE, {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
 
-  const crossesYear = fromYear !== toYear;
-
-  return `${formatDate(fromDay, crossesYear ? 'd. MMM y' : 'd. MMM', LOCALE)} – ${formatDate(toDay, 'd. MMM y', LOCALE)}`;
+/** A day as a `Date` that is that day in UTC, the zone the range formats are pinned to. */
+function atNoonUtc(day: Temporal.PlainDate): Date {
+  return new Date(day.toZonedDateTime({ timeZone: 'UTC', plainTime: '12:00' }).epochMilliseconds);
 }
 
 /**
