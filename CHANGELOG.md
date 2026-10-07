@@ -1,3 +1,17 @@
+## [1.0.0-rc.22](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.21...v1.0.0-rc.22) (2026-10-07)
+
+### Features
+
+* **calendar:** create and edit recurring appointments ([86b83f8](https://github.com/verein-amazone/rebellinnen-kalender/commit/86b83f8634831555ccc5007c8186099acae0e99f)), closes [#80](https://github.com/verein-amazone/rebellinnen-kalender/issues/80)
+* **onboarding:** add a first-launch introduction ([75eb96d](https://github.com/verein-amazone/rebellinnen-kalender/commit/75eb96d902f079964631b95e1072d3c8202028a0)), closes [#82](https://github.com/verein-amazone/rebellinnen-kalender/issues/82)
+* **onboarding:** make the introduction friendlier and shorter ([599f5da](https://github.com/verein-amazone/rebellinnen-kalender/commit/599f5dafce2b4a8187fe2de89922347488233af7))
+* **reminders:** remind about appointments with local notifications ([3168707](https://github.com/verein-amazone/rebellinnen-kalender/commit/3168707fd278b55d47e5c5dabc1f844598e2607c)), closes [#81](https://github.com/verein-amazone/rebellinnen-kalender/issues/81)
+* **ui:** feel every switch, mark its state, and put icons on all buttons ([66c05cb](https://github.com/verein-amazone/rebellinnen-kalender/commit/66c05cbbb28cb5d4dac603e911a971bd6b4d215c))
+
+### Refactoring
+
+* use Temporal, Intl and ical.js instead of hand-written code ([e2b03e6](https://github.com/verein-amazone/rebellinnen-kalender/commit/e2b03e6780680cd25625238dd3ec4dceed0a84dd)), closes [Intl.DateTimeFormat#formatRange](https://github.com/verein-amazone/Intl.DateTimeFormat/issues/formatRange)
+
 ## [1.0.0-rc.21](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.20...v1.0.0-rc.21) (2026-10-06)
 
 ### Bug Fixes
