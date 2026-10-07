@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { developerToolsGuard } from '@app/view/guards/developer-tools.guard';
+
 import { AboutPage } from './about/about.page';
 import { AppIconPage } from './app-icon/app-icon.page';
 import { CalendarsPage } from './calendars/calendars.page';
@@ -46,6 +48,16 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },
   { path: 'about', component: AboutPage, title: 'Über die App' },
-  { path: 'content-catalog', component: ContentCatalogPage, title: 'Alle Inhalte (Debug)' },
-  { path: 'dev-tools', component: DevToolsPage, title: 'Entwickler-Werkzeuge' },
+  {
+    path: 'content-catalog',
+    component: ContentCatalogPage,
+    title: 'Alle Inhalte (Debug)',
+    canMatch: [developerToolsGuard],
+  },
+  {
+    path: 'dev-tools',
+    component: DevToolsPage,
+    title: 'Entwickler-Werkzeuge',
+    canMatch: [developerToolsGuard],
+  },
 ];

@@ -142,23 +142,25 @@
            belong: credits about the app, not settings the user acts on. -->
     </section>
 
-    <section class="space-y-2">
-      <h2 class="text-muted-foreground text-sm">Entwicklung</h2>
-      <ul class="rk-list">
-        <li>
-          <a routerLink="/settings/content-catalog" class="rk-row">
-            <span class="rk-row-label">Alle Inhalte (Debug)</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/settings/dev-tools" class="rk-row">
-            <span class="rk-row-label">Entwickler-Werkzeuge</span>
-            <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
-          </a>
-        </li>
-      </ul>
-    </section>
+    @if (showDeveloperTools) {
+      <section class="space-y-2">
+        <h2 class="text-muted-foreground text-sm">Entwicklung</h2>
+        <ul class="rk-list">
+          <li>
+            <a routerLink="/settings/content-catalog" class="rk-row">
+              <span class="rk-row-label">Alle Inhalte (Debug)</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/settings/dev-tools" class="rk-row">
+              <span class="rk-row-label">Entwickler-Werkzeuge</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
+        </ul>
+      </section>
+    }
     <!-- Not a row: there is nothing to tap here. It sits at the end so a support request can name
          the exact version without hunting for it. -->
     <p class="text-muted-foreground pb-2 text-center text-sm">Version {{ version }}</p>

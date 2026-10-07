@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { expectNoBlockingViolations } from './support/a11y';
+import { developerToolsEnabled } from './support/developer-tools';
 
 /**
  * The first-launch introduction (#82). The shared config marks it as seen for every other spec;
@@ -96,6 +97,7 @@ test.describe('first-launch introduction', () => {
   });
 
   test('starts over from the first step after a reset in the developer tools', async ({ page }) => {
+    test.skip(!developerToolsEnabled, 'A stable build has no developer tools.');
     await page.goto('/');
     await page.getByRole('button', { name: 'Weiter' }).click();
     await page.getByRole('button', { name: 'Weiter' }).click();
