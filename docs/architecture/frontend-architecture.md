@@ -126,7 +126,7 @@ saving. Each step is its own URL, which is what moves focus to the new
 heading and announces it - the page manages neither. Steps replace each other in the history, so the
 back gesture leaves the introduction; „Zurück“ is a visible button.
 
-`firstLaunchGuard` (`view/guards/`) is the app's one route guard. It sits on `today` only and sends
+`firstLaunchGuard` (`view/guards/`) sits on `today` only and sends
 a launch there to the introduction until `IntroInteractor.hasSeen()`, on the step it last reached
 (`resumeStep()`), so an introduction interrupted by closing the app continues where it was left. A deep link elsewhere is never
 diverted. Guards are view-layer code: they may navigate, and they reach state only through an
@@ -134,6 +134,14 @@ interactor. Finishing and skipping both mark the introduction as seen; the setti
 it with `?returnTo=/settings`. The e2e config marks it as seen for every spec except
 `onboarding.spec.ts`. Settings → Entwickler-Werkzeuge resets it (`IntroInteractor.reset()`) to walk
 it again from the first step without wiping the other app data.
+
+`developerToolsGuard` (`view/guards/`) is the other route guard, a `canMatch` on
+`settings/content-catalog` and `settings/dev-tools`. Those routes, and the „Entwicklung“ section in
+Settings that links to them, exist only while `DEVELOPER_TOOLS_ENABLED`
+(`cross-cutting/infrastructure/developer-tools.ts`) is true: in `ng serve` and in every prerelease
+from `dev`. A store build is cut from a release tag on `main`, carries a plain version and has
+neither (#119). The guard reads build information rather than app state, which is why it injects the
+token directly instead of going through an interactor.
 
 #### Page state and navigation
 

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { expectNoBlockingViolations } from './support/a11y';
+import { developerToolsEnabled } from './support/developer-tools';
 
 test.describe('application shell', () => {
   test('starts on the Today page', async ({ page }) => {
@@ -229,7 +230,7 @@ test.describe('application shell', () => {
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/notifications', 'Benachrichtigungen'],
       ['/settings/about', 'Über die App'],
-      ['/settings/dev-tools', 'Entwickler-Werkzeuge'],
+      ...(developerToolsEnabled ? [['/settings/dev-tools', 'Entwickler-Werkzeuge'] as const] : []),
       ['/intro/1', 'Einführung'],
     ] as const) {
       await page.goto(path);

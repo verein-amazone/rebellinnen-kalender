@@ -3,6 +3,7 @@ import { LucideChevronRight, LucideExternalLink } from '@lucide/angular';
 import { RouterLink } from '@angular/router';
 
 import { APP_VERSION } from '@app/cross-cutting/infrastructure/app-version';
+import { DEVELOPER_TOOLS_ENABLED } from '@app/cross-cutting/infrastructure/developer-tools';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { ImpulsePreferencesInteractor } from '@app/interactors/daily-content/impulse-preferences.interactor';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
@@ -32,6 +33,9 @@ export class SettingsOverviewPage {
 
   /** Shown at the end of the list, so a support request can name the exact version. */
   protected readonly version = APP_VERSION;
+
+  /** Store builds hide the „Entwicklung“ section; see `DEVELOPER_TOOLS_ENABLED`. */
+  protected readonly showDeveloperTools = inject(DEVELOPER_TOOLS_ENABLED);
 
   /** The home-screen icon is an OS concept; a browser tab has none to swap. */
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';

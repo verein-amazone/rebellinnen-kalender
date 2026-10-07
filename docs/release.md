@@ -67,6 +67,10 @@ the build number from `package.json`; its header comment documents the encoding,
 The `999` suffix marks the build that came from `main` - which is the one to pick in App Store
 Connect and the Play console when publishing a real release.
 
+The version also decides whether the build shows the developer tools (Settings → „Entwicklung“):
+every `-rc.N` prerelease does, a release from `main` does not. See `DEVELOPER_TOOLS_ENABLED` in
+`src/app/cross-cutting/infrastructure/developer-tools.ts`.
+
 ### Release notes
 
 `scripts/build-store-release-notes.mjs` reads the body of the GitHub release the tag carries and
