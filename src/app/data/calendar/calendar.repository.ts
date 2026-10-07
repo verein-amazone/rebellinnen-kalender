@@ -63,6 +63,21 @@ export interface RangeOccurrence extends OccurrenceRecord {
   readonly calendarEmoji: string | null;
 }
 
+/**
+ * An upcoming app-owned occurrence with the reminders of the item behind it - the input of the
+ * reminder scheduler (#81). `reminders` is the item's own list, or `null` to follow the defaults.
+ */
+export interface ReminderCandidate {
+  readonly occurrenceId: string;
+  readonly title: string;
+  readonly location: string | null;
+  readonly allDay: boolean;
+  readonly startUtc: string;
+  /** `YYYY-MM-DD` in the device zone; an all-day reminder is anchored at its midnight. */
+  readonly startLocalDay: string;
+  readonly reminders: readonly number[] | null;
+}
+
 /** The single calendar row an ICS subscription owns. */
 export function icsCalendarRowId(subscriptionId: string): string {
   return `ics-cal:${subscriptionId}`;
@@ -152,6 +167,37 @@ export class CalendarRepository {
     }
 
     return result;
+  }
+
+  /**
+   * The next app-owned occurrences starting at or after `fromUtc` in enabled calendars, with the
+   * reminders of their items. Device and ICS occurrences are never included: the operating system
+   * owns a device event's alerts, and a subscription has none of the user's.
+   */
+  async upcomingReminderCandidates(fromUtc: string, limit: number): Promise<ReminderCandidate[]> {
+    const [rows, items] = await Promise.all([
+      this.occurrences.listUpcomingInEnabledCalendars('app', fromUtc, limit),
+      this.items.listAll(),
+    ]);
+    const itemById = new Map(items.map((item) => [item.id, item]));
+
+    return rows.flatMap((row) => {
+      const item = row.itemId === null ? undefined : itemById.get(row.itemId);
+      if (item === undefined) {
+        return [];
+      }
+      return [
+        {
+          occurrenceId: row.id,
+          title: row.title,
+          location: row.location,
+          allDay: row.isAllDay,
+          startUtc: row.startUtc,
+          startLocalDay: row.startLocalDay,
+          reminders: item.reminders,
+        },
+      ];
+    });
   }
 
   /**
@@ -1193,6 +1239,7 @@ function icsItemAsSeries(item: IcsItemRecord): AppItemRecord {
     rrule: item.rrule,
     predecessorSeriesId: null,
     ruleRevision: 0,
+    reminders: null,
     createdAt: '',
     updatedAt: '',
   };

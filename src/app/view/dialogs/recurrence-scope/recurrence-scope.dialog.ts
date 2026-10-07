@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { LucideCheck, LucideX } from '@lucide/angular';
 
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
@@ -8,6 +9,11 @@ export type RecurrenceScope = 'occurrence' | 'following' | 'all';
 export interface RecurrenceScopeDialogData {
   /** Context message explaining why the choice is needed. */
   readonly message: string;
+  /**
+   * `false` hides „Nur dieser Termin“ - for a changed repetition, which always describes the
+   * series. Defaults to `true`.
+   */
+  readonly allowSingleOccurrence?: boolean;
 }
 
 /**
@@ -19,7 +25,7 @@ export interface RecurrenceScopeDialogData {
 @Component({
   selector: 'app-recurrence-scope',
   host: { class: 'block' },
-  imports: [ChoiceRow],
+  imports: [ChoiceRow, LucideCheck, LucideX],
   templateUrl: './recurrence-scope.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,7 +33,10 @@ export class RecurrenceScopeDialog {
   protected readonly data = inject(SHEET_DATA) as RecurrenceScopeDialogData;
   private readonly sheetRef = inject<SheetRef<RecurrenceScope>>(SheetRef);
 
-  protected readonly selectedScope = signal<RecurrenceScope>('occurrence');
+  protected readonly allowSingleOccurrence = this.data.allowSingleOccurrence ?? true;
+  protected readonly selectedScope = signal<RecurrenceScope>(
+    this.allowSingleOccurrence ? 'occurrence' : 'following',
+  );
 
   protected confirm(): void {
     this.sheetRef.close(this.selectedScope());

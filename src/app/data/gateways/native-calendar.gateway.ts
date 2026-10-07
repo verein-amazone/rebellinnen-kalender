@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import type { CreateEventOptions } from '@ebarooni/capacitor-calendar';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
@@ -36,6 +37,24 @@ export interface DeviceEventDraft {
   /** Exclusive, like every other `*Utc` end in the data layer - midnight after an all-day's last day. */
   readonly endUtc: string;
   readonly isAllDay: boolean;
+  /**
+   * Native alerts, in minutes before the start - for an all-day event, before midnight of its
+   * first day. Empty for none.
+   */
+  readonly alertMinutesBefore: readonly number[];
+  /** Makes the event a native series; the OS owns and expands it from then on. */
+  readonly recurrence: DeviceEventRecurrence | null;
+}
+
+/** A repetition pattern in the shape the OS calendar stores can hold - plugin-free. */
+export interface DeviceEventRecurrence {
+  readonly frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  readonly interval: number;
+  /** ISO weekdays, 1 = Monday … 7 = Sunday; only for a weekly pattern. */
+  readonly weekdays: readonly number[];
+  readonly count: number | null;
+  /** The last instant an occurrence may start at, inclusive. */
+  readonly untilUtc: string | null;
 }
 
 /**
@@ -53,9 +72,6 @@ export interface DeviceEventInstance {
   readonly isAllDay: boolean;
   readonly timeZone: string | null;
 }
-
-/** Minutes before an event's start that `createEvent` sets a native alert for. */
-const DEFAULT_ALERT_MINUTES_BEFORE_START = 15;
 
 /**
  * The device calendar boundary - the only importer of `@ebarooni/capacitor-calendar`.
@@ -129,10 +145,9 @@ export class NativeCalendarGateway {
    * never a canonical app record. The caller refreshes the device cache afterwards so the new
    * event shows up without waiting for the next automatic sync.
    *
-   * Sets one native alert `DEFAULT_ALERT_MINUTES_BEFORE_START` before the start - negative minutes
-   * mean "before" in the plugin's convention - so an appointment created here behaves like one
-   * created directly in the OS calendar app, which always gets a default reminder. There is no form
-   * field for this yet; it is a fixed default until one exists.
+   * The reminders become native alerts, so the OS calendar delivers them like any other event's -
+   * the app schedules no notifications of its own for a device event. Negative minutes mean
+   * „before“ in the plugin's convention.
    */
   async createEvent(draft: DeviceEventDraft): Promise<{ eventId: string }> {
     const { id } = await this.plugin.createEvent({
@@ -142,7 +157,11 @@ export class NativeCalendarGateway {
       startDate: Date.parse(draft.startUtc),
       endDate: this.nativeEndDate(draft),
       isAllDay: draft.isAllDay,
-      alerts: draft.isAllDay ? undefined : [-DEFAULT_ALERT_MINUTES_BEFORE_START],
+      alerts:
+        draft.alertMinutesBefore.length === 0
+          ? undefined
+          : draft.alertMinutesBefore.map((minutes) => -minutes),
+      recurrence: draft.recurrence === null ? undefined : toPluginRecurrence(draft.recurrence),
     });
     // The plugin types `id` as nullable because its web implementation produces an `.ics` file
     // instead of writing to a calendar store. On iOS and Android a successful create always
@@ -167,6 +186,23 @@ export class NativeCalendarGateway {
 
     return isLastDayInclusive ? endUtc - 1 : endUtc;
   }
+}
+
+/** The package exports the options but not the rule type itself. */
+type PluginRecurrence = NonNullable<CreateEventOptions['recurrence']>;
+
+function toPluginRecurrence(recurrence: DeviceEventRecurrence): PluginRecurrence {
+  return {
+    frequency: recurrence.frequency,
+    interval: recurrence.interval,
+    byWeekDay: recurrence.weekdays.length > 0 ? [...recurrence.weekdays] : undefined,
+    // The plugin ignores `end` once `count` is set, so only one of them is ever passed.
+    count: recurrence.count ?? undefined,
+    end:
+      recurrence.count === null && recurrence.untilUtc !== null
+        ? Date.parse(recurrence.untilUtc)
+        : undefined,
+  };
 }
 
 function toPermission(state: string): DeviceCalendarPermission {

@@ -22,4 +22,12 @@ export class SystemSettings {
       optionIOS: IOSSettings.App,
     });
   }
+
+  /** This app's notification settings, where a denied notification permission is turned back on. */
+  async openNotificationSettings(): Promise<void> {
+    await this.plugin.open({
+      optionAndroid: AndroidSettings.AppNotification,
+      optionIOS: IOSSettings.AppNotification,
+    });
+  }
 }

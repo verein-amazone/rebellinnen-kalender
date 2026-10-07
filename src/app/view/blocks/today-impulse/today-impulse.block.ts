@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideChevronRight, LucideSparkle } from '@lucide/angular';
+import { LucideChevronRight, LucideRotateCw, LucideSparkle } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
@@ -48,7 +48,7 @@ import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
 @Component({
   selector: 'app-today-impulse',
   host: { class: 'block' },
-  imports: [NgTemplateOutlet, RouterLink, LucideChevronRight, LucideSparkle],
+  imports: [LucideChevronRight, LucideRotateCw, LucideSparkle, NgTemplateOutlet, RouterLink],
   templateUrl: './today-impulse.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

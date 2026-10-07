@@ -1,0 +1,76 @@
+<app-focused-screen heading="Benachrichtigungen" fallbackLink="/settings">
+  <div class="space-y-6">
+    @if (preferences.isSupported) {
+      <label class="rk-choice">
+        <span class="rk-choice-text">
+          Erinnerungen an Termine
+          <span class="rk-choice-description">
+            Eine Mitteilung vor deinen Terminen - auch wenn die App geschlossen ist.
+          </span>
+        </span>
+        <input
+          id="notifications-enabled"
+          type="checkbox"
+          role="switch"
+          class="rk-toggle"
+          appCheckHaptics
+          [checked]="preferences.enabled()"
+          [disabled]="busy()"
+          (change)="toggle($event)"
+        />
+      </label>
+
+      <div role="status">
+        @if (!preferences.enabled() && permission() === 'denied') {
+          <div class="rk-card space-y-3 px-4 py-4">
+            <p>
+              Mitteilungen für diese App sind in den Systemeinstellungen ausgeschaltet. Erlaube sie
+              dort, dann kannst du die Erinnerungen hier einschalten.
+            </p>
+            <button
+              type="button"
+              class="rk-button rk-button-secondary w-full"
+              (click)="openSystemSettings()"
+            >
+              <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
+              <span>Einstellungen öffnen</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (preferences.enabled()) {
+        <section class="space-y-4">
+          <div class="space-y-1">
+            <h2 class="text-lg">Standard-Erinnerungen</h2>
+            <p class="text-muted-foreground text-sm">
+              Damit startet jeder neue Termin. Im Termin selbst kannst du sie ändern.
+            </p>
+          </div>
+
+          <app-reminder-list-field
+            id="notifications-timed"
+            label="Für Termine"
+            [value]="preferences.timedDefaults()"
+            (valueChange)="setDefaults('timed', $event)"
+          />
+
+          <app-reminder-list-field
+            id="notifications-all-day"
+            label="Für ganztägige Termine"
+            [allDay]="true"
+            [value]="preferences.allDayDefaults()"
+            (valueChange)="setDefaults('allDay', $event)"
+          />
+        </section>
+      }
+    } @else {
+      <div class="rk-card px-4 py-4">
+        <p class="text-muted-foreground">
+          Erinnerungen an Termine gibt es nur in der App auf dem Handy. Ein Browser kann dich nicht
+          erinnern, solange die Seite geschlossen ist.
+        </p>
+      </div>
+    }
+  </div>
+</app-focused-screen>

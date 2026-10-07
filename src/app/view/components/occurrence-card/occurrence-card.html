@@ -31,7 +31,17 @@
       </span>
     }
 
-    <span class="block font-semibold">{{ occurrence().title }}</span>
+    <span class="flex items-start gap-1.5 font-semibold">
+      <span class="min-w-0">{{ occurrence().title }}</span>
+      @if (occurrence().seriesId !== null) {
+        <svg
+          lucideRepeat
+          class="rk-icon-sm text-muted-foreground mt-1 shrink-0"
+          aria-hidden="true"
+        ></svg>
+        <span class="sr-only">, wiederholt sich</span>
+      }
+    </span>
 
     @if (occurrence().location; as location) {
       <span class="text-muted-foreground block text-sm">{{ location }}</span>

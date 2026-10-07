@@ -134,8 +134,8 @@ test.describe('application shell', () => {
       ['Persönlich', ['Profil']],
       ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
       ['Heute', ['Tagesimpuls', 'Nicht vergessen']],
-      ['Kalender', ['Kalender verwalten']],
-      ['App & Rechtliches', ['Über die App', 'Datenschutz', 'Impressum']],
+      ['Kalender', ['Kalender verwalten', 'Benachrichtigungen']],
+      ['App & Rechtliches', ['Über die App', 'Einführung ansehen', 'Datenschutz', 'Impressum']],
     ] as const) {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
       for (const entry of entries) {
@@ -227,8 +227,10 @@ test.describe('application shell', () => {
       ['/settings/impulse', 'Tagesimpuls'],
       ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
+      ['/settings/notifications', 'Benachrichtigungen'],
       ['/settings/about', 'Über die App'],
       ['/settings/dev-tools', 'Entwickler-Werkzeuge'],
+      ['/intro/1', 'Einführung'],
     ] as const) {
       await page.goto(path);
 

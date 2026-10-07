@@ -30,6 +30,19 @@ export default defineConfig({
     baseURL: 'http://localhost:4200',
     /* Collect trace when retrying the failed test. */
     trace: 'on-first-retry',
+    /*
+     * Every test starts as a returning user: the first-launch introduction (#82) would otherwise
+     * stand in front of Today in every spec. `onboarding.spec.ts` clears this to test it.
+     */
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:4200',
+          localStorage: [{ name: 'rk.intro', value: '{"seenAt":"2026-01-01T00:00:00.000Z"}' }],
+        },
+      ],
+    },
   },
 
   /* Only Chromium for now; VoiceOver/TalkBack testing happens on real devices later. */

@@ -13,6 +13,8 @@ import { FormField } from '@angular/forms/signals';
 import { LucideChevronDown } from '@lucide/angular';
 import { Temporal } from 'temporal-polyfill';
 
+import { CheckHaptics } from '@app/view/components/field/check-haptics';
+
 /**
  * The appointment's date and time, collapsed to a one-line summary that expands to "Starts"/"Ends"/
  * "All-day" rows on tap - inspired by the platform calendar app's own date row. Both a timed
@@ -27,7 +29,7 @@ import { Temporal } from 'temporal-polyfill';
 @Component({
   selector: 'app-date-time-field',
   host: { class: 'block' },
-  imports: [FormField, LucideChevronDown],
+  imports: [CheckHaptics, FormField, LucideChevronDown],
   templateUrl: './date-time-field.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

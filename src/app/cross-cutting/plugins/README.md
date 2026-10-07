@@ -6,7 +6,7 @@ on as an Angular `InjectionToken`. Two places inject such a token, and nothing e
 - `data/gateways/**` for plugins that are a data source (SQLite, the device calendar).
 - `cross-cutting/infrastructure/**` for plugins that are a device capability (haptics, the shake
   gesture, the launcher icon, the OS settings deep link, the emoji picker, the keyboard, the OS
-  text scale, the app lifecycle).
+  text scale, the app lifecycle, local notifications).
 
 ESLint enforces both halves: the package ban outside this folder, and the token ban outside those
 two. `device-platform.ts` is the single exemption - it reads the Capacitor _runtime_ rather than a

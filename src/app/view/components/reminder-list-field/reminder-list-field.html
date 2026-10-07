@@ -1,0 +1,32 @@
+<p class="rk-label" [id]="id() + '-label'">{{ label() }}</p>
+
+<ul class="rk-list" [attr.aria-labelledby]="id() + '-label'">
+  @for (item of items(); track item.minutes) {
+    <!-- The row holds a label and a remove button, so `.rk-row` sits on the <li> itself. -->
+    <li class="rk-row">
+      <svg lucideBell class="rk-icon-sm text-muted-foreground shrink-0" aria-hidden="true"></svg>
+      <span class="rk-row-label">{{ item.label }}</span>
+      <button type="button" class="rk-icon-button" (click)="remove(item.minutes)">
+        <svg lucideX class="rk-icon-sm" aria-hidden="true"></svg>
+        <span class="sr-only">{{ item.label }} entfernen</span>
+      </button>
+    </li>
+  } @empty {
+    <li class="rk-row">
+      <span class="rk-row-label text-muted-foreground">Keine Erinnerung</span>
+    </li>
+  }
+
+  @if (canAdd()) {
+    <li>
+      <button type="button" class="rk-row w-full text-left" (click)="add()">
+        <svg lucidePlus class="rk-icon-sm text-primary shrink-0" aria-hidden="true"></svg>
+        <span class="rk-row-label">Erinnerung hinzufügen</span>
+      </button>
+    </li>
+  }
+</ul>
+
+@if (!canAdd()) {
+  <p class="rk-hint">Höchstens {{ maxReminders }} Erinnerungen.</p>
+}

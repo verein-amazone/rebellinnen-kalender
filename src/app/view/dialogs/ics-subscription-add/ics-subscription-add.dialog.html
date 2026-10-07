@@ -51,7 +51,8 @@
 
   <div class="rk-sheet-footer flex-col">
     <button type="submit" class="rk-button rk-button-primary w-full" [disabled]="!canSubmit()">
-      Kalender hinzufügen
+      <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+      <span>Kalender hinzufügen</span>
     </button>
     <button
       type="button"
@@ -59,7 +60,8 @@
       [disabled]="submitting()"
       (click)="cancel()"
     >
-      Abbrechen
+      <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+      <span>Abbrechen</span>
     </button>
   </div>
 </form>

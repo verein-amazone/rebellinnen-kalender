@@ -43,7 +43,7 @@ test.describe('appointments', () => {
       day: '2026-09-02',
     });
 
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
     await page.getByRole('button', { name: 'Bearbeiten' }).click();
 
     await page.getByLabel('Titel').fill('Vorstandssitzung (verschoben)');
@@ -60,7 +60,7 @@ test.describe('appointments', () => {
       day: '2026-09-03',
     });
 
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
     await page.getByRole('button', { name: 'Löschen' }).click();
 
     const confirmation = page.getByRole('dialog', { name: 'Termin löschen?' });
@@ -81,7 +81,7 @@ test.describe('appointments', () => {
       day: '2026-09-04',
     });
 
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
 
     await expect(page.getByRole('heading', { name: 'Zahnarzttermin' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Bearbeiten', exact: true })).toHaveCount(0);
@@ -102,7 +102,7 @@ test.describe('appointments', () => {
       day: '2026-09-05',
     });
 
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
     const opener = page.getByRole('button', { name: 'Löschen' });
     await opener.click();
 
@@ -143,7 +143,7 @@ test.describe('appointments', () => {
       day: '2026-09-06',
     });
 
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
 
     await expectNoBlockingViolations(page);
   });
@@ -250,7 +250,7 @@ test.describe('calendar management', () => {
     await expect(page.getByRole('link', { name: /Familientreffen/ })).toHaveCount(0);
 
     // The cached occurrence is only hidden, not gone - its detail is still reachable directly.
-    await page.goto(`/calendar/event/${occurrenceId}`);
+    await page.goto(`/calendar/event/${encodeURIComponent(occurrenceId)}`);
     await expect(page.getByRole('heading', { name: 'Familientreffen' })).toBeVisible();
   });
 

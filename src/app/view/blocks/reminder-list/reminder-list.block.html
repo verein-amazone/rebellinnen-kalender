@@ -2,7 +2,8 @@
   <div class="rk-card space-y-3 px-4 py-6 text-center">
     <p>Die Liste konnte nicht geladen werden.</p>
     <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
-      Erneut versuchen
+      <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+      <span>Erneut versuchen</span>
     </button>
   </div>
 } @else if (items.status() === 'loading') {
@@ -75,6 +76,7 @@
               <input
                 type="checkbox"
                 class="rk-check"
+                appCheckHaptics
                 [checked]="row.item.completed"
                 [attr.aria-label]="toggleLabel(row.item)"
                 (change)="toggle(row.item)"

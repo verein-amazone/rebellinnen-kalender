@@ -1,0 +1,9 @@
+<ul class="space-y-2 pb-4">
+  @for (option of data.options; track option.minutes) {
+    <li>
+      <button type="button" class="rk-choice w-full text-left" (click)="pick(option.minutes)">
+        <span class="rk-choice-text">{{ option.label }}</span>
+      </button>
+    </li>
+  }
+</ul>

@@ -9,7 +9,12 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
+import {
+  LucideCalendarCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideRotateCw,
+} from '@lucide/angular';
 import { Temporal } from 'temporal-polyfill';
 
 import {
@@ -69,6 +74,8 @@ const UNCOLOURED_CALENDAR_DOT = 'var(--color-muted-foreground)';
     TabContent,
     LucideChevronLeft,
     LucideChevronRight,
+    LucideCalendarCheck,
+    LucideRotateCw,
   ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, InjectionToken, signal } from '@angular/core';
+import { LucideCheck, LucideTrash2, LucideX } from '@lucide/angular';
 
 import {
   CALENDAR_COLOR_PALETTE,
@@ -44,6 +45,7 @@ export interface CalendarIdentityEditResult {
 @Component({
   selector: 'app-calendar-identity-edit',
   host: { class: 'block' },
+  imports: [LucideCheck, LucideTrash2, LucideX],
   templateUrl: './calendar-identity-edit.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,4 +1,5 @@
 import ICAL from 'ical.js';
+import { Temporal } from 'temporal-polyfill';
 
 import type { IcsItemExceptionRecord, IcsItemRecord } from '../../entities/ics.record';
 import type { TemporalValue } from '../../entities/temporal-value';
@@ -37,7 +38,7 @@ export interface ParsedIcsCalendar {
 }
 
 /**
- * Parses and normalizes one ICS document - the only importer of `ical.js`.
+ * Parses and normalizes one ICS document with `ical.js`.
  *
  * Recurring masters keep their RRULE text verbatim; EXDATEs become cancellation exceptions and
  * VEVENTs with a RECURRENCE-ID become overrides, both keyed by the occurrence's original start.
@@ -170,7 +171,7 @@ function describeSkippedEvent(vevent: ICAL.Component, cause: unknown): string {
 
 function readRrule(vevent: ICAL.Component): string | null {
   const rule = vevent.getFirstPropertyValue('rrule');
-  return rule === null ? null : String(rule);
+  return rule instanceof ICAL.Recur ? rule.toString() : null;
 }
 
 /**
@@ -204,9 +205,11 @@ function toEndTemporal(time: ICAL.Time, allDay: boolean): TemporalValue {
     return end;
   }
 
-  const previousDay = time.clone();
-  previousDay.day -= 1;
-  return { kind: 'date', value: plainDate(previousDay), timeZone: null };
+  return {
+    kind: 'date',
+    value: Temporal.PlainDate.from(end.value).subtract({ days: 1 }).toString(),
+    timeZone: null,
+  };
 }
 
 function isUsableZone(zone: string): boolean {
@@ -219,14 +222,16 @@ function isUsableZone(zone: string): boolean {
 }
 
 function plainDate(time: ICAL.Time): string {
-  return `${String(time.year).padStart(4, '0')}-${String(time.month).padStart(2, '0')}-${String(
-    time.day,
-  ).padStart(2, '0')}`;
+  return Temporal.PlainDate.from({ year: time.year, month: time.month, day: time.day }).toString();
 }
 
 function plainDateTime(time: ICAL.Time): string {
-  return `${plainDate(time)}T${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(
-    2,
-    '0',
-  )}:${String(time.second).padStart(2, '0')}`;
+  return Temporal.PlainDateTime.from({
+    year: time.year,
+    month: time.month,
+    day: time.day,
+    hour: time.hour,
+    minute: time.minute,
+    second: time.second,
+  }).toString();
 }

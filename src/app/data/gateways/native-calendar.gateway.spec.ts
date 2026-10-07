@@ -169,7 +169,7 @@ describe('NativeCalendarGateway', () => {
     expect(requestedId).toBe('event-1');
   });
 
-  it('writes a new event straight into a device calendar with a default 15-minute alert', async () => {
+  it('writes a new event straight into a device calendar with its reminders as alerts', async () => {
     let sentOptions: unknown;
     const gateway = setup({
       createEvent: async (options: unknown) => {
@@ -185,6 +185,8 @@ describe('NativeCalendarGateway', () => {
       startUtc: '2026-08-10T08:00:00Z',
       endUtc: '2026-08-10T09:00:00Z',
       isAllDay: false,
+      alertMinutesBefore: [15, 60],
+      recurrence: null,
     });
 
     expect(result).toEqual({ eventId: 'event-2' });
@@ -195,11 +197,57 @@ describe('NativeCalendarGateway', () => {
       startDate: Date.parse('2026-08-10T08:00:00Z'),
       endDate: Date.parse('2026-08-10T09:00:00Z'),
       isAllDay: false,
-      alerts: [-15],
+      alerts: [-15, -60],
+      recurrence: undefined,
     });
   });
 
-  it('sets no alert for an all-day device event', async () => {
+  it('turns a recurrence into a native series rule', async () => {
+    const sent: { recurrence?: unknown }[] = [];
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sent.push(options as { recurrence?: unknown });
+        return { ics: null, id: 'event-6' };
+      },
+    });
+    const base = {
+      alertMinutesBefore: [],
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: null,
+      startUtc: '2026-08-10T08:00:00Z',
+      endUtc: '2026-08-10T09:00:00Z',
+      isAllDay: false,
+    };
+
+    await gateway.createEvent({
+      ...base,
+      recurrence: { frequency: 'weekly', interval: 2, weekdays: [1, 3], count: 6, untilUtc: null },
+    });
+    await gateway.createEvent({
+      ...base,
+      recurrence: {
+        frequency: 'monthly',
+        interval: 1,
+        weekdays: [],
+        count: null,
+        untilUtc: '2026-12-31T22:59:59Z',
+      },
+    });
+
+    expect(sent.map((options) => options.recurrence)).toEqual([
+      { frequency: 'weekly', interval: 2, byWeekDay: [1, 3], count: 6, end: undefined },
+      {
+        frequency: 'monthly',
+        interval: 1,
+        byWeekDay: undefined,
+        count: undefined,
+        end: Date.parse('2026-12-31T22:59:59Z'),
+      },
+    ]);
+  });
+
+  it('sets no alert for an event without reminders', async () => {
     let sentOptions: unknown;
     const gateway = setup({
       createEvent: async (options: unknown) => {
@@ -215,6 +263,8 @@ describe('NativeCalendarGateway', () => {
       startUtc: '2026-08-10T00:00:00Z',
       endUtc: '2026-08-11T00:00:00Z',
       isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
     });
 
     expect(sentOptions).toEqual(expect.objectContaining({ isAllDay: true, alerts: undefined }));
@@ -241,6 +291,8 @@ describe('NativeCalendarGateway', () => {
       startUtc: '2026-09-18T00:00:00Z',
       endUtc: '2026-09-19T00:00:00Z',
       isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
     });
 
     expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
@@ -265,6 +317,8 @@ describe('NativeCalendarGateway', () => {
       startUtc: '2026-09-18T00:00:00Z',
       endUtc: '2026-09-19T00:00:00Z',
       isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
     });
 
     expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z'));
@@ -283,6 +337,8 @@ describe('NativeCalendarGateway', () => {
         startUtc: '2026-08-10T08:00:00Z',
         endUtc: '2026-08-10T09:00:00Z',
         isAllDay: false,
+        alertMinutesBefore: [],
+        recurrence: null,
       }),
     ).rejects.toThrow('did not return an id');
   });

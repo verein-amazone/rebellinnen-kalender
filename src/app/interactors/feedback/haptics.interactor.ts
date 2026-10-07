@@ -31,7 +31,7 @@ const REPLAY_STRETCH = 1.5;
  * wants to feel it at all.
  *
  * Every haptic in the app goes through here, behind the one vibration setting. They confirm an
- * outcome the user caused and cares about - an appointment saved, an entry ticked off, a bookmark
+ * outcome the user caused and cares about - an appointment saved, a switch flipped, a bookmark
  * set, an entry dropped into place, another option picked - and never accompany navigation,
  * scrolling or an ordinary tap: a phone that buzzes all the time stops meaning anything by it.
  */
@@ -58,7 +58,10 @@ export class HapticsInteractor {
     }
   }
 
-  /** A small state change the user caused: an entry ticked off, a bookmark set, a calendar switched. */
+  /**
+   * A small state change the user caused: any switch or checkbox flipped (via `CheckHaptics`, both
+   * ways), or a bookmark set.
+   */
   async tick(): Promise<void> {
     if (await this.mayVibrate()) {
       await this.haptics.lightImpact();

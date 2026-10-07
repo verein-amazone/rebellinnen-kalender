@@ -1,3 +1,5 @@
+import { stringHash } from '@app/cross-cutting/helpers/string-hash';
+
 /**
  * The Today page's closing-footer copy, keyed by the message keys `today-closing-state.ts` picks.
  *
@@ -11,7 +13,7 @@
  * Every appointment line may state a clock time: `selectTodayClosingState` never picks an all-day
  * entry as the next or tomorrow's appointment, precisely because it has no time to state.
  */
-const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
+export const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
   'appointment-later.headline': [
     'Heute steht noch etwas an',
     'Später ist noch ein Termin',
@@ -64,13 +66,5 @@ export function pickClosingCopy(key: string, day: string, stateId: string): stri
     throw new Error(`Unknown closing-message key: ${key}`);
   }
 
-  return pool[hash(`${day}|${stateId}|${key}`) % pool.length];
-}
-
-function hash(input: string): number {
-  let hashValue = 0;
-  for (let index = 0; index < input.length; index++) {
-    hashValue = (Math.imul(31, hashValue) + input.charCodeAt(index)) | 0;
-  }
-  return Math.abs(hashValue);
+  return pool[stringHash(`${day}|${stateId}|${key}`) % pool.length];
 }

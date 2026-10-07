@@ -68,6 +68,7 @@ describe('CalendarMaintenanceInteractor', () => {
         rrule: null,
         predecessorSeriesId: null,
         ruleRevision: 0,
+        reminders: null,
         createdAt: '2026-08-01T10:00:00.000Z',
         updatedAt: '2026-08-01T10:00:00.000Z',
       },

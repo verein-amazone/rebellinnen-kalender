@@ -244,6 +244,36 @@ grid only draws a dot for a coloured calendar; migration 017 fills in the ones c
 Device calendars keep whatever colour the OS reports, and the grid falls back to a muted dot for one
 that reports none.
 
+### Authoring recurring appointments
+
+The appointment form authors a deliberate subset of RFC 5545 (#80): every n days, weeks (on chosen
+weekdays), months (on the start's day of the month) or years, ending never, on a day, or after a
+number of occurrences. `data/calendar/recurrence/recurrence-rule.ts` turns that `RecurrenceRule`
+into the stored `RRULE` value and back, with `ical.js` (`ICAL.Recur`) reading and writing the value
+itself; `interactors/calendar/recurrence.ts` re-exports it for views
+and adds the German summary („Alle 2 Wochen am Montag und Mittwoch, bis 31. Dezember 2026“).
+
+- A weekly rule always lists the start's weekday, because the materializer counts DTSTART as the
+  first occurrence. The form shows that weekday ticked and disabled.
+- `UNTIL` takes the start's kind: a date for an all-day series, otherwise the last second of the
+  chosen day in the start's zone, written as UTC.
+- A stored rule outside the subset (BYSETPOS, „the second Tuesday“, …) parses to `null`. The form
+  shows it read-only and never rewrites it unless the user picks another repetition.
+- An edit only carries the time and repetition fields that changed. „Alle Termine“ goes through
+  `AppEventEditingInteractor.updateSeries()`, which applies a moved start as a shift onto the
+  series' own start rather than restarting the series on the occurrence that was opened. A changed
+  rule is never offered for „Nur dieser Termin“.
+- The form authors the rule against the series' own start (moved by any shift the user made), not
+  against the opened occurrence, so the weekday it keeps ticked is the series' weekday.
+  `rebaseRecurrenceRule()` moves a stored rule to a new start: weekly weekdays move along with it,
+  and `UNTIL` is rewritten when the series switches between all-day and timed.
+- „Dieser und folgende Termine“ keeps a finite series finite. The continuation keeps `UNTIL` and
+  carries on with what is left of `COUNT` (`countGeneratedBefore()` counts the occurrences before the
+  split, cancelled ones included, as RFC 5545 does). A rule changed in the form is anchored on the
+  continuation's own start, its first occurrence.
+- A rule on an appointment for a writable device calendar becomes a native series
+  (`DeviceEventDraft.recurrence`); the OS owns and expands it from then on.
+
 ### Occurrence identity
 
 Identity is always source-scoped: `app:<series>#<originalStart>`,
@@ -303,7 +333,42 @@ The device calendar is read through `data/gateways/native-calendar.gateway.ts` w
 [`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) - the only file
 injecting it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
 views. Permissions are only ever requested from the explicit „connect device calendars“ action,
-never on startup.
+never on startup. Writing goes the other way only once: `createEvent` creates a standalone event or a
+native series and leaves it to the OS from then on.
+
+## Appointment reminders
+
+Reminders (#81) are stored as **minutes before the start**, never as instants, so a moved
+appointment or a whole series needs no rewrite. For an all-day appointment the start is midnight of
+its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Tag um 09:00“ is `-540`.
+
+- `app_items.reminders` (migration 018) holds a JSON array, or `NULL` for „follow the default
+  reminders“ - every row from before the migration, and every appointment whose list equals the
+  defaults when it is saved, so changing the defaults later still reaches it. `[]` is an explicit
+  „no reminder“. Reminders belong to the whole series, like the rule: an occurrence override has
+  none of its own, and the scope dialog does not offer „Nur dieser Termin“ for a changed list.
+- The switch and the two default lists (timed `[15]`, all-day `[900]`, at most five each) live in
+  `notification-preferences.store.ts`. Reminders are off until the user turns them on, in the
+  settings or the introduction's last step - the only places the app asks for the notification
+  permission, always from a tap.
+- `ReminderSchedulerInteractor` hands the OS the **complete set** on every app start, resume and
+  edit: the next 60 reminders of app-owned occurrences in enabled calendars, computed from the
+  materialized `occurrences` rows (`CalendarRepository.upcomingReminderCandidates`). iOS keeps at
+  most 64 pending notifications per app and silently drops the rest; staying below that keeps the
+  choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
+  a zone change and an app update with one code path. Runs are serialized and coalesced.
+- A notification id is a stable 31-bit FNV-1a hash of `<occurrence id>|<minutes>`, moved to the
+  next free number on a collision within one batch. The occurrence id travels in the
+  notification's `extra`, and `App` opens `/calendar/event/<id>` when it is tapped.
+- Device-calendar appointments are never scheduled locally: their reminders are written as native
+  alerts (`DeviceEventDraft.alertMinutesBefore`), so the OS calendar delivers them. While reminders
+  are off, a new device event gets none.
+- Android: `USE_EXACT_ALARM` (granted without asking from Android 13, needs the Play Console's
+  „exact alarm“ declaration as a calendar app) keeps reminders on time. Without the grant, the
+  scheduler falls back to inexact delivery instead of letting the plugin open the system settings
+  from a background reschedule.
+- The web build cannot deliver a reminder while the page is closed; the settings say so and the form
+  hides the section.
 
 ## What is and is not stored in SQLite
 
@@ -335,7 +400,9 @@ subscription explicitly opts into `http`.
 appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
 greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
 (`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
-hidden and in which order the chips appear (`calendar-chips.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+hidden and in which order the chips appear (`calendar-chips.store.ts`), whether the first-launch
+introduction was seen and which step it reached (`intro.store.ts`), and the reminder switch and default reminders
+(`notification-preferences.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
 WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
 on every startup.
 

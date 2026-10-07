@@ -1,22 +1,26 @@
+import ICAL from 'ical.js';
 import { Temporal } from 'temporal-polyfill';
 
 import type { TemporalValue } from '../../entities/temporal-value';
 
 /**
- * Removes UNTIL and COUNT from a rule value. A continuation series starts over at the split
- * occurrence; carrying the old COUNT over would silently shorten it, so the bound is dropped
- * deliberately and the caller re-applies one when the user asked for it.
+ * The rule a „this and following“ continuation carries on with, given how many occurrences the
+ * old series generated before the split. UNTIL is a fixed day and stays as it is; COUNT is the total
+ * of the whole series, so the continuation only gets what is left of it - at least the split
+ * occurrence itself, which exists, or there would be nothing to split at.
  */
-export function withoutEndBound(rrule: string): string {
-  return rrule
-    .split(';')
-    .filter((part) => !part.startsWith('UNTIL=') && !part.startsWith('COUNT='))
-    .join(';');
+export function continuedAfter(rrule: string, generatedBefore: number): string {
+  const recur = ICAL.Recur.fromString(rrule);
+  if (recur.count !== null) {
+    recur.count = Math.max(1, recur.count - generatedBefore);
+  }
+  return recur.toString();
 }
 
 /**
  * Ends a rule just before the given occurrence, in the rule's own temporal kind - the
- * „this and following“ split truncates the old series with exactly this.
+ * „this and following“ split truncates the old series with exactly this. Any COUNT is replaced: the
+ * new UNTIL is the end now.
  *
  * UNTIL is written as a UTC instant for zoned starts (as RFC 5545 requires when DTSTART carries a
  * TZID) and as a local form for date and floating starts.
@@ -26,28 +30,29 @@ export function truncatedBefore(
   masterStart: TemporalValue,
   splitOriginalStart: string,
 ): string {
-  return `${withoutEndBound(rrule)};UNTIL=${untilValue(masterStart, splitOriginalStart)}`;
+  const recur = ICAL.Recur.fromString(rrule);
+  recur.count = null;
+  recur.until = ICAL.Time.fromString(untilValue(masterStart, splitOriginalStart), null);
+  return recur.toString();
 }
 
+/** The UNTIL just before the split, as an ISO date, local date-time or UTC instant. */
 function untilValue(masterStart: TemporalValue, splitOriginalStart: string): string {
   switch (masterStart.kind) {
     case 'date':
-      return compact(Temporal.PlainDate.from(splitOriginalStart).subtract({ days: 1 }).toString());
+      return Temporal.PlainDate.from(splitOriginalStart).subtract({ days: 1 }).toString();
     case 'floating':
-      return compact(
-        Temporal.PlainDateTime.from(splitOriginalStart)
-          .subtract({ seconds: 1 })
-          .toString({ smallestUnit: 'second' }),
-      );
-    case 'zoned': {
-      const instant = Temporal.PlainDateTime.from(splitOriginalStart)
+      return Temporal.PlainDateTime.from(splitOriginalStart)
+        .subtract({ seconds: 1 })
+        .toString({ smallestUnit: 'second' });
+    case 'zoned':
+      return Temporal.PlainDateTime.from(splitOriginalStart)
         .toZonedDateTime(masterStart.timeZone ?? 'UTC')
         .subtract({ seconds: 1 })
-        .toInstant();
-      return utcCompact(instant);
-    }
+        .toInstant()
+        .toString();
     case 'utc':
-      return utcCompact(Temporal.Instant.from(splitOriginalStart).subtract({ seconds: 1 }));
+      return Temporal.Instant.from(splitOriginalStart).subtract({ seconds: 1 }).toString();
   }
 }
 
@@ -72,13 +77,4 @@ export function toUtcInstantString(value: TemporalValue, deviceZone: string): st
     case 'utc':
       return Temporal.Instant.from(value.value).toString();
   }
-}
-
-function utcCompact(instant: Temporal.Instant): string {
-  const wall = instant.toZonedDateTimeISO('UTC').toPlainDateTime();
-  return `${compact(wall.toString({ smallestUnit: 'second' }))}Z`;
-}
-
-function compact(value: string): string {
-  return value.replaceAll('-', '').replaceAll(':', '');
 }

@@ -1,0 +1,194 @@
+<!--
+  Not a focused screen: the introduction is the start of the app rather than a subpage, so it has no
+  dismiss action and no title bar. The frame mirrors FocusedScreenScaffold (one column, a footer
+  that sticks to the bottom), and the step's <h1> is the one PageFocus focuses on every step change.
+-->
+<div class="flex min-h-dvh flex-col">
+  <header class="safe-top">
+    <div class="flex flex-col items-center gap-2 px-4 pt-4">
+      <!-- Decoration only: the sentence below says the same thing in words. -->
+      <div class="flex w-full max-w-48 gap-1.5" aria-hidden="true">
+        @for (step of steps; track step.id; let i = $index) {
+          <span
+            class="h-1.5 flex-1 rounded-full"
+            [class.bg-primary]="i <= index()"
+            [class.bg-foreground/20]="i > index()"
+          ></span>
+        }
+      </div>
+      <p class="text-sm font-semibold">Schritt {{ index() + 1 }} von {{ steps.length }}</p>
+    </div>
+  </header>
+
+  <div class="flex flex-1 flex-col justify-center">
+    <div class="rk-screen-body mx-auto w-full max-w-md space-y-6 text-center">
+      @switch (current().id) {
+        @case ('welcome') {
+          <div class="rk-card rk-card-bleed">
+            <img
+              src="/content/wissensimpulse/wi-21.webp"
+              alt=""
+              width="1280"
+              height="758"
+              class="max-h-56 w-full object-contain"
+            />
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+            <p class="text-pretty">
+              Dein Kalender für jeden Tag – mit Rebell*innen und Wissensimpulsen von Verein Amazone.
+            </p>
+          </div>
+        }
+        @case ('areas') {
+          <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+          <ul class="rk-list text-left">
+            <li class="flex items-start gap-3 px-4 py-3">
+              <svg lucideSun class="rk-icon text-primary shrink-0" aria-hidden="true"></svg>
+              <p class="min-w-0">
+                <span class="font-semibold">Heute</span><br />
+                Termine, „Nicht vergessen“ und dein Tagesimpuls.
+              </p>
+            </li>
+            <li class="flex items-start gap-3 px-4 py-3">
+              <svg
+                lucideCalendarDays
+                class="rk-icon text-primary shrink-0"
+                aria-hidden="true"
+              ></svg>
+              <p class="min-w-0">
+                <span class="font-semibold">Kalender</span><br />
+                Termine ansehen und anlegen.
+              </p>
+            </li>
+            <li class="flex items-start gap-3 px-4 py-3">
+              <svg lucideBookOpen class="rk-icon text-primary shrink-0" aria-hidden="true"></svg>
+              <p class="min-w-0">
+                <span class="font-semibold">Inhalte</span><br />
+                Rebell*innen, Wissen und Anlaufstellen.
+              </p>
+            </li>
+          </ul>
+        }
+        @case ('personal') {
+          <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+          <div class="space-y-6 text-left">
+            <div>
+              <label class="rk-label" for="intro-name">Dein Name</label>
+              <div class="rk-field">
+                <input
+                  id="intro-name"
+                  class="rk-input"
+                  type="text"
+                  autocomplete="given-name"
+                  enterkeyhint="done"
+                  aria-describedby="intro-name-hint"
+                  [attr.maxlength]="profile.nameMaxLength"
+                  [value]="profile.name() ?? ''"
+                  (input)="updateName($any($event.target).value)"
+                />
+              </div>
+              <p id="intro-name-hint" class="rk-hint">Freiwillig. Damit begrüßt dich „Heute“.</p>
+            </div>
+
+            <fieldset class="space-y-2">
+              <legend class="rk-label">Farbthema</legend>
+              @for (option of appearance.themeOptions; track option.id) {
+                <app-choice-row
+                  name="intro-theme"
+                  [value]="option.id"
+                  [label]="option.label"
+                  [checked]="appearance.theme() === option.id"
+                  (selected)="selectTheme($event)"
+                >
+                  <!-- Same preview as Settings → Farbthema: the token layer switched on this element. -->
+                  <span
+                    class="border-border flex shrink-0 gap-1 rounded-md border p-1"
+                    [attr.data-theme]="option.id"
+                    aria-hidden="true"
+                  >
+                    <span class="bg-background size-5 rounded-full"></span>
+                    <span class="bg-primary size-5 rounded-full"></span>
+                    <span class="bg-accent size-5 rounded-full"></span>
+                  </span>
+                </app-choice-row>
+              }
+            </fieldset>
+          </div>
+        }
+        @case ('privacy') {
+          <div class="bg-card text-primary mx-auto w-fit rounded-full p-5 text-3xl">
+            <svg lucideShieldCheck class="rk-icon" aria-hidden="true"></svg>
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+            @if (isNativePlatform) {
+              <p class="text-pretty">
+                Alles wird nur auf deinem Gerät gespeichert. Löschst du die App, sind auch deine
+                Daten weg.
+              </p>
+            } @else {
+              <p class="text-pretty">Alles wird nur in diesem Browser gespeichert.</p>
+            }
+          </div>
+        }
+        @case ('reminders') {
+          <div class="bg-card text-primary mx-auto w-fit rounded-full p-5 text-3xl">
+            <svg lucideBell class="rk-icon" aria-hidden="true"></svg>
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+            <p class="text-pretty">Du bekommst vor jedem Termin eine Mitteilung.</p>
+            <p class="text-sm text-pretty">
+              @if (defaultReminders(); as defaults) {
+                {{ defaults }}.
+              }
+              Änderbar in den Einstellungen.
+            </p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <footer class="bg-background safe-bottom sticky bottom-0 z-10">
+    <div class="rk-screen-footer-bar mx-auto flex w-full max-w-md flex-col gap-2">
+      @if (current().id === 'reminders' && !notificationPreferences.enabled()) {
+        <button
+          type="button"
+          class="rk-button rk-button-primary w-full"
+          (click)="enableReminders()"
+        >
+          <svg lucideBellRing class="rk-icon" aria-hidden="true"></svg>
+          <span>Ja, erinnere mich</span>
+        </button>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="rk-button rk-button-ghost flex-1" (click)="back()">
+            <svg lucideArrowLeft class="rk-icon" aria-hidden="true"></svg>
+            <span>Zurück</span>
+          </button>
+          <button type="button" class="rk-button rk-button-ghost flex-1" (click)="finish()">
+            <svg lucideBellOff class="rk-icon" aria-hidden="true"></svg>
+            <span>Nein, danke</span>
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="rk-button rk-button-primary w-full" (click)="next()">
+          <svg lucideArrowRight class="rk-icon" aria-hidden="true"></svg>
+          <span>{{ isLast() ? 'Los geht’s' : 'Weiter' }}</span>
+        </button>
+        @if (isFirst()) {
+          <button type="button" class="rk-button rk-button-ghost w-full" (click)="finish()">
+            <svg lucideChevronsRight class="rk-icon" aria-hidden="true"></svg>
+            <span>Erste Schritte überspringen</span>
+          </button>
+        } @else {
+          <button type="button" class="rk-button rk-button-ghost w-full" (click)="back()">
+            <svg lucideArrowLeft class="rk-icon" aria-hidden="true"></svg>
+            <span>Zurück</span>
+          </button>
+        }
+      }
+    </div>
+  </footer>
+</div>

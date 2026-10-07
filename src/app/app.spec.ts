@@ -1,10 +1,25 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { App } from '@app/app';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
+
+class FakeReminderSchedulerInteractor {
+  reschedules = 0;
+  tapHandler: ((occurrenceId: string) => void) | null = null;
+
+  reschedule(): Promise<void> {
+    this.reschedules += 1;
+    return Promise.resolve();
+  }
+
+  onReminderTapped(handler: (occurrenceId: string) => void): void {
+    this.tapHandler = handler;
+  }
+}
 
 class FakeDeviceCalendarSyncInteractor {
   calls = 0;
@@ -46,8 +61,32 @@ describe('App', () => {
         { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
         { provide: IcsSubscriptionInteractor, useClass: FakeIcsSubscriptionInteractor },
         { provide: CalendarMaintenanceInteractor, useClass: FakeCalendarMaintenanceInteractor },
+        { provide: ReminderSchedulerInteractor, useClass: FakeReminderSchedulerInteractor },
       ],
     }).compileComponents();
+  });
+
+  it('reschedules the reminders on start', async () => {
+    const reminders = TestBed.inject(
+      ReminderSchedulerInteractor,
+    ) as unknown as FakeReminderSchedulerInteractor;
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+
+    expect(reminders.reschedules).toBe(1);
+  });
+
+  it('opens the appointment of a tapped reminder', async () => {
+    const reminders = TestBed.inject(
+      ReminderSchedulerInteractor,
+    ) as unknown as FakeReminderSchedulerInteractor;
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    TestBed.createComponent(App);
+    reminders.tapHandler?.('app:item-1#2026-10-12T18:00:00');
+
+    expect(navigate).toHaveBeenCalledWith(['/calendar', 'event', 'app:item-1#2026-10-12T18:00:00']);
   });
 
   it('should create the app', () => {

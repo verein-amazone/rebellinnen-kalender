@@ -14,7 +14,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideCheck, LucideExternalLink, LucidePencil, LucideTrash2 } from '@lucide/angular';
+import {
+  LucideBell,
+  LucideCheck,
+  LucideExternalLink,
+  LucidePencil,
+  LucideRepeat,
+  LucideTrash2,
+} from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { formatDayLong } from '@app/cross-cutting/helpers/date-format';
@@ -23,8 +30,12 @@ import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import {
   AppEventEditingInteractor,
   type AppEventChanges,
+  type TemporalValue,
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { describeStoredRecurrence } from '@app/interactors/calendar/recurrence';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
+import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
@@ -57,10 +68,12 @@ import {
   imports: [
     DatePipe,
     EventForm,
+    LucideBell,
     FocusedScreenScaffold,
     LucideCheck,
     LucideExternalLink,
     LucidePencil,
+    LucideRepeat,
     LucideTrash2,
   ],
   templateUrl: './event-detail.page.html',
@@ -73,6 +86,7 @@ export class EventDetailPage {
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly haptics = inject(HapticsInteractor);
+  private readonly notificationPreferences = inject(NotificationPreferencesInteractor);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
@@ -114,18 +128,57 @@ export class EventDetailPage {
   protected readonly occurrence = computed(() => this.occurrenceResource.value() ?? null);
 
   /**
-   * The full record's note, for a consumer whose `CalendarOccurrence` (a list/agenda read model)
-   * has no `note` field - both this page's read view and `EventForm`'s edit-mode prefill need it.
-   * Only runs for app-owned occurrences: `params` stays `undefined` for device/ICS ones, which
-   * skips the loader entirely rather than calling it with a meaningless id.
+   * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a
+   * list/agenda read model) does not carry - the note and the series' rule - which both this page's
+   * read view and `EventForm`'s edit-mode prefill need. `params` stays `undefined` for device/ICS
+   * occurrences, which skips the loader entirely rather than calling it with a meaningless id.
    */
-  private readonly noteResource = resource({
+  private readonly recordResource = resource({
     params: () => this.occurrence()?.itemId ?? undefined,
-    loader: ({ params }) =>
-      this.eventEditing.findRecord(params).then((record) => record?.note ?? null),
+    loader: ({ params }) => this.eventEditing.findRecord(params),
   });
 
-  protected readonly note = computed(() => this.noteResource.value() ?? null);
+  protected readonly note = computed(() => this.recordResource.value()?.note ?? null);
+  protected readonly rrule = computed(() => this.recordResource.value()?.rrule ?? null);
+  /** The start the series' rule is anchored on; `null` for a standalone appointment. */
+  protected readonly seriesStart = computed(() => {
+    const record = this.recordResource.value();
+    return record?.rrule ? record.start : null;
+  });
+  protected readonly reminders = computed(() => this.recordResource.value()?.reminders ?? null);
+
+  /**
+   * „15 Minuten vorher, 1 Stunde vorher“ for an app-owned appointment while reminders are on -
+   * the appointment's own list or the defaults it follows. `null` when nothing will remind.
+   */
+  protected readonly reminderSummary = computed(() => {
+    const record = this.recordResource.value();
+    const occurrence = this.occurrence();
+    if (
+      record === undefined ||
+      record === null ||
+      occurrence === null ||
+      !this.notificationPreferences.isSupported ||
+      !this.notificationPreferences.enabled()
+    ) {
+      return null;
+    }
+
+    const reminders =
+      record.reminders ??
+      (occurrence.allDay
+        ? this.notificationPreferences.allDayDefaults()
+        : this.notificationPreferences.timedDefaults());
+    return reminders.length === 0
+      ? null
+      : reminders.map((minutes) => reminderLabel(minutes, occurrence.allDay)).join(', ');
+  });
+
+  /** „Jede Woche am Montag“ for an app-owned series; `null` for anything else. */
+  protected readonly recurrenceSummary = computed(() => {
+    const record = this.recordResource.value();
+    return record?.rrule ? describeStoredRecurrence(record.rrule, record.start) : null;
+  });
 
   protected readonly editing = signal(false);
 
@@ -213,9 +266,15 @@ export class EventDetailPage {
     }
 
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
+      // A changed rule or changed reminders describe the series, never a single occurrence.
+      const ruleChanged =
+        result.changes.rrule !== undefined || result.changes.reminders !== undefined;
       const scope = await this.askRecurrenceScope(
         'Was möchtest du ändern?',
-        'Dieser Termin gehört zu einer Serie. Was soll geändert werden?',
+        ruleChanged
+          ? 'Dieser Termin gehört zu einer Serie. Ab wann soll die Änderung gelten?'
+          : 'Dieser Termin gehört zu einer Serie. Was soll geändert werden?',
+        !ruleChanged,
       );
       if (scope === undefined) {
         return;
@@ -223,8 +282,8 @@ export class EventDetailPage {
 
       await this.applyScopedEdit(
         scope,
-        occurrence.seriesId,
-        occurrence.originalStart,
+        { seriesId: occurrence.seriesId, originalStart: occurrence.originalStart },
+        occurrence.start,
         result.changes,
       );
     } else {
@@ -235,9 +294,8 @@ export class EventDetailPage {
     void this.haptics.confirm();
     this.announcer.announce('Termin gespeichert');
     // The user may have moved the appointment to a different day; navigate to wherever it ended up
-    // rather than back to the day it used to be on. `result.changes.start` is only set when the
-    // form actually touched the start, so an edit that left the date alone still resolves to the
-    // occurrence's own (unchanged) day.
+    // rather than back to the day it used to be on. `EventForm` only sets `start` when the time
+    // fields changed, so an edit that left them alone still resolves to the occurrence's own day.
     await this.navigateToOccurrenceDay(deviceLocalDay(result.changes.start ?? occurrence.start));
   }
 
@@ -324,8 +382,8 @@ export class EventDetailPage {
 
   private async applyScopedEdit(
     scope: RecurrenceScope,
-    seriesId: string,
-    originalStart: string,
+    { seriesId, originalStart }: { seriesId: string; originalStart: string },
+    occurrenceStart: TemporalValue,
     changes: AppEventChanges,
   ): Promise<void> {
     switch (scope) {
@@ -336,18 +394,19 @@ export class EventDetailPage {
         await this.eventEditing.updateFollowing(seriesId, originalStart, changes);
         return;
       case 'all':
-        await this.eventEditing.updateAll(seriesId, changes);
+        await this.eventEditing.updateSeries(seriesId, occurrenceStart, changes);
     }
   }
 
   private askRecurrenceScope(
     heading: string,
     message: string,
+    allowSingleOccurrence = true,
   ): Promise<RecurrenceScope | undefined> {
     return firstValueFrom(
       this.sheets.open<RecurrenceScope, RecurrenceScopeDialogData>(RecurrenceScopeDialog, {
         heading,
-        data: { message },
+        data: { message, allowSingleOccurrence },
       }).closed,
     );
   }

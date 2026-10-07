@@ -3,13 +3,15 @@
 <fieldset class="border-0 p-0 pb-4">
   <legend class="sr-only">Gültigkeitsbereich</legend>
 
-  <app-choice-row
-    name="recurrenceScope"
-    value="occurrence"
-    label="Nur dieser Termin"
-    [checked]="selectedScope() === 'occurrence'"
-    (selected)="selectedScope.set($event)"
-  />
+  @if (allowSingleOccurrence) {
+    <app-choice-row
+      name="recurrenceScope"
+      value="occurrence"
+      label="Nur dieser Termin"
+      [checked]="selectedScope() === 'occurrence'"
+      (selected)="selectedScope.set($event)"
+    />
+  }
 
   <app-choice-row
     name="recurrenceScope"
@@ -35,10 +37,12 @@
 -->
 <div class="rk-sheet-footer flex-col">
   <button type="button" class="rk-button rk-button-primary w-full" (click)="confirm()">
-    Bestätigen
+    <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+    <span>Bestätigen</span>
   </button>
 
   <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
-    Abbrechen
+    <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+    <span>Abbrechen</span>
   </button>
 </div>

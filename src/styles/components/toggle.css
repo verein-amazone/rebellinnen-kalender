@@ -4,12 +4,17 @@
  * `role="switch"` only changes the accessible role/state; the control is still a native checkbox,
  * so `checked`, Space/Enter and label association stay the browser's. `forced-colors` hands the
  * rendering back to the platform, same reasoning as ./check.css.
+ *
+ * The state is never position and colour alone: the thumb carries a check when on and a cross when
+ * off (`::before`, drawn over the `::after` thumb and moving with it). The glyphs are Lucide's
+ * `check` and `x`, used as a mask so they take the theme's colour tokens.
  */
 
 @layer components {
   .rk-toggle {
     @apply bg-muted border-border shrink-0 appearance-none rounded-full border-2;
     @apply transition-colors duration-150;
+    position: relative;
     inline-size: 2.75em;
     block-size: 1.5em;
 
@@ -32,6 +37,26 @@
     &:checked::after {
       translate: 1.15em 0;
     }
+
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      inset-block-start: 0.15em;
+      inset-inline-start: 0.15em;
+      inline-size: 1em;
+      block-size: 1em;
+      background-color: var(--color-muted-foreground);
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18'/%3E%3Cpath d='m6 6 12 12'/%3E%3C/svg%3E")
+        center / 0.6em no-repeat;
+      transition: translate 0.15s ease-in-out;
+    }
+
+    &:checked::before {
+      translate: 1.15em 0;
+      background-color: var(--color-primary);
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+    }
   }
 
   @media (forced-colors: active) {
@@ -39,6 +64,7 @@
       appearance: auto;
     }
 
+    .rk-toggle::before,
     .rk-toggle::after {
       content: none;
     }

@@ -27,6 +27,7 @@ function item(overrides: Partial<AppItemRecord> = {}): AppItemRecord {
     rrule: 'FREQ=WEEKLY;BYDAY=MO;COUNT=4',
     predecessorSeriesId: null,
     ruleRevision: 0,
+    reminders: null,
     createdAt: '2026-08-01T10:00:00.000Z',
     updatedAt: '2026-08-01T10:00:00.000Z',
     ...overrides,

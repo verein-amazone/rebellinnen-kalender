@@ -10,6 +10,7 @@ export type AppItemKind = (typeof APP_ITEM_KINDS)[number];
  * `rrule` holds the RFC 5545 rule value (`FREQ=…`) verbatim; `start` is the series DTSTART.
  * `predecessorSeriesId` links a continuation series to the series it was split off from.
  * `ruleRevision` increments with every recurrence-pattern change.
+ * `reminders` holds minutes before the start, or `null` to follow the default reminders.
  */
 export interface AppItemRecord {
   readonly id: string;
@@ -23,6 +24,7 @@ export interface AppItemRecord {
   readonly rrule: string | null;
   readonly predecessorSeriesId: string | null;
   readonly ruleRevision: number;
+  readonly reminders: readonly number[] | null;
   readonly createdAt: string;
   readonly updatedAt: string;
 }

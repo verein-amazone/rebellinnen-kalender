@@ -50,7 +50,8 @@
       </button>
       @if (emoji(); as e) {
         <button type="button" class="rk-button rk-button-ghost" (click)="clearEmoji()">
-          Entfernen
+          <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+          <span>Entfernen</span>
         </button>
       }
     </div>
@@ -82,9 +83,12 @@
 
   <!-- Stacked and full width, like every other sheet: one action per line, easy to hit. -->
   <div class="rk-sheet-footer flex-col">
-    <button type="submit" class="rk-button rk-button-primary w-full">Speichern</button>
+    <button type="submit" class="rk-button rk-button-primary w-full">
+      <svg lucideCheck class="rk-icon" aria-hidden="true"></svg><span>Speichern</span>
+    </button>
     <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
-      Abbrechen
+      <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+      <span>Abbrechen</span>
     </button>
   </div>
 </form>

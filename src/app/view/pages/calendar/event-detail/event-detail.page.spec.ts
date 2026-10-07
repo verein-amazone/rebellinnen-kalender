@@ -13,6 +13,7 @@ import {
 import {
   AppEventEditingInteractor,
   type AppEventChanges,
+  type TemporalValue,
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
@@ -77,6 +78,11 @@ class FakeAppEventEditingInteractor {
     originalStart: string;
     changes: AppEventChanges;
   }[] = [];
+  readonly updateSeriesCalls: {
+    seriesId: string;
+    occurrenceStart: TemporalValue;
+    changes: AppEventChanges;
+  }[] = [];
   readonly deleteItemCalls: string[] = [];
   readonly cancelOccurrenceCalls: { seriesId: string; originalStart: string }[] = [];
   readonly deleteFollowingCalls: { seriesId: string; originalStart: string }[] = [];
@@ -88,6 +94,15 @@ class FakeAppEventEditingInteractor {
 
   updateAll(itemId: string, changes: AppEventChanges): Promise<void> {
     this.updateAllCalls.push({ itemId, changes });
+    return Promise.resolve();
+  }
+
+  updateSeries(
+    seriesId: string,
+    occurrenceStart: TemporalValue,
+    changes: AppEventChanges,
+  ): Promise<void> {
+    this.updateSeriesCalls.push({ seriesId, occurrenceStart, changes });
     return Promise.resolve();
   }
 
@@ -614,7 +629,10 @@ describe('EventDetailPage, edit', () => {
           { seriesId: 'series-1', originalStart: '2026-08-10T09:00:00[Europe/Vienna]', changes },
         ]);
       } else {
-        expect(eventEditing.updateAllCalls).toEqual([{ itemId: 'series-1', changes }]);
+        // „Alle Termine“ goes through `updateSeries`, which rebases a moved start onto the series.
+        expect(eventEditing.updateSeriesCalls).toEqual([
+          { seriesId: 'series-1', occurrenceStart: expect.anything(), changes },
+        ]);
       }
 
       expect(navigate).toHaveBeenCalledWith(['/calendar'], {
@@ -623,6 +641,24 @@ describe('EventDetailPage, edit', () => {
       });
     });
   }
+
+  it('does not offer „Nur dieser Termin“ when the repetition changed', async () => {
+    const { button, settle, emitFormSave, sheets } = await setup({
+      id: 'occ-1',
+      occurrence: occurrence({
+        seriesId: 'series-1',
+        originalStart: '2026-08-10T09:00:00[Europe/Vienna]',
+        itemId: 'series-1',
+      }),
+    });
+    sheets.results = ['following'];
+
+    button('Bearbeiten')?.click();
+    await settle();
+    await emitFormSave({ mode: 'edit', changes: { title: 'Plenum', rrule: 'FREQ=DAILY' } });
+
+    expect(sheets.opens[0].data).toEqual(expect.objectContaining({ allowSingleOccurrence: false }));
+  });
 
   it('stays in edit mode and mutates nothing when the recurrence-scope dialog is dismissed', async () => {
     const { button, element, settle, emitFormSave, eventEditing, sheets, navigate } = await setup({

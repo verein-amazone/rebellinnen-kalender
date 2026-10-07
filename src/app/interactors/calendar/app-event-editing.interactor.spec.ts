@@ -105,7 +105,7 @@ describe('AppEventEditingInteractor', () => {
     expect((await items.find(id))!.ruleRevision).toBe(1);
   });
 
-  it('splits a series on updateFollowing: continuation without the old COUNT, linked to its predecessor', async () => {
+  it('splits a series on updateFollowing: continuation with what is left of COUNT, linked to its predecessor', async () => {
     const id = await interactor.create(draft());
 
     await interactor.updateFollowing(id, '2026-09-21T18:00:00', { title: 'Plenum (neu)' });
@@ -114,13 +114,89 @@ describe('AppEventEditingInteractor', () => {
     const continuation = all.find((item) => item.predecessorSeriesId === id);
     expect(continuation).toBeDefined();
     expect(continuation!.title).toBe('Plenum (neu)');
-    expect(continuation!.rrule).toBe('FREQ=WEEKLY;BYDAY=MO');
+    // 7 and 14 September came before the split, so 4 of the 6 occurrences are left.
+    expect(continuation!.rrule).toBe('FREQ=WEEKLY;COUNT=4;BYDAY=MO');
     expect(continuation!.start.value).toBe('2026-09-21T18:00:00');
     // Master duration carried onto the continuation start.
     expect(continuation!.end?.value).toBe('2026-09-21T20:00:00');
 
     const master = await items.find(id);
     expect(master!.rrule).toContain('UNTIL=');
+  });
+
+  it('keeps UNTIL on the continuation of a series that ends on a day', async () => {
+    const id = await interactor.create(
+      draft({ rrule: 'FREQ=WEEKLY;BYDAY=MO;UNTIL=20261012T215959Z' }),
+    );
+
+    await interactor.updateFollowing(id, '2026-09-21T18:00:00', { title: 'Plenum (neu)' });
+
+    const continuation = (await items.listAll()).find((item) => item.predecessorSeriesId === id);
+    expect(continuation!.rrule).toBe('FREQ=WEEKLY;BYDAY=MO;UNTIL=20261012T215959Z');
+  });
+
+  it('anchors a changed rule on the continuation, which is its first occurrence', async () => {
+    const id = await interactor.create(draft({ rrule: 'FREQ=WEEKLY;BYDAY=MO,TH' }));
+
+    // Opened on Thursday 24 September, a rule authored against the Monday series start.
+    await interactor.updateFollowing(id, '2026-09-24T18:00:00', {
+      rrule: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO',
+    });
+
+    const continuation = (await items.listAll()).find((item) => item.predecessorSeriesId === id);
+    expect(continuation!.rrule).toBe('FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,TH');
+  });
+
+  it('moves the weekdays along when all occurrences move to another day', async () => {
+    const id = await interactor.create(draft({ rrule: 'FREQ=WEEKLY;BYDAY=MO,TH' }));
+
+    await interactor.updateSeries(
+      id,
+      { kind: 'zoned', value: '2026-09-21T18:00:00', timeZone: 'Europe/Vienna' },
+      {
+        start: { kind: 'zoned', value: '2026-09-22T18:00:00', timeZone: 'Europe/Vienna' },
+        end: { kind: 'zoned', value: '2026-09-22T20:00:00', timeZone: 'Europe/Vienna' },
+      },
+    );
+
+    const stored = await items.find(id);
+    expect(stored!.start.value).toBe('2026-09-08T18:00:00');
+    expect(stored!.rrule).toBe('FREQ=WEEKLY;BYDAY=TU,FR');
+  });
+
+  it('moves the whole series by the shift made on one of its occurrences', async () => {
+    const id = await interactor.create(draft());
+
+    // The third occurrence (Monday 21 September) moved to Tuesday 19:00-21:00.
+    await interactor.updateSeries(
+      id,
+      { kind: 'zoned', value: '2026-09-21T18:00:00', timeZone: 'Europe/Vienna' },
+      {
+        start: { kind: 'zoned', value: '2026-09-22T19:00:00', timeZone: 'Europe/Vienna' },
+        end: { kind: 'zoned', value: '2026-09-22T21:00:00', timeZone: 'Europe/Vienna' },
+        rrule: 'FREQ=WEEKLY;BYDAY=TU;COUNT=6',
+      },
+    );
+
+    const stored = await items.find(id);
+    expect(stored!.start.value).toBe('2026-09-08T19:00:00');
+    expect(stored!.end?.value).toBe('2026-09-08T21:00:00');
+    expect(stored!.rrule).toBe('FREQ=WEEKLY;BYDAY=TU;COUNT=6');
+  });
+
+  it('keeps the series start when an edit of all occurrences leaves the time alone', async () => {
+    const id = await interactor.create(draft());
+
+    await interactor.updateSeries(
+      id,
+      { kind: 'zoned', value: '2026-09-21T18:00:00', timeZone: 'Europe/Vienna' },
+      { title: 'Plenum (neu)' },
+    );
+
+    const stored = await items.find(id);
+    expect(stored!.title).toBe('Plenum (neu)');
+    expect(stored!.start.value).toBe('2026-09-07T18:00:00');
+    expect(stored!.ruleRevision).toBe(0);
   });
 
   it('stores a cancellation for only one occurrence', async () => {
@@ -205,6 +281,27 @@ describe('AppEventEditingInteractor targeting a device calendar', () => {
       expect.objectContaining({ calendarId: 'cal-1', title: 'Plenum' }),
     );
     await expect(items.listAll()).resolves.toEqual([]);
+  });
+
+  it('turns a rule into a native series, always including the start weekday', async () => {
+    await interactor.create(
+      draft({
+        calendarId: 'device-cal:cal-1',
+        rrule: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,TH;COUNT=6',
+      }),
+    );
+
+    expect(createdOptions).toEqual(
+      expect.objectContaining({
+        recurrence: {
+          frequency: 'weekly',
+          interval: 2,
+          byWeekDay: [1, 4],
+          count: 6,
+          end: undefined,
+        },
+      }),
+    );
   });
 
   it('hands an all-day event to the OS with the exclusive end the gateway expects', async () => {

@@ -8,9 +8,15 @@ import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-chan
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
+import { CLOSING_COPY } from '@app/interactors/today/today-closing-copy';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 
 import { TodayClosingBlock } from './today-closing.block';
+
+/** Whether one of the equivalent wordings for `key` is shown - which one is a hash of the day. */
+function showsCopy(element: HTMLElement, key: string): boolean {
+  return CLOSING_COPY[key].some((variant) => element.textContent?.includes(variant));
+}
 
 function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurrence {
   return {
@@ -120,7 +126,7 @@ describe('TodayClosingBlock', () => {
       reminders: [{ id: 'r1', text: 'Milch kaufen', completed: false }],
     });
 
-    expect(element.textContent).toContain('Noch 1 Punkt für heute');
+    expect(showsCopy(element, 'open-reminders.headline.one')).toBe(true);
   });
 
   it('shows the appointment title as a link when a future appointment remains today', async () => {
@@ -146,12 +152,12 @@ describe('TodayClosingBlock', () => {
   it('reloads and shows the new state when ReminderChanges reports a write to the reminders list', async () => {
     const { element, reminders, reminderChanges, settle } = await setup({ reminders: [] });
 
-    expect(element.textContent).not.toContain('Noch 1 Punkt für heute');
+    expect(showsCopy(element, 'open-reminders.headline.one')).toBe(false);
 
     reminders.items = [{ id: 'r1', text: 'Milch kaufen', completed: false }];
     reminderChanges.notify();
     await settle();
 
-    expect(element.textContent).toContain('Noch 1 Punkt für heute');
+    expect(showsCopy(element, 'open-reminders.headline.one')).toBe(true);
   });
 });

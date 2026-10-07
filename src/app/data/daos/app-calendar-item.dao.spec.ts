@@ -19,6 +19,7 @@ function item(overrides: Partial<AppItemRecord> = {}): AppItemRecord {
     rrule: 'FREQ=WEEKLY;BYDAY=MO',
     predecessorSeriesId: null,
     ruleRevision: 0,
+    reminders: null,
     createdAt: '2026-08-01T10:00:00.000Z',
     updatedAt: '2026-08-01T10:00:00.000Z',
     ...overrides,
@@ -100,6 +101,7 @@ describe('AppCalendarItemDao', () => {
       rrule: 'FREQ=WEEKLY;BYDAY=TU',
       predecessorSeriesId: 'item-0',
       ruleRevision: 1,
+      reminders: null,
       updatedAt: '2026-08-02T10:00:00.000Z',
     });
     await dao.update(updated);
@@ -165,5 +167,18 @@ describe('AppCalendarItemDao', () => {
 
     await expect(dao.find('item-1')).resolves.toBeNull();
     await expect(dao.listExceptionsOfSeries('item-1')).resolves.toEqual([]);
+  });
+
+  it('round-trips the reminders, telling „follow the defaults“ from „no reminder“', async () => {
+    await dao.insert(item({ id: 'own', reminders: [60, 15] }));
+    await dao.insert(item({ id: 'none', reminders: [] }));
+    await dao.insert(item({ id: 'defaults', reminders: null }));
+
+    expect((await dao.find('own'))?.reminders).toEqual([60, 15]);
+    expect((await dao.find('none'))?.reminders).toEqual([]);
+    expect((await dao.find('defaults'))?.reminders).toBeNull();
+
+    await dao.update(item({ id: 'defaults', reminders: [0] }));
+    expect((await dao.find('defaults'))?.reminders).toEqual([0]);
   });
 });

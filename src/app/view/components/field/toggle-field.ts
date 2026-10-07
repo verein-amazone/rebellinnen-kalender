@@ -5,6 +5,8 @@ import type {
   WithOptionalFieldTree,
 } from '@angular/forms/signals';
 
+import { CheckHaptics } from './check-haptics';
+
 /**
  * A reusable on/off switch for a single boolean field, e.g. `<app-toggle-field [formField]="…" />`.
  *
@@ -16,6 +18,7 @@ import type {
 @Component({
   selector: 'app-toggle-field',
   host: { class: 'block', '[attr.id]': 'null' },
+  imports: [CheckHaptics],
   templateUrl: './toggle-field.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

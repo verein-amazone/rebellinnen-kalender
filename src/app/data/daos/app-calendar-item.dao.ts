@@ -26,6 +26,7 @@ interface AppItemRow {
   readonly rrule: string | null;
   readonly predecessor_series_id: string | null;
   readonly rule_revision: number;
+  readonly reminders: string | null;
   readonly created_at: string;
   readonly updated_at: string;
 }
@@ -50,7 +51,7 @@ interface AppItemExceptionRow {
 
 const ITEM_COLUMNS = `id, calendar_id, kind, title, location, note,
   start_kind, start_value, start_tz, end_kind, end_value, end_tz,
-  rrule, predecessor_series_id, rule_revision, created_at, updated_at`;
+  rrule, predecessor_series_id, rule_revision, reminders, created_at, updated_at`;
 
 const EXCEPTION_COLUMNS = `series_id, original_start, status, title, location, note,
   start_kind, start_value, start_tz, end_kind, end_value, end_tz, created_at, updated_at`;
@@ -86,7 +87,7 @@ export class AppCalendarItemDao {
   async insert(record: AppItemRecord, executor: SqliteExecutor = this.database): Promise<void> {
     await executor.run(
       `INSERT INTO app_items (${ITEM_COLUMNS})
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.calendarId,
@@ -103,6 +104,7 @@ export class AppCalendarItemDao {
         record.rrule,
         record.predecessorSeriesId,
         record.ruleRevision,
+        toRemindersColumn(record.reminders),
         record.createdAt,
         record.updatedAt,
       ],
@@ -119,7 +121,7 @@ export class AppCalendarItemDao {
          calendar_id = ?, kind = ?, title = ?, location = ?, note = ?,
          start_kind = ?, start_value = ?, start_tz = ?,
          end_kind = ?, end_value = ?, end_tz = ?,
-         rrule = ?, predecessor_series_id = ?, rule_revision = ?, updated_at = ?
+         rrule = ?, predecessor_series_id = ?, rule_revision = ?, reminders = ?, updated_at = ?
        WHERE id = ?`,
       [
         record.calendarId,
@@ -136,6 +138,7 @@ export class AppCalendarItemDao {
         record.rrule,
         record.predecessorSeriesId,
         record.ruleRevision,
+        toRemindersColumn(record.reminders),
         record.updatedAt,
         record.id,
       ],
@@ -255,6 +258,7 @@ function toItemRecord(row: AppItemRow): AppItemRecord {
     rrule: row.rrule ?? null,
     predecessorSeriesId: row.predecessor_series_id ?? null,
     ruleRevision: row.rule_revision,
+    reminders: fromRemindersColumn(row.reminders),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -285,4 +289,23 @@ function toOptionalTemporal(
   }
 
   return { kind, value, timeZone: timeZone ?? null };
+}
+
+function toRemindersColumn(reminders: readonly number[] | null): string | null {
+  return reminders === null ? null : JSON.stringify(reminders);
+}
+
+/** A malformed value is read as „follow the defaults“ rather than failing the whole row. */
+function fromRemindersColumn(value: string | null | undefined): readonly number[] | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.every((minutes) => Number.isInteger(minutes))
+      ? (parsed as number[])
+      : null;
+  } catch {
+    return null;
+  }
 }

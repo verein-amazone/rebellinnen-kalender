@@ -54,7 +54,8 @@
       <div class="space-y-3 text-center">
         <p class="text-muted-foreground">Der Tagesimpuls konnte nicht geladen werden.</p>
         <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
-          Erneut versuchen
+          <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+          <span>Erneut versuchen</span>
         </button>
       </div>
     } @else if (data.status() === 'loading') {

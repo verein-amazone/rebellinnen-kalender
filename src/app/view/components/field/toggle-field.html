@@ -10,6 +10,7 @@
     type="checkbox"
     role="switch"
     class="rk-toggle"
+    appCheckHaptics
     [checked]="checked()"
     [attr.aria-invalid]="showError() ? 'true' : null"
     [attr.aria-describedby]="showError() ? errorId() : null"

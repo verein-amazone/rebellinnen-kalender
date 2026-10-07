@@ -13,13 +13,22 @@
     [class.rk-button-primary]="data.destructive !== true"
     (click)="confirm()"
   >
-    @if (data.destructive === true) {
-      <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+    @switch (confirmIcon) {
+      @case ('trash') {
+        <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+      }
+      @case ('unlink') {
+        <svg lucideUnlink class="rk-icon" aria-hidden="true"></svg>
+      }
+      @default {
+        <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+      }
     }
     <span>{{ data.confirmLabel }}</span>
   </button>
 
   <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
-    {{ data.cancelLabel ?? 'Abbrechen' }}
+    <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+    <span>{{ data.cancelLabel ?? 'Abbrechen' }}</span>
   </button>
 </div>

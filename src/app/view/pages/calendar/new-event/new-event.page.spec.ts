@@ -189,6 +189,7 @@ describe('NewEventPage, create', () => {
       start: { kind: 'date', value: '2026-09-01', timeZone: null },
       end: { kind: 'date', value: '2026-09-01', timeZone: null },
       rrule: null,
+      reminders: null,
     });
     expect(navigate).toHaveBeenCalledWith(['/calendar'], {
       queryParams: { day: '2026-09-01' },
@@ -234,6 +235,7 @@ describe('NewEventPage, create', () => {
       start: { kind: 'zoned', value: '2026-09-02T18:00:00', timeZone: deviceZone },
       end: { kind: 'zoned', value: '2026-09-02T19:30:00', timeZone: deviceZone },
       rrule: null,
+      reminders: null,
     });
     expect(navigate).toHaveBeenCalledWith(['/calendar'], {
       queryParams: { day: '2026-09-02' },

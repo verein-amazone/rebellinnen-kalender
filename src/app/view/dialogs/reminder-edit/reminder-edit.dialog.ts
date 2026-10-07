@@ -7,6 +7,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { LucideCheck, LucideX } from '@lucide/angular';
 
 import { REMINDER_TEXT_MAX_LENGTH } from '@app/interactors/reminders/reminder-list.interactor';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
@@ -25,6 +26,7 @@ export interface ReminderEditDialogData {
 @Component({
   selector: 'app-reminder-edit',
   host: { class: 'block' },
+  imports: [LucideCheck, LucideX],
   templateUrl: './reminder-edit.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

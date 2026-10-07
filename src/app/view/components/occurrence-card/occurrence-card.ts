@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink, type Params } from '@angular/router';
+import { LucideRepeat } from '@lucide/angular';
 
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
 
@@ -12,7 +13,7 @@ import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occu
 @Component({
   selector: 'app-occurrence-card',
   host: { class: 'block' },
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, LucideRepeat, RouterLink],
   templateUrl: './occurrence-card.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
