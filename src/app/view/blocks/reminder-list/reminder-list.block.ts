@@ -23,6 +23,7 @@ import {
   LucideGripVertical,
   LucidePencil,
   LucidePlus,
+  LucideRotateCw,
   LucideTrash2,
 } from '@lucide/angular';
 
@@ -31,6 +32,7 @@ import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-chan
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { CheckHaptics } from '@app/view/components/field/check-haptics';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
   ConfirmationDialog,
@@ -71,17 +73,19 @@ export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
     CdkDrag,
     CdkDragHandle,
     CdkDropList,
-    Menu,
-    MenuContent,
-    MenuItem,
-    MenuTrigger,
+    CheckHaptics,
     LucideArrowDown,
     LucideArrowUp,
     LucideEllipsis,
     LucideGripVertical,
     LucidePencil,
     LucidePlus,
+    LucideRotateCw,
     LucideTrash2,
+    Menu,
+    MenuContent,
+    MenuItem,
+    MenuTrigger,
   ],
   templateUrl: './reminder-list.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -177,8 +181,6 @@ export class ReminderListBlock {
       await this.reminders.reopen(item.id);
     } else {
       await this.reminders.complete(item.id);
-      // Only ticking off is felt: it is the outcome the list exists for. Reopening is a correction.
-      void this.haptics.tick();
     }
 
     this.reload();

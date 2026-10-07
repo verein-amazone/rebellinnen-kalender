@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { LucideTrash2 } from '@lucide/angular';
+import { LucideCheck, LucideTrash2, LucideUnlink, LucideX } from '@lucide/angular';
 
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
 
@@ -12,7 +12,14 @@ export interface ConfirmationDialogData {
   readonly cancelLabel?: string;
   /** Renders the confirmation as destructive: the danger colour plus a matching icon. */
   readonly destructive?: boolean;
+  /**
+   * The icon in front of the verb. Defaults to a bin when destructive and a check otherwise; pass
+   * `unlink` where the action breaks a connection rather than deleting something.
+   */
+  readonly confirmIcon?: ConfirmationIcon;
 }
+
+export type ConfirmationIcon = 'check' | 'trash' | 'unlink';
 
 /**
  * Asks before an action that cannot be undone.
@@ -26,13 +33,16 @@ export interface ConfirmationDialogData {
 @Component({
   selector: 'app-confirmation',
   host: { class: 'block' },
-  imports: [LucideTrash2],
+  imports: [LucideCheck, LucideTrash2, LucideUnlink, LucideX],
   templateUrl: './confirmation.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmationDialog {
   protected readonly data = inject(SHEET_DATA) as ConfirmationDialogData;
   private readonly sheetRef = inject<SheetRef<boolean>>(SheetRef);
+
+  protected readonly confirmIcon: ConfirmationIcon =
+    this.data.confirmIcon ?? (this.data.destructive === true ? 'trash' : 'check');
 
   protected confirm(): void {
     this.sheetRef.close(true);

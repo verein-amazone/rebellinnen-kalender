@@ -14,6 +14,7 @@ import {
   type RecurrenceFrequency,
   type Weekday,
 } from '@app/interactors/calendar/recurrence';
+import { CheckHaptics } from '@app/view/components/field/check-haptics';
 import {
   RadioGroupField,
   type RadioGroupOption,
@@ -45,7 +46,7 @@ const END_OPTIONS: readonly RadioGroupOption<RepeatEndChoice>[] = [
 @Component({
   selector: 'app-recurrence-field',
   host: { class: 'block' },
-  imports: [FormField, LucideChevronDown, RadioGroupField],
+  imports: [CheckHaptics, FormField, LucideChevronDown, RadioGroupField],
   templateUrl: './recurrence-field.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

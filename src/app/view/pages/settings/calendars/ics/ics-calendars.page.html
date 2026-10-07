@@ -62,7 +62,8 @@
                     [attr.aria-label]="'Erneut versuchen: ' + subscription.name"
                     (click)="retryIcs(subscription.id)"
                   >
-                    Erneut versuchen
+                    <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+                    <span>Erneut versuchen</span>
                   </button>
                 </div>
               }
@@ -78,7 +79,8 @@
         class="rk-button rk-button-secondary w-full"
         (click)="addIcsSubscription()"
       >
-        Kalender per Link hinzufügen
+        <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+        <span>Kalender per Link hinzufügen</span>
       </button>
     } @else {
       <p class="text-muted-foreground text-sm">

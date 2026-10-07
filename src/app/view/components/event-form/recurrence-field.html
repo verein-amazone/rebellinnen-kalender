@@ -70,6 +70,7 @@
                   <input
                     type="checkbox"
                     class="rk-check"
+                    appCheckHaptics
                     [checked]="option.checked"
                     [disabled]="option.isStart"
                     (change)="onWeekdayChange(option.day, $event)"

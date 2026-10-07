@@ -13,6 +13,7 @@
           type="checkbox"
           role="switch"
           class="rk-toggle"
+          appCheckHaptics
           [checked]="preferences.enabled()"
           [disabled]="busy()"
           (change)="toggle($event)"

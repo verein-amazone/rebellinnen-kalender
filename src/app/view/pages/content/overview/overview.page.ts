@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideRotateCw } from '@lucide/angular';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 import type {
@@ -65,6 +66,7 @@ const COLLECTION_KIND_LABELS: readonly { readonly id: ContentItemKind; readonly 
     TabPanel,
     TabContent,
     ContentKindFilterBlock,
+    LucideRotateCw,
   ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,6 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
-import { LucideExternalLink } from '@lucide/angular';
+import { LucideExternalLink, LucideLink, LucideRotateCw, LucideUnlink } from '@lucide/angular';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
@@ -29,7 +29,15 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-device-calendars',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideExternalLink],
+  imports: [
+    FocusedScreenScaffold,
+    CalendarAvatar,
+    ToggleField,
+    LucideExternalLink,
+    LucideLink,
+    LucideRotateCw,
+    LucideUnlink,
+  ],
   templateUrl: './device-calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -72,8 +80,6 @@ export class DeviceCalendarsPage {
 
   protected async toggleDeviceCalendar(calendarId: string, enabled: boolean): Promise<void> {
     await this.deviceCalendars.setCalendarEnabled(calendarId, enabled);
-    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
-    void this.haptics.tick();
     this.deviceResource.reload();
   }
 
@@ -96,7 +102,6 @@ export class DeviceCalendarsPage {
     enabled: boolean,
   ): Promise<void> {
     await this.deviceCalendars.setCalendarsEnabledByNativeSource(nativeSourceId, enabled);
-    void this.haptics.tick();
     this.deviceResource.reload();
   }
 
@@ -106,6 +111,7 @@ export class DeviceCalendarsPage {
         'Der Gerätekalender wird getrennt. Termine aus dem Gerätekalender werden nicht mehr angezeigt, bis du erneut verbindest.',
       confirmLabel: 'Trennen',
       destructive: true,
+      confirmIcon: 'unlink',
     };
 
     this.sheets

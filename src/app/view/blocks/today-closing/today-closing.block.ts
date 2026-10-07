@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { LucideRotateCw } from '@lucide/angular';
 import { Temporal } from 'temporal-polyfill';
 
 import { formatTimeOfDay } from '@app/cross-cutting/helpers/date-format';
@@ -20,7 +21,7 @@ import { TodayClosingMessage } from '@app/view/components/today-closing-message/
 @Component({
   selector: 'app-today-closing',
   host: { class: 'block' },
-  imports: [TodayClosingMessage],
+  imports: [LucideRotateCw, TodayClosingMessage],
   templateUrl: './today-closing.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

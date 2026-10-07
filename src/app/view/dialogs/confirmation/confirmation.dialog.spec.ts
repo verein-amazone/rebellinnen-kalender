@@ -70,7 +70,22 @@ describe('ConfirmationDialog', () => {
 
     const [confirm, cancel] = Array.from(element.querySelectorAll('button'));
     expect(confirm.classList).toContain('rk-button-primary');
-    expect(confirm.querySelector('svg')).toBeNull();
+    // Every text button carries an icon; here it is the neutral check, not the bin.
+    expect(confirm.querySelector('svg[lucideCheck]')).not.toBeNull();
+    expect(confirm.querySelector('svg[lucideTrash2]')).toBeNull();
     expect(cancel.textContent?.trim()).toBe('Zurück');
+  });
+
+  it('shows the icon the caller asked for', async () => {
+    const { element } = await setup({
+      message: 'Verbindung trennen?',
+      confirmLabel: 'Trennen',
+      destructive: true,
+      confirmIcon: 'unlink',
+    });
+
+    const [confirm] = Array.from(element.querySelectorAll('button'));
+    expect(confirm.querySelector('svg[lucideUnlink]')).not.toBeNull();
+    expect(confirm.querySelector('svg[lucideTrash2]')).toBeNull();
   });
 });

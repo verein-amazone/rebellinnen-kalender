@@ -5,6 +5,7 @@ import {
   NotificationPreferencesInteractor,
   type NotificationPermission,
 } from '@app/interactors/notifications/notification-preferences.interactor';
+import { CheckHaptics } from '@app/view/components/field/check-haptics';
 import { ReminderListField } from '@app/view/components/reminder-list-field/reminder-list-field';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
@@ -17,7 +18,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-notifications',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, LucideExternalLink, ReminderListField],
+  imports: [CheckHaptics, FocusedScreenScaffold, LucideExternalLink, ReminderListField],
   templateUrl: './notifications.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { LucidePlus, LucideX } from '@lucide/angular';
 
 import {
   IcsSubscriptionInteractor,
@@ -27,6 +28,7 @@ export interface IcsSubscriptionAddResult {
 @Component({
   selector: 'app-ics-subscription-add',
   host: { class: 'block' },
+  imports: [LucidePlus, LucideX],
   templateUrl: './ics-subscription-add.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,5 +1,6 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { LucideRotateCw } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
@@ -30,7 +31,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-curated-calendars',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField],
+  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideRotateCw],
   templateUrl: './curated-calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -79,8 +80,6 @@ export class CuratedCalendarsPage {
 
   protected async toggleCurated(sourceId: string, enabled: boolean): Promise<void> {
     await this.curated.setEnabled(sourceId, enabled);
-    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
-    void this.haptics.tick();
     this.curatedResource.reload();
   }
 

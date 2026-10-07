@@ -239,6 +239,29 @@ for direct use.
 secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
 secondary action; the Playwright contrast loop will catch a regression either way.
 
+**Every text button carries an icon, and the icon always comes first.** A `.rk-button` is
+`<svg lucide… class="rk-icon" aria-hidden="true"></svg><span>Label</span>` - the icon before the
+label (inline-start), never after it, in every variant and for every direction, so „Zurück“ shows
+`arrow-left` and „Weiter“ shows `arrow-right`, both on the left. The icon repeats the verb's meaning
+on a second channel; it never replaces the label. Reuse the pairing an action already has
+elsewhere:
+
+| Action                               | Lucide icon       |
+| ------------------------------------ | ----------------- |
+| Weiter, Los geht's                   | `arrow-right`     |
+| Zurück                               | `arrow-left`      |
+| Überspringen                         | `chevrons-right`  |
+| Speichern, Bestätigen                | `check`           |
+| Abbrechen                            | `x`               |
+| Hinzufügen, Neu                      | `plus`            |
+| Löschen, Entfernen                   | `trash-2`         |
+| Verbinden / Verbindung trennen       | `link` / `unlink` |
+| Erneut versuchen                     | `rotate-cw`       |
+| Opens the OS settings or another app | `external-link`   |
+
+`ConfirmationDialog` picks its confirm icon from `confirmIcon` (`trash` by default when destructive,
+`check` otherwise, `unlink` for a disconnect).
+
 Accessibility contract: an icon button needs an `aria-label` or an `.sr-only` span, and its icon is
 always `aria-hidden`. The focus ring comes from the global `:focus-visible` rule in `base.css` -
 primitives must not set their own `outline`. Disabled uses the `disabled` attribute so the control is
@@ -270,6 +293,13 @@ high-contrast user sees their own control rather than our two colours.
 
 The completion state is never carried by this control alone: the row also strikes its text through, and
 the control's accessible name states the action it will perform.
+
+### Switch - `toggle.css`
+
+`.rk-toggle` on `<input type="checkbox" role="switch">`. On and off differ in three ways, never in
+position and colour alone: the thumb's side, the track colour, and a glyph in the thumb - a check
+when on, a cross when off (Lucide `check`/`x` as a CSS mask, so they follow the theme tokens).
+`forced-colors` drops all of it for the platform's own switch.
 
 ### Choice row - `choice.css` + `app-choice-row`
 
@@ -405,30 +435,35 @@ Neither channel ever carries information on its own: the card is fully readable 
 Every vibration goes through `HapticsInteractor`, behind the one „Vibration“ setting. Haptics
 confirm an outcome the user caused and cares about, and nothing else:
 
-| Moment                                            | Feedback                                          |
-| ------------------------------------------------- | ------------------------------------------------- |
-| Appointment created or saved                      | `confirm()` - the platform's success notification |
-| „Nicht vergessen“ entry added or edited           | `confirm()`                                       |
-| Calendar name, colour or symbol saved             | `confirm()`                                       |
-| Calendar subscribed by link (and loaded)          | `confirm()`                                       |
-| Device calendars connected                        | `confirm()`                                       |
-| „Nicht vergessen“ entry ticked off (not reopened) | `tick()` - one light impact                       |
-| Bookmark set (not removed)                        | `tick()`                                          |
-| Calendar switched on or off in settings           | `tick()`                                          |
-| Row picked up and put down while reordering       | `selection()` - the platform's detent tick        |
-| Another option picked in a settings choice group  | `selection()`                                     |
-| Another calendar colour picked                    | `selection()`                                     |
-| Filter chip toggled, another region picked        | `selection()`                                     |
-| Tagesimpuls greeting                              | `playArrival()` - the pattern above               |
+| Moment                                           | Feedback                                          |
+| ------------------------------------------------ | ------------------------------------------------- |
+| Appointment created or saved                     | `confirm()` - the platform's success notification |
+| „Nicht vergessen“ entry added or edited          | `confirm()`                                       |
+| Calendar name, colour or symbol saved            | `confirm()`                                       |
+| Calendar subscribed by link (and loaded)         | `confirm()`                                       |
+| Device calendars connected                       | `confirm()`                                       |
+| Any switch or checkbox flipped, either way       | `tick()` - one light impact, from `CheckHaptics`  |
+| Bookmark set (not removed)                       | `tick()`                                          |
+| Row picked up and put down while reordering      | `selection()` - the platform's detent tick        |
+| Another option picked in a settings choice group | `selection()`                                     |
+| Another calendar colour picked                   | `selection()`                                     |
+| Filter chip toggled, another region picked       | `selection()`                                     |
+| Tagesimpuls greeting                             | `playArrival()` - the pattern above               |
 
 A selection tick follows a choice that takes effect, or shows its effect, right away - a settings
-radio, a colour swatch. Choices inside a form that still has to be submitted stay silent; the
+radio, a colour swatch. Radio choices inside a form that still has to be submitted stay silent; the
 submit is the moment that counts. The tick comes from the presenter after the choice is stored, not
 from `ChoiceRow`, which as a component does not inject interactors. Switching vibration on is felt;
 switching it off is not.
 
-A switch that shows or hides a calendar is felt both ways: on and off are equal choices there, unlike
-ticking an entry off and reopening it. Removing something - an entry, a subscription, a bookmark, a
+Switches and checkboxes are the exception to both rules: every `.rk-toggle` and `.rk-check` input
+ticks when it is flipped, on and off alike, wherever it is - a calendar in the settings, the
+reminders switch, „Ganztägig“ and the weekdays in the appointment form, a „Nicht vergessen“ entry.
+The haptic belongs to the control, not to the presenter: every such input carries the
+`appCheckHaptics` directive (`view/components/field/check-haptics.ts`), the one view primitive that
+injects `HapticsInteractor` itself, so no two switches feel different. Presenters never call `tick()`
+for a switch; use `app-toggle-field`, which already carries it, or put the attribute on a new
+`.rk-toggle`/`.rk-check` input. Removing something - an entry, a subscription, a bookmark, a
 device connection - stays silent; it was already confirmed in a sheet, and a buzz would celebrate a
 loss.
 

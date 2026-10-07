@@ -1,6 +1,6 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
-import { LucideTrash2 } from '@lucide/angular';
+import { LucidePlus, LucideRotateCw, LucideTrash2 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
@@ -34,7 +34,14 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-ics-calendars',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideTrash2],
+  imports: [
+    FocusedScreenScaffold,
+    CalendarAvatar,
+    ToggleField,
+    LucideTrash2,
+    LucidePlus,
+    LucideRotateCw,
+  ],
   templateUrl: './ics-calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -106,8 +113,6 @@ export class IcsCalendarsPage {
 
   protected async toggleIcs(subscriptionId: string, enabled: boolean): Promise<void> {
     await this.icsSubscriptions.setEnabled(subscriptionId, enabled);
-    // Both ways: showing and hiding a calendar are equal choices, unlike ticking an entry off.
-    void this.haptics.tick();
     this.icsResource.reload();
   }
 

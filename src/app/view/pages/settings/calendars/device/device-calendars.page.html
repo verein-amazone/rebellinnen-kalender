@@ -22,7 +22,8 @@
                 class="rk-button rk-button-ghost w-full"
                 (click)="connectDeviceCalendars()"
               >
-                Erneut versuchen
+                <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+                <span>Erneut versuchen</span>
               </button>
             </div>
           } @else {
@@ -36,7 +37,8 @@
               class="rk-button rk-button-primary w-full"
               (click)="connectDeviceCalendars()"
             >
-              Gerätekalender verbinden
+              <svg lucideLink class="rk-icon" aria-hidden="true"></svg>
+              <span>Gerätekalender verbinden</span>
             </button>
           }
         } @else if (!snapshot.source.enabled) {
@@ -48,7 +50,8 @@
             class="rk-button rk-button-primary w-full"
             (click)="connectDeviceCalendars()"
           >
-            Verbinden
+            <svg lucideLink class="rk-icon" aria-hidden="true"></svg>
+            <span>Verbinden</span>
           </button>
         } @else {
           @if (snapshot.source.state === 'permission-lost') {
@@ -127,7 +130,8 @@
             class="rk-button rk-button-danger-secondary w-full"
             (click)="confirmDisconnect()"
           >
-            Verbindung trennen
+            <svg lucideUnlink class="rk-icon" aria-hidden="true"></svg>
+            <span>Verbindung trennen</span>
           </button>
         }
       } @else {

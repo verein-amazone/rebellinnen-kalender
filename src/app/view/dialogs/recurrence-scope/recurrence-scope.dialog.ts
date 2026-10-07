@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { LucideCheck, LucideX } from '@lucide/angular';
 
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { SHEET_DATA, SheetRef } from '@app/view/components/sheet/sheet-ref';
@@ -24,7 +25,7 @@ export interface RecurrenceScopeDialogData {
 @Component({
   selector: 'app-recurrence-scope',
   host: { class: 'block' },
-  imports: [ChoiceRow],
+  imports: [ChoiceRow, LucideCheck, LucideX],
   templateUrl: './recurrence-scope.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
