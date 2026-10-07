@@ -333,6 +333,46 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
 - **`TESTFLIGHT_UPLOADS_ENABLED`** and **`PLAY_UPLOADS_ENABLED`**, the variables that gate the
   two uploads, and **`TESTFLIGHT_GROUPS`**, the TestFlight groups every `dev` build is handed to.
 
+## iOS privacy manifest
+
+Apple rejects an upload whose bundle uses a "required-reason" API without declaring why. The app's
+own manifest is `ios/App/App/PrivacyInfo.xcprivacy`, a resource of the `App` target (#77). It
+declares no tracking and no collected data, because the app has no account, no server and no
+analytics. It also lists the reasons for the APIs that end up in the app binary itself:
+
+| API category    | Reason   | Where it comes from                                                                                                            |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| File timestamp  | `C617.1` | ZIPFoundation (`lstat`, `NSFileModificationDate`), which `@capacitor-community/sqlite` links in, on files in the app container |
+| Active keyboard | `54BD.1` | `@independo/capacitor-emoji-picker` reads `UITextInputMode.activeInputModes` to bring up the emoji keyboard                    |
+
+`UserDefaults`, system boot time and disk space do not appear in the app binary, so the manifest
+does not declare them. SQLCipher declares its own disk-space use.
+
+The frameworks and bundles that ship their own manifest are Capacitor, Cordova, SQLCipher and
+ZIPFoundation. **None of the Capacitor plugins ships one**: `@capacitor-community/sqlite`,
+`@capacitor/app`, `@capacitor/keyboard`, `@capacitor/local-notifications`, `@capacitor/text-zoom`,
+the four `@capawesome/*` plugins, `@ebarooni/capacitor-calendar`, `@independo/capacitor-emoji-picker`
+and `capacitor-native-settings`. They are compiled into the app binary through `CapApp-SPM`, so
+the app's manifest is what covers them.
+
+**When a native dependency changes**, check again before the next upload:
+
+```bash
+xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath "$TMPDIR/rk-privacy" CODE_SIGNING_ALLOWED=NO build
+app="$TMPDIR/rk-privacy"/Build/Products/Release-iphonesimulator/App.app
+nm -u "$app/App" | grep -E 'NSUserDefaults|stat|getattrlist|mach_absolute_time|NSFile(Creation|Modification)Date'
+strings "$app/App" | grep -xE 'activeInputModes|systemUptime|volumeAvailableCapacity.*'
+find "$app" -name PrivacyInfo.xcprivacy
+```
+
+Anything new in that output needs a reason in the app's manifest, unless the dependency that uses
+it ships its own manifest. Apple's list of categories and reasons is in
+[Describing use of required reason API](https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api).
+App Store Connect reports a missing reason by email after the upload (`ITMS-91053`), not as a
+failed upload.
+
 ## What is not automated yet
 
 - The `main` → App Store / Play production lanes (#72, #73) and the environments with required
@@ -340,4 +380,4 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
 - Store listing metadata and screenshots (#74) - descriptions, keywords, screenshots and the Play
   feature graphic are still typed into the consoles by hand. Only the release notes come from the
   repository.
-- The iOS privacy manifest (#77) and the store questionnaires (#78).
+- The store questionnaires (#78).
