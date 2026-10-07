@@ -1,3 +1,13 @@
+## [1.0.0-rc.23](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.22...v1.0.0-rc.23) (2026-10-07)
+
+### Features
+
+* **settings:** hide the developer tools in store releases ([7bbc47b](https://github.com/verein-amazone/rebellinnen-kalender/commit/7bbc47bec47faff51f618e34cefb9b69e3c99b03)), closes [#119](https://github.com/verein-amazone/rebellinnen-kalender/issues/119)
+
+### Build
+
+* **ios:** add the app's privacy manifest ([9d4cbcc](https://github.com/verein-amazone/rebellinnen-kalender/commit/9d4cbcceff12ee1ea6916f049a64f328ed1eca67)), closes [#77](https://github.com/verein-amazone/rebellinnen-kalender/issues/77)
+
 ## [1.0.0-rc.22](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.21...v1.0.0-rc.22) (2026-10-07)
 
 ### Features
