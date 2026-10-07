@@ -116,8 +116,13 @@ the router; anything that is not a route of this app falls back to the screen's 
 
 #### The first-launch introduction
 
-`/intro/:step` (#82) is a focused screen like any other, and a child of `MainNavigationScaffold` so
-`PageFocus` finds its heading. Each step is its own URL, which is what moves focus to the new
+`/intro/:step` (#82) is a route without a tab, and a child of `MainNavigationScaffold` so
+`PageFocus` finds its heading. It is the one such route that does not use `FocusedScreenScaffold`:
+it is the start of the app rather than a subpage, so it has no dismiss action and no title bar, just
+a progress bar, a centered step heading and a footer of „Weiter“/„Zurück“. Only the first step offers
+„Erste Schritte überspringen“. One step („Mach die App zu deiner“) sets the name and the colour
+theme through the same interactors as Settings → Profil and Farbthema, so nothing there needs
+saving. Each step is its own URL, which is what moves focus to the new
 heading and announces it - the page manages neither. Steps replace each other in the history, so the
 back gesture leaves the introduction; „Zurück“ is a visible button.
 
@@ -125,7 +130,7 @@ back gesture leaves the introduction; „Zurück“ is a visible button.
 a launch there to the introduction until `IntroInteractor.hasSeen()`, on the step it last reached
 (`resumeStep()`), so an introduction interrupted by closing the app continues where it was left. A deep link elsewhere is never
 diverted. Guards are view-layer code: they may navigate, and they reach state only through an
-interactor. Finishing, skipping and closing all mark the introduction as seen; the settings reopen
+interactor. Finishing and skipping both mark the introduction as seen; the settings reopen
 it with `?returnTo=/settings`. The e2e config marks it as seen for every spec except
 `onboarding.spec.ts`. Settings → Entwickler-Werkzeuge resets it (`IntroInteractor.reset()`) to walk
 it again from the first step without wiping the other app data.
