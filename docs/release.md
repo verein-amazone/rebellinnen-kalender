@@ -78,8 +78,16 @@ writes it in both store formats: a plain-text "What to Test" for TestFlight and
 `fastlane/metadata/android/de-DE/changelogs/<versionCode>.txt` for Play. The Play limit is 500
 characters, so a long changelog is cut at a line boundary.
 
-The text is the generated English commit-subject changelog with a German line naming the version.
-Hand-written German release notes for the public release are #91 and #74.
+For a prerelease, the text is the generated English commit-subject changelog with a German line
+naming the version - the readers are testers.
+
+**A release from `main` uses hand-written German notes** from
+`docs/release-notes/<version>.md` instead (see [release-notes/README.md](./release-notes/README.md)).
+The same file reaches three places: `generateNotesCmd` in `.releaserc.json` appends it to the
+GitHub release and `CHANGELOG.md`, and `build-store-release-notes.mjs` uses it alone - no version
+line, no generated part - as the App Store "What's New" and the Play changelog. It must fit Play's
+500 characters as plain text; the script fails rather than cut it. Without a file, a release falls
+back to the generated English notes, which is rarely what the public listing should say.
 
 Which commits appear in it is `release-notes-generator`'s `presetConfig` in `.releaserc.json`, and
 it has to list **every type that can cut a release** - otherwise a release triggered by, say, a lone
@@ -96,7 +104,11 @@ A release from `main` goes to the public, so it gets a manual pass first, on the
 that `main` is about to be merged from:
 
 1. Run the [pre-release QA checklist](./qa-checklist.md) against that `rc` build, recorded as an
-   issue. Every finding is fixed or filed with a milestone before the merge.
+   issue. Every finding is fixed or filed with a milestone before the merge; the ones that ship go
+   into "Known limitations" in [v1-scope.md](./v1-scope.md).
+2. Write the German release notes as `docs/release-notes/<version>.md` and land them on `dev`
+   (see [Release notes](#release-notes)). Preview them with
+   `node scripts/build-store-release-notes.mjs --tag v<version> --body-file /dev/null --dry-run`.
 
 ## First-time setup
 
