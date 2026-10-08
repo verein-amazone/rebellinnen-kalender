@@ -15,3 +15,8 @@ ij_typescript_use_double_quotes = false
 [*.md]
 max_line_length = off
 trim_trailing_whitespace = false
+
+# Store listing text. supply uploads these files byte for byte, so a final newline would end up in
+# the Play listing; deliver strips it, but the same rule keeps both stores' files alike.
+[fastlane/metadata/**.txt]
+insert_final_newline = false

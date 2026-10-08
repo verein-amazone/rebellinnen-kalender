@@ -1,0 +1,30 @@
+Der Rebell*innen Kalender ist die digitale Version des gedruckten Rebell*innen Kalenders von Verein Amazone: ein Kalender für jeden Tag, mit Geschichten von Frauen* und Menschen, die die Welt verändert haben – und Wissen, das stark macht.
+
+HEUTE AUF EINEN BLICK
+Deine nächsten Termine, dein Tagesimpuls und deine Nicht-vergessen-Liste auf einem Bildschirm.
+
+DEIN KALENDER
+• Termine anlegen, mit Wiederholungen und Erinnerungen
+• Wochen- und Monatsansicht
+• Kalender deines Handys anzeigen und Termine dort speichern
+• Kalender-Links abonnieren, zum Beispiel von deinem Verein oder deiner Schule
+• Die Termine von Verein Amazone und die österreichischen Feiertage mit einem Tipp einschalten
+
+REBELL*INNEN UND WISSEN
+• Porträts von Rebell*innen – von Ada Lovelace bis Malala Yousafzai
+• Wissensimpulse zu Feminismus, Gesundheit, Vielfalt und Alltag
+• Speichere, was dir wichtig ist, in „Meine Sammlung“
+
+NICHT VERGESSEN
+Eine einfache Liste für alles, was kein Termin ist.
+
+ANLAUFSTELLEN
+Beratungsstellen und Notrufnummern, direkt zum Anrufen oder Schreiben.
+
+SO, WIE ES FÜR DICH PASST
+Vier Farbthemen, verschiedene Textgrößen, drei App-Symbole, weniger Animationen und Vibration nach Wunsch. Die App funktioniert mit TalkBack und großer Schrift.
+
+DEINE DATEN BLEIBEN BEI DIR
+Kein Konto, kein eigener Server, keine Werbung, kein Tracking. Deine Termine, Listen und gespeicherten Inhalte sind nur auf deinem Gerät – und die App funktioniert auch ohne Internet.
+
+Entwickelt von Independo GmbH im Auftrag von Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender

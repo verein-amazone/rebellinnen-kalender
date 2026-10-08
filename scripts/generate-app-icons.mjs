@@ -32,6 +32,9 @@
  *   when the web demo build (see README) is installed to a home screen. The maskable one carries
  *   the same adaptive safe-zone padding as the Android foreground, because a browser applies a mask
  *   of its own.
+ * - `fastlane/metadata/android/de-DE/images/icon.png` - the 512px hi-res icon of the Play listing,
+ *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
+ *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
  *
  * Adding a fourth icon means dropping a square PNG into `resources/app-icons/`, adding an entry to
  * `ICONS` below, registering an `activity-alias` in `AndroidManifest.xml`, adding the catalog name
@@ -82,12 +85,17 @@ const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
 const manifestIconDir = join(root, 'public/icons');
+const playListingImageDir = join(root, 'fastlane/metadata/android/de-DE/images');
+
+/** The Play listing's hi-res icon must be exactly this size. */
+const PLAY_ICON_SIZE = 512;
 
 await main();
 
 async function main() {
   await mkdir(previewDir, { recursive: true });
   await mkdir(manifestIconDir, { recursive: true });
+  await mkdir(playListingImageDir, { recursive: true });
 
   const backgrounds = [];
 
@@ -103,6 +111,7 @@ async function main() {
 
     if (icon.catalog === 'AppIcon') {
       await writeManifestIcons(source, background);
+      await writePlayListingIcon(source);
     }
 
     console.log(`${icon.id}: background ${background}`);
@@ -304,4 +313,12 @@ async function writeManifestIcons(source, background) {
     ])
     .png({ compressionLevel: 9 })
     .toFile(join(manifestIconDir, `icon-${maskableSize}-maskable.png`));
+}
+
+/** The Play listing's hi-res icon, full-bleed like the iOS one. */
+async function writePlayListingIcon(source) {
+  await sharp(source)
+    .resize(PLAY_ICON_SIZE, PLAY_ICON_SIZE, { fit: 'cover' })
+    .png({ compressionLevel: 9 })
+    .toFile(join(playListingImageDir, 'icon.png'));
 }

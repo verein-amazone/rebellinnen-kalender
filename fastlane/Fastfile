@@ -14,6 +14,11 @@
 # So a merge into `main` leaves both stores one deliberate click from live: "Submit for Review" in
 # App Store Connect, "Publish" in the Play console. Nothing on `main` ever reaches a user on its own.
 #
+# The `main` lanes also write the store listing - text, screenshots, the Play graphics and the Apple
+# age rating - from fastlane/metadata/ and fastlane/screenshots/ (docs/store-listing.md). The `dev`
+# lanes never touch it: a Play listing is shared by every track, so an internal-testing upload that
+# wrote it would change the public listing with every merge.
+#
 # TestFlight on `dev` is the one exception, on purpose: leaving each build for someone to attach by
 # hand meant nobody did, and testers sent a whole round of feedback from rc.8 while rc.14 was out,
 # about bugs fixed four releases earlier. External groups still pass Apple's beta review first.
@@ -33,6 +38,9 @@ MATCH_PROFILE_NAME = "match AppStore #{APP_IDENTIFIER}".freeze
 STORE_LOCALE = 'de-DE'.freeze
 
 AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
+
+# The Apple age-rating answers, recorded with their reasons in docs/store-compliance.md.
+APP_RATING_CONFIG_PATH = 'fastlane/metadata/app_store_rating_config.json'.freeze
 
 # Where CI keeps its cached Swift package clones, so a release does not re-clone SQLCipher,
 # ZIPFoundation and capacitor-swift-pm from github.com. Unset locally, where Xcode's own
@@ -201,26 +209,35 @@ def testflight_distribution(names)
   TestflightDistribution.new(needing.map(&:name), needing.any? { |group| !group.is_internal_group })
 end
 
-# Uploads the release bundle to one Play track as a draft.
+# Uploads the release bundle to one Play track as a draft, and with `listing: true` the store
+# listing along with it.
 #
 # The changelog is a file, not a parameter: `supply` reads
 # fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt, which
 # scripts/build-store-release-notes.mjs has written by the time this runs.
 #
+# The listing - title, descriptions, icon, feature graphic, phone screenshots - is one per app, not
+# one per track, so only the production lane writes it. Everything goes in one supply run, which is
+# one Play edit: a listing the API rejects leaves nothing committed, rather than a bundle without
+# the listing it was released with. `sync_image_upload` compares hashes and re-uploads only the
+# images that changed. Play sends a listing change to review and publishes it when approved, unless
+# Managed publishing is on in the console - docs/release.md asks for it.
+#
 # `draft` rather than `completed` on both tracks: the bundle lands in the console with its notes
 # attached and a human decides when it goes out. On `internal` that is also what lets the pipeline
 # be verified before the Play "App content" declarations (#78, #79) are answered - those block the
 # rollout, not the upload.
-def upload_bundle_to_play(track)
+def upload_bundle_to_play(track, listing:)
   upload_to_play_store(
     track: track,
     release_status: 'draft',
     aab: AAB_PATH,
     # The service account JSON stays in memory; it is never written to the runner's disk.
     json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
-    skip_upload_metadata: true,
-    skip_upload_images: true,
-    skip_upload_screenshots: true,
+    skip_upload_metadata: !listing,
+    skip_upload_images: !listing,
+    skip_upload_screenshots: !listing,
+    sync_image_upload: listing,
     skip_upload_changelogs: false
   )
 end
@@ -268,46 +285,56 @@ platform :ios do
     )
   end
 
-  desc 'Archive the app and stage it as an App Store version. Does not submit it for review.'
+  desc 'Archive the app, stage it as an App Store version and write the listing. Does not submit it for review.'
   lane :release do |options|
     api_key = app_store_connect_key
     archive_signed_ipa(api_key)
+    version = options.fetch(:version)
 
-    # Everything that makes this "staged rather than published" is in these three flags:
-    # `submit_for_review: false` leaves the version in "Prepare for Submission", `automatic_release`
-    # false means an approved version still waits for a human, and `run_precheck_before_submit`
-    # false keeps precheck from running for a submission that is not happening.
-    #
-    # Only the release notes are written. `skip_screenshots` leaves the listing's screenshots alone,
-    # and nothing here touches the description, keywords or the age rating: those are the store
-    # listing's own content (#74, #91), maintained in the console, and a deliver run that thinks it
-    # owns them would overwrite them with whatever is - or is not - in this repository.
+    # Everything that makes this "staged rather than published" is in these three flags, on both
+    # deliver runs below: `submit_for_review: false` leaves the version in "Prepare for Submission",
+    # `automatic_release` false means an approved version still waits for a human, and
+    # `run_precheck_before_submit` false keeps precheck from running for a submission that is not
+    # happening.
+    staged = {
+      api_key: api_key,
+      app_version: version,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      # No HTML preview to confirm: there is no terminal to confirm it in.
+      force: true
+    }
+
+    # The binary first and on its own. deliver writes metadata *before* it uploads, so in one run a
+    # listing that App Store Connect turns down would cost every retry below and keep the build out.
     upload_tolerating_a_delivered_build do
-      upload_to_app_store(
-        api_key: api_key,
-        app_version: options.fetch(:version),
-        release_notes: { STORE_LOCALE => options.fetch(:changelog) },
-        submit_for_review: false,
-        automatic_release: false,
-        skip_screenshots: true,
-        overwrite_screenshots: false,
-        run_precheck_before_submit: false,
-        precheck_include_in_app_purchases: false,
-        # No HTML preview to confirm: there is no terminal to confirm it in.
-        force: true
-      )
+      upload_to_app_store(**staged, skip_metadata: true, skip_screenshots: true)
     end
+
+    # Then the listing, from the repository: fastlane/metadata/ (text, categories, review notes),
+    # fastlane/screenshots/ and the age rating. Outside the retry, so it also runs - and is not
+    # repeated - when an earlier attempt had already delivered the build. App Store Connect has no
+    # "What's New" on an app's first version; deliver skips the release notes there by itself.
+    upload_to_app_store(
+      **staged,
+      skip_binary_upload: true,
+      release_notes: { STORE_LOCALE => options.fetch(:changelog) },
+      overwrite_screenshots: true,
+      app_rating_config_path: APP_RATING_CONFIG_PATH
+    )
   end
 end
 
 platform :android do
   desc 'Upload the release bundle to the Play internal testing track, as a draft.'
   lane :internal do
-    upload_bundle_to_play('internal')
+    upload_bundle_to_play('internal', listing: false)
   end
 
-  desc 'Upload the release bundle to the Play production track, as a draft.'
+  desc 'Upload the release bundle to the Play production track, as a draft, with the store listing.'
   lane :production do
-    upload_bundle_to_play('production')
+    upload_bundle_to_play('production', listing: true)
   end
 end

@@ -55,11 +55,12 @@ Per icon that writes:
 
 And, from the default icon (`klassisch`) only:
 
-| Output                               | What it is                                                                                                                                      |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/icons/icon-192.png`          | Web app manifest icon, full-bleed.                                                                                                              |
-| `public/icons/icon-512.png`          | The same at 512 px.                                                                                                                             |
-| `public/icons/icon-512-maskable.png` | The `maskable` variant: artwork in the adaptive safe zone on the source's own background, because an installing browser crops to its own shape. |
+| Output                                            | What it is                                                                                                                                      |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/icons/icon-192.png`                       | Web app manifest icon, full-bleed.                                                                                                              |
+| `public/icons/icon-512.png`                       | The same at 512 px.                                                                                                                             |
+| `public/icons/icon-512-maskable.png`              | The `maskable` variant: artwork in the adaptive safe zone on the source's own background, because an installing browser crops to its own shape. |
+| `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md).                      |
 
 Those three belong to the web demo build (see the README) and are what a browser uses when the app
 is installed to a home screen. The demo build has no icon switcher, so the alternates need none.

@@ -139,6 +139,7 @@ pnpm lint         # Angular ESLint (includes architecture layer-boundary rules)
 pnpm format       # Apply Prettier
 pnpm format:check # Check formatting
 pnpm e2e          # Playwright smoke test incl. Axe accessibility scan
+pnpm store:screenshots # Store screenshots and Play feature graphic (docs/store-listing.md)
 ```
 
 ### Build and Capacitor synchronization

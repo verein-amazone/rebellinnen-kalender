@@ -8,6 +8,10 @@
 # for review, and puts the Android build on the Play production track as a draft. Going live stays a
 # deliberate action in each console - which is also what makes a failed upload harmless to retry.
 #
+# `channel: release` also writes both store listings - text, screenshots, the Play graphics and the
+# Apple age rating - from the tag's fastlane/metadata/ and fastlane/screenshots/, which are
+# committed, so no browser is needed here (docs/store-listing.md). A prerelease never touches them.
+#
 # The two channels differ only in the fastlane lane each job runs. Same certificate, same profile,
 # same keystore, same service account, same secrets: a release is not a different pipeline, it is
 # the same one pointed at a different track.

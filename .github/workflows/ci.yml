@@ -80,6 +80,11 @@ jobs:
       - name: Check the native version fields
         run: node scripts/sync-native-version.mjs --check
 
+      # The store listings are uploaded only after a release from main is tagged; a field over its
+      # limit or a screenshot at the wrong size would fail there. This fails the pull request.
+      - name: Check the store listings
+        run: node scripts/check-store-listing.mjs
+
       - name: Unit tests
         run: pnpm test:ci
 
