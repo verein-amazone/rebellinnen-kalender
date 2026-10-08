@@ -288,8 +288,9 @@ version still waits for a human to release it.
 the German changelog. Open it, set the rollout percentage, and publish.
 
 Play refuses to roll out any release, internal testing included, until the "App content"
-declarations are complete - privacy policy, data safety, content rating, target audience. Those are
-#78 and #79. The upload itself works before they are answered; only the rollout waits.
+declarations are complete - privacy policy, data safety, content rating, target audience. The
+answers are in [store-compliance.md](./store-compliance.md) (#78); the privacy policy URL is #79.
+The upload itself works before they are answered; only the rollout waits.
 
 ## When an upload fails
 
@@ -395,9 +396,11 @@ failed upload.
 
 ## What is not automated yet
 
-- The `main` → App Store / Play production lanes (#72, #73) and the environments with required
-  reviewers that should guard them (#75).
+- The environments with required reviewers that should guard the `main` → App Store / Play
+  production uploads (#75). The lanes themselves exist (#72, #73).
 - Store listing metadata and screenshots (#74) - descriptions, keywords, screenshots and the Play
   feature graphic are still typed into the consoles by hand. Only the release notes come from the
   repository.
-- The store questionnaires (#78).
+- The store questionnaires: Apple App Privacy, Play Data safety, Play App content and the IARC
+  rating cannot be set through either store's API. They are typed into the consoles from
+  [store-compliance.md](./store-compliance.md), which records every answer and its evidence.
