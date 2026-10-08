@@ -11,9 +11,13 @@
 // 500), so the Play text is the one that usually gets truncated - always on a line boundary, so a
 // changelog never ends mid-sentence.
 //
-// Both texts open with a German line naming the version, because the readers are Verein Amazone's
-// testers; the generated notes below it stay in the English of the commit subjects. Hand-written
-// German release notes for the public release are #91 and #74, not this script.
+// For a prerelease, both texts open with a German line naming the version, because the readers are
+// Verein Amazone's testers; the generated notes below it stay in the English of the commit subjects.
+//
+// A release from `main` goes to the public instead. When `docs/release-notes/<version>.md` exists
+// (see scripts/hand-written-release-notes.mjs), its German text replaces the generated notes in both
+// stores, without the version line and without truncation: hand-written text that does not fit is
+// an error to fix in the file, never something to cut silently.
 //
 //   node scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2
 //   node scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2 --dry-run
@@ -22,6 +26,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import { readHandWrittenReleaseNotes } from './hand-written-release-notes.mjs';
 import { deriveNativeVersion } from './sync-native-version.mjs';
 
 /** App Store Connect rejects a "What to Test" text longer than this. */
@@ -53,6 +58,8 @@ export function toPlainText(markdown) {
     // Any remaining markdown link keeps its text and loses its URL.
     line = line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
     line = line.replaceAll('**', '').replaceAll('`', '');
+    // A backslash-escaped star, as in `Rebell\*innen`, keeps the star and loses the backslash.
+    line = line.replaceAll('\\*', '*');
     line = line.replace(/^\*\s+/, '- ');
 
     lines.push(line.trimEnd());
@@ -88,11 +95,25 @@ export function truncateToLimit(text, limit) {
  *
  * @param {string} version The released version, `1.0.0` or `1.0.0-rc.2`.
  * @param {string} markdown The body of the GitHub release.
+ * @param {string | null} [handWritten] The hand-written notes for `version`, if it has any. Only a
+ *   release uses them; a prerelease always gets the generated notes.
  * @returns {{ testflight: string, play: string, buildNumber: number }}
  */
-export function buildStoreReleaseNotes(version, markdown) {
+export function buildStoreReleaseNotes(version, markdown, handWritten = null) {
   const { shortVersion, buildNumber } = deriveNativeVersion(version);
   const isPrerelease = version !== shortVersion;
+
+  if (!isPrerelease && handWritten !== null) {
+    const text = toPlainText(handWritten);
+    if (text.length > PLAY_LIMIT) {
+      throw new Error(
+        `The hand-written release notes for ${version} are ${text.length} characters as plain ` +
+          `text; Play accepts ${PLAY_LIMIT}. Shorten docs/release-notes/${version}.md.`,
+      );
+    }
+    return { testflight: text, play: text, buildNumber };
+  }
+
   const leadIn = isPrerelease
     ? `Testversion ${version} (Build ${buildNumber})`
     : `Version ${shortVersion} (Build ${buildNumber})`;
@@ -168,7 +189,11 @@ if (import.meta.main) {
       : readReleaseBody(tag);
 
   const version = tag.replace(/^v/, '');
-  const { testflight, play, buildNumber } = buildStoreReleaseNotes(version, markdown);
+  const { testflight, play, buildNumber } = buildStoreReleaseNotes(
+    version,
+    markdown,
+    readHandWrittenReleaseNotes(version),
+  );
 
   const outDir =
     typeof options['out-dir'] === 'string'

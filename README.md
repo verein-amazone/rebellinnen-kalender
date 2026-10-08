@@ -14,10 +14,14 @@ Developed by Independo GmbH on behalf of Verein Amazone.
 
 ## Status
 
-Early development. The technical foundation (Angular 22 + Capacitor 8, tooling, the application
-architecture skeleton and the design system) is in place, as is the SQLite foundation with its first
-table: the „Nicht vergessen“ list on the Today page. The remaining product screens are tracked in the
-milestones below.
+Version 1 is feature-complete and in pre-release testing: release candidates (`1.0.0-rc.N`) reach
+testers through TestFlight and Play internal testing, and 1.0.0 is planned for both stores.
+
+- [V1 scope and known limitations](./docs/v1-scope.md) - what the first version does, what it
+  deliberately leaves out, and what does not work yet.
+- [Release notes](./docs/release-notes/) for the public releases; [CHANGELOG.md](./CHANGELOG.md)
+  for every version.
+- [Release process](./docs/release.md) and the [pre-release QA checklist](./docs/qa-checklist.md).
 
 ## What is it about?
 
@@ -135,6 +139,7 @@ pnpm lint         # Angular ESLint (includes architecture layer-boundary rules)
 pnpm format       # Apply Prettier
 pnpm format:check # Check formatting
 pnpm e2e          # Playwright smoke test incl. Axe accessibility scan
+pnpm store:screenshots # Store screenshots and Play feature graphic (docs/store-listing.md)
 ```
 
 ### Build and Capacitor synchronization
@@ -187,25 +192,19 @@ decision spaces where variants, wireframes, questions and feedback are collected
 
 [Current milestones](https://github.com/verein-amazone/rebellinnen-kalender/milestones):
 
-1. V1 product picture & wireframes
-2. MVP base: local calendar app
-3. Curated content & organization events
-4. Sharing & shared use
-5. Test version, release & open-source foundation
+1. V1 product picture & wireframes (done)
+2. MVP base: local calendar app (done)
+3. Curated content & organization events (done)
+4. Test version, release & open-source foundation - the road to 1.0.0
+5. Sharing & shared use
+6. After V1
 
 ### Good entry points
 
-- #4 Define V1 scope and app structure
-- #5 Design the start screen / today view & navigation
-- #6 Design the calendar & personal appointments
-- #7 Design the checklist & important things of the day
-- #8 Design customization & accessibility
-
-Workshop ideas already visible in the repo:
-
-- #1 Positive / curated content of the day
-- #2 Show events and appointments from organizations
-- #3 Share appointments with others
+- [docs/v1-scope.md](./docs/v1-scope.md) - what V1 covers, and where everything it leaves out is
+  tracked
+- [Open issues after V1](https://github.com/verein-amazone/rebellinnen-kalender/milestone/6), for
+  example #3 Share appointments with others
 
 ### How to give feedback
 

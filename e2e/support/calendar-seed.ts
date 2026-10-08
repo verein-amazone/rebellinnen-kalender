@@ -19,6 +19,9 @@ interface SqlitePluginLike {
 /** Must match `DATABASE_NAME` in `src/app/data/gateways/sqlite.gateway.ts`. */
 const DATABASE_NAME = 'rebellinnen-kalender';
 
+/** Starts the text of every „Nicht vergessen“ entry {@link ensureDatabaseReady} adds. */
+const WARM_UP_PREFIX = 'e2e-db-warmup-';
+
 /**
  * Seeds one writable app calendar straight into the SQLite database, bypassing the UI.
  *
@@ -151,6 +154,13 @@ export interface SeedOccurrenceOptions {
    * calendar in `CalendarsPage` and seeing its occurrences appear or disappear.
    */
   readonly existingCalendar?: SeededCalendar;
+  /**
+   * Name and colour of the fresh source/calendar pair; ignored with `existingCalendar`. Default to
+   * a generic name per source type and a muted blue - the store screenshots use these to make a
+   * seeded ICS row look like the Amazone calendar.
+   */
+  readonly calendarName?: string;
+  readonly color?: string;
 }
 
 export interface SeededOccurrence {
@@ -180,6 +190,8 @@ export async function seedOccurrence(
   const writable = options.calendarWritable ?? false;
   const recurring = options.recurring ?? false;
   const existing = options.existingCalendar ?? null;
+  const calendarName = options.calendarName ?? null;
+  const color = options.color ?? '#2f6f8f';
 
   return page.evaluate(
     async ({
@@ -190,6 +202,8 @@ export async function seedOccurrence(
       databaseName,
       recurring: isRecurring,
       existingCalendar,
+      calendarName: customName,
+      color: calendarColor,
     }) => {
       const plugin = (
         window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
@@ -205,7 +219,12 @@ export async function seedOccurrence(
         plugin.run({ database: databaseName, statement, values, transaction: false });
 
       const sourceName =
-        sourceType === 'app' ? 'App' : sourceType === 'device' ? 'Gerätekalender' : 'ICS-Kalender';
+        customName ??
+        (sourceType === 'app'
+          ? 'App'
+          : sourceType === 'device'
+            ? 'Gerätekalender'
+            : 'ICS-Kalender');
       const provenance =
         sourceType !== 'app' ? 'device-cached' : isRecurring ? 'generated' : 'standalone';
       // `end_utc` is exclusive (the midnight after), while a `date` end names the last day the
@@ -242,7 +261,7 @@ export async function seedOccurrence(
             calendarId,
             sourceId,
             sourceName,
-            '#2f6f8f',
+            calendarColor,
             null,
             1,
             calendarWritable ? 1 : 0,
@@ -324,8 +343,34 @@ export async function seedOccurrence(
       databaseName: DATABASE_NAME,
       recurring,
       existingCalendar: existing,
+      calendarName,
+      color,
     },
   );
+}
+
+/**
+ * Deletes the „Nicht vergessen“ entries that {@link ensureDatabaseReady} leaves behind, for a spec
+ * whose screen must show only the entries it created itself - the store screenshots. Ends on
+ * `/today`, reloaded, so the list shows the database as it now is.
+ */
+export async function removeDatabaseWarmUpEntries(page: Page): Promise<void> {
+  await page.evaluate(
+    async ({ databaseName, prefix }) => {
+      const plugin = (
+        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
+      ).Capacitor.Plugins.CapacitorSQLite;
+      await plugin.run({
+        database: databaseName,
+        statement: 'DELETE FROM reminders WHERE text LIKE ?',
+        values: [`${prefix}%`],
+        transaction: false,
+      });
+      await plugin.saveToStore({ database: databaseName });
+    },
+    { databaseName: DATABASE_NAME, prefix: WARM_UP_PREFIX },
+  );
+  await page.goto('/today');
 }
 
 /**
@@ -343,7 +388,7 @@ export async function seedOccurrence(
  */
 async function ensureDatabaseReady(page: Page): Promise<void> {
   await page.goto('/today');
-  const marker = `e2e-db-warmup-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const marker = `${WARM_UP_PREFIX}${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
   const dialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });

@@ -22,6 +22,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "e2e": "playwright test",
+    "store:screenshots": "pnpm build && playwright test -c playwright.store.config.ts",
     "serve:dist": "serve -s dist/rebellinnen-kalender/browser -l 4200",
     "deps:update": "scripts/update-app-dependencies.sh",
     "cap:sync": "pnpm build && cap sync",

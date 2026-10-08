@@ -31,9 +31,10 @@ need doing:
 - **The "Protect Main" ruleset needs a bypass actor** for the release workflow, which pushes its
   release commit straight to the branch rather than opening a pull request (#75). Without it the
   release fails after the merge, not during it.
-- **The App Store listing has to exist** - description, screenshots, age rating, privacy answers
-  (#74, #91). `deliver` writes only the release notes; it deliberately does not own the rest of the
-  listing, and Apple will not accept a submission without it.
+- **The store questionnaires have to be answered** in both consoles - App Privacy, Data safety, App
+  content, content rating - from [store-compliance.md](./store-compliance.md). Neither store's API
+  can set them. The listing itself - text, screenshots, graphics, the Apple age rating - comes from
+  this repository with the release ([store-listing.md](./store-listing.md)).
 
 ## What happens when a pull request is merged into `dev`
 
@@ -78,8 +79,16 @@ writes it in both store formats: a plain-text "What to Test" for TestFlight and
 `fastlane/metadata/android/de-DE/changelogs/<versionCode>.txt` for Play. The Play limit is 500
 characters, so a long changelog is cut at a line boundary.
 
-The text is the generated English commit-subject changelog with a German line naming the version.
-Hand-written German release notes for the public release are #91 and #74.
+For a prerelease, the text is the generated English commit-subject changelog with a German line
+naming the version - the readers are testers.
+
+**A release from `main` uses hand-written German notes** from
+`docs/release-notes/<version>.md` instead (see [release-notes/README.md](./release-notes/README.md)).
+The same file reaches three places: `generateNotesCmd` in `.releaserc.json` appends it to the
+GitHub release and `CHANGELOG.md`, and `build-store-release-notes.mjs` uses it alone - no version
+line, no generated part - as the App Store "What's New" and the Play changelog. It must fit Play's
+500 characters as plain text; the script fails rather than cut it. Without a file, a release falls
+back to the generated English notes, which is rarely what the public listing should say.
 
 Which commits appear in it is `release-notes-generator`'s `presetConfig` in `.releaserc.json`, and
 it has to list **every type that can cut a release** - otherwise a release triggered by, say, a lone
@@ -89,6 +98,21 @@ under it. That is exactly what happened to `1.0.0-rc.5` through `rc.7`: the anal
 generator was left on the default preset, which renders only `feat`, `fix`, `perf` and reverts. Keep
 the two lists in step. `docs`, `style` and `test` stay hidden, which is consistent - they cut no
 release either.
+
+## Before a release from `main`
+
+A release from `main` goes to the public, so it gets a manual pass first, on the release candidate
+that `main` is about to be merged from:
+
+1. Run the [pre-release QA checklist](./qa-checklist.md) against that `rc` build, recorded as an
+   issue. Every finding is fixed or filed with a milestone before the merge; the ones that ship go
+   into "Known limitations" in [v1-scope.md](./v1-scope.md).
+2. Write the German release notes as `docs/release-notes/<version>.md` and land them on `dev`
+   (see [Release notes](#release-notes)). Preview them with
+   `node scripts/build-store-release-notes.mjs --tag v<version> --body-file /dev/null --dry-run`.
+3. Bring the store listing up to date on `dev`: the text in `fastlane/metadata/` still describes
+   the app, and the screenshots still show it - `pnpm store:screenshots` after any visible change
+   (see [store-listing.md](./store-listing.md)). The release writes both to the stores.
 
 ## First-time setup
 
@@ -131,10 +155,12 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
 
 ### Google
 
-5. **Create the Play Console entry** for `at.or.amazone.rebellinnenkalender` and add **`de-DE` as a
-   listing language** under Grow users → Store presence → Main store listing - `supply` can only
-   upload a changelog for a locale the listing actually has, and the pipeline writes `de-DE`. It
-   does not have to be the _default_ language.
+5. **Create the Play Console entry** for `at.or.amazone.rebellinnenkalender` with **`de-DE` as the
+   default listing language** (Grow users → Store presence → Main store listing). `supply` can only
+   upload to a locale the listing actually has, and the repository holds a `de-DE` listing only; with
+   another default language Play would also demand a full listing in that language. Then turn on
+   **Managed publishing** (Publishing overview): Play otherwise publishes a listing change as soon
+   as it passes review, and the production lane writes the listing with every release.
 6. **Enable Play App Signing**, so Google holds the app signing key and this project only holds the
    upload key. Losing the upload key is then a support request rather than a dead app.
 7. **Generate the upload keystore** and back it up outside this repository:
@@ -259,17 +285,20 @@ minutes longer than an upload alone.
 **Play internal testing** (`dev`). The bundle appears as a **draft** release on the internal track
 with the German changelog. Open it and roll it out.
 
-**App Store** (`main`). The version exists in App Store Connect with the build attached and its
-"What's New" text filled in, sitting in "Prepare for Submission". Check the rest of the listing, then
-"Add for Review" and submit. It is not set to release automatically on approval, so an approved
+**App Store** (`main`). The version exists in App Store Connect with the build uploaded, its
+"What's New" text and the listing from the repository - description, keywords, screenshots,
+categories, age rating - filled in, sitting in "Prepare for Submission". Select the build, check the
+listing, then "Add for Review" and submit. It is not set to release automatically on approval, so an approved
 version still waits for a human to release it.
 
 **Play production** (`main`). The bundle appears as a **draft** release on the production track with
-the German changelog. Open it, set the rollout percentage, and publish.
+the German changelog, and the listing from the repository is updated alongside it. Open it, set the
+rollout percentage, and publish - with Managed publishing on, the listing change goes out with it.
 
 Play refuses to roll out any release, internal testing included, until the "App content"
-declarations are complete - privacy policy, data safety, content rating, target audience. Those are
-#78 and #79. The upload itself works before they are answered; only the rollout waits.
+declarations are complete - privacy policy, data safety, content rating, target audience. The
+answers are in [store-compliance.md](./store-compliance.md) (#78); the privacy policy URL is #79.
+The upload itself works before they are answered; only the rollout waits.
 
 ## When an upload fails
 
@@ -375,9 +404,11 @@ failed upload.
 
 ## What is not automated yet
 
-- The `main` → App Store / Play production lanes (#72, #73) and the environments with required
-  reviewers that should guard them (#75).
-- Store listing metadata and screenshots (#74) - descriptions, keywords, screenshots and the Play
-  feature graphic are still typed into the consoles by hand. Only the release notes come from the
-  repository.
-- The store questionnaires (#78).
+- The environments with required reviewers that should guard the `main` → App Store / Play
+  production uploads (#75). The lanes themselves exist (#72, #73).
+- Contact details that would be personal data in a public repository: the App Review contact,
+  and the Play listing's contact email. They are entered once in each console; the release leaves
+  them alone.
+- The store questionnaires: Apple App Privacy, Play Data safety, Play App content and the IARC
+  rating cannot be set through either store's API. They are typed into the consoles from
+  [store-compliance.md](./store-compliance.md), which records every answer and its evidence.
