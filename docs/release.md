@@ -90,6 +90,14 @@ generator was left on the default preset, which renders only `feat`, `fix`, `per
 the two lists in step. `docs`, `style` and `test` stay hidden, which is consistent - they cut no
 release either.
 
+## Before a release from `main`
+
+A release from `main` goes to the public, so it gets a manual pass first, on the release candidate
+that `main` is about to be merged from:
+
+1. Run the [pre-release QA checklist](./qa-checklist.md) against that `rc` build, recorded as an
+   issue. Every finding is fixed or filed with a milestone before the merge.
+
 ## First-time setup
 
 In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
