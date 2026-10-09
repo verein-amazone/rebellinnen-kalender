@@ -1,0 +1,130 @@
+# Writes both store listings from the repository without building or uploading the app: the text in
+# fastlane/metadata/, the screenshots in fastlane/screenshots/ and fastlane/metadata/android/, the
+# Play graphics, the Apple age rating and the Play Data safety answers (docs/store-listing.md).
+#
+# A release from `main` writes the same listing with its build (.github/workflows/store-upload.yml).
+# This workflow is for a listing change that has no build to travel with:
+#
+# - On a push to `main` that changes the listing, so a copy fix or a new screenshot reaches the
+#   stores without cutting a release. `dev` never triggers it: a Play listing is shared by every
+#   track, so writing it from `dev` would publish copy nobody has reviewed for the public stores.
+# - On demand, from any branch - for example to fill the first App Store version before 1.0.0 has
+#   been released from `main`, or to retry a run that failed.
+#
+# Nothing here publishes. The App Store listing lands on the version being prepared, which still has
+# to be submitted for review; the Play listing goes to review and waits for Managed publishing.
+#
+# The same gates and environments as the store upload: a store whose variable is not `true` is
+# skipped, which is green.
+name: Store listing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - fastlane/metadata/**
+      - fastlane/screenshots/**
+  workflow_dispatch:
+
+# Least privilege: no default token permissions; each job opts in to what it needs.
+permissions: {}
+
+# Two listing runs must never overlap; the later one waits and then writes the newer state.
+concurrency:
+  group: store-listing-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # fastlane refuses to run under a non-UTF-8 locale, and the runner image does not set one.
+  LANG: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+  FASTLANE_SKIP_UPDATE_CHECK: 'true'
+  FASTLANE_OPT_OUT_USAGE: 'true'
+
+jobs:
+  check:
+    name: Check the store listings
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # CI runs the same check on every pull request; a manual run may come from a branch that never
+      # had one, and a listing the stores reject is better caught before either of them is touched.
+      - name: Check the store listings
+        run: node scripts/check-store-listing.mjs
+
+  app-store:
+    name: App Store
+    needs: check
+    if: vars.TESTFLIGHT_UPLOADS_ENABLED == 'true'
+    # No build, so no Xcode: deliver talks to the App Store Connect API, which works from Linux.
+    runs-on: ubuntu-latest
+    environment: testflight
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          bundler-cache: true
+
+      - name: Write the App Store listing
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_P8_BASE64 }}
+        run: bundle exec fastlane ios listing
+
+  play:
+    name: Play
+    needs: check
+    if: vars.PLAY_UPLOADS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: play-internal
+    timeout-minutes: 30
+    # Shared with the Play job in store-upload.yml. Committing a Play edit invalidates every other
+    # edit open at the time, so two jobs writing to Play at once would fail one of them.
+    concurrency:
+      group: google-play-edits
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          bundler-cache: true
+
+      - name: Write the Play listing and the Data safety answers
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: bundle exec fastlane android listing

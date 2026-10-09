@@ -64,7 +64,13 @@ zusätzlich anzuzeigen.“), and App Review reads it there.
 
 ## Google Play: Data safety
 
-Play Console → App content → Data safety.
+Play Console → App content → Data safety. Applied from
+`fastlane/metadata/android/data_safety.csv` by `fastlane android listing`
+([store-listing.md](./store-listing.md#writing-the-listing-without-a-release)), through the Play
+Developer API. The file uses the console's CSV import format: an app that collects nothing answers
+the top question `PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA` with `FALSE`, and no other question is
+asked. If Play ever rejects the file, export the current template from the console (Data safety →
+Export to CSV), set the same answers and commit it in its place.
 
 | Question                                                              | Answer    | Why                                                                                                                                |
 | --------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -185,9 +191,10 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 ## What comes from the repository, and what is typed into a console
 
-| Answer                                     | Where it is applied                                                                      |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Apple age rating                           | `deliver`, from `fastlane/metadata/app_store_rating_config.json`, with the store listing |
-| Apple App Privacy                          | Typed into App Store Connect from this file - the App Store Connect API cannot set it    |
-| Play Data safety, App content, IARC rating | Typed into the Play Console from this file - the Play Developer API cannot set them      |
-| Export compliance (iOS)                    | `Info.plist`, with every build                                                           |
+| Answer                        | Where it is applied                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Apple age rating              | `deliver`, from `fastlane/metadata/app_store_rating_config.json`, with the store listing                  |
+| Apple App Privacy             | Typed into App Store Connect from this file - only an Apple ID login can set it, not the API key CI holds |
+| Play Data safety              | `fastlane android listing`, from `fastlane/metadata/android/data_safety.csv`                              |
+| Play App content, IARC rating | Typed into the Play Console from this file - the Play Developer API cannot set them                       |
+| Export compliance (iOS)       | `Info.plist`, with every build                                                                            |

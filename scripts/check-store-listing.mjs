@@ -37,6 +37,15 @@ const PLAY_FIELDS = {
 };
 const PLAY_CHANGELOG_LIMIT = 500;
 
+/**
+ * The Play Data safety answers (`android listing` in fastlane/Fastfile). Play's CSV import knows its
+ * columns by these exact headers and needs the top question answered whatever else the file says.
+ */
+const DATA_SAFETY_CSV = join(METADATA, 'android', 'data_safety.csv');
+const DATA_SAFETY_HEADER =
+  'Question ID (machine readable),Response ID (machine readable),Response value,Answer requirement,Human-friendly question label';
+const DATA_SAFETY_TOP_QUESTION = 'PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA';
+
 /** The 6.9" iPhone size; App Store Connect scales it down for every smaller iPhone. */
 const APP_STORE_SCREENSHOT = { width: 1320, height: 2868, min: 1, max: 10 };
 /** Play: 2-8 phone screenshots, each side 320-3840 px, the long side at most twice the short one. */
@@ -171,6 +180,20 @@ async function main() {
   }
   for (const [file, limit] of Object.entries(PLAY_FIELDS)) {
     checkField(join(PLAY_LOCALE, file), limit, { strict: true });
+  }
+
+  const dataSafety = readText(DATA_SAFETY_CSV);
+  if (dataSafety !== null) {
+    const [header, ...rows] = dataSafety.trim().split(/\r?\n/);
+    if (header !== DATA_SAFETY_HEADER) {
+      problems.push(`${display(DATA_SAFETY_CSV)} does not start with Play's CSV header`);
+    }
+    const top = rows.map((row) => row.split(',')).find(([id]) => id === DATA_SAFETY_TOP_QUESTION);
+    if (top === undefined || !['TRUE', 'FALSE'].includes(top[2])) {
+      problems.push(
+        `${display(DATA_SAFETY_CSV)} has to answer ${DATA_SAFETY_TOP_QUESTION} with TRUE or FALSE`,
+      );
+    }
   }
 
   // Hand-written release notes become the Play changelog unchanged (build-store-release-notes.mjs),

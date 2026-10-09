@@ -1,0 +1,2 @@
+Question ID (machine readable),Response ID (machine readable),Response value,Answer requirement,Human-friendly question label
+PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA,,FALSE,REQUIRED,Does your app collect or share any of the required user data types?

@@ -19,6 +19,10 @@
 # lanes never touch it: a Play listing is shared by every track, so an internal-testing upload that
 # wrote it would change the public listing with every merge.
 #
+# `ios listing` and `android listing` write the same listing without a build, plus the Play Data
+# safety answers. .github/workflows/store-listing.yml runs them when a listing change reaches `main`
+# without a release, and on demand - for example to fill the first App Store version before 1.0.0.
+#
 # TestFlight on `dev` is the one exception, on purpose: leaving each build for someone to attach by
 # hand meant nobody did, and testers sent a whole round of feedback from rc.8 while rc.14 was out,
 # about bugs fixed four releases earlier. External groups still pass Apple's beta review first.
@@ -41,6 +45,10 @@ AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
 
 # The Apple age-rating answers, recorded with their reasons in docs/store-compliance.md.
 APP_RATING_CONFIG_PATH = 'fastlane/metadata/app_store_rating_config.json'.freeze
+
+# The Play Data safety answers, in the CSV format the Play Console imports and exports. Also
+# recorded with their reasons in docs/store-compliance.md.
+DATA_SAFETY_CSV_PATH = 'fastlane/metadata/android/data_safety.csv'.freeze
 
 # Where CI keeps its cached Swift package clones, so a release does not re-clone SQLCipher,
 # ZIPFoundation and capacitor-swift-pm from github.com. Unset locally, where Xcode's own
@@ -242,6 +250,53 @@ def upload_bundle_to_play(track, listing:)
   )
 end
 
+# Writes the Play listing - title, descriptions, icon, feature graphic, phone screenshots - without
+# uploading a bundle.
+#
+# supply only writes a listing as part of a release it can find on the track, even with the
+# changelogs skipped: without a version code it gives up with "Could not find release for version
+# code". So the run is pointed at the newest build on the internal track, which every prerelease
+# from `dev` keeps current. The listing itself is app-wide; which release supply used to find it
+# changes nothing about what it writes, and no track is updated.
+def upload_play_listing
+  json_key_data = ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON')
+  version_code = google_play_track_version_codes(track: 'internal', json_key_data: json_key_data).max
+  UI.user_error!('The Play internal track has no build yet; release one from `dev` first.') if version_code.nil?
+
+  upload_to_play_store(
+    track: 'internal',
+    version_code: version_code,
+    json_key_data: json_key_data,
+    skip_upload_apk: true,
+    skip_upload_aab: true,
+    skip_upload_changelogs: true,
+    sync_image_upload: true
+  )
+end
+
+# Replaces the Play Data safety answers with fastlane/metadata/android/data_safety.csv.
+#
+# supply has no option for it, so this calls the Play Developer API's `applications.dataSafety`
+# through the client supply already authenticates. It is not part of an edit: Play applies it
+# straight away, and it goes out with the next change Managed publishing lets through.
+def upload_play_data_safety
+  require 'supply'
+
+  client = Supply::Client.make_from_config(
+    params: { json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'), timeout: 300 }
+  )
+  # Lane code runs inside fastlane/, while the paths here are relative to the repository root, where
+  # fastlane runs its actions.
+  request = Google::Apis::AndroidpublisherV3::SafetyLabelsUpdateRequest.new(
+    safety_labels: File.read(File.join('..', DATA_SAFETY_CSV_PATH))
+  )
+  # The Play package name is the iOS bundle identifier (fastlane/Appfile).
+  client.client.data_application_safety(APP_IDENTIFIER, request)
+  UI.success('Play Data safety answers updated.')
+rescue Google::Apis::Error => e
+  UI.user_error!("Play rejected the Data safety answers: #{e.message} - #{e.body}")
+end
+
 default_platform(:ios)
 
 platform :ios do
@@ -325,6 +380,26 @@ platform :ios do
       app_rating_config_path: APP_RATING_CONFIG_PATH
     )
   end
+
+  desc 'Write the App Store listing to the version being prepared, without a build. Does not submit it for review.'
+  lane :listing do
+    # No `app_version`: deliver edits the version App Store Connect has in "Prepare for Submission"
+    # (or "Rejected", "Developer Rejected", ...) and fails when there is none - a version that is live
+    # or in review cannot be edited, and creating the next one is the release lane's job. No release
+    # notes either: they belong to a build, and the first version has none.
+    upload_to_app_store(
+      api_key: app_store_connect_key,
+      skip_binary_upload: true,
+      skip_app_version_update: true,
+      overwrite_screenshots: true,
+      app_rating_config_path: APP_RATING_CONFIG_PATH,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      force: true
+    )
+  end
 end
 
 platform :android do
@@ -336,5 +411,11 @@ platform :android do
   desc 'Upload the release bundle to the Play production track, as a draft, with the store listing.'
   lane :production do
     upload_bundle_to_play('production', listing: true)
+  end
+
+  desc 'Write the Play listing and the Data safety answers, without a bundle.'
+  lane :listing do
+    upload_play_listing
+    upload_play_data_safety
   end
 end
