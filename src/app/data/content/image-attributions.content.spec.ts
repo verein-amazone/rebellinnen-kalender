@@ -31,6 +31,9 @@ const LICENSES: Readonly<Record<string, string | null>> = {
   'CC BY-NC-ND 4.0': 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
   'CC0 1.0': 'https://creativecommons.org/publicdomain/zero/1.0/',
   'Public Domain': null,
+  // No licence: the image is used as is with the rightsholder credited, by a decision of Verein
+  // Amazone recorded in docs/content-authoring.md.
+  'Alle Rechte vorbehalten': null,
   // Not a licence: the marker for a right that could not be established. Such an image must not
   // ship, which scripts/check-image-rights.mjs enforces for `main`.
   unclear: null,

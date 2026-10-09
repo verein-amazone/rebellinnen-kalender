@@ -103,6 +103,9 @@ Write the licence as Creative Commons writes it - `CC BY-SA 4.0`, `CC BY-SA 3.0 
 `Public Domain`, and link its canonical deed without a language suffix. The accepted names and their
 links are the `LICENSES` table in `src/app/data/content/image-attributions.content.spec.ts`; a new
 licence goes there first. That spec also fails when an image under `public/` has no entry, or two.
+`Alle Rechte vorbehalten` (no link) is for an image used without an open licence by a decision of
+Verein Amazone, crediting the rightsholder; so far only `reb-10` (Johanna Dohnal, Parlamentsdirektion,
+#11) is.
 The app's own icons (`public/icons/`, `public/app-icons/`) are the only exception.
 
 Notes from doing this for the first 41 items:
