@@ -108,8 +108,10 @@ Things to know:
 app: `bundle exec fastlane ios listing` and `bundle exec fastlane android listing`. It runs
 
 - on a push to `main` that changes the listing, and
-- on demand: Actions → Store listing → Run workflow, from any branch. This is how the first App Store
-  version gets its listing before 1.0.0 is released, and how a failed run is retried.
+- on demand: Actions → Store listing → Run workflow, from `dev` or `main`. This is how the first App
+  Store version gets its listing before 1.0.0 is released, and how a failed run is retried. Other
+  branches cannot run it: the store environments only serve `dev` and `main`
+  ([release.md](./release.md), step 9).
 
 It never runs on a push to `dev`: the Play listing is shared by every track, so it would put text
 nobody has reviewed for the public stores into the production listing. A manual run from `dev` does

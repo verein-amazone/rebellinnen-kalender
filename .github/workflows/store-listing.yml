@@ -8,8 +8,9 @@
 # - On a push to `main` that changes the listing, so a copy fix or a new screenshot reaches the
 #   stores without cutting a release. `dev` never triggers it: a Play listing is shared by every
 #   track, so writing it from `dev` would publish copy nobody has reviewed for the public stores.
-# - On demand, from any branch - for example to fill the first App Store version before 1.0.0 has
-#   been released from `main`, or to retry a run that failed.
+# - On demand, from `dev` or `main` - for example to fill the first App Store version before 1.0.0
+#   has been released from `main`, or to retry a run that failed. The store environments refuse any
+#   other branch.
 #
 # Nothing here publishes. The App Store listing lands on the version being prepared, which still has
 # to be submitted for review; the Play listing goes to review and waits for Managed publishing.
@@ -66,8 +67,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # CI runs the same check on every pull request; a manual run may come from a branch that never
-      # had one, and a listing the stores reject is better caught before either of them is touched.
+      # CI already ran this check on the pull request that brought the listing in. Repeating it is
+      # cheap, and a listing the stores reject is better caught before either of them is touched.
       - name: Check the store listings
         run: node scripts/check-store-listing.mjs
 
