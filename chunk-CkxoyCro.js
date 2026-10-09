@@ -1,0 +1,1 @@
+import"./chunk-D8FFP2mw.js";import{n as E}from"./chunk-BS3gcH3U.js";var e=class extends E{async startWatching(){throw this.unimplemented(`Not implemented on web.`)}async stopWatching(){throw this.unimplemented(`Not implemented on web.`)}};export{e as ShakeWeb};
