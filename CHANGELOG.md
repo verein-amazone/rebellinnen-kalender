@@ -1,3 +1,9 @@
+## [1.0.0-rc.31](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.30...v1.0.0-rc.31) (2026-10-09)
+
+### Refactoring
+
+* **data:** squash the pre-release migrations into one schema version ([183d563](https://github.com/verein-amazone/rebellinnen-kalender/commit/183d5636442b41828b3408caea57009f23051abd)), closes [#32](https://github.com/verein-amazone/rebellinnen-kalender/issues/32)
+
 ## [1.0.0-rc.30](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.29...v1.0.0-rc.30) (2026-10-09)
 
 ### Bug Fixes
