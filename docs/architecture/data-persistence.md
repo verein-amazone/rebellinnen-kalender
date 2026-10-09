@@ -139,10 +139,20 @@ in `occurrence.dao.ts` for the reasoning, and `reminder.dao.ts` for the `CASE`-p
 ## Migrations
 
 All schema changes are **versioned migrations** under `data/migrations/`: one file per version
-(`001-create-reminders.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
+(`019-create-schema.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
 the highest `toVersion`. Never mutate an existing shipped migration - a device that already applied
 it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
 Add a new migration instead.
+
+**Version 19 is the baseline.** The pre-release versions 1-18 were squashed into one migration
+before 1.0.0 (#32), so a fresh install creates the whole schema in one step. It is numbered 19, not
+1, because TestFlight and Play internal-testing builds had already left databases at every version up
+to 18, and the plugin only upgrades: a device at 18 asked for 1 would keep its old schema and never
+run a later migration. Version 19 drops every table first and recreates it, so those devices start
+over with an empty database - the agreed price for pre-release data. Local state that describes the
+database has to start over with it: the curated-calendar sync moved to a new `localStorage` key for
+that reason, and the content catalog sync already re-checks that its table is not empty. The next
+schema change is version 20.
 
 Applying them is the plugin's job, not ours: the gateway hands the registry to
 `addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is
@@ -235,12 +245,11 @@ record - app items, ICS items, the device cache - and for the event form that wr
 computed `*_utc` columns are exclusive, and `DeviceEventDraft.endUtc` follows them; the native
 gateway translates that into whatever the platform's calendar store expects (EventKit wants the
 last day, `CalendarContract` the exclusive one). The form used to write the exclusive day instead,
-which made every all-day appointment render a day too long - migration 016 repairs the rows it
-wrote.
+which made every all-day appointment render a day too long.
 
 **Every calendar the user creates has a colour.** „Mein Kalender“ and ICS subscriptions start with
 `DEFAULT_CALENDAR_COLOR` (`interactors/calendar/calendar-colors.ts`), because the week and month
-grid only draws a dot for a coloured calendar; migration 017 fills in the ones created before that.
+grid only draws a dot for a coloured calendar.
 Device calendars keep whatever colour the OS reports, and the grid falls back to a muted dot for one
 that reports none.
 
@@ -342,9 +351,8 @@ Reminders (#81) are stored as **minutes before the start**, never as instants, s
 appointment or a whole series needs no rewrite. For an all-day appointment the start is midnight of
 its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Tag um 09:00“ is `-540`.
 
-- `app_items.reminders` (migration 018) holds a JSON array, or `NULL` for „follow the default
-  reminders“ - every row from before the migration, and every appointment whose list equals the
-  defaults when it is saved, so changing the defaults later still reaches it. `[]` is an explicit
+- `app_items.reminders` holds a JSON array, or `NULL` for „follow the default reminders“ - every
+  appointment whose list equals the defaults when it is saved, so changing the defaults later still reaches it. `[]` is an explicit
   „no reminder“. Reminders belong to the whole series, like the rule: an occurrence override has
   none of its own, and the scope dialog does not offer „Nur dieser Termin“ for a changed list.
 - The switch and the two default lists (timed `[15]`, all-day `[900]`, at most five each) live in

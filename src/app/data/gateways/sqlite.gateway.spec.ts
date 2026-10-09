@@ -99,7 +99,7 @@ describe('SqliteGateway', () => {
 
     expect(plugin.calls.indexOf(upgrade!)).toBeLessThan(plugin.calls.indexOf(create!));
     expect(upgrade).toContain(`"toVersion":${MIGRATIONS[0].toVersion}`);
-    expect(upgrade).toContain('CREATE TABLE IF NOT EXISTS reminders');
+    expect(upgrade).toContain('CREATE TABLE reminders');
     expect(create).toContain(`"version":${DATABASE_VERSION}`);
   });
 

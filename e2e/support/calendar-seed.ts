@@ -174,7 +174,7 @@ export interface SeededOccurrence {
  *
  * There is no way to reach either through the UI at all: device sync needs a real OS calendar
  * (unavailable on web/CI) and ICS subscriptions are issue #21. `occurrences` is documented as a
- * disposable, derived cache with no foreign keys (`005-create-occurrences.ts`), which is exactly
+ * disposable, derived cache with no foreign keys (`019-create-schema.ts`), which is exactly
  * what makes writing a row directly safe - nothing here needs to look like real recurrence-engine
  * output, only like a row `capabilitiesFor()` (`src/app/data/calendar/source-capabilities.ts`)
  * reads the same way a real one would.

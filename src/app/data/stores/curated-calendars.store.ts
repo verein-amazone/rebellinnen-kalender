@@ -2,7 +2,13 @@ import { Injectable, signal } from '@angular/core';
 
 import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
 
-const STORAGE_KEY = scopedStorageName('rk.curatedCalendars');
+/**
+ * Not `rk.curatedCalendars`, the key the pre-release builds used: schema version 19 discards their
+ * database (see `019-create-schema.ts`), and the old key would still claim the catalog was in it -
+ * so the curated calendars would never be seeded again. A fresh key makes every device reconcile
+ * once into the new database. The old entry is left behind; the data reset clears it with the rest.
+ */
+const STORAGE_KEY = scopedStorageName('rk.curatedCalendarCatalog');
 
 interface StoredState {
   readonly version: number | null;
