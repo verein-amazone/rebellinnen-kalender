@@ -1,3 +1,9 @@
+## [1.0.0-rc.25](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.24...v1.0.0-rc.25) (2026-10-09)
+
+### Delivery
+
+* **release:** write the store listings and Play Data safety without a release ([2ebb8b2](https://github.com/verein-amazone/rebellinnen-kalender/commit/2ebb8b275fe10ce7151dc3d966f63201057f820c)), closes [#74](https://github.com/verein-amazone/rebellinnen-kalender/issues/74)
+
 ## [1.0.0-rc.24](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.23...v1.0.0-rc.24) (2026-10-09)
 
 ### Build
