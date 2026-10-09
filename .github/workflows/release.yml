@@ -16,9 +16,12 @@
 # its own repository variable, so this workflow stays green before the store credentials exist and
 # while only one of the two stores is ready.
 #
-# When branch protection lands (#75), this workflow needs a bypass for `dev` and `main`: it pushes
-# straight to the branch rather than opening a pull request, and a protected branch without a bypass
-# actor for it will fail the release, not the merge that triggered it.
+# The release commit and the tag are pushed over SSH with the `release-bot` deploy key, not with
+# GITHUB_TOKEN. Both rulesets require a pull request and the `CI success` check, which a release
+# commit straight to the branch can never satisfy, and the deploy key is their only bypass actor
+# (#75). The key lives in the `release` environment, which only `dev` and `main` may use, so a
+# workflow on any other branch cannot reach it. GITHUB_TOKEN still does everything that goes through
+# the API: the GitHub release and the comments on the issues and pull requests it closes.
 name: Release
 
 on:
@@ -40,6 +43,8 @@ jobs:
     name: semantic-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Holds RELEASE_DEPLOY_KEY; restricted to `dev` and `main` (docs/release.md).
+    environment: release
     # Set by the exec plugin's `successCmd` (.releaserc.json) once the tag, the release commit and
     # the GitHub release all exist. Absent when the commits produced no release at all.
     outputs:
@@ -54,11 +59,13 @@ jobs:
       pull-requests: write
     steps:
       # The one place in this repository that keeps the checkout credentials: @semantic-release/git
-      # pushes the release commit, and the full history is required to find the last tag.
+      # pushes the release commit, and the full history is required to find the last tag. With
+      # `ssh-key`, the checkout configures git to use the deploy key for the SSH remote below.
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
           persist-credentials: true
 
       - name: Install pnpm
@@ -77,7 +84,9 @@ jobs:
         id: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec semantic-release
+        # The SSH URL makes semantic-release push with the deploy key. Given the HTTPS URL from
+        # package.json, it would push with GITHUB_TOKEN, which the rulesets reject.
+        run: pnpm exec semantic-release --repository-url "git@github.com:${GITHUB_REPOSITORY}.git"
 
   # Store uploads happen in the same run, from the tag that was just created. Which platforms
   # actually upload is decided per job inside the called workflow, by one repository variable each,

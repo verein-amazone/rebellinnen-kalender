@@ -32,8 +32,8 @@
 # GitHub release behind. That is the lesser evil - unpublishing a release is worse than a build that
 # never reached a tester. Re-run this workflow for the same tag; the build number is derived from
 # the version, so a retry produces the identical build number, which both stores reject as a
-# duplicate. If the first attempt already uploaded, cut a new version instead - an empty commit on
-# `dev` for an rc, a fix released through `main` for a release (see docs/release.md).
+# duplicate. If the first attempt already uploaded, cut a new version instead - an empty commit merged
+# into `dev` for an rc, a fix released through `main` for a release (see docs/release.md).
 #
 # Re-running only the failed job, rather than the whole workflow, is the usual move: the two stores
 # fail independently and the one that already uploaded must not be asked to do it again.

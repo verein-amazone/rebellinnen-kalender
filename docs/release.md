@@ -23,14 +23,12 @@ with its "What's New" text and leaves it in "Prepare for Submission", and puts t
 the **production** track as a **draft**. Merging into `main` therefore cannot put a build in front
 of a user by itself; going live is one deliberate click in each console.
 
-Before the first release from `main` actually works, three things outside this repository still
-need doing:
+Before the first release from `main`, two things outside this repository still need doing:
 
-- **`main` has to be seeded.** It is far behind `dev` and carries none of its commits, so
-  semantic-release has nothing to release from.
-- **The "Protect Main" ruleset needs a bypass actor** for the release workflow, which pushes its
-  release commit straight to the branch rather than opening a pull request (#75). Without it the
-  release fails after the merge, not during it.
+- **`main` has to be seeded.** It is far behind `dev` and carries none of its commits. Seeding it is
+  not a preparation step but the 1.0.0 release itself: the pull request that merges `dev` into
+  `main` triggers semantic-release there, which tags `v1.0.0` and stages it in both stores. Open it
+  only once [Before a release from `main`](#before-a-release-from-main) is done.
 - **The store questionnaires have to be answered** in both consoles - App Privacy, App content,
   content rating - from [store-compliance.md](./store-compliance.md). Neither store's API can set
   them. The listing itself - text, screenshots, graphics, the Apple age rating, the Play Data safety
@@ -200,15 +198,20 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
 
 ### GitHub
 
-9. **Two environments**, Settings → Environments, no required reviewers:
+9. **Three environments**, Settings → Environments, no required reviewers. Under "Deployment
+   branches and tags", choose "Selected branches and tags" and add `dev` and `main` to each, so a
+   workflow on any other branch cannot reach their secrets:
 
    - `testflight`
    - `play-internal`
+   - `release` - only the release workflow's deploy key (step 12)
 
-   Both channels use these two environments: the credentials do not change with the track, and a
-   second pair would only be a second copy to keep in sync. If a release from `main` should need
-   sign-off, add required reviewers here - that gates the upload itself, before anything reaches a
-   store.
+   Both channels use the same two store environments: the credentials do not change with the track,
+   and a second pair would only be a second copy to keep in sync. There are deliberately no
+   required reviewers on the `main` side either (#75). Neither channel publishes, so a reviewer
+   would sign off on a build that still waits for a human click in each console, and merging into
+   `main` already takes a pull request. If a release from `main` should ever need sign-off before
+   the upload, add required reviewers to the two store environments.
 
 10. **The secrets**, in their environment. Binary files go in base64 on a single line
     (`base64 -i <file> | tr -d '\n' | pbcopy` on macOS):
@@ -225,11 +228,37 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
     | `play-internal` | `ANDROID_KEY_ALIAS`               | `upload`                           |
     | `play-internal` | `ANDROID_KEY_PASSWORD`            | the key password from step 7       |
     | `play-internal` | `PLAY_SERVICE_ACCOUNT_JSON`       | the whole service-account JSON     |
+    | `release`       | `RELEASE_DEPLOY_KEY`              | the private key from step 12       |
 
 11. **The switches.** Settings → Secrets and variables → Actions → Variables. Set
     `TESTFLIGHT_UPLOADS_ENABLED` to `true` once the Apple steps are done, and
     `PLAY_UPLOADS_ENABLED` to `true` once the Google steps are. They are independent on purpose -
     the two stores are set up at different times and by different people.
+
+12. **The release deploy key.** semantic-release pushes its release commit and tag straight to the
+    branch, which the rulesets (step 13) reject for anyone but their bypass actor. The release
+    workflow pushes with this deploy key instead of `GITHUB_TOKEN` for that reason:
+
+    ```bash
+    ssh-keygen -t ed25519 -N '' -C 'release-bot' -f release_key
+    gh repo deploy-key add release_key.pub --title release-bot --allow-write
+    gh secret set RELEASE_DEPLOY_KEY --env release < release_key
+    rm release_key release_key.pub
+    ```
+
+    No copy is kept: if it is lost or leaks, delete the deploy key and run the four lines again.
+
+13. **The rulesets**, Settings → Rules → Rulesets. Both keep "Restrict deletions" and "Block force
+    pushes", and both get the same three additions:
+
+    - **Require a pull request before merging**, with 0 required approvals.
+    - **Require status checks to pass**, with the single check `CI success`, and "Require branches to
+      be up to date" off. `ci-success` aggregates every CI job, so the job layout in
+      `.github/workflows/ci.yml` can change without touching the ruleset.
+    - **Bypass list**: the `release-bot` deploy key from step 12, set to "Always", and nothing else.
+
+    "Protect Default" targets `refs/heads/dev` by name rather than "Default branch", so it does not
+    silently follow a later change of the default branch. "Protect Main" targets `refs/heads/main`.
 
 Then merge anything into `dev`, or run the **Store upload** workflow manually against the latest
 tag, and watch the job you enabled.
@@ -250,6 +279,7 @@ because of it.
 | Match deploy key               | `testflight` environment                     | Independo | Delete the deploy key, generate a new pair                        |
 | Android upload keystore        | `play-internal` environment + offline backup | Independo | Only via a Play App Signing upload-key reset request              |
 | Play service account JSON      | `play-internal` environment                  | Independo | Delete the key in Google Cloud, create a new one                  |
+| Release deploy key             | `release` environment                        | nobody    | Delete the deploy key, run step 12 again                          |
 
 Everything above is currently held by one organisation and, in practice, by one person. That is the
 real risk in this list, larger than any single credential: **a second maintainer at Verein Amazone
@@ -318,11 +348,14 @@ prerelease that never reached a tester.
   it finishes green. Re-running the iOS job is therefore safe; it will report the build as
   delivered rather than fail on the duplicate.
 
-  Play has no such tolerance. If the bundle reached Play and a later step failed, push an empty
-  commit to cut the next `rc`, which gets a fresh build number:
+  Play has no such tolerance. If the bundle reached Play and a later step failed, merge an empty
+  commit into `dev` to cut the next `rc`, which gets a fresh build number. `dev` accepts changes
+  only through a pull request, so it goes through one like any other change:
 
   ```bash
+  git switch -c retry-release dev
   git commit --allow-empty -m 'fix: retry the release upload'
+  git push -u origin retry-release && gh pr create --base dev --fill
   ```
 
 - **Only one of the two platforms failed**: re-run **only the failed job**, from the run's page or
@@ -353,13 +386,12 @@ not rediscover it.
 
 These exist only in the GitHub UI, which is why they are listed here (see #75):
 
-- **Rulesets.** "Protect Default" (`~DEFAULT_BRANCH`, currently `dev`) and "Protect Main"
-  (`refs/heads/main`), both with `deletion` and `non_fast_forward`; "Protect Main" additionally
-  requires a pull request. Neither requires a status check yet, so `ci-success` - the aggregate
-  check `.github/workflows/ci.yml` exists to provide - is not enforced anywhere.
-- **The release workflow needs a bypass.** It pushes the release commit straight to the branch. That
-  works on `dev` today and fails on `main`.
-- **Environments and secrets** as listed above.
+- **Rulesets.** "Protect Default" (`refs/heads/dev`) and "Protect Main" (`refs/heads/main`), as
+  in step 13: no deletion, no force push, a pull request and `CI success` required, and the
+  `release-bot` deploy key as the only bypass actor. Nobody else can push to either branch directly,
+  admins included - a change, even an empty commit to cut a new `rc`, goes through a pull request.
+- **The `release-bot` deploy key**, with write access (step 12).
+- **Environments and secrets** as listed above, each environment limited to `dev` and `main`.
 - **`TESTFLIGHT_UPLOADS_ENABLED`** and **`PLAY_UPLOADS_ENABLED`**, the variables that gate the
   two uploads, and **`TESTFLIGHT_GROUPS`**, the TestFlight groups every `dev` build is handed to.
 
@@ -405,8 +437,6 @@ failed upload.
 
 ## What is not automated yet
 
-- The environments with required reviewers that should guard the `main` → App Store / Play
-  production uploads (#75). The lanes themselves exist (#72, #73).
 - Contact details that would be personal data in a public repository: the App Review contact,
   and the Play listing's contact email. They are entered once in each console; the release leaves
   them alone.
