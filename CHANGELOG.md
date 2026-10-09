@@ -1,3 +1,17 @@
+## [1.0.0-rc.28](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.27...v1.0.0-rc.28) (2026-10-09)
+
+### Features
+
+* **settings:** add a system colour theme that follows dark mode ([02d3707](https://github.com/verein-amazone/rebellinnen-kalender/commit/02d3707132efc8d4860a45125c01775a18aa9002))
+
+### Bug Fixes
+
+* **deps:** override compression to 1.8.2 for serve ([6f1e425](https://github.com/verein-amazone/rebellinnen-kalender/commit/6f1e425f1c6703d48ec433304d75fe4c74b2fadf))
+
+### Chores
+
+* **ios:** drop the unused iPad orientations from Info.plist ([fd0d76f](https://github.com/verein-amazone/rebellinnen-kalender/commit/fd0d76f2522ba7b0592dfbe92b9e01c2606c2d3a))
+
 ## [1.0.0-rc.27](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.26...v1.0.0-rc.27) (2026-10-09)
 
 ### Features
