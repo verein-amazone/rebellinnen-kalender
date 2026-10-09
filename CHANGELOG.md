@@ -1,3 +1,14 @@
+## [1.0.0-rc.24](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.23...v1.0.0-rc.24) (2026-10-09)
+
+### Build
+
+* **release:** write the V1 scope and German 1.0.0 release notes once ([e8223ef](https://github.com/verein-amazone/rebellinnen-kalender/commit/e8223ef40cf53b008c2a988f641a7b517ca73646)), closes [#91](https://github.com/verein-amazone/rebellinnen-kalender/issues/91)
+
+### Delivery
+
+* re-trigger release after [#122](https://github.com/verein-amazone/rebellinnen-kalender/issues/122) merge ([543d2a7](https://github.com/verein-amazone/rebellinnen-kalender/commit/543d2a76a014ef4582ef715bf0974c61ef2a9ac4))
+* **release:** manage the store listings, screenshots and graphics as code ([7e051a9](https://github.com/verein-amazone/rebellinnen-kalender/commit/7e051a930323fecf3b84e306f64dc442b42e4d0e)), closes [#74](https://github.com/verein-amazone/rebellinnen-kalender/issues/74)
+
 ## [1.0.0-rc.23](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.22...v1.0.0-rc.23) (2026-10-07)
 
 ### Features
