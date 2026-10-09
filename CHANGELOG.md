@@ -1,3 +1,13 @@
+## [1.0.0-rc.27](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.26...v1.0.0-rc.27) (2026-10-09)
+
+### Features
+
+* **settings:** ship the native, asset and font licences and gate licences in the build ([92ede6c](https://github.com/verein-amazone/rebellinnen-kalender/commit/92ede6c4eec2207899e102f097d5c00da5280965)), closes [#11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11)
+
+### Bug Fixes
+
+* **content:** write image licences one way and keep unreviewed images out of main ([a126ab9](https://github.com/verein-amazone/rebellinnen-kalender/commit/a126ab9b7c8748615edb29e5adbfba31fb7a1f1a)), closes [#11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11) [#11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11)
+
 ## [1.0.0-rc.26](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.25...v1.0.0-rc.26) (2026-10-09)
 
 ### Delivery
