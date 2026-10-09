@@ -1,4 +1,19 @@
 apply plugin: 'com.android.application'
+apply plugin: 'app.cash.licensee'
+
+// Fails the build on a release dependency whose licence is not allowed in licenses/policy.json, the
+// one allowlist for npm, Android and iOS (#11). The report it writes is what
+// scripts/build-third-party-licenses.mjs turns into the licence list the app shows.
+def licensePolicy = new groovy.json.JsonSlurper().parse(rootProject.file('../licenses/policy.json'))
+
+licensee {
+    licensePolicy.allowed.each { allow(it) }
+    allowUrl('https://www.zetetic.net/sqlcipher/license/') {
+        because 'SQLCipher Community Edition, BSD-3-Clause - see the override in licenses/policy.json'
+    }
+    // The allowlist is shared with npm and iOS, so some of it is always unused here.
+    unusedAction(app.cash.licensee.UnusedAction.IGNORE)
+}
 
 // Release signing comes from the environment, never from a file in this repository: CI decodes the
 // upload keystore from a secret into a temporary path and exports these four variables. See

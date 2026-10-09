@@ -23,9 +23,8 @@ export interface ImageAttribution {
 
 /**
  * Reads the two static legal-content assets shown under Settings → Lizenzen & Impressum
- * (`LicensesPage`, `ImageCreditsPage`): the third-party licence file Angular's
- * `extractLicenses` build option generates into the bundled app (see `angular.json`'s production
- * configuration), and the curated image attribution data. Both ship as plain files alongside the
+ * (`LicensesPage`, `ImageCreditsPage`): the third-party licence file every production build puts
+ * into the bundled app (licenses/README.md), and the curated image attribution data. Both ship as plain files alongside the
  * app, so they load and work fully offline - no network request ever leaves the device.
  */
 @Injectable({ providedIn: 'root' })

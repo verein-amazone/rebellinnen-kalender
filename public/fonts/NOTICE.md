@@ -1,7 +1,8 @@
 # Bundled fonts
 
 Both families are licensed under the [SIL Open Font License 1.1](https://openfontlicense.org/).
-Full licence texts and the complete attribution list are tracked in issue #11.
+The full licence texts with their copyright notices are in `licenses/texts/` and ship with the app
+in the third-party licence list (Open-Source-Lizenzen), as the licence requires.
 
 | File                     | Family  | Source                                        |
 | ------------------------ | ------- | --------------------------------------------- |
