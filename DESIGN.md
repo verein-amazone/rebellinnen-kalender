@@ -109,7 +109,8 @@ fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a r
 
 The system is four swappable palettes (`amazone` default, `warm`/Sonnenuntergang, `nacht`/
 Mitternacht, `lila`/Lavendel) over one shared shape, type and spacing language - recoloring the app
-is a `data-theme` attribute swap, never a second set of components. Everything is built for a thumb
+is a `data-theme` attribute swap, never a second set of components. A fifth choice, „Systemeinstellung“,
+is not a palette: it follows the device's dark mode between Amazone and Mitternacht. Everything is built for a thumb
 on glass: no bare `hover:` anywhere in the codebase, `min-h-touch` (48px) on every interactive
 target, 16px-minimum form text, and a text-size ladder (`small` 14px through `xxlarge` 32px) that
 reflows components rather than clipping them - container queries, not media queries, drive that

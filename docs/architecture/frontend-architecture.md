@@ -429,7 +429,9 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
    `--container-row`.
 
 Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
-absence of the attribute means "follow the device setting", which is the default.
+absence of the attribute means "follow the device setting", which is the default. `data-theme` is
+always present: a theme that follows the device is resolved to a palette before it is written (see
+[Applying the selection](#applying-the-selection)).
 
 ### OS text scaling
 
@@ -466,9 +468,9 @@ applying the scale after the first paint would show the app at the wrong size fo
 Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
 scaling this is built to support.
 
-Adding a theme means adding one block to `theme.css` plus its id in `AppearanceInteractor`. Theme
-previews are rendered by putting `data-theme` on the preview element itself, so no screen ever
-needs a colour literal.
+Adding a theme means adding one block to `theme.css` plus its id in `PALETTE_IDS` and
+`AppearanceInteractor`. Theme previews (`view/components/theme-swatch`) are rendered by putting
+`data-theme` on the preview element itself, so no screen ever needs a colour literal.
 
 ### Applying the selection
 
@@ -480,6 +482,11 @@ The selection follows the normal layer direction:
   and exposes the current selection, plus `motionReduced` - the app setting resolved against the
   device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
   know in code rather than in CSS.
+- The colour theme is resolved in the interactor too, not in CSS. The `system` theme has no
+  `[data-theme]` block of its own: `palette` maps it to Amazone or Mitternacht from the device's dark
+  mode (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
+  `data-theme`. Unlike text size and motion, the theme defaults to an explicit palette (Amazone), so
+  a first start always shows the app's own face.
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
   `--rk-os-scale` onto `<html>`. It is the only code that touches them.
 - `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).

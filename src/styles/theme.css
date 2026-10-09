@@ -11,7 +11,9 @@
  *      `data-theme` at runtime recolour everything.
  *
  * No colour value may live in TypeScript. Adding a theme means adding one block here plus its id
- * in `interactors/settings/appearance.interactor.ts`.
+ * in `PALETTE_IDS` (`data/stores/appearance-preferences.ts`) and
+ * `interactors/settings/appearance.interactor.ts`. The `system` theme has no block: it resolves to
+ * `amazone` or `nacht` before it reaches `data-theme`.
  *
  * The four themes are the ones approved in the settings rework handover: amazone, warm
  * (Sonnenuntergang), nacht (Mitternacht), lila (Lavendel).

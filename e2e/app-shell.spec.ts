@@ -128,6 +128,21 @@ test.describe('application shell', () => {
     await expect(page.getByRole('radio', { name: 'Mitternacht' })).toBeChecked();
   });
 
+  test('follows the device between light and dark on the system theme', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/settings/theme');
+    await page.getByRole('radio', { name: 'Systemeinstellung', exact: false }).check();
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
+
+    // No reload: flipping the device setting while the app is open recolours it at once.
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'amazone');
+    await expect(
+      page.getByRole('radio', { name: 'Systemeinstellung', exact: false }),
+    ).toBeChecked();
+  });
+
   test('offers every approved settings entry', async ({ page }) => {
     await page.goto('/settings');
 

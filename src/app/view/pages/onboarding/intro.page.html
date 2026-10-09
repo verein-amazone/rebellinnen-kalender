@@ -98,19 +98,11 @@
                   name="intro-theme"
                   [value]="option.id"
                   [label]="option.label"
+                  [description]="option.description"
                   [checked]="appearance.theme() === option.id"
                   (selected)="selectTheme($event)"
                 >
-                  <!-- Same preview as Settings → Farbthema: the token layer switched on this element. -->
-                  <span
-                    class="border-border flex shrink-0 gap-1 rounded-md border p-1"
-                    [attr.data-theme]="option.id"
-                    aria-hidden="true"
-                  >
-                    <span class="bg-background size-5 rounded-full"></span>
-                    <span class="bg-primary size-5 rounded-full"></span>
-                    <span class="bg-accent size-5 rounded-full"></span>
-                  </span>
+                  <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
                 </app-choice-row>
               }
             </fieldset>

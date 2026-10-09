@@ -1,16 +1,22 @@
 import { computed, inject, Injectable } from '@angular/core';
 
+import { SystemDarkMode } from '@app/cross-cutting/infrastructure/system-dark-mode';
 import { SystemReducedMotion } from '@app/cross-cutting/infrastructure/system-reduced-motion';
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 import type {
   MotionId,
+  PaletteId,
   TextSizeId,
   ThemeId,
   VibrationId,
 } from '@app/data/stores/appearance-preferences';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
-export type { MotionId, TextSizeId, ThemeId, VibrationId };
+export type { MotionId, PaletteId, TextSizeId, ThemeId, VibrationId };
+
+/** The palettes the `system` theme switches between with the device's dark mode. */
+const SYSTEM_LIGHT_PALETTE: PaletteId = 'amazone';
+const SYSTEM_DARK_PALETTE: PaletteId = 'nacht';
 
 /** A selectable appearance option. The shape is shared with the other settings screens. */
 export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
@@ -28,11 +34,25 @@ export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
 export class AppearanceInteractor {
   private readonly store = inject(AppearanceStore);
   private readonly systemReducedMotion = inject(SystemReducedMotion);
+  private readonly systemDarkMode = inject(SystemDarkMode);
 
   readonly theme = computed(() => this.store.preferences().theme);
   readonly textSize = computed(() => this.store.preferences().textSize);
   readonly motion = computed(() => this.store.preferences().motion);
   readonly vibration = computed(() => this.store.preferences().vibration);
+
+  /**
+   * The palette on screen right now: the selected one, or - while the theme follows the device -
+   * the light or dark one the device's appearance calls for. This, not `theme`, is what reaches
+   * `data-theme`.
+   */
+  readonly palette = computed<PaletteId>(() => {
+    const theme = this.theme();
+    if (theme !== 'system') {
+      return theme;
+    }
+    return this.systemDarkMode.dark() ? SYSTEM_DARK_PALETTE : SYSTEM_LIGHT_PALETTE;
+  });
 
   /**
    * Whether animations are reduced right now: by the app's own setting, or by the device's while
@@ -44,6 +64,11 @@ export class AppearanceInteractor {
   });
 
   readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
+    {
+      id: 'system',
+      label: 'Systemeinstellung',
+      description: 'Wechselt mit deinem Gerät zwischen hell und dunkel.',
+    },
     { id: 'amazone', label: 'Amazone', description: null },
     { id: 'warm', label: 'Sonnenuntergang', description: null },
     { id: 'nacht', label: 'Mitternacht', description: null },
@@ -90,6 +115,14 @@ export class AppearanceInteractor {
     },
     { id: 'off', label: 'Aus', description: 'Die App vibriert nie.' },
   ];
+
+  /**
+   * The palettes a theme option previews: its own, or both that `system` switches between, so the
+   * option shows what it does rather than whichever half applies at the moment.
+   */
+  palettesOf(theme: ThemeId): readonly PaletteId[] {
+    return theme === 'system' ? [SYSTEM_LIGHT_PALETTE, SYSTEM_DARK_PALETTE] : [theme];
+  }
 
   /** The label of the currently selected theme, for the settings overview. */
   readonly themeLabel = computed(() => labelOf(this.themeOptions, this.theme()));

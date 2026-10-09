@@ -45,9 +45,11 @@ export class App {
 
     // The selected appearance is applied in one place, for the whole app, whenever it changes. The
     // OS scale is part of it because it is what applies while the text size is left on `system`.
+    // The theme goes in resolved to a palette, so a `system` theme recolours the moment the device
+    // switches between light and dark.
     effect(() => {
       this.documentAppearance.apply({
-        theme: this.appearance.theme(),
+        theme: this.appearance.palette(),
         textSize: this.appearance.textSize(),
         motion: this.appearance.motion(),
         osTextScale: this.systemTextScale.scale(),
