@@ -23,6 +23,10 @@ publicHoistPattern:
 overrides:
   sql.js: 1.12.0
   uuid@<11.1.1: '>=11.1.1'
+  # serve 14.2.6 (latest, dev only: `pnpm serve:dist`) pins compression to exactly 1.8.1, which leaks
+  # memory on a prematurely closed response (GHSA-vc2v-76pw-4v95). Drop the override once serve
+  # ships with compression 1.8.2 or later.
+  compression@<1.8.2: '>=1.8.2'
   # @semantic-release/release-notes-generator resolves the `conventionalcommits` preset from its own
   # directory first, which under pnpm lands on the hoisted copy that @commitlint/config-conventional
   # brings in - not on the one this package.json declares. That copy must stay on a major the
