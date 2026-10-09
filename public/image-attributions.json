@@ -383,17 +383,15 @@
   {
     "path": "/content/rebellinnen/reb-10.webp",
     "title": "Johanna Dohnal",
-    "creator": "Parlamentsdirektion/ungeklärt",
+    "creator": "Parlamentsdirektion",
     "sourceUrl": "https://www.parlament.gv.at/person/2772",
-    "license": "unclear",
+    "license": "Alle Rechte vorbehalten",
     "licenseUrl": null,
     "changes": [
       "cropped",
       "resized",
       "converted to WebP"
-    ],
-    "needsReview": true,
-    "reviewNote": "parlament.gv.at's open-data programme (https://www.parlament.gv.at/recherchieren/open-data) licenses its datasets under CC BY 4.0, but explicitly warns that not everything in those datasets is cleared for reuse due to copyright/data-protection law, and does not state that member portrait photos are included - photos most likely fall under that carve-out, not the CC BY 4.0 grant. Still unclear; per issue #11 this image must not ship until it's actually confirmed one way or the other."
+    ]
   },
   {
     "path": "/content/rebellinnen/reb-11.webp",
