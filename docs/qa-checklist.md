@@ -97,6 +97,9 @@ The workflow:
       non-essential motion, and nothing that carried information disappears with it.
 - [ ] **Every colour theme** - Amazone, Sonnenuntergang, Mitternacht, Lavendel: text readable,
       focus visible and not hidden behind the header, the tab bar or an open sheet.
+- [ ] **System colour theme (all devices):** with „Farbthema → Systemeinstellung“, switching the
+      device to dark mode while the app is open turns it to Mitternacht at once, and back to
+      Amazone in light mode. A cold start in dark mode shows no white flash before the app paints.
 - [ ] **Tap only:** every action is reachable by a plain tap - nothing needs a long press, a swipe,
       a drag or a double tap.
 

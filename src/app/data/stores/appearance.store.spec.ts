@@ -76,6 +76,12 @@ describe('AppearanceStore', () => {
     }
   });
 
+  it('should restore the system theme', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'system' }));
+
+    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('system');
+  });
+
   it('should accept every step of the text-size ladder, including the pre-existing ones', () => {
     for (const textSize of ['small', 'medium', 'large', 'xlarge', 'xxlarge'] as const) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ textSize }));

@@ -25,6 +25,7 @@ import {
 } from '@app/interactors/settings/appearance.interactor';
 import { ProfileInteractor } from '@app/interactors/settings/profile.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
+import { ThemeSwatch } from '@app/view/components/theme-swatch/theme-swatch';
 
 type IntroStepId = 'welcome' | 'areas' | 'personal' | 'privacy' | 'reminders';
 
@@ -78,6 +79,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
     LucideChevronsRight,
     LucideShieldCheck,
     LucideSun,
+    ThemeSwatch,
   ],
   templateUrl: './intro.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

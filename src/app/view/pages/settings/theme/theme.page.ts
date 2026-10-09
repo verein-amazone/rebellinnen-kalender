@@ -6,13 +6,14 @@ import {
   type ThemeId,
 } from '@app/interactors/settings/appearance.interactor';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
+import { ThemeSwatch } from '@app/view/components/theme-swatch/theme-swatch';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 @Component({
   selector: 'app-settings-theme',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, ChoiceRow],
+  imports: [FocusedScreenScaffold, ChoiceRow, ThemeSwatch],
   templateUrl: './theme.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

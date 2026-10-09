@@ -7,22 +7,11 @@
         name="theme"
         [value]="option.id"
         [label]="option.label"
+        [description]="option.description"
         [checked]="appearance.theme() === option.id"
         (selected)="select($event)"
       >
-        <!--
-          The preview is rendered by switching the token layer on this element, so no colour value
-          has to be duplicated in TypeScript.
-        -->
-        <span
-          class="border-border flex shrink-0 gap-1 rounded-md border p-1"
-          [attr.data-theme]="option.id"
-          aria-hidden="true"
-        >
-          <span class="bg-background size-5 rounded-full"></span>
-          <span class="bg-primary size-5 rounded-full"></span>
-          <span class="bg-accent size-5 rounded-full"></span>
-        </span>
+        <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
       </app-choice-row>
     }
   </fieldset>
