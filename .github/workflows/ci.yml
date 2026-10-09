@@ -85,6 +85,12 @@ jobs:
       - name: Check the store listings
         run: node scripts/check-store-listing.mjs
 
+      # Only into `main`: tester builds from `dev` may carry images whose rights are still being
+      # reviewed, a release may not (#11).
+      - name: Check that every image right is reviewed
+        if: github.base_ref == 'main'
+        run: node scripts/check-image-rights.mjs
+
       - name: Unit tests
         run: pnpm test:ci
 
@@ -340,6 +346,14 @@ jobs:
       - name: Build the debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
+
+      # The licence list the app shows covers what Angular cannot see: the Android and iOS libraries,
+      # copied assets and fonts. The committed file has to match what Gradle and Package.resolved
+      # resolve today, and Licensee fails on an Android library outside licenses/policy.json (#11).
+      - name: Check the third-party licence list
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/build-third-party-licenses.mjs --check
 
   # Stable aggregate check for branch protection: require only this check, so the internal job
   # layout can change without touching repository settings.

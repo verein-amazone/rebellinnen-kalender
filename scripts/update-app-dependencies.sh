@@ -67,6 +67,14 @@ else
     "ios/**/Package.resolved may be stale" >&2
 fi
 
+# A failure here does not stop the update: CI's Android job fails on a stale list anyway, and says
+# how to regenerate it. Gradle needs JDK 21 (JAVA_HOME).
+echo "==> Regenerating the third-party licence list (licenses/additional-third-party-licenses.txt)"
+if ! node scripts/build-third-party-licenses.mjs; then
+  echo "==> Could not regenerate the licence list; run scripts/build-third-party-licenses.mjs" \
+    "with JDK 21 before merging" >&2
+fi
+
 echo "==> Recording packages still outdated after the update (range-crossing majors)"
 outdated_after="$(pnpm outdated 2>/dev/null || true)"
 

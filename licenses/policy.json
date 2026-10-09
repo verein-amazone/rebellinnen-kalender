@@ -1,0 +1,67 @@
+{
+  "$comment": "Which third-party licences may ship in the app, and the licence data no manifest provides. Read by scripts/build-third-party-licenses.mjs, scripts/copy-third-party-licenses.mjs and android/app/build.gradle. See licenses/README.md before changing anything here.",
+  "allowed": [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "OFL-1.1",
+    "Unlicense",
+    "Zlib"
+  ],
+  "approved": {
+    "ical.js": {
+      "license": "MPL-2.0",
+      "reason": "File-level copyleft only: it covers changes to ical.js's own files, which this app does not make. The package is used unmodified from npm, and its source is public."
+    }
+  },
+  "overrides": {
+    "net.zetetic:sqlcipher-android": {
+      "license": "BSD-3-Clause",
+      "text": "texts/SQLCipher-BSD-3-Clause.txt",
+      "reason": "The POM names only https://www.zetetic.net/sqlcipher/license/, which is the BSD-3-Clause text of the Community Edition, and the AAR ships no licence file."
+    },
+    "org.apache.cordova:framework": {
+      "notice": "texts/Apache-Cordova-Android-NOTICE.txt",
+      "reason": "Apache-2.0 requires passing on the NOTICE of the work; the AAR does not contain it. Taken from github.com/apache/cordova-android."
+    },
+    "capacitor-swift-pm": {
+      "license": "MIT",
+      "reason": "GitHub cannot classify LICENSE.md because of a sentence appended to the MIT text."
+    },
+    "sqlcipher.swift": {
+      "license": "BSD-3-Clause",
+      "text": "texts/SQLCipher-BSD-3-Clause.txt",
+      "reason": "LICENSE.md is the BSD-3-Clause text followed by the whole SQLite README, which GitHub cannot classify."
+    }
+  },
+  "components": [
+    {
+      "name": "Inter (font)",
+      "license": "OFL-1.1",
+      "text": "texts/Inter-OFL-1.1.txt",
+      "reason": "Bundled from src/styles/fonts/. Taken from github.com/google/fonts, ofl/inter/OFL.txt."
+    },
+    {
+      "name": "Fredoka (font)",
+      "license": "OFL-1.1",
+      "text": "texts/Fredoka-OFL-1.1.txt",
+      "reason": "Bundled from src/styles/fonts/. Taken from github.com/google/fonts, ofl/fredoka/OFL.txt."
+    },
+    {
+      "name": "Apache Cordova (iOS, inside Capacitor's Cordova framework)",
+      "license": "Apache-2.0",
+      "text": "texts/Apache-2.0.txt",
+      "notice": "texts/Apache-Cordova-iOS-NOTICE.txt",
+      "reason": "capacitor-swift-pm's Cordova.xcframework is built from Cordova iOS code. Taken from github.com/apache/cordova-ios."
+    },
+    {
+      "name": "LibTomCrypt (Android, inside SQLCipher)",
+      "license": "Unlicense",
+      "text": "texts/LibTomCrypt-Unlicense.txt",
+      "reason": "Statically linked into libsqlcipher.so of net.zetetic:sqlcipher-android. Taken from github.com/libtom/libtomcrypt."
+    }
+  ]
+}

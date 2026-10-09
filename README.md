@@ -226,9 +226,11 @@ in the image attribution data included in this repository
 No permission to reuse an asset should be assumed beyond the licence or
 permission explicitly documented for that asset.
 
-Third-party software licences (JS/TS dependencies and, once wired up, native
-iOS/Android dependencies) ship with production builds and are readable
-offline in the app under **Settings → Lizenzen & Impressum**.
+Third-party software licences - the npm packages and the native iOS and
+Android libraries - ship with every production build and are readable offline
+in the app under **Einstellungen → Lizenzen & Impressum**. Which licences may
+ship is decided in [licenses/policy.json](./licenses/policy.json); see
+[licenses/README.md](./licenses/README.md).
 
 ## Note on design
 

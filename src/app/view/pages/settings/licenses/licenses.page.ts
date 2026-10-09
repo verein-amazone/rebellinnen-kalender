@@ -4,9 +4,10 @@ import { LegalContentInteractor } from '@app/interactors/settings/legal-content.
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 
 /**
- * "Open-Source-Lizenzen" (#11): the third-party licence file Angular's `extractLicenses` build
- * option generates for production builds (`angular.json`), read from the bundled app so it works
- * fully offline. In development builds the file doesn't exist, hence the fallback text.
+ * "Open-Source-Lizenzen" (#11): the third-party licence file of production builds - Angular's
+ * `extractLicenses` output plus the native libraries, assets and fonts (licenses/README.md) - read
+ * from the bundled app so it works fully offline. In development builds the file doesn't exist,
+ * hence the fallback text.
  */
 @Component({
   selector: 'app-settings-licenses',

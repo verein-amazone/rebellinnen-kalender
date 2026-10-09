@@ -54,7 +54,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # The update script regenerates the licence list, which runs Gradle (scripts/build-third-party-licenses.mjs).
+      - name: Set up JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21'
+          distribution: temurin
+
       - name: Run dependency update script
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: scripts/update-app-dependencies.sh --summary-markdown "$RUNNER_TEMP/update-summary.md"
 
       - name: Detect file changes
