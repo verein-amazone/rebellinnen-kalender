@@ -1,3 +1,9 @@
+## [1.0.0-rc.30](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.29...v1.0.0-rc.30) (2026-10-09)
+
+### Bug Fixes
+
+* **content:** credit the Johanna Dohnal photo to the Parliament ([28ce5c6](https://github.com/verein-amazone/rebellinnen-kalender/commit/28ce5c69449680d386d57345bfef4f0c222a7b15)), closes [#11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11)
+
 ## [1.0.0-rc.29](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.28...v1.0.0-rc.29) (2026-10-09)
 
 ### Chores
