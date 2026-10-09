@@ -1,3 +1,9 @@
+## [1.0.0-rc.26](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.25...v1.0.0-rc.26) (2026-10-09)
+
+### Delivery
+
+* **release:** push the release commit with a deploy key past the rulesets ([9fc44a7](https://github.com/verein-amazone/rebellinnen-kalender/commit/9fc44a73158fb30b330581b2ce942cb853c1d0aa)), closes [#75](https://github.com/verein-amazone/rebellinnen-kalender/issues/75)
+
 ## [1.0.0-rc.25](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.24...v1.0.0-rc.25) (2026-10-09)
 
 ### Delivery
