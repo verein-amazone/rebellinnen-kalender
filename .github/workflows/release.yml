@@ -18,7 +18,7 @@
 #
 # The release commit and the tag are pushed over SSH with the `release-bot` deploy key, not with
 # GITHUB_TOKEN. Both rulesets require a pull request and the `CI success` check, which a release
-# commit straight to the branch can never satisfy, and the deploy key is their only bypass actor
+# commit straight to the branch can never satisfy, and deploy keys are their only bypass actor
 # (#75). The key lives in the `release` environment, which only `dev` and `main` may use, so a
 # workflow on any other branch cannot reach it. GITHUB_TOKEN still does everything that goes through
 # the API: the GitHub release and the comments on the issues and pull requests it closes.
