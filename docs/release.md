@@ -31,10 +31,11 @@ need doing:
 - **The "Protect Main" ruleset needs a bypass actor** for the release workflow, which pushes its
   release commit straight to the branch rather than opening a pull request (#75). Without it the
   release fails after the merge, not during it.
-- **The store questionnaires have to be answered** in both consoles - App Privacy, Data safety, App
-  content, content rating - from [store-compliance.md](./store-compliance.md). Neither store's API
-  can set them. The listing itself - text, screenshots, graphics, the Apple age rating - comes from
-  this repository with the release ([store-listing.md](./store-listing.md)).
+- **The store questionnaires have to be answered** in both consoles - App Privacy, App content,
+  content rating - from [store-compliance.md](./store-compliance.md). Neither store's API can set
+  them. The listing itself - text, screenshots, graphics, the Apple age rating, the Play Data safety
+  answers - comes from this repository, with the release or through the Store listing workflow
+  ([store-listing.md](./store-listing.md)).
 
 ## What happens when a pull request is merged into `dev`
 
@@ -409,6 +410,6 @@ failed upload.
 - Contact details that would be personal data in a public repository: the App Review contact,
   and the Play listing's contact email. They are entered once in each console; the release leaves
   them alone.
-- The store questionnaires: Apple App Privacy, Play Data safety, Play App content and the IARC
-  rating cannot be set through either store's API. They are typed into the consoles from
+- The store questionnaires: Apple App Privacy, Play App content and the IARC rating cannot be set
+  through either store's API (Play Data safety can, and comes from the repository). They are typed into the consoles from
   [store-compliance.md](./store-compliance.md), which records every answer and its evidence.

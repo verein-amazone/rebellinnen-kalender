@@ -11,6 +11,7 @@
 # `channel: release` also writes both store listings - text, screenshots, the Play graphics and the
 # Apple age rating - from the tag's fastlane/metadata/ and fastlane/screenshots/, which are
 # committed, so no browser is needed here (docs/store-listing.md). A prerelease never touches them.
+# .github/workflows/store-listing.yml writes the same listing without a build.
 #
 # The two channels differ only in the fastlane lane each job runs. Same certificate, same profile,
 # same keystore, same service account, same secrets: a release is not a different pipeline, it is
@@ -217,6 +218,11 @@ jobs:
     # keystore and the service account do not change with the track.
     environment: play-internal
     timeout-minutes: 45
+    # Shared with the Play job in store-listing.yml. Committing a Play edit invalidates every other
+    # edit open at the time, so two jobs writing to Play at once would fail one of them.
+    concurrency:
+      group: google-play-edits
+      cancel-in-progress: false
     permissions:
       contents: read
     steps:
