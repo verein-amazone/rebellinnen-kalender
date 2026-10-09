@@ -73,8 +73,9 @@ when the native fields no longer match `package.json`.
 
 If a store upload fails after the release already happened, do not re-upload the same build number -
 both stores reject it permanently. Re-run the **Store upload** workflow for the same tag when the
-build never reached the store, and push an empty commit to `dev`
-(`git commit --allow-empty -m 'fix: retry the release upload'`) when it did. See
+build never reached the store, and merge an empty commit into `dev`
+(`git commit --allow-empty -m 'fix: retry the release upload'`) when it did. `dev` and `main` accept
+changes only through a pull request, so that commit goes through one too. See
 [docs/release.md](./docs/release.md).
 
 ### Package manager
