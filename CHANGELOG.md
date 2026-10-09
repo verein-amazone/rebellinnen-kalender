@@ -1,3 +1,9 @@
+## [1.0.0-rc.29](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.28...v1.0.0-rc.29) (2026-10-09)
+
+### Chores
+
+* **content:** mark the image rights as reviewed ([f150265](https://github.com/verein-amazone/rebellinnen-kalender/commit/f1502650492ef0bf7d3681d2ead62db8a1e25fbc)), closes [#11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11)
+
 ## [1.0.0-rc.28](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.27...v1.0.0-rc.28) (2026-10-09)
 
 ### Features
