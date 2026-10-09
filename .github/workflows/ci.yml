@@ -85,6 +85,12 @@ jobs:
       - name: Check the store listings
         run: node scripts/check-store-listing.mjs
 
+      # Only into `main`: tester builds from `dev` may carry images whose rights are still being
+      # reviewed, a release may not (#11).
+      - name: Check that every image right is reviewed
+        if: github.base_ref == 'main'
+        run: node scripts/check-image-rights.mjs
+
       - name: Unit tests
         run: pnpm test:ci
 

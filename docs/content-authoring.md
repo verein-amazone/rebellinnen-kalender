@@ -93,11 +93,17 @@ Impressum → Bildnachweise):
   "title": "Person or item title",
   "creator": "Photographer or illustrator name",
   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exact_File_Name.jpg",
-  "license": "CC-BY-SA-4.0",
+  "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
   "changes": ["cropped", "resized", "converted to WebP"]
 }
 ```
+
+Write the licence as Creative Commons writes it - `CC BY-SA 4.0`, `CC BY-SA 3.0 DE`, `CC0 1.0` - or
+`Public Domain`, and link its canonical deed without a language suffix. The accepted names and their
+links are the `LICENSES` table in `src/app/data/content/image-attributions.content.spec.ts`; a new
+licence goes there first. That spec also fails when an image under `public/` has no entry, or two.
+The app's own icons (`public/icons/`, `public/app-icons/`) are the only exception.
 
 Notes from doing this for the first 41 items:
 
@@ -117,6 +123,9 @@ Notes from doing this for the first 41 items:
   something - an unverified source match, an unclear licence, a missing `permissionRef`. Leave both
   off once fully confirmed. If the licence genuinely can't be established, set `license: "unclear"`
   and do **not** commit the image (see the rule above) - don't ship it flagged as unclear.
+- A pull request into `main` fails while any entry has `needsReview` or an `unclear` licence
+  (`scripts/check-image-rights.mjs`), so an unreviewed image can reach tester builds but not a
+  release.
 
 ## 5. Verify
 

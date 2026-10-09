@@ -112,6 +112,9 @@ that `main` is about to be merged from:
 3. Bring the store listing up to date on `dev`: the text in `fastlane/metadata/` still describes
    the app, and the screenshots still show it - `pnpm store:screenshots` after any visible change
    (see [store-listing.md](./store-listing.md)). The release writes both to the stores.
+4. Finish the image rights review: every entry in `public/image-attributions.json` confirmed, its
+   `needsReview` removed, and no `unclear` licence left - or the image removed. CI fails the pull
+   request into `main` until then (`scripts/check-image-rights.mjs`, #11).
 
 ## First-time setup
 
