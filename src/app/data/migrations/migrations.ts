@@ -1,50 +1,17 @@
-import { CREATE_REMINDERS } from './001-create-reminders';
-import { ADD_REMINDER_POSITION } from './002-add-reminder-position';
-import { CREATE_CALENDAR_SOURCES } from './003-create-calendar-sources';
-import { CREATE_APP_ITEMS } from './004-create-app-items';
-import { CREATE_OCCURRENCES } from './005-create-occurrences';
-import { CREATE_ICS_SUBSCRIPTIONS } from './006-create-ics-subscriptions';
-import { ADD_OCCURRENCE_ITEM_ID } from './007-add-occurrence-item-id';
-import { ADD_CALENDAR_NATIVE_SOURCE } from './008-add-calendar-native-source';
-import { ADD_OCCURRENCE_DESCRIPTION } from './009-add-occurrence-description';
-import { CREATE_CONTENT_ITEMS } from './010-create-content-items';
-import { ADD_RELATED_SOURCES } from './011-add-related-sources';
-import { ADD_ICS_CURATED_ID } from './012-add-ics-curated-id';
-import { ADD_SOURCE_CONTENT_FINGERPRINT } from './013-add-source-content-fingerprint';
-import { ADD_ICS_LAST_CHECKED_AT } from './014-add-ics-last-checked-at';
-import { ADD_CONTENT_ITEM_IMAGE_ALT } from './015-add-content-item-image-alt';
-import { REPAIR_ALL_DAY_END } from './016-repair-all-day-end';
-import { DEFAULT_CALENDAR_COLORS } from './017-default-calendar-colors';
-import { ADD_APP_ITEM_REMINDERS } from './018-add-app-item-reminders';
+import { CREATE_SCHEMA } from './019-create-schema';
 import type { Migration } from './migration';
 
 /**
- * Every schema version the app has ever shipped, ordered by `toVersion`.
+ * Every schema version the app has shipped since 1.0.0, ordered by `toVersion`.
+ *
+ * Version 19 is the baseline: the pre-release versions 1-18 were squashed into it, and it drops and
+ * recreates whatever a pre-release build left on a device (see `019-create-schema.ts`).
  *
  * Never edit a migration that has shipped: a device that already applied it will not run it again,
  * so the edit would only affect fresh installs and the two would drift apart. Add a new migration
  * with the next `toVersion` instead.
  */
-export const MIGRATIONS: readonly Migration[] = [
-  CREATE_REMINDERS,
-  ADD_REMINDER_POSITION,
-  CREATE_CALENDAR_SOURCES,
-  CREATE_APP_ITEMS,
-  CREATE_OCCURRENCES,
-  CREATE_ICS_SUBSCRIPTIONS,
-  ADD_OCCURRENCE_ITEM_ID,
-  ADD_CALENDAR_NATIVE_SOURCE,
-  ADD_OCCURRENCE_DESCRIPTION,
-  CREATE_CONTENT_ITEMS,
-  ADD_RELATED_SOURCES,
-  ADD_ICS_CURATED_ID,
-  ADD_SOURCE_CONTENT_FINGERPRINT,
-  ADD_ICS_LAST_CHECKED_AT,
-  ADD_CONTENT_ITEM_IMAGE_ALT,
-  REPAIR_ALL_DAY_END,
-  DEFAULT_CALENDAR_COLORS,
-  ADD_APP_ITEM_REMINDERS,
-];
+export const MIGRATIONS: readonly Migration[] = [CREATE_SCHEMA];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */
 export const DATABASE_VERSION = MIGRATIONS.reduce(

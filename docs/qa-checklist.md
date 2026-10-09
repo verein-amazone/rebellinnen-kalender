@@ -67,8 +67,11 @@ while the app is killed. Those items need a real device.
   - [ ] The introduction does not appear again.
 
 The upgrade check is the one that protects real users: once testers have a build, its database
-schema has to keep upgrading cleanly. If the calendar-schema migrations are ever squashed (#32), the
-run records explicitly which builds can no longer be upgraded from.
+schema has to keep upgrading cleanly. The baseline build must already carry schema version 19 or
+later. A build from before the migration squash (#32) cannot be upgraded from by design: schema
+version 19 discards its database, so on such a device the candidate has to start like a fresh
+install with the settings kept - an empty „Nicht vergessen“ list and no own appointments, but the
+content, the daily impulse and the curated calendars all there.
 
 ## Accessibility
 

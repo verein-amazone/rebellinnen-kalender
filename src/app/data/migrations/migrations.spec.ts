@@ -1,14 +1,41 @@
 import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
-import { CREATE_REMINDERS } from './001-create-reminders';
-import { ADD_REMINDER_POSITION } from './002-add-reminder-position';
-import { REPAIR_ALL_DAY_END } from './016-repair-all-day-end';
-import { DEFAULT_CALENDAR_COLORS } from './017-default-calendar-colors';
+import { CREATE_SCHEMA } from './019-create-schema';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
   readonly name: string;
   readonly notnull: number;
   readonly pk: number;
+}
+
+/** The highest version a pre-release build ever left on a device. */
+const LAST_PRE_RELEASE_VERSION = 18;
+
+const TABLES = [
+  'app_item_exceptions',
+  'app_items',
+  'bookmarks',
+  'calendar_sources',
+  'calendars',
+  'content_items',
+  'ics_item_exceptions',
+  'ics_items',
+  'ics_subscriptions',
+  'occurrences',
+  'reminders',
+  'source_coverage',
+];
+
+async function tableNames(database: InMemorySqliteDatabase): Promise<string[]> {
+  const rows = await database.query<{ readonly name: string }>(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+  );
+  return rows.map((row) => row.name);
+}
+
+async function columnNames(database: InMemorySqliteDatabase, table: string): Promise<string[]> {
+  const columns = await database.query<TableInfoRow>(`PRAGMA table_info(${table})`);
+  return columns.map((column) => column.name);
 }
 
 describe('MIGRATIONS', () => {
@@ -21,10 +48,27 @@ describe('MIGRATIONS', () => {
     expect(DATABASE_VERSION).toBe(highest);
   });
 
-  it('numbers the versions from 1 without gaps or duplicates', () => {
+  it('numbers the versions upwards from the baseline without gaps or duplicates', () => {
     const versions = MIGRATIONS.map((migration) => migration.toVersion);
 
-    expect(versions).toEqual(Array.from({ length: MIGRATIONS.length }, (_, index) => index + 1));
+    expect(versions).toEqual(
+      Array.from({ length: MIGRATIONS.length }, (_, index) => CREATE_SCHEMA.toVersion + index),
+    );
+  });
+
+  it('starts above every pre-release version, so a tester device still upgrades', () => {
+    // The plugin only upgrades: a database already at the requested version or above it is opened
+    // unchanged. A baseline at or below a pre-release version would skip that device for good.
+    expect(CREATE_SCHEMA.toVersion).toBeGreaterThan(LAST_PRE_RELEASE_VERSION);
+  });
+
+  it('creates every table on an empty database', async () => {
+    const database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+
+    expect(await tableNames(database)).toEqual(TABLES);
+
+    database.close();
   });
 
   it('creates the reminders table with its ordering index', async () => {
@@ -54,198 +98,66 @@ describe('MIGRATIONS', () => {
     database.close();
   });
 
-  it('backfills the positions in the order version 1 read the list in', async () => {
-    const database = new InMemorySqliteDatabase();
-    database.migrate([CREATE_REMINDERS]);
-
-    // Deliberately inserted out of order, and with one pair sharing a `created_at`, so the backfill
-    // cannot pass by accident.
-    const rows: readonly [string, string | null, string][] = [
-      ['done-late', '2026-08-05T18:00:00.000Z', '2026-08-02T09:00:00.000Z'],
-      ['open-second', null, '2026-08-03T09:00:00.000Z'],
-      ['done-early', '2026-08-04T18:00:00.000Z', '2026-08-01T09:00:00.000Z'],
-      ['open-first', null, '2026-08-03T08:00:00.000Z'],
-    ];
-    for (const [id, completedAt, createdAt] of rows) {
-      await database.run(
-        `INSERT INTO reminders (id, text, completed_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?)`,
-        [id, id, completedAt, createdAt, createdAt],
-      );
-    }
-
-    const before = await database.query<{ readonly id: string }>(
-      `SELECT id FROM reminders ORDER BY (completed_at IS NULL) DESC, created_at ASC`,
-    );
-
-    database.migrate([ADD_REMINDER_POSITION]);
-
-    const after = await database.query<{ readonly id: string }>(
-      `SELECT id FROM reminders ORDER BY (completed_at IS NULL) DESC, position ASC`,
-    );
-
-    expect(after).toEqual(before);
-    expect(after.map((row) => row.id)).toEqual([
-      'open-first',
-      'open-second',
-      'done-early',
-      'done-late',
-    ]);
-
-    database.close();
-  });
-
-  describe('the all-day end repair', () => {
-    /** Everything up to, but not including, the repair - the schema as the buggy form wrote it. */
-    async function setupBeforeRepair(): Promise<InMemorySqliteDatabase> {
+  describe('over a pre-release database', () => {
+    /**
+     * A tester's database as an early pre-release build left it: some of the tables, filled,
+     * referencing each other, and without the columns later versions added.
+     */
+    async function preReleaseDatabase(): Promise<InMemorySqliteDatabase> {
       const database = new InMemorySqliteDatabase();
-      database.migrate(MIGRATIONS.filter((migration) => migration.toVersion < 16));
-
-      const now = '2026-09-10T08:00:00.000Z';
-      await database.run(
-        `INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at)
-         VALUES ('src-app', 'app', 'App', 1, 'ok', ?, ?), ('src-device', 'device', 'Gerät', 1, 'ok', ?, ?)`,
-        [now, now, now, now],
-      );
-      await database.run(
-        `INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at)
-         VALUES ('cal-1', 'src-app', 'Mein Kalender', NULL, NULL, 1, 1, NULL, ?, ?)`,
-        [now, now],
-      );
-
-      const item = (
-        id: string,
-        startKind: string,
-        startValue: string,
-        endKind: string,
-        endValue: string,
-      ) =>
-        database.run(
-          `INSERT INTO app_items (
-             id, calendar_id, kind, title, location, note, start_kind, start_value, start_tz,
-             end_kind, end_value, end_tz, rrule, predecessor_series_id, rule_revision, created_at, updated_at
-           ) VALUES (?, 'cal-1', 'event', ?, NULL, NULL, ?, ?, NULL, ?, ?, NULL, NULL, NULL, 0, ?, ?)`,
-          [id, id, startKind, startValue, endKind, endValue, now, now],
-        );
-
-      await item('one-day', 'date', '2026-09-18', 'date', '2026-09-19');
-      await item('three-days', 'date', '2026-09-18', 'date', '2026-09-21');
-      await item('timed', 'zoned', '2026-09-18T09:00:00', 'zoned', '2026-09-18T10:00:00');
-      await database.run(
-        `INSERT INTO app_item_exceptions (
-           series_id, original_start, status, title, location, note, start_kind, start_value, start_tz,
-           end_kind, end_value, end_tz, created_at, updated_at
-         ) VALUES ('three-days', '2026-09-18', 'override', NULL, NULL, NULL, NULL, NULL, NULL, 'date', '2026-09-20', NULL, ?, ?)`,
-        [now, now],
-      );
-
-      await database.run(
-        `INSERT INTO source_coverage (source_id, window_start_utc, window_end_utc, engine_version, updated_at)
-         VALUES ('src-app', ?, ?, 'rrule-temporal@1.0.0', ?), ('src-device', ?, ?, 'rrule-temporal@1.0.0', ?)`,
-        [now, now, now, now, now, now],
-      );
-
+      // The plugin turns foreign keys on, which is what makes the drop order matter.
+      await database.run('PRAGMA foreign_keys = ON;');
+      database.migrate([
+        {
+          toVersion: 10,
+          statements: [
+            `CREATE TABLE reminders (id TEXT PRIMARY KEY NOT NULL, text TEXT NOT NULL);`,
+            `CREATE TABLE calendar_sources (id TEXT PRIMARY KEY NOT NULL);`,
+            `CREATE TABLE calendars (
+              id        TEXT PRIMARY KEY NOT NULL,
+              source_id TEXT NOT NULL REFERENCES calendar_sources (id)
+            );`,
+            `CREATE TABLE app_items (
+              id          TEXT PRIMARY KEY NOT NULL,
+              calendar_id TEXT NOT NULL REFERENCES calendars (id)
+            );`,
+            `CREATE TABLE content_items (id TEXT PRIMARY KEY NOT NULL);`,
+            `CREATE TABLE bookmarks (
+              content_item_id TEXT PRIMARY KEY NOT NULL REFERENCES content_items (id)
+            );`,
+            `INSERT INTO reminders VALUES ('r', 'Milch');`,
+            `INSERT INTO calendar_sources VALUES ('s');`,
+            `INSERT INTO calendars VALUES ('c', 's');`,
+            `INSERT INTO app_items VALUES ('i', 'c');`,
+            `INSERT INTO content_items VALUES ('k');`,
+            `INSERT INTO bookmarks VALUES ('k');`,
+          ],
+        },
+      ]);
       return database;
     }
 
-    it('moves an all-day end back to the last day the appointment actually covers', async () => {
-      const database = await setupBeforeRepair();
+    it('replaces it with the full schema', async () => {
+      const database = await preReleaseDatabase();
+      database.migrate(MIGRATIONS);
 
-      database.migrate([REPAIR_ALL_DAY_END]);
-
-      const rows = await database.query<{ readonly id: string; readonly end_value: string }>(
-        `SELECT id, end_value FROM app_items ORDER BY id`,
-      );
-      expect(rows).toEqual([
-        { id: 'one-day', end_value: '2026-09-18' },
-        { id: 'three-days', end_value: '2026-09-20' },
-        { id: 'timed', end_value: '2026-09-18T10:00:00' },
-      ]);
+      expect(await tableNames(database)).toEqual(TABLES);
+      expect(await columnNames(database, 'app_items')).toContain('reminders');
+      expect(await columnNames(database, 'reminders')).toContain('position');
 
       database.close();
     });
 
-    it("repairs an exception through its series' start kind, since it has none of its own", async () => {
-      const database = await setupBeforeRepair();
+    it('discards the pre-release data, children before the tables they reference', async () => {
+      const database = await preReleaseDatabase();
+      database.migrate(MIGRATIONS);
 
-      database.migrate([REPAIR_ALL_DAY_END]);
-
-      const [exception] = await database.query<{ readonly end_value: string }>(
-        `SELECT end_value FROM app_item_exceptions`,
-      );
-      expect(exception?.end_value).toBe('2026-09-19');
-
-      database.close();
-    });
-
-    it('leaves an already-correct row alone when it is migrated twice over', async () => {
-      const database = await setupBeforeRepair();
-
-      database.migrate([REPAIR_ALL_DAY_END]);
-      // A shipped migration never runs twice on a device; this only proves the guard is the reason.
-      database.migrate([REPAIR_ALL_DAY_END]);
-
-      const [row] = await database.query<{ readonly end_value: string }>(
-        `SELECT end_value FROM app_items WHERE id = 'one-day'`,
-      );
-      expect(row?.end_value).toBe('2026-09-18');
-
-      database.close();
-    });
-
-    it('marks only the app sources for a rebuild of their materialized rows', async () => {
-      const database = await setupBeforeRepair();
-
-      database.migrate([REPAIR_ALL_DAY_END]);
-
-      const coverage = await database.query<{
-        readonly source_id: string;
-        readonly engine_version: string;
-      }>(`SELECT source_id, engine_version FROM source_coverage ORDER BY source_id`);
-      expect(coverage).toEqual([
-        { source_id: 'src-app', engine_version: 'repair-016-all-day-end' },
-        { source_id: 'src-device', engine_version: 'rrule-temporal@1.0.0' },
-      ]);
-
-      database.close();
-    });
-  });
-
-  describe('the default calendar colours', () => {
-    it('colours app and ICS calendars that have none, and leaves every other calendar alone', async () => {
-      const database = new InMemorySqliteDatabase();
-      database.migrate(MIGRATIONS.filter((migration) => migration.toVersion < 17));
-
-      const now = '2026-10-06T08:00:00.000Z';
-      await database.run(
-        `INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at)
-         VALUES ('src-app', 'app', 'App', 1, 'ok', ?, ?),
-                ('src-ics', 'ics', 'Verein', 1, 'ok', ?, ?),
-                ('src-device', 'device', 'Gerät', 1, 'ok', ?, ?)`,
-        [now, now, now, now, now, now],
-      );
-      const calendar = (id: string, sourceId: string, color: string | null) =>
-        database.run(
-          `INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at)
-           VALUES (?, ?, ?, ?, NULL, 1, 1, NULL, ?, ?)`,
-          [id, sourceId, id, color, now, now],
+      for (const table of TABLES) {
+        const [{ count }] = await database.query<{ readonly count: number }>(
+          `SELECT COUNT(*) AS count FROM ${table}`,
         );
-      await calendar('app-uncoloured', 'src-app', null);
-      await calendar('app-coloured', 'src-app', '#43A047');
-      await calendar('ics-uncoloured', 'src-ics', null);
-      await calendar('device-uncoloured', 'src-device', null);
-
-      database.migrate([DEFAULT_CALENDAR_COLORS]);
-
-      const rows = await database.query<{ readonly id: string; readonly color: string | null }>(
-        `SELECT id, color FROM calendars ORDER BY id`,
-      );
-      expect(rows).toEqual([
-        { id: 'app-coloured', color: '#43A047' },
-        { id: 'app-uncoloured', color: '#E92F2A' },
-        { id: 'device-uncoloured', color: null },
-        { id: 'ics-uncoloured', color: '#E92F2A' },
-      ]);
+        expect(count, table).toBe(0);
+      }
 
       database.close();
     });

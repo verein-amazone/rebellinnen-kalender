@@ -45,7 +45,7 @@ export interface Catalog {
  * Reconciles the curated content catalog (`public/content/catalog.json`) into `content_items`.
  *
  * Editorial content changes far more often than the app's schema does, so - unlike every other
- * table - `content_items` is not seeded by a migration (see `010-create-content-items.ts`).
+ * table - `content_items` is not seeded by a migration (see `019-create-schema.ts`).
  * Instead the catalog ships as a versioned JSON asset, bundled with the app like any other static
  * file, and this reconciles the database to match it: every call is cheap once caught up (a local
  * JSON fetch and a version comparison), and only a version bump triggers the diff-and-write work.

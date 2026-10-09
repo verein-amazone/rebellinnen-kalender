@@ -40,8 +40,5 @@ export const CALENDAR_COLOR_PALETTE: readonly { readonly hex: string; readonly n
  * The colour a calendar the user creates starts with - „Mein Kalender“ and every ICS subscription.
  * A calendar without a colour gets no dot in the week and month grid, so none is ever created
  * without one. The first swatch, which the identity editor also pre-selects.
- *
- * Migration 017 writes the same hex as a literal: a shipped migration must not change when this
- * constant does.
  */
 export const DEFAULT_CALENDAR_COLOR = CALENDAR_COLOR_PALETTE[0].hex;
