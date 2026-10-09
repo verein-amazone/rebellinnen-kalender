@@ -255,7 +255,9 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
     - **Require status checks to pass**, with the single check `CI success`, and "Require branches to
       be up to date" off. `ci-success` aggregates every CI job, so the job layout in
       `.github/workflows/ci.yml` can change without touching the ruleset.
-    - **Bypass list**: the `release-bot` deploy key from step 12, set to "Always", and nothing else.
+    - **Bypass list**: "Deploy keys", set to "Always", and nothing else. A ruleset cannot name a
+      single deploy key, so this lets every deploy key of this repository through. `release-bot`
+      must stay the only one with write access; a read-only key cannot push anyway.
 
     "Protect Default" targets `refs/heads/dev` by name rather than "Default branch", so it does not
     silently follow a later change of the default branch. "Protect Main" targets `refs/heads/main`.
@@ -388,9 +390,10 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
 
 - **Rulesets.** "Protect Default" (`refs/heads/dev`) and "Protect Main" (`refs/heads/main`), as
   in step 13: no deletion, no force push, a pull request and `CI success` required, and the
-  `release-bot` deploy key as the only bypass actor. Nobody else can push to either branch directly,
+  repository's deploy keys as the only bypass actor. Nobody else can push to either branch directly,
   admins included - a change, even an empty commit to cut a new `rc`, goes through a pull request.
-- **The `release-bot` deploy key**, with write access (step 12).
+- **The `release-bot` deploy key**, with write access (step 12) - the only deploy key here, and the
+  only one there may be with write access, since the rulesets let every deploy key through.
 - **Environments and secrets** as listed above, each environment limited to `dev` and `main`.
 - **`TESTFLIGHT_UPLOADS_ENABLED`** and **`PLAY_UPLOADS_ENABLED`**, the variables that gate the
   two uploads, and **`TESTFLIGHT_GROUPS`**, the TestFlight groups every `dev` build is handed to.
