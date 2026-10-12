@@ -112,9 +112,10 @@ Constraints worth knowing before changing them:
 
 - Amazone's `background` is a mid teal, which forces any status colour used as text on it quite
   dark. A dark enough red reads as brown, which testers flagged on the delete buttons as foreign to
-  the Amazone palette - hence the split: Amazone's `danger` is a darker shade of the brand red
-  (`#c62a24`, against `--rk-primary` `#de2c27`), and only `error` keeps the dark `#761512`. Orange
-  is unavailable - it collides with `--rk-accent`.
+  the Amazone palette - hence the split: Amazone's `danger` is the crimson `#c8102e`, and only
+  `error` keeps the dark `#761512`. Testers read a darker shade of the brand red (`#c62a24`) as
+  brown too, and Lila's wine red `#a3242b` as well, so a `danger` red leans towards blue, not
+  orange; Lila uses the same crimson. Orange is unavailable - it collides with `--rk-accent`.
 - Never use `danger` for text on `background`; use `error`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
   how `--rk-primary` already behaves there.

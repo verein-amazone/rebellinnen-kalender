@@ -179,10 +179,10 @@
   --rk-dot-color: rgb(21 25 95 / 0.12);
   /* Amazone's background is a mid teal, so status colours that appear as text on it have to be
      dark. Danger is the exception: it only ever sits on the card or a field surface, so it can stay
-     a red from the brand palette - a darker shade of `--rk-primary` (#de2c27) - where the old dark
-     red read as brown to testers. Validation text sits on the teal itself and keeps the dark red as
-     `--rk-error`. See the note on destructive actions below. */
-  --rk-danger: #c62a24;
+     a clear red. Testers read both the old dark red and a darker shade of `--rk-primary` (#c62a24)
+     as brown; a crimson that leans away from orange reads as red. Validation text sits on the teal
+     itself and keeps the dark red as `--rk-error`. See the note on destructive actions below. */
+  --rk-danger: #c8102e;
   --rk-danger-foreground: #fffdf6;
   --rk-error: #761512;
   --rk-success: #0a4434;
@@ -280,9 +280,10 @@
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #d4b8e8;
   --rk-dot-color: rgb(45 27 105 / 0.12);
-  --rk-danger: #a3242b;
+  /* The same crimson as Amazone: the old wine red read as brown, a colour this palette lacks. */
+  --rk-danger: #c8102e;
   --rk-danger-foreground: #fffdf6;
-  --rk-error: #a3242b;
+  --rk-error: #c8102e;
   --rk-success: #2b6850;
   --rk-success-foreground: #fffdf6;
   --rk-warning: #7a4a12;
