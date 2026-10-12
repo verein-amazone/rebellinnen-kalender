@@ -223,7 +223,7 @@ describe('ReminderListBlock', () => {
     const { element } = await setup();
 
     expect(element.querySelector('ul')).toBeNull();
-    expect(element.textContent).toContain('Hier ist noch nichts.');
+    expect(element.textContent).toContain('Trage ein, was du nicht vergessen möchtest.');
   });
 
   it('renders one list item per entry', async () => {

@@ -3,6 +3,24 @@ import type { ContentItemKind, DailyRenderMode } from '@app/data/entities/conten
 /** Re-exported so views can name a content type without importing the data-layer record. */
 export type { ContentItemKind, DailyRenderMode };
 
+/**
+ * Each content type's display name, in the order the types are listed. The one place the names are
+ * spelled: the collection filter, a saved item's badge, the detail screen and the developer catalog
+ * all read it, so a rename cannot leave one of them behind.
+ */
+export const CONTENT_KIND_LABELS: readonly {
+  readonly id: ContentItemKind;
+  readonly label: string;
+}[] = [
+  { id: 'wissensimpulse', label: 'Wissen' },
+  { id: 'rebellin', label: 'Rebell*innen' },
+];
+
+/** The display name of one content type, from `CONTENT_KIND_LABELS`. */
+export function contentKindLabel(kind: ContentItemKind): string {
+  return CONTENT_KIND_LABELS.find((entry) => entry.id === kind)?.label ?? kind;
+}
+
 /** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceView {
   readonly title: string;

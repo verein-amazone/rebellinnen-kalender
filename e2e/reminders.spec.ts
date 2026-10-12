@@ -71,7 +71,7 @@ test.describe('the „Nicht vergessen“ list', () => {
   test('invites the first entry while the list is empty', async ({ page }) => {
     await page.goto('/today');
 
-    await expect(page.getByText('Hier ist noch nichts.')).toBeVisible();
+    await expect(page.getByText('Trage ein, was du nicht vergessen möchtest.')).toBeVisible();
   });
 
   test('keeps an entry and its completion state after a reload', async ({ page }) => {
@@ -393,7 +393,7 @@ test.describe('the „Nicht vergessen“ list', () => {
     await chooseAction(page, 'Blumen gießen', 'Löschen');
     await page.getByRole('dialog').getByRole('button', { name: 'Löschen' }).click();
 
-    await expect(page.getByText('Hier ist noch nichts.')).toBeVisible();
+    await expect(page.getByText('Trage ein, was du nicht vergessen möchtest.')).toBeVisible();
   });
 
   /**

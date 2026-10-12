@@ -20,11 +20,13 @@ import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor'
 import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
 
 /**
- * The Today page's featured content card (#1): today's stable "Wissen & Impulse" piece or
- * Rebell*in, the whole card a single link into the full item.
+ * The Today page's featured content card (#1): today's stable "Wissen" piece or Rebell*in, the
+ * whole card a single link into the full item.
  *
- * The card names itself „Tagesimpuls“ and nothing else - the content type is on the detail screen,
- * where it belongs; on Today it competed with the one label that matters. Two layouts, chosen by
+ * The card names itself „Für dich“ and nothing else - the content type is on the detail screen,
+ * where it belongs; on Today it competed with the one label that matters. The label addresses the
+ * reader, as testers asked; the feature behind it keeps the name „Tagesimpuls“ in Einstellungen
+ * and in this card's empty and error states. Two layouts, chosen by
  * the entry's own `dailyRender`: an image-led one for the entries whose picture says more than
  * their teaser does, and the teaser-led one for everything else. Loaded and resolved to view state
  * here, the same split `TodayClosingBlock` uses, so `today.page.html` stays a thin shell.

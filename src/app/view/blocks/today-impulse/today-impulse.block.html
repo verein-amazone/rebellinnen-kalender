@@ -5,12 +5,13 @@
 <ng-template #impulseLabel>
   <h2 id="impulse-heading" class="rk-pill-solid">
     <svg lucideSparkle class="rk-icon-sm" aria-hidden="true"></svg>
-    Tagesimpuls
+    Für dich
   </h2>
 </ng-template>
 
+<!-- A 4px frame, twice the usual 2px, as testers asked: it marks the one featured card on Heute. -->
 <div
-  class="rk-card rk-card-bleed border-primary border-2"
+  class="rk-card rk-card-bleed border-primary border-4"
   [class.rk-arrived]="isNew()"
   [class.rk-arrived-stretched]="isStretched()"
   [class.px-4]="!leadsWithImage()"
@@ -23,7 +24,7 @@
          its own solid fill.
 
          The whole card is one link - one action (open the item), so its accessible name (the
-         Tagesimpuls label, the image description, the title and the "Mehr lesen" hint) already
+         „Für dich“ label, the image description, the title and the "Mehr lesen" hint) already
          states enough context for what will open. -->
     <a [routerLink]="['/content', content.id]" [queryParams]="{ returnTo: '/today' }" class="block">
       <div class="relative">

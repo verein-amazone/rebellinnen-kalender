@@ -36,11 +36,9 @@ export const CLOSING_COPY: Readonly<Record<string, readonly string[]>> = {
     'Du hast für heute alles im Blick.',
   ],
   'all-done.tomorrowPreview': ['Morgen um {time}: {title}', 'Als Nächstes: Morgen um {time}'],
-  'nothing-planned.headline': [
-    'Heute ist nichts weiter geplant',
-    'Für heute steht nichts mehr an',
-    'Heute bleibt Zeit für dich',
-  ],
+  // Only a line that adds something: the empty appointment and reminder cards right above already
+  // say that nothing is planned, and testers asked for a footer that repeats it to go.
+  'nothing-planned.headline': ['Heute bleibt Zeit für dich'],
   'nothing-planned.tomorrowPreview': [
     'Morgen um {time}: {title}',
     'Als Nächstes: Morgen um {time}',

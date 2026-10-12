@@ -14,7 +14,7 @@ describe('pickClosingCopy', () => {
     const picks = new Set(
       Array.from({ length: 30 }, (_, offset) => {
         const day = `2026-08-${String(1 + offset).padStart(2, '0')}`;
-        return pickClosingCopy('nothing-planned.headline', day, 'nothing-planned');
+        return pickClosingCopy('all-done.headline', day, 'all-done');
       }),
     );
 

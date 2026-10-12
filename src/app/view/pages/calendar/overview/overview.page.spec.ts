@@ -196,7 +196,7 @@ describe('CalendarOverviewPage', () => {
 
     // 2026-08-07 is a Friday; its week runs 3 through 9 August.
     expect(interactor.calls).toEqual([{ fromDay: '2026-08-03', toDay: '2026-08-09' }]);
-    expect(element.textContent).toContain('3.–9. August 2026');
+    expect(element.textContent).toContain('3.\u00a0– 9. August 2026');
     expect(element.querySelectorAll('h1')).toHaveLength(1);
   });
 

@@ -147,14 +147,14 @@ describe('ContentDetailPage', () => {
     const { element } = await setup();
 
     expect(element.textContent).toContain('Was tut dir gut?');
-    expect(element.textContent).toContain('Wissen & Impulse');
+    expect(element.textContent).toContain('Wissen');
     expect(element.textContent).toContain('Ein Bad nehmen.');
   });
 
-  it('labels a Rebell*in item accordingly', async () => {
+  it('labels a Rebell*innen item accordingly', async () => {
     const { element } = await setup({ item: item({ kind: 'rebellin', title: 'Ada Lovelace' }) });
 
-    expect(element.textContent).toContain('Rebell*in');
+    expect(element.textContent).toContain('Rebell*innen');
   });
 
   it('shows the teaser above the image', async () => {

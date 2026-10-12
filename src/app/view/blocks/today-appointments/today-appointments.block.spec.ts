@@ -82,14 +82,14 @@ describe('TodayAppointmentsBlock', () => {
   it('shows the empty state when today has no appointments', async () => {
     const { element } = await setup('2026-08-11');
 
-    expect(element.textContent).toContain('Heute steht noch nichts an.');
+    expect(element.textContent).toContain('Heute stehen keine Termine in deinem Kalender.');
   });
 
   it("lists today's occurrences as cards", async () => {
     const { element } = await setup('2026-08-11', [occurrence()]);
 
     expect(element.textContent).toContain('Beratungsgespräch');
-    expect(element.textContent).not.toContain('Heute steht noch nichts an.');
+    expect(element.textContent).not.toContain('Heute stehen keine Termine in deinem Kalender.');
   });
 
   it('lists only the next three, leaving the rest to „Alle Termine"', async () => {

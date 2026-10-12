@@ -139,14 +139,7 @@ describe('TodayClosingBlock', () => {
   it('shows the nothing-planned headline when there is nothing at all for today', async () => {
     const { element } = await setup({});
 
-    const nothingPlannedHeadlines = [
-      'Heute ist nichts weiter geplant',
-      'Für heute steht nichts mehr an',
-      'Heute bleibt Zeit für dich',
-    ];
-    expect(
-      nothingPlannedHeadlines.some((headline) => element.textContent?.includes(headline)),
-    ).toBe(true);
+    expect(element.textContent).toContain('Heute bleibt Zeit für dich');
   });
 
   it('reloads and shows the new state when ReminderChanges reports a write to the reminders list', async () => {

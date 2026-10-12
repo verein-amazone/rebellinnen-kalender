@@ -19,9 +19,7 @@
               (click)="featureItem(item.id)"
             >
               <span class="min-w-0 flex-1">
-                <span class="text-muted-foreground block text-xs">{{
-                  item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
-                }}</span>
+                <span class="text-muted-foreground block text-xs">{{ kindLabel(item.kind) }}</span>
                 <span class="rk-row-label">{{ item.title }}</span>
               </span>
               @if (item.id === featuredId()) {

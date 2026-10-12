@@ -7,8 +7,8 @@ import type { ContentItemKind } from '@app/interactors/daily-content/content-ite
 import { ContentKindFilterBlock, type ContentKindFilterOption } from './content-kind-filter.block';
 
 const KINDS: readonly ContentKindFilterOption[] = [
-  { id: 'wissensimpulse', label: 'Wissen & Impulse', count: 3 },
-  { id: 'rebellin', label: 'Rebell*in', count: 1 },
+  { id: 'wissensimpulse', label: 'Wissen', count: 3 },
+  { id: 'rebellin', label: 'Rebell*innen', count: 1 },
 ];
 
 @Component({
@@ -45,9 +45,9 @@ describe('ContentKindFilterBlock', () => {
 
     const buttons = Array.from(element.querySelectorAll('button'));
     expect(buttons).toHaveLength(2);
-    expect(buttons[0].textContent).toContain('Wissen & Impulse');
+    expect(buttons[0].textContent).toContain('Wissen');
     expect(buttons[0].textContent).toContain('3');
-    expect(buttons[1].textContent).toContain('Rebell*in');
+    expect(buttons[1].textContent).toContain('Rebell*innen');
   });
 
   it('shows every type as pressed when nothing is hidden', async () => {

@@ -112,9 +112,10 @@ Constraints worth knowing before changing them:
 
 - Amazone's `background` is a mid teal, which forces any status colour used as text on it quite
   dark. A dark enough red reads as brown, which testers flagged on the delete buttons as foreign to
-  the Amazone palette - hence the split: Amazone's `danger` is a darker shade of the brand red
-  (`#c62a24`, against `--rk-primary` `#de2c27`), and only `error` keeps the dark `#761512`. Orange
-  is unavailable - it collides with `--rk-accent`.
+  the Amazone palette - hence the split: Amazone's `danger` is the crimson `#c8102e`, and only
+  `error` keeps the dark `#761512`. Testers read a darker shade of the brand red (`#c62a24`) as
+  brown too, and Lila's wine red `#a3242b` as well, so a `danger` red leans towards blue, not
+  orange; Lila uses the same crimson. Orange is unavailable - it collides with `--rk-accent`.
 - Never use `danger` for text on `background`; use `error`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
   how `--rk-primary` already behaves there.
@@ -250,10 +251,20 @@ for direct use.
 secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
 secondary action; the Playwright contrast loop will catch a regression either way.
 
-**Every text button carries an icon, and the icon always comes first.** A `.rk-button` is
+**Never two filled buttons next to each other.** A group of actions - a footer, a dialog, a card's
+actions - has at most one `-primary` (or `-danger`) button; every other action in it is
+`-outline-primary` or `-ghost`. This holds for consent questions too: „Ja, erinnere mich“ is filled
+and „Nein, danke“ is outlined, so the two answers stay apart at a glance while both remain clearly
+tappable. Two filled buttons read as the same choice offered twice and leave the user without a
+recommended path. Turn down requests for a second filled button in a group; give the other action
+the outlined variant instead.
+
+**Every text button carries an icon, and the icon comes first.** A `.rk-button` is
 `<svg lucide… class="rk-icon" aria-hidden="true"></svg><span>Label</span>` - the icon before the
-label (inline-start), never after it, in every variant and for every direction, so „Zurück“ shows
-`arrow-left` and „Weiter“ shows `arrow-right`, both on the left. The icon repeats the verb's meaning
+label (inline-start), in every variant, so „Zurück“ shows `arrow-left` on the left. The one
+exception is the forward step - „Weiter“, and „Los geht's“ on the same button - whose
+`arrow-right` trails the label (`<span>Label</span><svg …>`), because the arrow points where the
+button goes. Do not extend the exception to other actions. The icon repeats the verb's meaning
 on a second channel; it never replaces the label. Reuse the pairing an action already has
 elsewhere:
 

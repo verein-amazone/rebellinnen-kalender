@@ -62,9 +62,8 @@
           <p class="text-muted-foreground">Ganztägig</p>
         } @else {
           <p class="text-muted-foreground tabular-nums">
-            {{ currentOccurrence.startUtc | date: 'shortTime' }}–{{
-              currentOccurrence.endUtc | date: 'shortTime'
-            }}
+            {{ currentOccurrence.startUtc | date: 'shortTime' }}&nbsp;–
+            {{ currentOccurrence.endUtc | date: 'shortTime' }}
           </p>
         }
 

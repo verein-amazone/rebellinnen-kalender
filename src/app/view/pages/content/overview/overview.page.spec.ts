@@ -293,15 +293,15 @@ describe('ContentOverviewPage', () => {
       ],
     });
 
-    expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('true');
-    expect(kindFilter(element, 'Rebell*in').getAttribute('aria-pressed')).toBe('true');
+    expect(kindFilter(element, 'Wissen').getAttribute('aria-pressed')).toBe('true');
+    expect(kindFilter(element, 'Rebell*innen').getAttribute('aria-pressed')).toBe('true');
     expect(element.textContent).toContain('Wissensimpuls');
     expect(element.textContent).toContain('Eine Rebellin');
 
-    kindFilter(element, 'Wissen & Impulse').click();
+    kindFilter(element, 'Wissen').click();
     await whenStable();
 
-    expect(kindFilter(element, 'Wissen & Impulse').getAttribute('aria-pressed')).toBe('false');
+    expect(kindFilter(element, 'Wissen').getAttribute('aria-pressed')).toBe('false');
     expect(haptics.selections).toBe(1);
     expect(element.textContent).toContain('Eine Rebellin');
     expect(element.textContent).not.toContain('Wissensimpuls');
@@ -312,8 +312,8 @@ describe('ContentOverviewPage', () => {
       items: [item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' })],
     });
 
-    kindFilter(element, 'Wissen & Impulse').click();
-    kindFilter(element, 'Rebell*in').click();
+    kindFilter(element, 'Wissen').click();
+    kindFilter(element, 'Rebell*innen').click();
     await whenStable();
 
     expect(element.textContent).toContain('Alle Kategorien sind ausgeblendet');
