@@ -9,8 +9,9 @@
   </h2>
 </ng-template>
 
+<!-- A 4px frame, twice the usual 2px, as testers asked: it marks the one featured card on Heute. -->
 <div
-  class="rk-card rk-card-bleed border-primary border-2"
+  class="rk-card rk-card-bleed border-primary border-4"
   [class.rk-arrived]="isNew()"
   [class.rk-arrived-stretched]="isStretched()"
   [class.px-4]="!leadsWithImage()"
