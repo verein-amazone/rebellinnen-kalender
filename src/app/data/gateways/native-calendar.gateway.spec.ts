@@ -135,6 +135,7 @@ describe('NativeCalendarGateway', () => {
     const instances = await gateway.listEventInstances(
       '2026-08-01T00:00:00Z',
       '2026-08-31T00:00:00Z',
+      'Europe/Vienna',
     );
 
     // `Date#toISOString()` would produce `…T08:00:00.000Z`; occurrence rows compare these strings
@@ -298,7 +299,9 @@ describe('NativeCalendarGateway', () => {
     expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
   });
 
-  it('passes Android the exclusive end unchanged, which is what CalendarContract wants', async () => {
+  it("hands Android an all-day end on the appointment's last day too", async () => {
+    // Since 8.7.1 the plugin reads an Android all-day end as the last local day covered, the same
+    // as on iOS, and derives CalendarContract's exclusive UTC midnight from it itself.
     let sentOptions: { endDate?: number } | undefined;
     const gateway = setup(
       {
@@ -321,7 +324,74 @@ describe('NativeCalendarGateway', () => {
       recurrence: null,
     });
 
-    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z'));
+    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
+  });
+
+  describe('all-day instances', () => {
+    function allDayInstance(startDate: string, endDate: string) {
+      return {
+        id: 'event-6',
+        title: 'Urlaub',
+        calendarId: 'cal-1',
+        location: null,
+        description: null,
+        startDate: Date.parse(startDate),
+        endDate: Date.parse(endDate),
+        isAllDay: true,
+        timezone: 'UTC',
+      };
+    }
+
+    function gatewayReturning(
+      platform: 'ios' | 'android',
+      instance: ReturnType<typeof allDayInstance>,
+    ): NativeCalendarGateway {
+      return setup({ listEventsInRange: async () => ({ result: [instance] as never }) }, platform);
+    }
+
+    // CalendarContract stores and expands all-day events at UTC midnights. Bucketed in a zone east
+    // of UTC that exclusive end lands on the following day; west of UTC the start lands on the day
+    // before. Either way the appointment shows up one day too long.
+    it.each([
+      ['Europe/Vienna', '2026-10-19T22:00:00Z', '2026-10-21T22:00:00Z'],
+      ['America/New_York', '2026-10-20T04:00:00Z', '2026-10-22T04:00:00Z'],
+    ])(
+      'moves Android’s UTC-midnight days onto device-zone midnights in %s',
+      async (timeZone, startUtc, endUtc) => {
+        const gateway = gatewayReturning(
+          'android',
+          allDayInstance('2026-10-20T00:00:00Z', '2026-10-22T00:00:00Z'),
+        );
+
+        const [instance] = await gateway.listEventInstances(
+          '2026-10-01T00:00:00Z',
+          '2026-11-01T00:00:00Z',
+          timeZone,
+        );
+
+        expect(instance).toEqual(expect.objectContaining({ startUtc, endUtc, isAllDay: true }));
+      },
+    );
+
+    it('keeps the device-zone midnights iOS already reports', async () => {
+      const gateway = gatewayReturning(
+        'ios',
+        allDayInstance('2026-10-19T22:00:00Z', '2026-10-20T22:00:00Z'),
+      );
+
+      const [instance] = await gateway.listEventInstances(
+        '2026-10-01T00:00:00Z',
+        '2026-11-01T00:00:00Z',
+        'Europe/Vienna',
+      );
+
+      expect(instance).toEqual(
+        expect.objectContaining({
+          startUtc: '2026-10-19T22:00:00Z',
+          endUtc: '2026-10-20T22:00:00Z',
+        }),
+      );
+    });
   });
 
   it('rejects when the platform reports no id for the created event', async () => {

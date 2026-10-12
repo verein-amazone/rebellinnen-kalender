@@ -243,9 +243,12 @@ change triggers a rebuild (`CalendarMaintenanceInteractor`).
 **A `date` end is inclusive: the last day the appointment covers.** That holds for every stored
 record - app items, ICS items, the device cache - and for the event form that writes them. Only the
 computed `*_utc` columns are exclusive, and `DeviceEventDraft.endUtc` follows them; the native
-gateway translates that into whatever the platform's calendar store expects (EventKit wants the
-last day, `CalendarContract` the exclusive one). The form used to write the exclusive day instead,
-which made every all-day appointment render a day too long.
+gateway translates that into what the calendar plugin expects, which on both platforms is the last
+day (since `@ebarooni/capacitor-calendar` 8.7.1 the plugin itself turns it into the exclusive UTC
+midnight `CalendarContract` stores). On the way back the gateway moves Android's all-day instances,
+which `CalendarContract` reports at UTC midnights, onto device-zone midnights - the convention iOS
+already uses - so the normalizer buckets both platforms the same way. The form used to write the
+exclusive day instead, which made every all-day appointment render a day too long.
 
 **Every calendar the user creates has a colour.** „Mein Kalender“ and ICS subscriptions start with
 `DEFAULT_CALENDAR_COLOR` (`interactors/calendar/calendar-colors.ts`), because the week and month
