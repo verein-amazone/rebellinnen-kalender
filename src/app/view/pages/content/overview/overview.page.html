@@ -80,9 +80,7 @@
                     [queryParams]="{ returnTo: collectionReturnTo() }"
                     class="rk-card block px-4 py-3"
                   >
-                    <span class="rk-pill text-xs">{{
-                      item.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse'
-                    }}</span>
+                    <span class="rk-pill text-xs">{{ kindLabel(item.kind) }}</span>
                     <p class="mt-2 font-semibold">{{ item.title }}</p>
                     <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
                       {{ item.teaser }}

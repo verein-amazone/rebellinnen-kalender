@@ -15,9 +15,10 @@ import {
 } from '@lucide/angular';
 import { Router } from '@angular/router';
 
-import type {
-  ContentItemView,
-  RelatedSourceView,
+import {
+  contentKindLabel,
+  type ContentItemView,
+  type RelatedSourceView,
 } from '@app/interactors/daily-content/content-item.vm';
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
@@ -98,9 +99,10 @@ export class ContentDetailPage {
 
   protected readonly heading = computed(() => this.item()?.title ?? 'Inhalt');
 
-  protected readonly typeLabel = computed(() =>
-    this.item()?.kind === 'rebellin' ? 'Rebell*in' : 'Wissen & Impulse',
-  );
+  protected readonly typeLabel = computed(() => {
+    const item = this.item();
+    return item === null ? '' : contentKindLabel(item.kind);
+  });
 
   protected readonly relatedSources = computed<readonly RelatedSourceRow[]>(() =>
     (this.item()?.relatedSources ?? []).map(toRelatedSourceRow),

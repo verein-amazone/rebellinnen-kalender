@@ -12,9 +12,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideRotateCw } from '@lucide/angular';
 
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
-import type {
-  ContentItemKind,
-  ContentItemView,
+import {
+  CONTENT_KIND_LABELS,
+  contentKindLabel,
+  type ContentItemKind,
+  type ContentItemView,
 } from '@app/interactors/daily-content/content-item.vm';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
@@ -35,12 +37,6 @@ function isContentArea(value: string | null | undefined): value is ContentArea {
 function isContentItemKind(value: string): value is ContentItemKind {
   return value === 'wissensimpulse' || value === 'rebellin';
 }
-
-const COLLECTION_KIND_LABELS: readonly { readonly id: ContentItemKind; readonly label: string }[] =
-  [
-    { id: 'wissensimpulse', label: 'Wissen & Impulse' },
-    { id: 'rebellin', label: 'Rebell*in' },
-  ];
 
 /**
  * The Content home (#24): a switch between Meine Sammlung (My Collection, #23) - every bookmarked
@@ -119,11 +115,12 @@ export class ContentOverviewPage {
   });
   protected readonly savedItems = computed(() => this.savedData.value() ?? []);
   protected readonly hasSavedItems = computed(() => this.savedItems().length > 0);
+  protected readonly kindLabel = contentKindLabel;
 
   protected readonly kindFilters = computed<readonly ContentKindFilterOption[]>(() => {
     const items = this.savedItems();
 
-    return COLLECTION_KIND_LABELS.map((kind) => ({
+    return CONTENT_KIND_LABELS.map((kind) => ({
       ...kind,
       count: items.filter((item) => item.kind === kind.id).length,
     }));
@@ -136,7 +133,7 @@ export class ContentOverviewPage {
 
   /** The collection is not empty, the filter is - which needs saying, or the screen reads as loss. */
   protected readonly allKindsHidden = computed(() =>
-    COLLECTION_KIND_LABELS.every((kind) => this.hiddenKinds().has(kind.id)),
+    CONTENT_KIND_LABELS.every((kind) => this.hiddenKinds().has(kind.id)),
   );
 
   protected toggleKind(kind: ContentItemKind): void {

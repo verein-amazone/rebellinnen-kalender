@@ -10,7 +10,10 @@ import { RouterLink } from '@angular/router';
 import { LucideCheck, LucideChevronRight } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
-import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
+import {
+  contentKindLabel,
+  type ContentItemView,
+} from '@app/interactors/daily-content/content-item.vm';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-impulse.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
@@ -38,6 +41,8 @@ export class ContentCatalogPage {
   private readonly contentItems = inject(ContentItemsInteractor);
   private readonly daily = inject(DailyImpulseInteractor);
   private readonly currentDay = inject(LocalDay);
+
+  protected readonly kindLabel = contentKindLabel;
 
   private readonly data = resource({
     loader: () => this.contentItems.listAll(),

@@ -1,7 +1,8 @@
 # Adding curated content (Wissensimpulse & Rebell\*innen)
 
-How to add or edit a "Wissen & Impulse" or "Rebell\*in" item - the content shown on the Today page
-and under `/content`. Covers the full pipeline: catalog entry, image conversion, and licensing.
+How to add or edit a "Wissen" or "Rebell\*innen" item - the two content types, by the names the app
+shows for them (`CONTENT_KIND_LABELS`) - the content shown on the Today page and under `/content`.
+Covers the full pipeline: catalog entry, image conversion, and licensing.
 
 Related code: `src/app/data/content/content-catalog-sync.ts` (reconciles the catalog into the
 `content_items` table at runtime), `public/content/README.md` (asset directory notes),
