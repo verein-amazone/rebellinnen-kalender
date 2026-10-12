@@ -144,12 +144,12 @@ describe('TodayImpulseBlock', () => {
     expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');
   });
 
-  it('names itself Tagesimpuls, and does not repeat the content type here', async () => {
+  it('names itself „Für dich“, and does not repeat the content type here', async () => {
     const { element } = await setup({ item: item({ kind: 'rebellin', title: 'Ada Lovelace' }) });
 
     // The label is the heading the surrounding section is named by, styled as a pill.
     const heading = element.querySelector('h2#impulse-heading');
-    expect(heading?.textContent).toContain('Tagesimpuls');
+    expect(heading?.textContent).toContain('Für dich');
     expect(heading?.classList.contains('rk-pill-solid')).toBe(true);
 
     // The content type lives on the detail screen; on Today it competed with the one label that
