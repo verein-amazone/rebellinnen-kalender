@@ -1,3 +1,11 @@
+## [1.0.0-rc.34](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.33...v1.0.0-rc.34) (2026-10-12)
+
+### Bug Fixes
+
+* **deps:** let the Android emoji grid scroll (capacitor-emoji-picker 1.3.3) ([e37d7c1](https://github.com/verein-amazone/rebellinnen-kalender/commit/e37d7c154ee1d23ab3cc2deb072e52e2ab802987)), closes [independo-gmbh/capacitor-emoji-picker#56](https://github.com/independo-gmbh/capacitor-emoji-picker/issues/56)
+* **keyboard:** keep the app full height and lift sheets above the keyboard ([0e5e8d2](https://github.com/verein-amazone/rebellinnen-kalender/commit/0e5e8d2e5f451574bf2b4dd138de8ccb004e46af))
+* **onboarding:** give „Nein, danke“ the same weight as „Ja“ ([9af9e28](https://github.com/verein-amazone/rebellinnen-kalender/commit/9af9e288d0b37d9ab351f4326b777dbd5a840107))
+
 ## [1.0.0-rc.33](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.32...v1.0.0-rc.33) (2026-10-12)
 
 ### Bug Fixes
