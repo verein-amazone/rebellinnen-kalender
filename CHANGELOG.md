@@ -1,3 +1,19 @@
+## [1.0.0-rc.37](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.36...v1.0.0-rc.37) (2026-10-12)
+
+### Bug Fixes
+
+* **calendar:** set a space on both sides of the range dash ([2c68899](https://github.com/verein-amazone/rebellinnen-kalender/commit/2c68899792fa94340f54fd784100faf0143a3c21)), closes [Intl.DateTimeFormat#formatRange](https://github.com/verein-amazone/Intl.DateTimeFormat/issues/formatRange)
+* **content:** name the content types „Wissen“ and „Rebell*innen“ ([a5361b1](https://github.com/verein-amazone/rebellinnen-kalender/commit/a5361b1e5cc727c47a83a76e161776e011340744))
+* **onboarding:** outline „Nein, danke“ instead of filling it ([f52c5ec](https://github.com/verein-amazone/rebellinnen-kalender/commit/f52c5ecacd47db0ac184bdef37d078d05a3f1e5f))
+* **onboarding:** put the „Weiter“ arrow after its label ([dd08ef8](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd08ef8933b2fb7eece4a6b834af7bd132ec9257))
+* **theme:** make delete actions crimson on Amazone and Lila ([391dd28](https://github.com/verein-amazone/rebellinnen-kalender/commit/391dd28892a08ace80d19ee8063c8425faba30a9)), closes [#c62a24](https://github.com/verein-amazone/rebellinnen-kalender/issues/c62a24) [#a3242b](https://github.com/verein-amazone/rebellinnen-kalender/issues/a3242b) [#c8102e](https://github.com/verein-amazone/rebellinnen-kalender/issues/c8102e)
+* **today:** double the featured card's frame ([2a15d21](https://github.com/verein-amazone/rebellinnen-kalender/commit/2a15d21ca09bb0c70aa9058bea1e19cbe135485f))
+* **today:** drop the sentences that repeat an empty card ([96dd599](https://github.com/verein-amazone/rebellinnen-kalender/commit/96dd599cd8329635eef8ed977573fd0d8d2c7a0c))
+* **today:** label the featured card „Für dich“ ([1f61eaf](https://github.com/verein-amazone/rebellinnen-kalender/commit/1f61eafc64df1a93c8687153b71de0df95adb978))
+* **today:** say there are no appointments in the calendar today ([b657796](https://github.com/verein-amazone/rebellinnen-kalender/commit/b65779648fc8212a4986b0ed5761eb5e546dbf4b))
+* **today:** show the date at body size ([28cfb00](https://github.com/verein-amazone/rebellinnen-kalender/commit/28cfb00c3daeb683efb5b80dd92298e49e74b224))
+* **today:** tighten the gap under the section headings ([f78b78a](https://github.com/verein-amazone/rebellinnen-kalender/commit/f78b78adcb2fe6b8ada92078a3e42e8a76b293cd))
+
 ## [1.0.0-rc.36](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.35...v1.0.0-rc.36) (2026-10-12)
 
 ### Bug Fixes
