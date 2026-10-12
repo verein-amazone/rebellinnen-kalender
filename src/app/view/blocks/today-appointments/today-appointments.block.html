@@ -1,8 +1,11 @@
-<div class="mb-3 flex items-center justify-between gap-2">
+<!-- Tight under the heading, as testers asked. `-my-2` lets the link's 48px touch target reach
+     8px above and below the row instead of making the row itself 48px tall, which left a wide gap
+     between „Heute“ and the card; it ends exactly where the card begins. -->
+<div class="mb-2 flex items-center justify-between gap-2">
   <h2 id="today-appointments-heading">Heute</h2>
   <a
     routerLink="/calendar"
-    class="text-foreground min-h-touch -mx-2 flex items-center px-2 text-sm font-semibold underline"
+    class="text-foreground min-h-touch -mx-2 -my-2 flex items-center px-2 text-sm font-semibold underline"
     >Alle Termine</a
   >
 </div>
