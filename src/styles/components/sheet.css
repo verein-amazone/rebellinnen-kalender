@@ -58,11 +58,24 @@
    * behind once the body hits its end. The safe-area inset lives here rather than on
    * `.rk-sheet-footer`, because not every sheet's content has one (e.g. a picker that closes on
    * tap) - this is the one wrapper every sheet's content always sits inside.
+   *
+   * The keyboard is handled here too. The app does not resize for it, so it covers the bottom of the
+   * sheet; `--rk-keyboard-inset` (cross-cutting/infrastructure/keyboard-visibility.ts) pads the body
+   * by its height, which lifts the field and the action row above it while the sheet's own surface
+   * carries on underneath - no gap, and no tab bar pushed up. The matching `scroll-padding-bottom`
+   * keeps a focused field clear of it when the field is scrolled into view. The transition follows
+   * the keyboard's own slide; reduced motion flattens it like every other one (../base.css).
    */
   .rk-sheet-body {
     @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
     padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(
+      1rem,
+      env(safe-area-inset-bottom),
+      calc(var(--rk-keyboard-inset, 0px) + 1rem)
+    );
+    scroll-padding-bottom: calc(var(--rk-keyboard-inset, 0px) + 1rem);
+    transition: padding-bottom 250ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   /*

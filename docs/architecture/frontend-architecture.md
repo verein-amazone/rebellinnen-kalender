@@ -254,6 +254,15 @@ and stays reachable. This matters at large text sizes, where the content is seve
 with a scrolling document the tab bar ends up hundreds of pixels below the fold. A focused screen's
 header is `sticky` inside that region for the same reason.
 
+The shell also **never resizes for the on-screen keyboard** (Keyboard `resize: 'none'` on iOS,
+`adjustNothing` on Android). Resizing squeezed the whole shell into the space above the keyboard,
+tab bar included - even for the system emoji keyboard behind the emoji picker. On Android,
+Capacitor's own system-bar handling shrinks the WebView regardless, so `.rk-shell` takes its height
+from `--rk-app-height`, which `KeyboardVisibility` holds at the pre-keyboard height while the
+keyboard is open. Sheets and the scroll region pad themselves by the covered part instead, and
+`MainNavigationScaffold` scrolls the focused field clear of the keyboard once it is announced. See
+[Sheet](./design-system.md#sheet---sheetcss--app-sheet--sheetservice).
+
 `.rk-scroll-region` is also the query container every screen resolves `@container` against, which is
 what lets padding and chrome react to the root font size. See
 [Scaling-safe rules](./design-system.md#scaling-safe-rules).
@@ -366,8 +375,8 @@ inside single transactions, and it is the only calendar surface interactors talk
 Only create cross-cutting code when it is actually shared.
 
 - `infrastructure/` - stateless wrappers around technical UI/device capabilities: the launcher icon,
-  haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard,
-  the OS text scale, the app lifecycle, local notifications, page focus, change notifications. Interactors and presenters
+  haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard
+  (visibility and the inset it covers), the OS text scale, the app lifecycle, local notifications, page focus, change notifications. Interactors and presenters
   both use them. The dividing line against `data/gateways/` is whether the thing is a **data
   source**: the device calendar is queryable data and therefore a gateway, while haptics are not.
   `app-lifecycle.ts` is the single owner of "the app came back to the foreground"; nothing else

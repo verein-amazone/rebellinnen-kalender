@@ -10,13 +10,15 @@ const config: CapacitorConfig = {
     preferredContentMode: 'mobile',
   },
   plugins: {
-    // 'native' actually shrinks the WebView's own frame to the space left by the keyboard, the same
-    // effect Android's adjustResize (AndroidManifest.xml) has. 'body' looks similar on paper, but per
-    // its own plugin source only sets `document.body.style.height` - the viewport itself never
-    // changes, so `dvh` units and anything `position: fixed` (the app shell, and every sheet, which
-    // is a CDK overlay) stay exactly where they were and the keyboard simply covers them.
+    // 'none': the WebView keeps its full height while the keyboard is open, the same as Android's
+    // adjustNothing (AndroidManifest.xml). Resizing it ('native') squeezed the whole shell into the
+    // space above the keyboard - the tab bar pushed up, and even the emoji keyboard behind the
+    // native emoji picker shrinking the page beneath it. The keyboard height is published as
+    // `--rk-keyboard-inset` instead (cross-cutting/infrastructure/keyboard-visibility.ts), and the
+    // sheet body and the scroll region pad themselves by it. 'body' is not an option: it only sets
+    // `document.body.style.height`, which a `position: fixed` sheet does not follow.
     Keyboard: {
-      resize: 'native',
+      resize: 'none',
     },
     // Appointment reminders (#81). Android draws the status-bar icon as a white silhouette, so it
     // needs its own monochrome drawable rather than the launcher icon; the colour is the brand red.

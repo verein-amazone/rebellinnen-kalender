@@ -416,12 +416,14 @@ analytics. It also lists the reasons for the APIs that end up in the app binary 
 `UserDefaults`, system boot time and disk space do not appear in the app binary, so the manifest
 does not declare them. SQLCipher declares its own disk-space use.
 
-The frameworks and bundles that ship their own manifest are Capacitor, Cordova, SQLCipher and
-ZIPFoundation. **None of the Capacitor plugins ships one**: `@capacitor-community/sqlite`,
+The frameworks and bundles that ship their own manifest are Capacitor, Cordova, SQLCipher,
+ZIPFoundation and, since 1.3.3, `@independo/capacitor-emoji-picker` (its `54BD.1` entry, as a
+resource bundle). **None of the other Capacitor plugins ships one**: `@capacitor-community/sqlite`,
 `@capacitor/app`, `@capacitor/keyboard`, `@capacitor/local-notifications`, `@capacitor/text-zoom`,
-the four `@capawesome/*` plugins, `@ebarooni/capacitor-calendar`, `@independo/capacitor-emoji-picker`
-and `capacitor-native-settings`. They are compiled into the app binary through `CapApp-SPM`, so
-the app's manifest is what covers them.
+the four `@capawesome/*` plugins, `@ebarooni/capacitor-calendar` and `capacitor-native-settings`.
+They are compiled into the app binary through `CapApp-SPM`, so the app's manifest is what covers
+them. The emoji picker's code lands in the app binary the same way, so the app keeps declaring
+`54BD.1` itself as well; the duplicate is harmless.
 
 **When a native dependency changes**, check again before the next upload:
 
