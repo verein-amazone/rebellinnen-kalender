@@ -63,7 +63,8 @@ describe('normalizeDeviceInstances', () => {
   });
 
   it('turns an all-day instance into local dates with an inclusive last day', () => {
-    // Native all-day events span exclusive midnights: 22:00Z-22:00Z is Aug 10 in Vienna.
+    // The gateway hands all-day instances over at exclusive device-zone midnights on both
+    // platforms - Android's UTC midnights are moved there first: 22:00Z-22:00Z is Aug 10 in Vienna.
     const rows = normalizeDeviceInstances(
       'device',
       'android',

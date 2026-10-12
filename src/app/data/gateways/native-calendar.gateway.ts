@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import type { CreateEventOptions } from '@ebarooni/capacitor-calendar';
+import { Temporal } from 'temporal-polyfill';
 
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import {
@@ -80,6 +81,9 @@ export interface DeviceEventInstance {
  * Instances are translated to plugin-free shapes here, including the platform difference that iOS
  * repeats one event id for every instance of a series while Android instances carry their own
  * times - which is why identity above this gateway always includes the occurrence start.
+ *
+ * All-day instants leave this gateway on both platforms as device-zone midnights, the convention
+ * every all-day `*Utc` value above it follows.
  */
 @Injectable({ providedIn: 'root' })
 export class NativeCalendarGateway {
@@ -115,24 +119,39 @@ export class NativeCalendarGateway {
     }));
   }
 
-  /** The concrete instances overlapping the range, multi-day events included. */
-  async listEventInstances(fromUtc: string, toUtc: string): Promise<DeviceEventInstance[]> {
+  /**
+   * The concrete instances overlapping the range, multi-day events included. `timeZone` is the
+   * device zone whose midnights an all-day instance is reported at.
+   */
+  async listEventInstances(
+    fromUtc: string,
+    toUtc: string,
+    timeZone: string,
+  ): Promise<DeviceEventInstance[]> {
     const { result } = await this.plugin.listEventsInRange({
       from: Date.parse(fromUtc),
       to: Date.parse(toUtc),
     });
 
-    return result.map((event) => ({
-      eventId: event.id,
-      calendarId: event.calendarId,
-      title: event.title,
-      location: event.location,
-      description: event.description,
-      startUtc: utcInstantFromEpochMilliseconds(event.startDate),
-      endUtc: utcInstantFromEpochMilliseconds(event.endDate),
-      isAllDay: event.isAllDay,
-      timeZone: event.timezone,
-    }));
+    return result.map((event) => {
+      const isAndroidAllDay = event.isAllDay && this.platform.platform === 'android';
+      const toInstant = (epochMilliseconds: number): string =>
+        isAndroidAllDay
+          ? deviceMidnightOfUtcDay(epochMilliseconds, timeZone)
+          : utcInstantFromEpochMilliseconds(epochMilliseconds);
+
+      return {
+        eventId: event.id,
+        calendarId: event.calendarId,
+        title: event.title,
+        location: event.location,
+        description: event.description,
+        startUtc: toInstant(event.startDate),
+        endUtc: toInstant(event.endDate),
+        isAllDay: event.isAllDay,
+        timeZone: event.timezone,
+      };
+    });
   }
 
   /** Opens the system calendar's own edit prompt for a writable device event. */
@@ -173,19 +192,33 @@ export class NativeCalendarGateway {
   }
 
   /**
-   * The end the platform's calendar store wants, from the app's own exclusive one.
+   * The end the plugin wants, from the app's own exclusive one.
    *
-   * EventKit reads an all-day event's end as the last day it covers, so handing it the exclusive
-   * midnight would create an appointment one day too long. Android's `CalendarContract` takes the
-   * exclusive value as-is, which is what the app already has. The last instant before the
-   * exclusive end says "that day" in both readings without any date arithmetic in a time zone.
+   * The plugin reads an all-day event's end as the last local day it covers on both platforms -
+   * EventKit natively, Android since 8.7.1, where the plugin itself turns that day into the
+   * exclusive UTC midnight `CalendarContract` stores. Handing it the exclusive midnight would
+   * create an appointment one day too long. The last instant before the exclusive end names that
+   * last day without any date arithmetic in a time zone.
    */
   private nativeEndDate(draft: DeviceEventDraft): number {
     const endUtc = Date.parse(draft.endUtc);
-    const isLastDayInclusive = draft.isAllDay && this.platform.platform === 'ios';
 
-    return isLastDayInclusive ? endUtc - 1 : endUtc;
+    return draft.isAllDay ? endUtc - 1 : endUtc;
   }
+}
+
+/**
+ * `CalendarContract` stores and expands an all-day event at UTC midnights, so its instances arrive
+ * with the right calendar date only when read in UTC. Bucketed in the device zone instead, the
+ * appointment would grow by a day - after it east of UTC, before it west of UTC.
+ */
+function deviceMidnightOfUtcDay(epochMilliseconds: number, timeZone: string): string {
+  return Temporal.Instant.fromEpochMilliseconds(epochMilliseconds)
+    .toZonedDateTimeISO('UTC')
+    .toPlainDate()
+    .toZonedDateTime(timeZone)
+    .toInstant()
+    .toString({ smallestUnit: 'second' });
 }
 
 /** The package exports the options but not the rule type itself. */

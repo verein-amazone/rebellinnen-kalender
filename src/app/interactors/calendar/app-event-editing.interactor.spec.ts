@@ -304,9 +304,10 @@ describe('AppEventEditingInteractor targeting a device calendar', () => {
     );
   });
 
-  it('hands an all-day event to the OS with the exclusive end the gateway expects', async () => {
+  it('hands an all-day event to the OS ending on its last day', async () => {
     // The draft's `date` end names the last day covered; `DeviceEventDraft.endUtc` is exclusive,
-    // so a single-day all-day appointment reaches the gateway as the following midnight.
+    // so a single-day all-day appointment reaches the gateway as the following midnight, and the
+    // plugin gets the last instant before it - the same day, in the plugin's inclusive reading.
     await interactor.create(
       draft({
         calendarId: 'device-cal:cal-1',
@@ -323,7 +324,7 @@ describe('AppEventEditingInteractor targeting a device calendar', () => {
     expect(createdOptions).toEqual(
       expect.objectContaining({
         isAllDay: true,
-        endDate: exclusiveEnd.epochMilliseconds,
+        endDate: exclusiveEnd.epochMilliseconds - 1,
       }),
     );
   });

@@ -99,7 +99,11 @@ export class DeviceCalendarSyncInteractor {
     const range = await this.fetchRange(context);
     try {
       const calendars = await this.gateway.listCalendars();
-      const instances = await this.gateway.listEventInstances(range.startUtc, range.endUtc);
+      const instances = await this.gateway.listEventInstances(
+        range.startUtc,
+        range.endUtc,
+        context.timeZone,
+      );
 
       // The repository reports whether the cache actually changed; a launch where nothing on the
       // device moved reaches here and still has nothing to show for it.
