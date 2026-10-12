@@ -43,7 +43,7 @@ src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, 
 src/styles/components/menu.css       .rk-menu, .rk-menu-item*
 src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
 src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
-src/styles/components/screen.css     .rk-scroll-region, .rk-screen-*
+src/styles/components/screen.css     .rk-shell, .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
 ```
 
@@ -204,7 +204,7 @@ These rules are what keep the layout usable there:
    "Systemeinstellung" overflowed a 320px screen by 226px at 300% - and one unbreakable word makes
    the whole screen scroll sideways. `anywhere` rather than `break-word`: only `anywhere` shrinks the
    min-content width, which is what lets a flex or grid child give up the space.
-8. **One scroll region, chrome outside it.** The shell is a fixed `h-dvh` frame and `.rk-scroll-region`
+8. **One scroll region, chrome outside it.** The shell is a fixed `.rk-shell` frame and `.rk-scroll-region`
    is the only element that scrolls. Vertical scrolling at 2x and beyond is expected - the content
    genuinely is several viewports tall, and reflow asks for exactly that - but the tab bar must not
    scroll away with it.
@@ -537,6 +537,15 @@ type one thing passes `initialFocus: 'content'` instead and marks that one field
 - there the caret, and the keyboard it raises, is the reason the sheet was opened at all
   (`reminder-edit` is the only such sheet today). The dialog keeps its `aria-labelledby` heading
   either way, so it is still announced by name on entry.
+
+**The keyboard never resizes the app.** It slides over the bottom of the screen - tab bar included -
+on every platform, and the sheet body pads itself by `--rk-keyboard-inset`, the part of the viewport
+the keyboard covers, so the field and the action row sit just above it while the sheet's surface
+carries on underneath. The screen's scroll region does the same for its share of the shell, so the
+last field of a long form can scroll up above the keyboard. `KeyboardVisibility`
+(`cross-cutting/infrastructure/keyboard-visibility.ts`) publishes both values and explains the
+platform differences; a new scrolling container that holds text fields pads itself the same way
+rather than relying on a viewport resize.
 
 **The chrome lives in `view/components/sheet/`; the contents are presenters and belong in
 `view/dialogs/`.**

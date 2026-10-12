@@ -9,17 +9,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- adjustResize: the WebView shrinks when the keyboard opens, so the fixed h-dvh shell
-             (main-navigation.scaffold.html) recomputes to the smaller viewport and the bottom tab
-             bar ends up flush above the keyboard. The default (adjustPan) instead pans the whole
-             window, leaving the tab bar floating above the keyboard with a gap below it. -->
+        <!-- adjustNothing: the WebView keeps its full height while the keyboard is open, the same as
+             iOS's Keyboard resize 'none' (capacitor.config.ts). adjustResize squeezed the fixed h-dvh
+             shell into the space above the keyboard, tab bar included; adjustPan slid the whole
+             window up. @capacitor/keyboard still reports the keyboard height from the IME insets,
+             and the app pads its sheets and scroll region by it (keyboard-visibility.ts). -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="adjustNothing"
             android:exported="true" />
 
         <!-- One activity-alias per selectable app icon (#9). The launcher entry lives on the

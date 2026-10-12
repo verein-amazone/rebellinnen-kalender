@@ -8,6 +8,7 @@ import {
   Injector,
   viewChild,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideBookOpen, LucideCalendarDays, LucideSun } from '@lucide/angular';
 import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
@@ -52,11 +53,12 @@ export class MainNavigationScaffold {
   private readonly pageFocus = inject(PageFocus);
   private readonly motionReduced = inject(AppearanceInteractor).motionReduced;
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
 
-  /** Drives the scroll-position correction below - see the effect in the constructor. */
-  private readonly keyboardVisible = inject(KeyboardVisibility).visible;
+  /** Drives the focused-field reveal below - see the effect in the constructor. */
+  private readonly keyboard = inject(KeyboardVisibility);
 
-  /** The scroll region itself, to correct its scroll position once the keyboard closes again. */
+  /** The scroll region itself, one of the two places a focused field is revealed in. */
   private readonly scrollRegion = viewChild<ElementRef<HTMLElement>>('scrollRegion');
 
   /** The tab of the previous navigation, used to tell a tab switch from any other navigation. */
@@ -81,27 +83,29 @@ export class MainNavigationScaffold {
       )
       .subscribe(() => this.handleNavigation());
 
-    // The keyboard closing does not undo the scroll the platform applied to keep the focused field
-    // clear of it: the scroll region's own height grows back, but its `scrollTop` stays where it
-    // was, which now overshoots the content and leaves the shell - bottom navigation included -
-    // stranded above a blank gap. Clamping back to the region's real scroll range fixes that
-    // without fighting a scroll position the user set on purpose while the keyboard was still open.
+    // The shell does not resize for the keyboard; the scroll region and the sheet body pad
+    // themselves by the part it covers instead (keyboard-visibility.ts). The field is focused before
+    // that padding exists, though, so the platform's own reveal has nothing to scroll into yet -
+    // once the keyboard is announced, the focused field is brought clear of it here. `nearest` with
+    // the padded `scroll-padding-bottom` moves it only as far as needed, and not at all if it is
+    // already visible. The inset is read too, so a keyboard that changes height reveals again.
     effect(() => {
-      if (this.keyboardVisible()) {
+      this.keyboard.inset();
+      if (!this.keyboard.visible()) {
         return;
       }
 
-      const element = this.scrollRegion()?.nativeElement;
-      if (element === undefined) {
+      const field = this.document.activeElement;
+      if (!(field instanceof HTMLElement)) {
+        return;
+      }
+      const region = this.scrollRegion()?.nativeElement;
+      const isInScrollRegion = region !== undefined && region.contains(field);
+      if (!isInScrollRegion && field.closest('.rk-sheet-body') === null) {
         return;
       }
 
-      requestAnimationFrame(() => {
-        const maxScrollTop = Math.max(0, element.scrollHeight - element.clientHeight);
-        if (element.scrollTop > maxScrollTop) {
-          element.scrollTop = maxScrollTop;
-        }
-      });
+      requestAnimationFrame(() => field.scrollIntoView({ block: 'nearest' }));
     });
   }
 

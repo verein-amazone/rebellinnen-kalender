@@ -1,22 +1,24 @@
-import { Component, input } from '@angular/core';
+import { Component, input, signal, type Provider } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Router, provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
+import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 
 import { MainNavigationScaffold } from './main-navigation.scaffold';
 
-@Component({ template: '<h1>{{ title() }}</h1>' })
+@Component({ template: '<h1>{{ title() }}</h1><input id="stub-field" aria-label="Feld" />' })
 class StubPage {
   readonly title = input('Stub');
 }
 
 describe('MainNavigationScaffold', () => {
-  async function setUp(url: string) {
+  async function setUp(url: string, extraProviders: Provider[] = []) {
     await TestBed.configureTestingModule({
       imports: [MainNavigationScaffold],
       providers: [
+        ...extraProviders,
         // The scaffold under test is the fixture root, so the routes only describe its children.
         provideRouter([
           { path: 'today', component: StubPage, data: { tab: 'today' } },
@@ -38,6 +40,41 @@ describe('MainNavigationScaffold', () => {
 
     return { element: fixture.nativeElement as HTMLElement, navigateTo };
   }
+
+  it('brings the focused field clear of the keyboard once it is announced', async () => {
+    const keyboard = { visible: signal(false), inset: signal(0) };
+    const { element } = await setUp('/today', [
+      { provide: KeyboardVisibility, useValue: keyboard },
+    ]);
+    const field = element.querySelector<HTMLInputElement>('#stub-field')!;
+    const scrollIntoView = vi.fn();
+    field.scrollIntoView = scrollIntoView;
+    field.focus();
+
+    keyboard.visible.set(true);
+    keyboard.inset.set(300);
+    TestBed.tick();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' });
+  });
+
+  it('leaves the scroll position alone while the keyboard is closed', async () => {
+    const keyboard = { visible: signal(false), inset: signal(0) };
+    const { element } = await setUp('/today', [
+      { provide: KeyboardVisibility, useValue: keyboard },
+    ]);
+    const field = element.querySelector<HTMLInputElement>('#stub-field')!;
+    const scrollIntoView = vi.fn();
+    field.scrollIntoView = scrollIntoView;
+    field.focus();
+
+    keyboard.inset.set(0);
+    TestBed.tick();
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
 
   it('should show the bottom navigation on a primary destination', async () => {
     const { element } = await setUp('/today');
