@@ -34,7 +34,9 @@
 
       <!-- The teaser leads: it is the one sentence that says what this item is about, and it read
            as missing once the reader was already looking at the picture. -->
-      <p class="text-lg">{{ content.teaser }}</p>
+      @if (content.teaser) {
+        <p class="text-lg">{{ content.teaser }}</p>
+      }
 
       @if (content.imagePath; as imagePath) {
         <!-- `imageAlt` describes the picture. The credit is not a description and stays where it
@@ -42,9 +44,11 @@
         <img [src]="imagePath" [alt]="content.imageAlt ?? ''" class="w-full rounded-lg" />
       }
 
-      <div class="rk-card px-4 py-5">
-        <app-markdown-content [markdown]="content.bodyMarkdown" />
-      </div>
+      @if (content.bodyMarkdown) {
+        <div class="rk-card px-4 py-5">
+          <app-markdown-content [markdown]="content.bodyMarkdown" />
+        </div>
+      }
 
       @if (relatedSources().length > 0) {
         <div>
