@@ -1,3 +1,9 @@
+## [1.0.0-rc.36](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.35...v1.0.0-rc.36) (2026-10-12)
+
+### Bug Fixes
+
+* **content:** corrected typos, paragraphs and other minor changes in wissensimpulse and rebellinnen ([48e0ea2](https://github.com/verein-amazone/rebellinnen-kalender/commit/48e0ea286d508308f1efe8293b3b726c432da8a9))
+
 ## [1.0.0-rc.35](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.34...v1.0.0-rc.35) (2026-10-12)
 
 ### Chores
