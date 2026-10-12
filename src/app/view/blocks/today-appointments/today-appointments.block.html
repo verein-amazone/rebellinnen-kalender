@@ -35,7 +35,9 @@
 } @else if (entries().length === 0) {
   <div class="rk-card mb-3 px-4 py-6">
     <p class="text-muted-foreground text-center">
-      {{ allOver() ? 'Heute steht nichts mehr an.' : 'Heute steht noch nichts an.' }}
+      {{
+        allOver() ? 'Heute steht nichts mehr an.' : 'Heute stehen keine Termine in deinem Kalender.'
+      }}
     </p>
   </div>
 } @else {
