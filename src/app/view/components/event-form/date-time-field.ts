@@ -13,6 +13,7 @@ import { FormField } from '@angular/forms/signals';
 import { LucideChevronDown } from '@lucide/angular';
 import { Temporal } from 'temporal-polyfill';
 
+import { RANGE_DASH } from '@app/cross-cutting/helpers/date-format';
 import { CheckHaptics } from '@app/view/components/field/check-haptics';
 
 /**
@@ -66,7 +67,7 @@ export class DateTimeField {
       }
       if (endDate !== '' && endDate !== date) {
         const endDatePart = formatDate(`${endDate}T00:00:00`, 'EEE, d. MMM y', this.locale);
-        return `${datePart}–${endDatePart} · Ganztägig`;
+        return `${datePart}${RANGE_DASH}${endDatePart} · Ganztägig`;
       }
       return `${datePart} · Ganztägig`;
     }
@@ -80,7 +81,7 @@ export class DateTimeField {
       endDate !== '' && endDate !== date
         ? `${formatDate(`${endDate}T00:00:00`, 'EEE, d. MMM y', this.locale)} ${end}`
         : end;
-    const timePart = start === '' && end === '' ? '' : `${start}–${endPart}`;
+    const timePart = start === '' && end === '' ? '' : `${start}${RANGE_DASH}${endPart}`;
 
     // A deep link to the create screen (no `?day=` prefill) leaves every field blank, which would
     // otherwise give this button empty accessible text - it still has to announce what it opens.

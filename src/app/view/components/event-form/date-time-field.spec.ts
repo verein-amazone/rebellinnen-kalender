@@ -59,7 +59,7 @@ describe('DateTimeField', () => {
   it('summarises the collapsed row with the date and time range', async () => {
     const { toggleButton } = await setup();
 
-    expect(toggleButton.textContent).toContain('13:00–14:00');
+    expect(toggleButton.textContent).toContain('13:00\u00a0– 14:00');
   });
 
   it('mentions the end date in the summary once it differs from the start date', async () => {
@@ -74,7 +74,7 @@ describe('DateTimeField', () => {
     await fixture.whenStable();
     const toggleButton = (fixture.nativeElement as HTMLElement).querySelector('button')!;
 
-    expect(toggleButton.textContent).toContain('22:00–');
+    expect(toggleButton.textContent).toContain('22:00\u00a0– ');
     expect(toggleButton.textContent).toContain('11. Aug');
     expect(toggleButton.textContent).toContain('02:00');
   });

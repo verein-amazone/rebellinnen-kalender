@@ -24,7 +24,7 @@ import {
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
-import { formatDayLong } from '@app/cross-cutting/helpers/date-format';
+import { formatDayLong, RANGE_DASH } from '@app/cross-cutting/helpers/date-format';
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
 import {
@@ -190,7 +190,7 @@ export class EventDetailPage {
 
     return occurrence.startDay === occurrence.endDay
       ? formatDayLong(occurrence.startDay)
-      : `${formatDayLong(occurrence.startDay)} – ${formatDayLong(occurrence.endDay)}`;
+      : `${formatDayLong(occurrence.startDay)}${RANGE_DASH}${formatDayLong(occurrence.endDay)}`;
   });
 
   protected startEditing(): void {

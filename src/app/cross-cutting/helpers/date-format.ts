@@ -27,6 +27,13 @@ export const WEEKDAY_HEADERS: readonly { readonly short: string; readonly long: 
   { short: 'So', long: 'Sonntag' },
 ];
 
+/**
+ * The dash between the two ends of every date or time range („23. – 29. November“, „09:00 – 10:30“).
+ * Testers asked for a space on both sides, always. The space before it does not break, so a wrapped
+ * range never starts a line with the dash.
+ */
+export const RANGE_DASH = '\u00a0– ';
+
 /** `2026-08-03` → „Montag, 3. August 2026" (the predefined `fullDate` format). */
 export function formatDayLong(day: string): string {
   return formatDate(day, 'fullDate', LOCALE);
@@ -43,17 +50,25 @@ export function formatMonthYear(day: string): string {
 }
 
 /**
- * A week's header label, from `Intl.DateTimeFormat#formatRange`, which leaves out what both ends
- * share. Inside one month the month is named once, in full („3.–9. August 2026"); across a month or
- * year boundary both ends are dated in short form („31. Aug. – 6. Sept. 2026").
+ * A week's header label, from `Intl.DateTimeFormat#formatRangeToParts`, which leaves out what both
+ * ends share. Inside one month the month is named once, in full („3. – 9. August 2026"); across a
+ * month or year boundary both ends are dated in short form („31. Aug. – 6. Sept. 2026"). The
+ * dash `Intl` sets - bare inside a month, between thin spaces across one - becomes `RANGE_DASH`.
  */
 export function formatWeekRangeLabel(fromDay: string, toDay: string): string {
   const from = Temporal.PlainDate.from(fromDay);
   const to = Temporal.PlainDate.from(toDay);
   const sameMonth = from.year === to.year && from.month === to.month;
-  return (sameMonth ? WEEK_RANGE_IN_MONTH : WEEK_RANGE_ACROSS_MONTHS).formatRange(
-    atNoonUtc(from),
-    atNoonUtc(to),
+  return (
+    (sameMonth ? WEEK_RANGE_IN_MONTH : WEEK_RANGE_ACROSS_MONTHS)
+      .formatRangeToParts(atNoonUtc(from), atNoonUtc(to))
+      // The separator is a shared literal, sometimes with the day's period fused in („.–").
+      .map((part) =>
+        part.type === 'literal' && part.source === 'shared'
+          ? part.value.replace(/\s*–\s*/u, RANGE_DASH)
+          : part.value,
+      )
+      .join('')
   );
 }
 

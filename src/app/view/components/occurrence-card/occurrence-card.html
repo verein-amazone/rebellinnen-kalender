@@ -25,9 +25,8 @@
       </span>
     } @else {
       <span class="text-muted-foreground block text-sm tabular-nums">
-        {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}–{{
-          occurrence().endUtc | date: 'shortTime' : timeZone()
-        }}
+        {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}&nbsp;–
+        {{ occurrence().endUtc | date: 'shortTime' : timeZone() }}
       </span>
     }
 
