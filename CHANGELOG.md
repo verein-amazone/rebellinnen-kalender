@@ -1,3 +1,9 @@
+## [1.0.0-rc.33](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.32...v1.0.0-rc.33) (2026-10-12)
+
+### Bug Fixes
+
+* **calendar:** keep Android all-day device events on their own days ([f6f5aac](https://github.com/verein-amazone/rebellinnen-kalender/commit/f6f5aacdc4a73dfd6dc3a025f8a23b0300a69c70)), closes [#98](https://github.com/verein-amazone/rebellinnen-kalender/issues/98)
+
 ## [1.0.0-rc.32](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.31...v1.0.0-rc.32) (2026-10-09)
 
 ### Chores
