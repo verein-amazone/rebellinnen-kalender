@@ -1,3 +1,14 @@
+## [1.0.0-rc.45](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.44...v1.0.0-rc.45) (2026-10-13)
+
+### Features
+
+* **navigation:** return to a screen where it was left ([38c6b1a](https://github.com/verein-amazone/rebellinnen-kalender/commit/38c6b1a1ce97425b19cddfc38c02fbbe0cb9da25))
+* **ui:** move first-time explanations behind an info button ([238c43f](https://github.com/verein-amazone/rebellinnen-kalender/commit/238c43f06d8b55a6d88e4ef0edc4e39b97d3bade))
+
+### Bug Fixes
+
+* **calendar:** keep the month view when tapping Kalender again ([35a6dbc](https://github.com/verein-amazone/rebellinnen-kalender/commit/35a6dbcbe7f23bc032a91a63c4af01e52dda67f6))
+
 ## [1.0.0-rc.44](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.43...v1.0.0-rc.44) (2026-10-13)
 
 ### Bug Fixes
