@@ -1,3 +1,11 @@
+## [1.0.0-rc.44](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.43...v1.0.0-rc.44) (2026-10-13)
+
+### Bug Fixes
+
+* **a11y:** keep focus on a row moved from its menu ([83556f0](https://github.com/verein-amazone/rebellinnen-kalender/commit/83556f0c0774e0377bb7abee6657a7462078383e)), closes [#151](https://github.com/verein-amazone/rebellinnen-kalender/issues/151)
+* **calendar:** ask once when deleting an occurrence of a series ([a78bbdf](https://github.com/verein-amazone/rebellinnen-kalender/commit/a78bbdffd40a99082de7262eac04969683551207)), closes [#152](https://github.com/verein-amazone/rebellinnen-kalender/issues/152)
+* **notifications:** say when reminders are on but cannot arrive ([9b32a14](https://github.com/verein-amazone/rebellinnen-kalender/commit/9b32a1466e041020170ac85219b549c6f93ef305)), closes [#150](https://github.com/verein-amazone/rebellinnen-kalender/issues/150)
+
 ## [1.0.0-rc.43](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.42...v1.0.0-rc.43) (2026-10-13)
 
 ### Bug Fixes
