@@ -10,7 +10,7 @@
 //   revision;
 // - the Capacitor Android runtime (`@capacitor/android`), which has no JavaScript to bundle - its
 //   iOS counterpart is the capacitor-swift-pm package above;
-// - npm files that angular.json copies as assets instead of bundling (sql.js's WebAssembly build);
+// - npm files that angular.json copies as assets instead of bundling (SQLite's WebAssembly build);
 // - the components in licenses/policy.json that no manifest describes: the fonts, and code that is
 //   compiled into another binary.
 //
@@ -74,21 +74,22 @@ function policyText(path) {
 }
 
 /**
- * The licence file at the root of an npm package.
+ * The licence file at the root of an npm package, or the text override for it in the policy.
  *
  * @param {string} dir
  * @returns {Entry}
  */
 function npmPackage(dir) {
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+  const override = POLICY.overrides[manifest.name] ?? {};
   const file = readdirSync(dir).find((name) => LICENSE_FILE.test(name));
-  if (!file) {
+  if (!file && !override.text) {
     throw new Error(`${manifest.name} has no licence file in ${relative(ROOT, dir)}`);
   }
   return {
     name: manifest.name,
-    license: manifest.license,
-    text: readFileSync(join(dir, file), 'utf8'),
+    license: override.license ?? manifest.license,
+    text: override.text ? policyText(override.text) : readFileSync(join(dir, file), 'utf8'),
   };
 }
 

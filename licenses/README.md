@@ -26,7 +26,7 @@ Licensee Gradle plugin (`android/app/build.gradle`) fails on an Android library 
   non-commercial or unknown need a decision from Verein Amazone and Independo before they go here.
 - **`overrides`** - licence data for a library whose own metadata is missing or wrong: an SPDX
   identifier, a licence text or a NOTICE file. Android libraries are keyed `group:artifact`, Swift
-  packages by their identity in `Package.resolved`.
+  packages by their identity in `Package.resolved`, npm packages by their name.
 - **`components`** - things no manifest describes: the fonts, and code compiled into another
   library's binary.
 

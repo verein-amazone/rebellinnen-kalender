@@ -24,7 +24,7 @@
       "resources": {
         "files": [
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)",
-          "/assets/sql-wasm.wasm"
+          "/assets/sqlite3.wasm"
         ]
       }
     }

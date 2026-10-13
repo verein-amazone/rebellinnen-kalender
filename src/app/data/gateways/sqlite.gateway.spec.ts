@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { CapacitorSQLitePlugin } from '@capacitor-community/sqlite';
 
@@ -54,35 +53,15 @@ function createPlugin(): CapacitorSQLitePlugin & PluginStub {
       calls.push(`execute:${options.statements.trim()}`);
       return { changes: { changes: 0 } };
     },
-    saveToStore: async () => {
-      calls.push('saveToStore');
-    },
-    initWebStore: async () => {
-      calls.push('initWebStore');
-    },
   } as unknown as CapacitorSQLitePlugin & PluginStub;
 
   return plugin;
 }
 
-/**
- * jsdom cannot define the `jeep-sqlite` element, and the stubbed plugin does not need it - the web
- * branch is otherwise exercised as it is on `ng serve`, including `saveToStore`.
- */
-@Injectable()
-class WebStoreLessGateway extends SqliteGateway {
-  protected override initializeWebStore(): Promise<void> {
-    return Promise.resolve();
-  }
-}
-
 function setup(plugin: CapacitorSQLitePlugin): SqliteGateway {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [
-      { provide: CAPACITOR_SQLITE, useValue: plugin },
-      { provide: SqliteGateway, useClass: WebStoreLessGateway },
-    ],
+    providers: [{ provide: CAPACITOR_SQLITE, useValue: plugin }],
   });
 
   return TestBed.inject(SqliteGateway);
@@ -124,15 +103,7 @@ describe('SqliteGateway', () => {
     expect(plugin.calls.filter((call) => call === 'open')).toHaveLength(1);
   });
 
-  it('saves to the web store after a write, so the write survives a reload', async () => {
-    const plugin = createPlugin();
-
-    await setup(plugin).run('DELETE FROM reminders');
-
-    expect(plugin.calls).toContain('saveToStore');
-  });
-
-  it('commits a transaction around the callback statements and saves the store once afterwards', async () => {
+  it('commits a transaction around the callback statements', async () => {
     const plugin = createPlugin();
     const gateway = setup(plugin);
 
@@ -145,19 +116,16 @@ describe('SqliteGateway', () => {
     const first = plugin.calls.indexOf('run:INSERT INTO a VALUES (?):tx=false');
     const second = plugin.calls.indexOf('run:INSERT INTO b VALUES (?):tx=false');
     const commit = plugin.calls.indexOf('execute:COMMIT;');
-    const save = plugin.calls.indexOf('saveToStore');
 
     // Every statement runs between BEGIN and COMMIT, opted out of the plugin's own per-statement
-    // transaction, and the web store is written exactly once after the commit.
+    // transaction.
     expect(begin).toBeGreaterThanOrEqual(0);
     expect(first).toBeGreaterThan(begin);
     expect(second).toBeGreaterThan(first);
     expect(commit).toBeGreaterThan(second);
-    expect(save).toBeGreaterThan(commit);
-    expect(plugin.calls.filter((call) => call === 'saveToStore')).toHaveLength(1);
   });
 
-  it('rolls back when the callback throws, rethrows, and never touches the web store', async () => {
+  it('rolls back when the callback throws, and rethrows', async () => {
     const plugin = createPlugin();
     const gateway = setup(plugin);
 
@@ -170,7 +138,6 @@ describe('SqliteGateway', () => {
 
     expect(plugin.calls).toContain('execute:ROLLBACK;');
     expect(plugin.calls).not.toContain('execute:COMMIT;');
-    expect(plugin.calls).not.toContain('saveToStore');
   });
 
   it('holds concurrent writes back until an open transaction has committed', async () => {
