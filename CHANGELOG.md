@@ -1,3 +1,9 @@
+## [1.0.0-rc.48](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.47...v1.0.0-rc.48) (2026-10-13)
+
+### Refactoring
+
+* **data:** run the browser database on SQLite's own wasm build ([56ea2c3](https://github.com/verein-amazone/rebellinnen-kalender/commit/56ea2c395c8449246442758fa1c8cd0e14b0b07e))
+
 ## [1.0.0-rc.47](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.46...v1.0.0-rc.47) (2026-10-13)
 
 ### Features
