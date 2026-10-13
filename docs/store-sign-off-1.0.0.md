@@ -165,10 +165,10 @@ Der Text muss mindestens sagen:
   Entscheidung: …
 
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
-  Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen. Wie die App mit
-  deinen Daten umgeht, steht in der Datenschutzerklärung.“, darunter beide als Link. Der Schritt
-  „Deine Daten bleiben bei dir“ verlinkt die Datenschutzerklärung noch einmal. Beide öffnen sich in
-  der App und funktionieren ohne Internet. Ein Häkchen zum Akzeptieren gibt es bewusst nicht:
+  Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen.“, darunter den
+  Link „Nutzungsbedingungen lesen“. Diesen Schritt sehen alle, auch wer die Einführung überspringt.
+  Der Schritt „Deine Daten bleiben bei dir“ verlinkt die Datenschutzerklärung. Beide öffnen sich
+  in der App und funktionieren ohne Internet. Ein Häkchen zum Akzeptieren gibt es bewusst nicht:
   - Die Datenschutzerklärung ist eine Information (Art. 13 DSGVO), keine Einwilligung. Die App
     holt keine Einwilligung ein (Datenschutzerklärung Abschnitt 11). Ein „Ich stimme zu“ würde eine
     Einwilligung vortäuschen, die es nicht gibt.

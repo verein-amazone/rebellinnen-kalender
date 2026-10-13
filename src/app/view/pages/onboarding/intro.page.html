@@ -41,24 +41,15 @@
           </div>
           <div>
             <p class="text-sm text-pretty">
-              Mit der Nutzung der App gelten die Nutzungsbedingungen. Wie die App mit deinen Daten
-              umgeht, steht in der Datenschutzerklärung.
+              Mit der Nutzung der App gelten die Nutzungsbedingungen.
             </p>
-            <!-- Each link is its own touch target rather than a word inside the sentence. -->
-            <div class="flex flex-wrap justify-center gap-x-6">
-              <a
-                routerLink="/settings/terms"
-                [queryParams]="{ returnTo: legalReturnTo() }"
-                class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
-                >Nutzungsbedingungen</a
-              >
-              <a
-                routerLink="/settings/privacy"
-                [queryParams]="{ returnTo: legalReturnTo() }"
-                class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
-                >Datenschutzerklärung</a
-              >
-            </div>
+            <!-- Its own touch target rather than a word inside the sentence. -->
+            <a
+              routerLink="/settings/terms"
+              [queryParams]="{ returnTo: legalReturnTo() }"
+              class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
+              >Nutzungsbedingungen lesen</a
+            >
           </div>
         }
         @case ('areas') {

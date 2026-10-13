@@ -77,10 +77,10 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
  * them but downloads nothing; the first download happens on the first calendar-showing screen,
  * for the ones still on.
  *
- * The first step links the terms of use and the privacy policy, and the privacy step the privacy
- * policy again. They are links, not something to accept: the privacy policy is information, the
- * app asks for no consent, and the terms only restate the law (see docs/store-sign-off-1.0.0.md).
- * The first step is the one every user sees, including those who skip.
+ * The first step links the terms of use - the one step every user sees, including those who skip -
+ * and the privacy step links the privacy policy. They are links, not something to accept: the
+ * privacy policy is information, the app asks for no consent, and the terms only restate the law
+ * (see docs/store-sign-off-1.0.0.md).
  *
  * Device calendar access is only explained here, and requested from the explicit „connect“ action in the
  * settings. The one permission the introduction can ask for is the notification permission (#81),

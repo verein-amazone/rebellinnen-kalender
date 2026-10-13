@@ -84,42 +84,30 @@ test.describe('first-launch introduction', () => {
     await expect(page).toHaveURL(/\/settings$/);
   });
 
-  test('links the terms of use and the privacy policy and returns to the step', async ({
-    page,
-  }) => {
+  test('links the terms of use on the first step and returns there', async ({ page }) => {
     await page.goto('/');
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Schön, dass du da bist!' }),
-    ).toBeFocused();
+    const heading = page.getByRole('heading', { level: 1, name: 'Schön, dass du da bist!' });
+    // Focused once a navigation has settled; a click during the view transition is lost.
+    await expect(heading).toBeFocused();
+    // The privacy policy belongs to the privacy step, not here.
+    await expect(page.getByRole('link', { name: /Datenschutz/ })).toHaveCount(0);
 
-    await page.getByRole('link', { name: 'Nutzungsbedingungen' }).click();
+    await page.getByRole('link', { name: 'Nutzungsbedingungen lesen' }).click();
     await expect(
       page.getByRole('heading', { level: 1, name: 'Nutzungsbedingungen' }),
     ).toBeFocused();
     await page.getByRole('button', { name: 'Zurück' }).click();
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Schön, dass du da bist!' }),
-    ).toBeFocused();
+    await expect(heading).toBeFocused();
     await expect(page).toHaveURL(/\/intro\/1$/);
-
-    await page.getByRole('link', { name: 'Datenschutzerklärung' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Datenschutz' })).toBeFocused();
-    await page.getByRole('button', { name: 'Zurück' }).click();
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Schön, dass du da bist!' }),
-    ).toBeFocused();
 
     // Reading them is optional: the introduction goes on as before.
     await page.getByRole('button', { name: 'Erste Schritte überspringen' }).click();
     await expect(page).toHaveURL(/\/today/);
   });
 
-  test('returns from the privacy policy to the settings when reopened from there', async ({
-    page,
-  }) => {
+  test('links the privacy policy on the privacy step and keeps returnTo', async ({ page }) => {
     await page.goto('/intro/4?returnTo=%2Fsettings');
     const heading = page.getByRole('heading', { level: 1, name: 'Deine Daten bleiben bei dir' });
-    // Focused once a navigation has settled; a click during the view transition is lost.
     await expect(heading).toBeFocused();
 
     await page.getByRole('link', { name: 'Mehr in der Datenschutzerklärung' }).click();
