@@ -159,13 +159,6 @@ test.describe('large text', () => {
       // `EventDetailPage.handleBeforeDismiss`).
       await page.getByRole('button', { name: 'Zurück' }).click();
       await page.getByRole('button', { name: 'Löschen' }).click();
-      await expect(page.getByRole('dialog', { name: 'Termin löschen?' })).toBeVisible();
-      await checkNoOverflow('the delete confirmation sheet');
-
-      await page
-        .getByRole('dialog', { name: 'Termin löschen?' })
-        .getByRole('button', { name: 'Löschen' })
-        .click();
       await expect(page.getByRole('dialog', { name: 'Was möchtest du löschen?' })).toBeVisible();
       await checkNoOverflow('the recurrence scope sheet');
     });

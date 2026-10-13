@@ -754,12 +754,14 @@ describe('EventDetailPage, delete', () => {
           itemId: 'series-1',
         }),
       });
-      sheets.results = [true, scope];
+      sheets.results = [scope];
 
       button('Löschen')?.click();
       await settle();
 
-      expect(sheets.opens).toHaveLength(2);
+      // The scope sheet is the only confirmation, and it says that a delete is final (#152).
+      expect(sheets.opens).toHaveLength(1);
+      expect(sheets.opens[0]?.heading).toBe('Was möchtest du löschen?');
 
       if (scope === 'occurrence') {
         expect(eventEditing.cancelOccurrenceCalls).toEqual([
@@ -780,7 +782,7 @@ describe('EventDetailPage, delete', () => {
     });
   }
 
-  it('stays put and mutates nothing when the recurrence-scope dialog is dismissed after confirming', async () => {
+  it('stays put and mutates nothing when the recurrence-scope dialog is dismissed', async () => {
     const { button, settle, sheets, eventEditing, navigate } = await setup({
       id: 'occ-1',
       occurrence: occurrence({
@@ -789,7 +791,7 @@ describe('EventDetailPage, delete', () => {
         itemId: 'series-1',
       }),
     });
-    sheets.results = [true, undefined];
+    sheets.results = [undefined];
 
     button('Löschen')?.click();
     await settle();

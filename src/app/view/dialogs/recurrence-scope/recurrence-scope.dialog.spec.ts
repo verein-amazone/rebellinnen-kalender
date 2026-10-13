@@ -116,4 +116,14 @@ describe('RecurrenceScopeDialog', () => {
     expect(buttons[0].textContent?.trim()).toBe('Bestätigen');
     expect(buttons[1].textContent?.trim()).toBe('Abbrechen');
   });
+
+  it('renders a delete as destructive, with a bin and the verb, not the colour alone', async () => {
+    const { element } = await setup({ ...testData, confirmLabel: 'Löschen', destructive: true });
+
+    const confirm = element.querySelector('button')!;
+    expect(confirm.textContent?.trim()).toBe('Löschen');
+    expect(confirm.classList).toContain('rk-button-danger');
+    expect(confirm.classList).not.toContain('rk-button-primary');
+    expect(confirm.querySelector('svg[lucideTrash2]')).toBeTruthy();
+  });
 });

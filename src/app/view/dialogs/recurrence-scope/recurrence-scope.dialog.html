@@ -36,9 +36,19 @@
   text size.
 -->
 <div class="rk-sheet-footer flex-col">
-  <button type="button" class="rk-button rk-button-primary w-full" (click)="confirm()">
-    <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
-    <span>Bestätigen</span>
+  <button
+    type="button"
+    class="rk-button w-full"
+    [class.rk-button-danger]="destructive"
+    [class.rk-button-primary]="!destructive"
+    (click)="confirm()"
+  >
+    @if (destructive) {
+      <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+    } @else {
+      <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+    }
+    <span>{{ confirmLabel }}</span>
   </button>
 
   <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">

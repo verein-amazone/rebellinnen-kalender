@@ -96,16 +96,25 @@ test.describe('colour contrast per theme', () => {
       // No "Abbrechen" button any more - the header back-arrow cancels edit mode (see
       // `EventDetailPage.handleBeforeDismiss`).
       await page.getByRole('button', { name: 'Zurück' }).click();
+      // A series goes straight to the scope sheet, with a destructive „Löschen“ (#152).
       await page.getByRole('button', { name: 'Löschen' }).click();
-      const confirmation = page.getByRole('dialog', { name: 'Termin löschen?' });
-      await expect(confirmation).toBeVisible();
-      await checkContrast();
-
-      await confirmation.getByRole('button', { name: 'Löschen' }).click();
       const scope = page.getByRole('dialog', { name: 'Was möchtest du löschen?' });
       await expect(scope).toBeVisible();
       await checkContrast();
       await scope.getByRole('button', { name: 'Abbrechen' }).click();
+
+      // A single appointment keeps the generic confirmation.
+      const single = await seedOccurrence(page, {
+        sourceType: 'app',
+        title: 'Einzeltermin',
+        day: '2026-09-13',
+      });
+      await page.goto(`/calendar/event/${encodeURIComponent(single.occurrenceId)}`);
+      await page.getByRole('button', { name: 'Löschen' }).click();
+      const confirmation = page.getByRole('dialog', { name: 'Termin löschen?' });
+      await expect(confirmation).toBeVisible();
+      await checkContrast();
+      await confirmation.getByRole('button', { name: 'Abbrechen' }).click();
 
       const device = await seedOccurrence(page, {
         sourceType: 'device',
