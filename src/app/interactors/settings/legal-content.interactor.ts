@@ -5,13 +5,17 @@ import { LegalContentGateway } from '@app/data/gateways/legal-content.gateway';
 
 import type { ImageCreditView } from './image-credit.vm';
 
-/** Backs the two "Lizenzen & Impressum" settings pages (#11): licences and image credits. */
+/** Backs the legal settings pages: licences and image credits (#11), and the privacy policy (#79). */
 @Injectable({ providedIn: 'root' })
 export class LegalContentInteractor {
   private readonly gateway = inject(LegalContentGateway);
 
   thirdPartyLicenses(): Promise<string | null> {
     return this.gateway.fetchThirdPartyLicenses();
+  }
+
+  privacyPolicy(): Promise<string | null> {
+    return this.gateway.fetchPrivacyPolicy();
   }
 
   async imageAttributions(): Promise<readonly ImageCreditView[]> {

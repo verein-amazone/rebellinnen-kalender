@@ -4,6 +4,7 @@ import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
 
 const THIRD_PARTY_LICENSES_URL = '/3rdpartylicenses.txt';
 const IMAGE_ATTRIBUTIONS_URL = '/image-attributions.json';
+const PRIVACY_POLICY_URL = '/legal/datenschutz.md';
 
 /** One image's licence, source and attribution - see `public/image-attributions.json`. */
 export interface ImageAttribution {
@@ -22,10 +23,11 @@ export interface ImageAttribution {
 }
 
 /**
- * Reads the two static legal-content assets shown under Settings → Lizenzen & Impressum
- * (`LicensesPage`, `ImageCreditsPage`): the third-party licence file every production build puts
- * into the bundled app (licenses/README.md), and the curated image attribution data. Both ship as plain files alongside the
- * app, so they load and work fully offline - no network request ever leaves the device.
+ * Reads the static legal-content assets shown under Settings (`LicensesPage`, `ImageCreditsPage`,
+ * `PrivacyPage`): the third-party licence file every production build puts into the bundled app
+ * (licenses/README.md), the curated image attribution data, and the privacy policy. All ship as
+ * plain files alongside the app, so they load and work fully offline - no network request ever
+ * leaves the device.
  */
 @Injectable({ providedIn: 'root' })
 export class LegalContentGateway {
@@ -33,6 +35,16 @@ export class LegalContentGateway {
   async fetchThirdPartyLicenses(): Promise<string | null> {
     try {
       const response = await fetch(assetUrl(THIRD_PARTY_LICENSES_URL));
+      return response.ok ? await response.text() : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** `null` on any failure - same reasoning as `fetchThirdPartyLicenses`. */
+  async fetchPrivacyPolicy(): Promise<string | null> {
+    try {
+      const response = await fetch(assetUrl(PRIVACY_POLICY_URL));
       return response.ok ? await response.text() : null;
     } catch {
       return null;
