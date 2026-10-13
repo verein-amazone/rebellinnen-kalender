@@ -96,7 +96,7 @@ export class DeviceCalendarSyncInteractor {
       return false;
     }
 
-    const range = await this.fetchRange(context);
+    const range = this.fetchRange(context);
     try {
       const calendars = await this.gateway.listCalendars();
       const instances = await this.gateway.listEventInstances(
@@ -157,25 +157,21 @@ export class DeviceCalendarSyncInteractor {
     );
   }
 
-  /** The covered range extended by the buffer, or the default window for a first fetch. */
-  private async fetchRange(
-    context: CalendarContext,
-  ): Promise<{ startUtc: string; endUtc: string }> {
-    const coverage = await this.repository.findCoverage(DEVICE_SOURCE_ID);
-    if (coverage !== null) {
-      return {
-        startUtc: addDays(coverage.windowStartUtc, -RANGE_BUFFER_DAYS),
-        endUtc: addDays(coverage.windowEndUtc, RANGE_BUFFER_DAYS),
-      };
-    }
-
-    const now = Temporal.Instant.from(context.nowUtc).toZonedDateTimeISO(context.timeZone);
+  /**
+   * The window the device cache covers: the materialization window around today, plus the buffer.
+   * Anchored on the start of today rather than on the stored coverage, so it moves with the date
+   * instead of growing on every refresh, and changes at most once a day.
+   */
+  private fetchRange(context: CalendarContext): { startUtc: string; endUtc: string } {
+    const today = Temporal.Instant.from(context.nowUtc)
+      .toZonedDateTimeISO(context.timeZone)
+      .startOfDay();
     return {
-      startUtc: now
+      startUtc: today
         .subtract({ months: WINDOW_PAST_MONTHS, days: RANGE_BUFFER_DAYS })
         .toInstant()
         .toString(),
-      endUtc: now
+      endUtc: today
         .add({ months: WINDOW_FUTURE_MONTHS, days: RANGE_BUFFER_DAYS })
         .toInstant()
         .toString(),
@@ -188,10 +184,4 @@ export class DeviceCalendarSyncInteractor {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
   }
-}
-
-function addDays(instantIso: string, days: number): string {
-  return Temporal.Instant.from(instantIso)
-    .add({ hours: days * 24 })
-    .toString();
 }

@@ -130,29 +130,6 @@ describe('OccurrenceDao', () => {
     expect(rows.map((row) => row.id)).toEqual(['all-day', 'a-title', 'b-title', 'later']);
   });
 
-  it('replaces only one source inside a range', async () => {
-    await dao.insertMany([
-      occurrence({ id: 'device-in-range', sourceId: 'device-source', sourceType: 'device' }),
-      occurrence({
-        id: 'device-outside',
-        sourceId: 'device-source',
-        sourceType: 'device',
-        startUtc: '2026-11-01T16:00:00Z',
-        endUtc: '2026-11-01T18:00:00Z',
-      }),
-      occurrence({ id: 'app-in-range' }),
-    ]);
-
-    await dao.deleteOfSourceInRange(
-      'device-source',
-      '2026-10-01T00:00:00Z',
-      '2026-10-31T00:00:00Z',
-    );
-
-    const remaining = await dao.listInRange('2026-01-01T00:00:00Z', '2027-01-01T00:00:00Z');
-    expect(remaining.map((row) => row.id).sort()).toEqual(['app-in-range', 'device-outside']);
-  });
-
   it('upserts and reads coverage per source', async () => {
     await dao.upsertCoverage({
       sourceId: 'source-1',

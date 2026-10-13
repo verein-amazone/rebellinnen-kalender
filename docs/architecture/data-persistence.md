@@ -395,7 +395,10 @@ About device calendar data specifically:
 - The OS (EventKit / Calendar Provider) stays **authoritative**; device events are never stored as
   canonical app records and cached instances are never editable in the app.
 - Concrete instances for the covered range **are cached** in the `occurrences` table as
-  disposable, rebuildable rows for offline display, replaced transactionally per refreshed range.
+  disposable, rebuildable rows for offline display, replaced transactionally on every refresh. The
+  covered range is the materialization window around today (6 months back, 18 months ahead, plus a
+  day of buffer), anchored on the start of today: it moves with the date rather than growing, and
+  rows it has moved past are dropped with the next rebuild.
   (This deliberately supersedes the earlier „queried on demand, never copied“ rule: offline views
   need the rows, and their disposability keeps the ownership story intact.)
 - Losing calendar permission or a failing native query keeps the cache and flags the source
