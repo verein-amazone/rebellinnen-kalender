@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 
 import type { Migration } from '../migrations/migration';
-import type { SqlValue, SqliteDatabase, SqliteExecutor } from './sqlite-database';
+import { SynchronousSqliteDatabase } from './synchronous-sqlite';
 
 /**
  * A `SqliteDatabase` backed by Node's built-in SQLite, for tests.
@@ -9,43 +9,35 @@ import type { SqlValue, SqliteDatabase, SqliteExecutor } from './sqlite-database
  * Node ships SQLite since v22, so the DAO specs run the handwritten SQL against a real engine
  * without a new dependency and without the Capacitor plugin, which has no implementation under jsdom.
  * The `.testing.ts` suffix keeps this file out of the application build; see tsconfig.app.json.
+ *
+ * Its statement, transaction and serialization semantics are `SynchronousSqliteDatabase`'s - the
+ * very code the web build runs over `@sqlite.org/sqlite-wasm`.
  */
-export class InMemorySqliteDatabase implements SqliteDatabase {
-  private readonly database = new DatabaseSync(':memory:');
+export class InMemorySqliteDatabase extends SynchronousSqliteDatabase {
+  private readonly database: DatabaseSync;
 
-  /** Applies migrations in order, the way the gateway lets the plugin apply them on a device. */
+  constructor() {
+    const database = new DatabaseSync(':memory:');
+    super({
+      exec: (statement) => database.exec(statement),
+      all: (statement, values) => database.prepare(statement).all(...values),
+      run: (statement, values) => {
+        database.prepare(statement).run(...values);
+      },
+    });
+    this.database = database;
+  }
+
+  /**
+   * Applies every given migration's statements in order, regardless of the version stamp - so a
+   * spec can prove a migration survives running twice, which is what a crash between the plugin's
+   * commit and its version stamp leads to on a device.
+   */
   migrate(migrations: readonly Migration[]): void {
     for (const migration of [...migrations].sort((a, b) => a.toVersion - b.toVersion)) {
       for (const statement of migration.statements) {
         this.database.exec(statement);
       }
-    }
-  }
-
-  query<TRow>(statement: string, values: readonly SqlValue[] = []): Promise<TRow[]> {
-    const rows = this.database.prepare(statement).all(...values) as TRow[];
-    return Promise.resolve(rows);
-  }
-
-  run(statement: string, values: readonly SqlValue[] = []): Promise<void> {
-    this.database.prepare(statement).run(...values);
-    return Promise.resolve();
-  }
-
-  /** Mirrors the gateway's semantics: everything in `work` commits together or not at all. */
-  async transaction<T>(work: (tx: SqliteExecutor) => Promise<T>): Promise<T> {
-    this.database.exec('BEGIN IMMEDIATE');
-
-    try {
-      const result = await work({
-        query: (statement, values) => this.query(statement, values),
-        run: (statement, values) => this.run(statement, values),
-      });
-      this.database.exec('COMMIT');
-      return result;
-    } catch (error) {
-      this.database.exec('ROLLBACK');
-      throw error;
     }
   }
 

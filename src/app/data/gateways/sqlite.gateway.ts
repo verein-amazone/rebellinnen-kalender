@@ -1,12 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import type { SQLiteDBConnection, capSQLiteVersionUpgrade } from '@capacitor-community/sqlite';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
-
 import { DATABASE_VERSION, MIGRATIONS } from '../migrations/migrations';
 import type { Migration } from '../migrations/migration';
 import { SQLITE_CONNECTION } from '@app/cross-cutting/plugins/sqlite.plugin';
+import { DATABASE_NAME } from './database-name';
 import {
   SqliteUnavailableError,
   type SqlValue,
@@ -15,16 +13,10 @@ import {
 } from './sqlite-database';
 
 /**
- * One database per deployment. Unchanged on a device and at the server root; the web demo build
- * and every pull-request preview share an origin and therefore need their own, see
- * `scopedStorageName`.
- */
-const DATABASE_NAME = scopedStorageName('rebellinnen-kalender');
-
-/**
- * The application database.
+ * The application database on iOS and Android.
  *
- * The only place `@capacitor-community/sqlite` is used. Everything above it depends on the
+ * The only place `@capacitor-community/sqlite` is used. The browser does not come here - it runs
+ * `WasmSqliteGateway`, see the `SQLITE_DATABASE` token. Everything above it depends on the
  * `SqliteDatabase` contract, so the plugin's types never reach a DAO, an interactor or a view.
  *
  * The connection is opened lazily on first use, not from an app initializer: nothing on the first
@@ -35,7 +27,6 @@ const DATABASE_NAME = scopedStorageName('rebellinnen-kalender');
 @Injectable({ providedIn: 'root' })
 export class SqliteGateway implements SqliteDatabase {
   private readonly sqlite = inject(SQLITE_CONNECTION);
-  protected readonly isWeb = devicePlatform() === 'web';
 
   private connection: Promise<SQLiteDBConnection> | null = null;
 
@@ -63,7 +54,6 @@ export class SqliteGateway implements SqliteDatabase {
       // `run` wraps the statement in a transaction by default, which is exactly the unit of work
       // here.
       await database.run(statement, [...values]);
-      await this.persistWebStore();
     });
   }
 
@@ -71,16 +61,13 @@ export class SqliteGateway implements SqliteDatabase {
     const database = await this.database();
     return this.serialized(async () => {
       // Explicit BEGIN/COMMIT instead of the plugin's transaction methods: plain statements behave
-      // identically on iOS, Android and jeep-sqlite, and IMMEDIATE takes the write lock up front so
+      // identically on iOS and Android, and IMMEDIATE takes the write lock up front so
       // the transaction cannot fail on upgrade halfway through.
       await database.execute('BEGIN IMMEDIATE;', false);
 
       try {
         const result = await work(transactionExecutorFor(database));
         await database.execute('COMMIT;', false);
-        // One store write per transaction, after the commit - an aborted transaction must never
-        // reach IndexedDB.
-        await this.persistWebStore();
         return result;
       } catch (error) {
         try {
@@ -92,16 +79,6 @@ export class SqliteGateway implements SqliteDatabase {
         throw error;
       }
     });
-  }
-
-  /**
-   * The web store copies the database into IndexedDB when asked to, and that is what makes a write
-   * survive a reload. On native the file is the store, so there is nothing to do.
-   */
-  private async persistWebStore(): Promise<void> {
-    if (this.isWeb) {
-      await this.sqlite.saveToStore(DATABASE_NAME);
-    }
   }
 
   private serialized<T>(work: () => Promise<T>): Promise<T> {
@@ -122,20 +99,7 @@ export class SqliteGateway implements SqliteDatabase {
     return this.connection;
   }
 
-  /**
-   * Overridable so a spec can exercise the open sequence without the `jeep-sqlite` element, which
-   * needs a browser to define itself.
-   */
-  protected async initializeWebStore(): Promise<void> {
-    const { initializeWebSqliteStore } = await import('./web-sqlite-store');
-    await initializeWebSqliteStore(this.sqlite);
-  }
-
   private async open(): Promise<SQLiteDBConnection> {
-    if (this.isWeb) {
-      await this.initializeWebStore();
-    }
-
     // The plugin keeps its connections in a dictionary that outlives a page reload during
     // development: after an HMR update it still believes the connection exists, and
     // `createConnection` then fails. This reconciles the dictionary with reality first.

@@ -16,7 +16,6 @@ const NATIVE_PACKAGES = [
   '@ebarooni/*',
   '@independo/*',
   'capacitor-native-settings',
-  'jeep-sqlite',
 ];
 
 const NATIVE_PACKAGE_MESSAGE =

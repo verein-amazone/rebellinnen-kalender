@@ -61,7 +61,7 @@ const COVERAGE_COLUMNS = `source_id, window_start_utc, window_end_utc, engine_ve
  * How many rows one `INSERT ... VALUES (...), (...)` carries.
  *
  * `SQLITE_MAX_VARIABLE_NUMBER` is 32766 on SQLite 3.32+, but only 999 on older builds - iOS,
- * Android and `jeep-sqlite` do not all ship the same engine, so the low limit is the one to
+ * Android and the browser do not all ship the same engine, so the low limit is the one to
  * respect. At 24 bound values per row, 40 rows stay under it everywhere. The point is the order of
  * magnitude - a full window rebuild goes from thousands of statements to dozens - not squeezing
  * out the last one, so there is no reason to go near any limit.

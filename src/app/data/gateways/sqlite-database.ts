@@ -1,6 +1,9 @@
 import { inject, InjectionToken } from '@angular/core';
 
+import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
+
 import { SqliteGateway } from './sqlite.gateway';
+import { WasmSqliteGateway } from './wasm-sqlite.gateway';
 
 /** The value types SQLite binds as a statement parameter. */
 export type SqlValue = string | number | null;
@@ -39,10 +42,14 @@ export class SqliteUnavailableError extends Error {
 }
 
 /**
- * Injected by DAOs instead of the gateway class, so a spec can substitute an in-memory database with
+ * Injected by DAOs instead of a gateway class, so a spec can substitute an in-memory database with
  * a single provider and never touch the Capacitor plugin.
+ *
+ * On a device it is the Capacitor plugin (`SqliteGateway`); in the browser it is SQLite's own
+ * WebAssembly build (`WasmSqliteGateway`), because the plugin's web layer lacks FTS5 - see
+ * docs/architecture/data-persistence.md.
  */
 export const SQLITE_DATABASE = new InjectionToken<SqliteDatabase>('SQLITE_DATABASE', {
   providedIn: 'root',
-  factory: () => inject(SqliteGateway),
+  factory: () => (devicePlatform() === 'web' ? inject(WasmSqliteGateway) : inject(SqliteGateway)),
 });

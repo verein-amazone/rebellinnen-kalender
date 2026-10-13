@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  sql.js: 1.12.0
   uuid@<11.1.1: '>=11.1.1'
   compression@<1.8.2: '>=1.8.2'
   conventional-changelog-conventionalcommits: ^9.3.1
@@ -86,6 +85,9 @@ importers:
       '@lucide/angular':
         specifier: ^1.55.0
         version: 1.55.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
+      '@sqlite.org/sqlite-wasm':
+        specifier: ^3.53.4-build2
+        version: 3.53.4-build2
       capacitor-native-settings:
         specifier: ^8.2.0
         version: 8.2.0(@capacitor/core@8.5.3)
@@ -168,9 +170,6 @@ importers:
       eslint:
         specifier: ^10.12.0
         version: 10.12.0(jiti@2.7.0)(supports-color@8.1.1)
-      jeep-sqlite:
-        specifier: ^2.8.0
-        version: 2.8.0
       jsdom:
         specifier: ^30.1.2
         version: 30.1.2
@@ -2267,6 +2266,10 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
+
+  '@sqlite.org/sqlite-wasm@3.53.4-build2':
+    resolution: {integrity: sha512-kQVArGJA4z7s56Dm8t+eTBXad4LiohuVj9pfgDNOcxa+Ic5xMrWlLPTq6cT0hw5S4MIvtpsraW+B0wD+IPvC7A==}
+    engines: {node: '>=22'}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -7060,6 +7063,8 @@ snapshots:
   '@sindresorhus/is@4.6.0': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
+
+  '@sqlite.org/sqlite-wasm@3.53.4-build2': {}
 
   '@standard-schema/spec@1.1.0': {}
 

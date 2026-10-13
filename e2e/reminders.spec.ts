@@ -5,7 +5,7 @@ type Page = import('@playwright/test').Page;
 
 /**
  * The „Nicht vergessen“ list is the first feature with a database behind it, so this is also where
- * the SQLite setup is verified end to end: on the web it runs through `jeep-sqlite` and IndexedDB,
+ * the SQLite setup is verified end to end: on the web it runs through SQLite's wasm build and IndexedDB,
  * which a unit test cannot reach. Every test starts with an empty database, because Playwright gives
  * each one its own browser context - so entries are always created through the UI.
  */
@@ -154,7 +154,7 @@ test.describe('the „Nicht vergessen“ list', () => {
     await chooseAction(page, 'Eins', 'Nach oben');
     await expectOrder(page, ['Drei', 'Eins', 'Zwei']);
 
-    // This is what proves the position survives the round trip through jeep-sqlite and IndexedDB.
+    // This is what proves the position survives the round trip through the IndexedDB snapshot.
     await page.reload();
 
     await expectOrder(page, ['Drei', 'Eins', 'Zwei']);

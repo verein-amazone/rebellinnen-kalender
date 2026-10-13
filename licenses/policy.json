@@ -31,6 +31,10 @@
       "license": "MIT",
       "reason": "GitHub cannot classify LICENSE.md because of a sentence appended to the MIT text."
     },
+    "@sqlite.org/sqlite-wasm": {
+      "text": "texts/Apache-2.0.txt",
+      "reason": "The npm package declares Apache-2.0 for its wrapper but ships no licence file; the text is the LICENSE of github.com/sqlite/sqlite-wasm. SQLite itself, compiled into sqlite3.wasm, is in the public domain."
+    },
     "sqlcipher.swift": {
       "license": "BSD-3-Clause",
       "text": "texts/SQLCipher-BSD-3-Clause.txt",

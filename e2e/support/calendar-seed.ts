@@ -5,19 +5,14 @@ export interface SeededCalendar {
   readonly calendarId: string;
 }
 
-/** The shape of `@capacitor-community/sqlite`'s low-level calls this needs. */
-interface SqlitePluginLike {
-  run(options: {
-    readonly database: string;
-    readonly statement: string;
-    readonly values: readonly unknown[];
-    readonly transaction: boolean;
-  }): Promise<unknown>;
-  saveToStore(options: { readonly database: string }): Promise<unknown>;
+/**
+ * The write handle `WasmSqliteGateway` exposes as `window.rkWebSqlite` under automation - see
+ * `exposeForEndToEndTests` there. It goes through the app's own connection and serialization lock,
+ * and saves the database after the write like any other.
+ */
+interface WebSqliteLike {
+  run(statement: string, values?: readonly unknown[]): Promise<void>;
 }
-
-/** Must match `DATABASE_NAME` in `src/app/data/gateways/sqlite.gateway.ts`. */
-const DATABASE_NAME = 'rebellinnen-kalender';
 
 /** Starts the text of every „Nicht vergessen“ entry {@link ensureDatabaseReady} adds. */
 const WARM_UP_PREFIX = 'e2e-db-warmup-';
@@ -27,10 +22,9 @@ const WARM_UP_PREFIX = 'e2e-db-warmup-';
  *
  * `Kalender verwalten` (issue #20) has no screen yet to add an app calendar - it is still a stub
  * - so the appointment create/edit form's calendar picker has nothing to offer without this, and
- * every save is blocked by its `required` validator. This writes through
- * `window.Capacitor.Plugins.CapacitorSQLite`, the very plugin singleton `SqliteGateway` calls on
- * the web (`src/app/data/gateways/capacitor-sqlite.ts`), so it lands in the app's own open
- * connection rather than a second one.
+ * every save is blocked by its `required` validator. This writes through `window.rkWebSqlite`,
+ * the app's own open connection (`src/app/data/gateways/wasm-sqlite.gateway.ts`), rather than a
+ * second one.
  *
  * Ends on `/today`, having proven the database round-trips before writing to it - see
  * {@link ensureDatabaseReady}. Callers navigate on from there.
@@ -39,43 +33,24 @@ export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promis
   await ensureDatabaseReady(page);
 
   return page.evaluate(
-    async ({ calendarName, databaseName }) => {
-      const plugin = (
-        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
-      ).Capacitor.Plugins.CapacitorSQLite;
+    async ({ calendarName }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
       const now = new Date().toISOString();
       const sourceId = `e2e-source-${crypto.randomUUID()}`;
       const calendarId = `e2e-calendar-${crypto.randomUUID()}`;
 
-      // `transaction: false`: `SqliteGateway` keeps its own BEGIN/COMMIT bookkeeping for the
-      // single shared connection (see the "Serializes statements..." note there), and a call made
-      // straight to the plugin runs outside that bookkeeping entirely. Letting the plugin wrap
-      // these in its own transaction would race a concurrent `transaction()` call from the app for
-      // the connection's one "transaction active" flag; a plain autocommit statement does not.
-      await plugin.run({
-        database: databaseName,
-        statement:
-          'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        values: [sourceId, 'app', calendarName, 1, 'ok', now, now],
-        transaction: false,
-      });
-      await plugin.run({
-        database: databaseName,
-        statement:
-          'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        values: [calendarId, sourceId, calendarName, '#5b8c5a', null, 1, 1, null, now, now],
-        transaction: false,
-      });
-
-      // Without `autoSave` (see `web-sqlite-store.ts` for why it is off), nothing persists these
-      // rows to IndexedDB on its own - `SqliteGateway` normally does that itself after a write. A
-      // caller navigating on with `page.goto()` is a full browser navigation, not an in-app route
-      // change, so it reloads the connection from IndexedDB and would otherwise lose this seed.
-      await plugin.saveToStore({ database: databaseName });
+      await database.run(
+        'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [sourceId, 'app', calendarName, 1, 'ok', now, now],
+      );
+      await database.run(
+        'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [calendarId, sourceId, calendarName, '#5b8c5a', null, 1, 1, null, now, now],
+      );
 
       return { sourceId, calendarId };
     },
-    { calendarName: name, databaseName: DATABASE_NAME },
+    { calendarName: name },
   );
 }
 
@@ -89,16 +64,14 @@ export async function seedDeviceCalendar(page: Page, name = 'Familie'): Promise<
   await ensureDatabaseReady(page);
 
   return page.evaluate(
-    async ({ calendarName, databaseName }) => {
-      const plugin = (
-        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
-      ).Capacitor.Plugins.CapacitorSQLite;
+    async ({ calendarName }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
       const now = new Date().toISOString();
       const sourceId = 'device';
       const calendarId = `device-cal:e2e-${crypto.randomUUID()}`;
 
       const run = (statement: string, values: readonly unknown[]) =>
-        plugin.run({ database: databaseName, statement, values, transaction: false });
+        database.run(statement, values);
 
       await run(
         'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -120,11 +93,9 @@ export async function seedDeviceCalendar(page: Page, name = 'Familie'): Promise<
         ],
       );
 
-      await plugin.saveToStore({ database: databaseName });
-
       return { sourceId, calendarId };
     },
-    { calendarName: name, databaseName: DATABASE_NAME },
+    { calendarName: name },
   );
 }
 
@@ -199,15 +170,12 @@ export async function seedOccurrence(
       calendarWritable,
       title: occurrenceTitle,
       day: localDay,
-      databaseName,
       recurring: isRecurring,
       existingCalendar,
       calendarName: customName,
       color: calendarColor,
     }) => {
-      const plugin = (
-        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
-      ).Capacitor.Plugins.CapacitorSQLite;
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
       const now = new Date().toISOString();
       const sourceId = existingCalendar?.sourceId ?? `e2e-source-${crypto.randomUUID()}`;
       const calendarId = existingCalendar?.calendarId ?? `e2e-calendar-${crypto.randomUUID()}`;
@@ -216,7 +184,7 @@ export async function seedOccurrence(
       endUtc.setUTCDate(endUtc.getUTCDate() + 1);
 
       const run = (statement: string, values: readonly unknown[]) =>
-        plugin.run({ database: databaseName, statement, values, transaction: false });
+        database.run(statement, values);
 
       const sourceName =
         customName ??
@@ -331,8 +299,6 @@ export async function seedOccurrence(
         ],
       );
 
-      await plugin.saveToStore({ database: databaseName });
-
       return { occurrenceId, sourceId, calendarId };
     },
     {
@@ -340,7 +306,6 @@ export async function seedOccurrence(
       calendarWritable: writable,
       title,
       day,
-      databaseName: DATABASE_NAME,
       recurring,
       existingCalendar: existing,
       calendarName,
@@ -356,35 +321,25 @@ export async function seedOccurrence(
  */
 export async function removeDatabaseWarmUpEntries(page: Page): Promise<void> {
   await page.evaluate(
-    async ({ databaseName, prefix }) => {
-      const plugin = (
-        window as unknown as { Capacitor: { Plugins: { CapacitorSQLite: SqlitePluginLike } } }
-      ).Capacitor.Plugins.CapacitorSQLite;
-      await plugin.run({
-        database: databaseName,
-        statement: 'DELETE FROM reminders WHERE text LIKE ?',
-        values: [`${prefix}%`],
-        transaction: false,
-      });
-      await plugin.saveToStore({ database: databaseName });
+    async ({ prefix }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
+      await database.run('DELETE FROM reminders WHERE text LIKE ?', [`${prefix}%`]);
     },
-    { databaseName: DATABASE_NAME, prefix: WARM_UP_PREFIX },
+    { prefix: WARM_UP_PREFIX },
   );
   await page.goto('/today');
 }
 
 /**
- * Proves `SqliteGateway`'s connection is open, migrated and idle before anything writes to it
- * straight through the plugin.
+ * Proves the app's database is open and migrated before anything writes to it straight through
+ * `window.rkWebSqlite` - which only exists once the connection has been opened.
  *
  * Nothing on `/calendar` says this reliably: its empty-state text ("Keine Termine an diesem Tag.")
  * is the occurrences resource's *initial* value, rendered before the query resolves, not after -
  * so waiting for it proves nothing about the database. A round trip through the „Nicht vergessen“
  * list does: adding an entry and seeing it rendered can only happen once a write has gone through
  * the same connection and come back out again, and reminders.spec.ts already leans on that flow
- * being reliable. Racing a raw plugin call against the app's own still-in-flight `open()` sequence
- * is what produces "Datenbank konnte nicht geöffnet werden" and "no transaction is active" - this
- * sidesteps that by waiting for the app to reach a *provably* idle, already-open connection first.
+ * being reliable.
  */
 async function ensureDatabaseReady(page: Page): Promise<void> {
   await page.goto('/today');

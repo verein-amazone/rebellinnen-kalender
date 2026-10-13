@@ -424,7 +424,7 @@ Only create cross-cutting code when it is actually shared.
   [`src/app/cross-cutting/plugins/README.md`](../../src/app/cross-cutting/plugins/README.md).
 - `helpers/` - reusable technical utilities. They must not conceal data-layer access or upward
   dependencies. `asset-url.ts` is the one every layer touches: an asset the app requests by hand
-  (`fetch`, an `[src]`, the `jeep-sqlite` wasm path) is resolved through `assetUrl()` against the
+  (`fetch`, an `[src]`, the SQLite wasm path) is resolved through `assetUrl()` against the
   document's `<base href>`, because the web demo build is served from a subdirectory and
   `--base-href` cannot rewrite a string in TypeScript. `deployment-scope.ts` in `infrastructure/`
   reads the same base href to keep each deployment's storage apart; see

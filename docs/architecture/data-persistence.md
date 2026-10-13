@@ -17,8 +17,9 @@ authentication.
 ## SQLite via `@capacitor-community/sqlite`
 
 Relational, application-owned data is persisted in SQLite through
-[`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite), accessed behind DAOs
-and versioned migrations.
+[`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite) on a device and
+through SQLite's own WebAssembly build in the browser (see [SQLite in the browser](#sqlite-in-the-browser)),
+accessed behind DAOs and versioned migrations.
 
 ### The database gateway
 
@@ -41,47 +42,55 @@ depends on the `SqliteDatabase` contract in `sqlite-database.ts` - `query()` and
 The contract also exposes `transaction<T>(work)`: the callback receives a `SqliteExecutor` (the same
 `query`/`run` surface) and everything issued through it commits together or not at all. The gateway
 implements this with plain `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` statements - identical behaviour on
-iOS, Android and `jeep-sqlite` - with the plugin's automatic per-statement transaction switched off
-inside, and serializes statements and transactions on the single shared connection. Two rules follow:
+iOS and Android - with the plugin's automatic per-statement transaction switched off inside, and
+serializes statements and transactions on the single shared connection. Two rules follow:
 
 - **Inside a `transaction()` callback, only the passed executor may be used.** Calling the database
   directly from within the callback would wait on the serialization lock the transaction holds.
-- **On web, the IndexedDB store is written once per committed transaction**, never for a rolled-back
-  one. A single `run()` outside a transaction still wraps itself and saves as before.
+- **On web, the database is saved once per committed transaction**, never for a rolled-back one,
+  and once after a single `run()` outside a transaction.
 
 ### SQLite in the browser
 
 The app ships to iOS and Android. The browser is used for `ng serve`, the Playwright suite and the
-web demo build (see the README), and it gets **real** SQLite there: `data/gateways/web-sqlite-store.ts` lazily loads the `jeep-sqlite`
-custom element (`sql.js` compiled to WebAssembly, persisted in IndexedDB) and calls `initWebStore()`,
-and every successful write is followed by `saveToStore()`. That way the handwritten SQL and the
-migrations that run on a phone are the same ones a developer clicks through.
+web demo build (see the README), and it gets **real** SQLite there - but not through the plugin.
+The `SQLITE_DATABASE` token resolves to `data/gateways/wasm-sqlite.gateway.ts` on the web, which
+runs [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm), SQLite's own WebAssembly
+build, on the main thread. That way the handwritten SQL and the migrations that run on a phone are
+the same ones a developer clicks through.
 
-Two things to keep in mind:
+Why not the plugin's own web layer: it forwards every call to `jeep-sqlite`, which runs `sql.js`,
+and the newest `sql.js` that links against jeep-sqlite's bundled glue (1.12.0) is compiled without
+FTS5 - so full-text search could not run in the browser, and the e2e suite could not open a
+database whose migrations create an FTS5 table. The wasm build is the same engine generation as the
+SQLCipher builds the plugin links on iOS and Android (3.53), FTS5 and its `trigram` tokenizer
+included. The upstream fix is
+[capacitor-community/sqlite#694](https://github.com/capacitor-community/sqlite/pull/694), which
+replaces the plugin's web layer with the same engine; once it ships, the token can resolve to
+`SqliteGateway` on every platform again and `WasmSqliteGateway` can go.
 
-- `sql.js` is **not a direct dependency**. `jeep-sqlite` bundles the Emscripten glue of the release
-  it was built against, and a newer `sql-wasm.wasm` next to that older glue fails to instantiate
-  with a `LinkError`. pnpm hoists jeep-sqlite's own `sql.js` (`publicHoistPattern`) for the
-  `angular.json` asset copy, and an override in `pnpm-workspace.yaml` keeps it on the newest
-  version that actually links - currently 1.12.0, because jeep-sqlite's declared `^1.11.0` range
-  wrongly admits 1.13+. Re-test on every jeep-sqlite upgrade (the reminders e2e specs catch a
-  mismatch) and drop the override once upstream rebuilds its glue - tracked upstream in
-  [jeep-sqlite#50](https://github.com/jepiqueau/jeep-sqlite/issues/50) (same `LinkError`, same
-  override as the community fix) and
-  [jeep-sqlite#52](https://github.com/jepiqueau/jeep-sqlite/issues/52) (sql.js 1.14 support).
-  The actual exit path is
-  [capacitor-community/sqlite#694](https://github.com/capacitor-community/sqlite/pull/694), which
-  replaces the plugin's jeep-sqlite web implementation with `@sqlite.org/sqlite-wasm` + OPFS.
-  When that ships: bump the plugin, remove the jeep-sqlite wiring in `web-sqlite-store.ts`, and
-  delete the `publicHoistPattern`/`overrides` block plus the `sql-wasm.wasm` asset entry. (A
-  repo-local fallback design for the same replacement - main-thread `kvvfs` behind the
-  `SQLITE_DATABASE` token - was sketched on 2026-08-07 and can be built if #694 stalls for good.)
-- `sql-wasm.wasm` is copied by **every** build (see `angular.json`). CI runs the e2e suite against
-  the production bundle served statically, so the production web build must be able to open a
-  database too. The asset also ships in the native bundles, which is accepted for now.
-- Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`), like every other
-  asset the app requests by hand. The demo build is served from a subdirectory, and `--base-href`
-  rewrites `index.html` and the bundles but never a string in TypeScript.
+How it works:
+
+- `WasmSqliteGateway` and the specs' `InMemorySqliteDatabase` (`node:sqlite`) are both synchronous
+  in-process engines, so they share one core, `synchronous-sqlite.ts`: the serialization lock, the
+  `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` transaction and the migration runner. The specs exercise the
+  transaction logic the browser runs.
+- The database lives in memory. After every committed write the whole file is exported and saved
+  as one IndexedDB record (`web-sqlite-snapshot.ts`), and the next page load restores it. The record
+  key is `DATABASE_NAME`, scoped per deployment like every other storage name.
+- Migrations follow the plugin's model: `PRAGMA user_version` is the schema version, and every
+  migration above it runs in its own transaction together with the new stamp. Foreign keys are on,
+  as the plugin turns them on on a device.
+- Under automation (`navigator.webdriver`) the gateway exposes its connection as
+  `window.rkWebSqlite`, which `e2e/support/calendar-seed.ts` seeds rows through.
+- The engine module is loaded with a dynamic import, so a native build never fetches it.
+  `sqlite3.wasm` is still copied by **every** build (see `angular.json`): CI runs the e2e suite
+  against the production bundle served statically, so the production web build must be able to
+  open a database too. The asset also ships in the native bundles, which is accepted for now.
+- Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`) and handed to the
+  engine as `locateFile`, like every other asset the app requests by hand. The bundler does not
+  rewrite the module's own `import.meta.url` lookup, and the demo build is served from a
+  subdirectory that `--base-href` cannot write into a string in TypeScript.
 
 ### No ORM
 
@@ -136,7 +145,7 @@ A method that writes many rows issues **one statement per chunk, not one per row
 every statement is its own round trip through the Capacitor bridge, and a loop of them dominated
 app start. Only placeholders are generated into the SQL - every value stays bound. Chunk sizes are
 per table and deliberately conservative, because `SQLITE_MAX_VARIABLE_NUMBER` is 999 on older
-builds and iOS, Android and `jeep-sqlite` do not all ship the same engine (see `INSERT_CHUNK_ROWS`
+builds and iOS, Android and the browser do not all ship the same engine (see `INSERT_CHUNK_ROWS`
 in `occurrence.dao.ts` for the reasoning, and `reminder.dao.ts` for the `CASE`-per-id update form).
 
 ## Migrations
@@ -223,7 +232,7 @@ position belonging to the section it just left.
 
 **Hiding completed entries at the day change is an interactor rule, not SQL.** `completed_at` is a UTC
 instant while the cutoff is local midnight, and SQLite's `localtime` modifier resolves against the host
-process' zone - which is not the same on the native plugin and in the `jeep-sqlite` build - and cannot
+process' zone - which is not the same on the native plugin and in the browser build - and cannot
 be bound as a parameter. It is also a product rule driven by a preference, and DAOs hold no business
 rules. Hidden entries are only filtered out of the list; the rows stay in the database.
 
