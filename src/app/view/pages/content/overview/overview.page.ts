@@ -148,9 +148,22 @@ export class ContentOverviewPage {
   protected readonly searchOpen = signal(this.route.snapshot.queryParamMap.has('q'));
   protected readonly searchText = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
   private readonly debouncedText = debounced(this.searchText, SEARCH_DEBOUNCE_MS);
+  /**
+   * Whether the visible area offers the search. Meine Sammlung offers it from two saved items on -
+   * a single one is found by looking. Until the collection has loaded, a search that is already
+   * open (a return from the detail view) stays open rather than flickering shut.
+   */
+  protected readonly searchAvailable = computed(() => {
+    if (this.activeArea() === 'services') {
+      return true;
+    }
+    return this.savedData.hasValue() ? this.savedData.value().length >= 2 : this.searchOpen();
+  });
+  /** The field is showing: opened, in an area that offers it. */
+  protected readonly searchActive = computed(() => this.searchOpen() && this.searchAvailable());
   /** What is searched for: empty while the search is closed. */
   protected readonly query = computed(() =>
-    this.searchOpen() ? (valueOr(this.debouncedText, '') as string).trim() : '',
+    this.searchActive() ? (valueOr(this.debouncedText, '') as string).trim() : '',
   );
 
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
@@ -335,7 +348,7 @@ export class ContentOverviewPage {
     // Android's back button closes an open search before it leaves the screen. Registered only
     // while open, the same way the info toggletip does.
     effect((onCleanup) => {
-      if (this.searchOpen()) {
+      if (this.searchActive()) {
         onCleanup(
           this.hardwareBack.register(() => {
             this.closeSearch();

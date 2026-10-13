@@ -61,6 +61,31 @@ test.describe('searching Inhalte', () => {
     await expect(page.getByRole('radio').first()).toBeVisible();
   });
 
+  test('searches the database without fetching a catalog again on every keystroke', async ({
+    page,
+  }) => {
+    await page.goto('/content?area=services');
+    await expect(page.getByRole('radio').first()).toBeVisible();
+    const catalogRequests: string[] = [];
+    page.on('request', (request) => {
+      if (request.url().endsWith('/catalog.json')) {
+        catalogRequests.push(request.url());
+      }
+    });
+
+    await page.getByRole('button', { name: 'In Anlaufstellen suchen' }).click();
+    await page
+      .getByRole('searchbox', { name: 'In Anlaufstellen suchen' })
+      .pressSequentially('frauenberatung', { delay: 250 });
+    await expect(page.getByRole('status')).toHaveText(/\d+ Treffer/);
+    await page.getByRole('tab', { name: 'Meine Sammlung' }).click();
+
+    // The Anlaufstellen were synced when the list loaded. The content catalog may be read once,
+    // for the first search of the collection - never once per keystroke.
+    expect(catalogRequests.filter((url) => url.includes('/support-services/'))).toEqual([]);
+    expect(catalogRequests.length).toBeLessThanOrEqual(1);
+  });
+
   test('says when nothing matches', async ({ page }) => {
     await page.goto('/content?area=services');
 

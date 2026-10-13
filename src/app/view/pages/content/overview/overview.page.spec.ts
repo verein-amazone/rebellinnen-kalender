@@ -387,15 +387,31 @@ describe('ContentOverviewPage', () => {
       );
     }
 
+    /** Meine Sammlung offers the search from two saved items on. */
+    const TWO_ITEMS = [
+      item({ id: 'reb-01', kind: 'rebellin', title: 'Ada Lovelace' }),
+      item({ id: 'reb-02', kind: 'rebellin', title: 'Hedy Lamarr' }),
+    ];
+
     it('offers a search named after the area, next to the info button', async () => {
-      const { element } = await setup();
+      const { element } = await setup({ items: TWO_ITEMS });
 
       expect(button(element, 'In Meine Sammlung suchen')).toBeDefined();
       expect(button(element, 'Info zu Meine Sammlung')).toBeDefined();
     });
 
+    it('offers no search in a collection of fewer than two items, but always in Anlaufstellen', async () => {
+      const { element } = await setup({ items: [TWO_ITEMS[0]] });
+
+      expect(button(element, 'In Meine Sammlung suchen')).toBeUndefined();
+      expect(button(element, 'Info zu Meine Sammlung')).toBeDefined();
+
+      const services = await setup({ queryParams: { area: 'services' } });
+      expect(button(services.element, 'In Anlaufstellen suchen')).toBeDefined();
+    });
+
     it('opens a labelled field in place of the row, with the focus in it', async () => {
-      const { element, whenStable } = await setup();
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
 
       button(element, 'In Meine Sammlung suchen')!.click();
       await whenStable();
@@ -411,12 +427,7 @@ describe('ContentOverviewPage', () => {
     });
 
     it('narrows the collection to the matches and says how many there are', async () => {
-      const { element, whenStable, navigate } = await setup({
-        items: [
-          item({ id: 'reb-01', kind: 'rebellin', title: 'Ada Lovelace' }),
-          item({ id: 'reb-02', kind: 'rebellin', title: 'Hedy Lamarr' }),
-        ],
-      });
+      const { element, whenStable, navigate } = await setup({ items: TWO_ITEMS });
 
       button(element, 'In Meine Sammlung suchen')!.click();
       await whenStable();
@@ -432,9 +443,7 @@ describe('ContentOverviewPage', () => {
     });
 
     it('keeps the whole collection and asks for more while the query is too short', async () => {
-      const { element, whenStable } = await setup({
-        items: [item({ id: 'reb-01', title: 'Ada Lovelace' })],
-      });
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
 
       button(element, 'In Meine Sammlung suchen')!.click();
       await whenStable();
@@ -447,9 +456,7 @@ describe('ContentOverviewPage', () => {
     });
 
     it('says when nothing matches and what to try instead', async () => {
-      const { element, whenStable } = await setup({
-        items: [item({ id: 'reb-01', title: 'Ada Lovelace' })],
-      });
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
 
       button(element, 'In Meine Sammlung suchen')!.click();
       await whenStable();

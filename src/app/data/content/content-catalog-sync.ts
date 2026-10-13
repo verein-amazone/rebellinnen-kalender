@@ -56,8 +56,8 @@ export interface Catalog {
  * Editorial content changes far more often than the app's schema does, so - unlike every other
  * table - `content_items` is not seeded by a migration (see `019-create-schema.ts`).
  * Instead the catalog ships as a versioned JSON asset, bundled with the app like any other static
- * file, and this reconciles the database to match it: every call is cheap once caught up (a local
- * JSON fetch and a version comparison), and only a version bump triggers the diff-and-write work.
+ * file, and this reconciles the database to match it: only a version bump triggers the
+ * diff-and-write work, and once caught up the rest of the session skips even the fetch.
  *
  * Called lazily from the content interactors - never from an app initializer - matching this
  * repo's existing rule that the database connection opens on first use, not at boot.
@@ -71,10 +71,33 @@ export class ContentCatalogSync {
   private readonly contentSearch = inject(ContentSearchDao);
   private readonly markdown = inject(MarkdownRenderer);
 
-  async ensureSynced(): Promise<void> {
+  /**
+   * Settled once this session is caught up with the catalog. The asset ships with the app and
+   * cannot change while it runs, so every later call - a search runs one per keystroke - reuses it
+   * instead of fetching the file again. A failed fetch is not remembered: the next call tries again.
+   */
+  private caughtUp: Promise<void> | null = null;
+
+  ensureSynced(): Promise<void> {
+    this.caughtUp ??= this.sync().then(
+      (synced) => {
+        if (!synced) {
+          this.caughtUp = null;
+        }
+      },
+      (error: unknown) => {
+        this.caughtUp = null;
+        throw error;
+      },
+    );
+    return this.caughtUp;
+  }
+
+  /** `false` when there was no catalog to sync against. */
+  private async sync(): Promise<boolean> {
     const catalog = await this.fetchCatalog();
     if (catalog === null) {
-      return;
+      return false;
     }
 
     if (
@@ -82,18 +105,19 @@ export class ContentCatalogSync {
       (await this.hasStoredItems(catalog)) &&
       (await this.hasCompleteIndex(catalog))
     ) {
-      return;
+      return true;
     }
 
     await this.reconcile(catalog.items);
     this.store.setSyncedVersion(catalog.version);
+    return true;
   }
 
   /**
    * The synced version lives in `localStorage` while the items live in SQLite, and the two can
    * disagree - the database can be cleared (a browser dropping IndexedDB on the web, the dev-tools
    * reset, a restore that fails) while the version flag survives, which would otherwise leave the
-   * app permanently convinced it is caught up on an empty catalog. One cheap id query per call
+   * app permanently convinced it is caught up on an empty catalog. One cheap id query per session
    * rules that out.
    */
   private async hasStoredItems(catalog: Catalog): Promise<boolean> {

@@ -36,12 +36,14 @@
     <!-- The row below the tabs: search on the start side, the explanation on the end side - the
          toggletip's panel opens from its button towards the start, so it belongs at the end.
 
+         Meine Sammlung offers the search from two saved items on - see `searchAvailable`.
+
          Open, the row is the search field instead. The info button gives way to it: it explains
          the area, which someone already searching it does not need. The field's label is visually
          hidden but says what the placeholder shows, so the accessible name matches what is on
          screen. -->
     <div class="flex items-center gap-2 px-4 pb-2">
-      @if (searchOpen()) {
+      @if (searchActive()) {
         <label class="sr-only" for="content-search">{{ searchLabel() }}</label>
         <div class="rk-field min-w-0 flex-1">
           <svg lucideSearch class="rk-icon text-muted-foreground" aria-hidden="true"></svg>
@@ -67,15 +69,17 @@
           <svg lucideX class="rk-icon" aria-hidden="true"></svg>
         </button>
       } @else {
-        <button
-          #searchButton
-          type="button"
-          class="rk-icon-button"
-          [attr.aria-label]="searchLabel()"
-          (click)="openSearch()"
-        >
-          <svg lucideSearch class="rk-icon" aria-hidden="true"></svg>
-        </button>
+        @if (searchAvailable()) {
+          <button
+            #searchButton
+            type="button"
+            class="rk-icon-button"
+            [attr.aria-label]="searchLabel()"
+            (click)="openSearch()"
+          >
+            <svg lucideSearch class="rk-icon" aria-hidden="true"></svg>
+          </button>
+        }
 
         <!-- What the selected area is for. Needed the first time, not every time, so it sits
              behind an info button instead of above each list. -->
@@ -97,7 +101,7 @@
 
     <!-- The search's result, said once per settled result. Always in the DOM while the search is
          open: a live region that appears together with its text is often not announced at all. -->
-    @if (searchOpen()) {
+    @if (searchActive()) {
       <p
         role="status"
         class="text-muted-foreground px-4 text-sm"

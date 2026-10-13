@@ -20,7 +20,8 @@ by diffing against the stored `version`. So:
 2. **Bump the top-level `version` field.** The sync only does its diff-and-write work when the
    stored version is stale - skip this and your change silently never reaches the database, even
    after a rebuild. (This bit us once already: a `wi-12` link edit went live in the file but never
-   rendered, because `version` was untouched.)
+   rendered, because `version` was untouched.) The app reads the file once per session, so reload
+   it to see an edit under `ng serve`.
 
 Fields per entry:
 

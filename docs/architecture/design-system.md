@@ -372,12 +372,6 @@ swipe and nothing needs announcing or focusing. The panel only floats visually. 
 traps nothing, and it closes on the button, a tap elsewhere, Escape and Android's back button. The
 native `popover` attribute would cover the dismissing, but not on iOS 16.4.
 
-The icon is a disc in the accent colour - the colour of the active tab's indicator - with the `i` in
-`accent-foreground` (`.rk-info-icon`). Not an accent-coloured outline: the accent is picked to stand
-out against the navigation bar, and as a thin line on the page background it misses the 3:1 a
-meaningful graphic needs on three of the four themes (orange on Amazone's teal is 1.2:1). The `i`
-against the disc is the accent / accent-foreground pairing every theme already guarantees.
-
 The panel opens below the button towards the start, so place the button at the end of a row - a
 focused screen's `header-actions`, or the end of a tab's sticky header (Inhalte puts it in the row
 below its tabs, opposite the search button). Keep the text short:
@@ -388,7 +382,8 @@ permission it explains) stays visible on the screen.
 
 Inhalte's second header row holds the screen's own actions: a ghost `rk-icon-button` with a
 magnifier on the start side, named after the area it searches („In Meine Sammlung suchen“), and the
-info button on the end side. Tapping the magnifier turns the row into the search field - an
+info button on the end side. Meine Sammlung shows the magnifier only from two saved items on - a
+single item is found by looking. Tapping the magnifier turns the row into the search field - an
 `.rk-field` with `type="search"` and `enterkeyhint="search"`, focused at once - plus a ✕ „Suche
 schließen“ that clears the query and hands focus back to the magnifier. The info button gives way
 while the field is open. The field's `<label for>` is visually hidden but says exactly what the
