@@ -1,3 +1,13 @@
+## [1.0.0-rc.38](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.37...v1.0.0-rc.38) (2026-10-13)
+
+### Bug Fixes
+
+* **build:** support the WebViews of older phones ([49b3414](https://github.com/verein-amazone/rebellinnen-kalender/commit/49b3414d86a874b880686dc04ac6044001ba7a48)), closes [#88](https://github.com/verein-amazone/rebellinnen-kalender/issues/88)
+
+### Build
+
+* **android:** raise the minimum to Android 8 (API 26) ([d16206c](https://github.com/verein-amazone/rebellinnen-kalender/commit/d16206c52ea015e552d733072fea32b54fe0f920)), closes [#88](https://github.com/verein-amazone/rebellinnen-kalender/issues/88)
+
 ## [1.0.0-rc.37](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.36...v1.0.0-rc.37) (2026-10-12)
 
 ### Bug Fixes
