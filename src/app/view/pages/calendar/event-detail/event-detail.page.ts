@@ -111,8 +111,14 @@ export class EventDetailPage {
    */
   private readonly eventFormComponent = viewChild(EventForm);
   protected readonly canSubmitEdit = computed(
-    () => this.eventFormComponent()?.canSubmit() ?? false,
+    () => !this.saving() && (this.eventFormComponent()?.canSubmit() ?? false),
   );
+
+  /** A save in flight: a second tap on the check mark must not apply the same edit twice. */
+  private readonly saving = signal(false);
+
+  /** Why the last save or delete failed; shown on the page, which stays where it was. */
+  protected readonly actionError = signal<string | null>(null);
 
   readonly id = input.required<string>();
   /** Bound from the `view` query parameter the calendar's appointment links carry - see `backLink`. */
@@ -199,6 +205,7 @@ export class EventDetailPage {
   });
 
   protected startEditing(): void {
+    this.actionError.set(null);
     this.editing.set(true);
     // The `@if` in the template swaps the whole read view (including the button just activated) for
     // the edit view, which drops focus to `<body>` unless it is moved explicitly. `afterNextRender`
@@ -207,6 +214,7 @@ export class EventDetailPage {
   }
 
   protected cancelEdit(): void {
+    this.actionError.set(null);
     this.editing.set(false);
     // Mirrors `startEditing()`: the edit view is swapped back out, so focus returns to the pencil
     // button that opened it.
@@ -261,7 +269,7 @@ export class EventDetailPage {
   };
 
   protected async handleSave(result: AppEventFormResult): Promise<void> {
-    if (result.mode !== 'edit') {
+    if (result.mode !== 'edit' || this.saving()) {
       return;
     }
 
@@ -270,10 +278,26 @@ export class EventDetailPage {
       return;
     }
 
+    this.saving.set(true);
+    this.actionError.set(null);
+    try {
+      await this.saveEdit(occurrence, occurrence.itemId, result.changes);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gespeichert werden.', error);
+      this.actionError.set('Der Termin konnte nicht gespeichert werden. Versuche es noch einmal.');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  private async saveEdit(
+    occurrence: CalendarOccurrence,
+    itemId: string,
+    changes: AppEventChanges,
+  ): Promise<void> {
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
       // A changed rule or changed reminders describe the series, never a single occurrence.
-      const ruleChanged =
-        result.changes.rrule !== undefined || result.changes.reminders !== undefined;
+      const ruleChanged = changes.rrule !== undefined || changes.reminders !== undefined;
       const scope = await this.askRecurrenceScope(
         'Was möchtest du ändern?',
         ruleChanged
@@ -289,10 +313,10 @@ export class EventDetailPage {
         scope,
         { seriesId: occurrence.seriesId, originalStart: occurrence.originalStart },
         occurrence.start,
-        result.changes,
+        changes,
       );
     } else {
-      await this.eventEditing.updateAll(occurrence.itemId, result.changes);
+      await this.eventEditing.updateAll(itemId, changes);
     }
 
     this.editing.set(false);
@@ -301,7 +325,7 @@ export class EventDetailPage {
     // The user may have moved the appointment to a different day; navigate to wherever it ended up
     // rather than back to the day it used to be on. `EventForm` only sets `start` when the time
     // fields changed, so an edit that left them alone still resolves to the occurrence's own day.
-    await this.navigateToOccurrenceDay(deviceLocalDay(result.changes.start ?? occurrence.start));
+    await this.navigateToOccurrenceDay(deviceLocalDay(changes.start ?? occurrence.start));
   }
 
   protected confirmDelete(): void {
@@ -354,6 +378,16 @@ export class EventDetailPage {
   }
 
   private async performDelete(occurrence: CalendarOccurrence): Promise<void> {
+    this.actionError.set(null);
+    try {
+      await this.deleteOccurrence(occurrence);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gelöscht werden.', error);
+      this.actionError.set('Der Termin konnte nicht gelöscht werden. Versuche es noch einmal.');
+    }
+  }
+
+  private async deleteOccurrence(occurrence: CalendarOccurrence): Promise<void> {
     if (occurrence.itemId === null) {
       return;
     }

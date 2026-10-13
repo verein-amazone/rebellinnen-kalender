@@ -4,10 +4,15 @@
     type="submit"
     form="event-form"
     class="rk-icon-button rk-icon-button-primary"
+    [disabled]="saving()"
   >
     <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
     <span class="sr-only">Speichern</span>
   </button>
+
+  @if (saveError(); as message) {
+    <p role="alert" class="rk-error mb-4">{{ message }}</p>
+  }
 
   <app-event-form mode="create" [initialDate]="day() ?? null" (save)="handleSave($event)" />
 </app-focused-screen>

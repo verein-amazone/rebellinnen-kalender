@@ -36,6 +36,10 @@
     </button>
   }
 
+  @if (actionError(); as message) {
+    <p role="alert" class="rk-error mb-4">{{ message }}</p>
+  }
+
   @if (occurrenceResource.status() === 'loading') {
     <!-- Shaped like the loaded card below: calendar line, title, date, time. -->
     <div class="rk-card space-y-3 p-4" aria-hidden="true">
