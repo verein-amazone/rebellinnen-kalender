@@ -253,6 +253,26 @@ describe('ContentDetailPage', () => {
     expect(button.getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('marks a link to a known platform with its symbol, and any other with the external-link icon', async () => {
+    const { element } = await setup({
+      item: item({
+        relatedSources: [
+          {
+            title: '@astro_christina',
+            subtitle: 'Instagram',
+            url: 'https://www.instagram.com/astro_christina/',
+          },
+          { title: 'Christina Koch', subtitle: 'NASA', url: 'https://www.nasa.gov/' },
+        ],
+      }),
+    });
+
+    const [instagram, nasa] = [...element.querySelectorAll('section a')];
+    expect(instagram?.querySelector('svg[lucideCamera]')).not.toBeNull();
+    expect(instagram?.querySelector('svg[lucideExternalLink]')).toBeNull();
+    expect(nasa?.querySelector('svg[lucideExternalLink]')).not.toBeNull();
+  });
+
   it('lists related sources in one card, each a link with its title and optional subtitle', async () => {
     const { element } = await setup({
       item: item({

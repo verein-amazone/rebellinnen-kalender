@@ -56,7 +56,7 @@
 
       @if (relatedSources().length > 0) {
         <!-- One card for every link, below the body card: each row opens its page outside the
-             app, so the external-link icon sits on the right of every row. -->
+             app, with an icon on the right that says so, or names the platform it opens. -->
         <section class="rk-card px-4 py-4" aria-labelledby="related-sources-heading">
           <h2 id="related-sources-heading" class="text-muted-foreground text-sm font-semibold">
             Mehr zum Thema
@@ -81,7 +81,32 @@
                       }}</span>
                     }
                   </span>
-                  <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                  <!-- Lucide has no brand logos, so a platform gets the closest plain symbol; any
+                       other site keeps the external-link icon. Decoration only: the subtitle names
+                       the platform. -->
+                  @switch (source.platform) {
+                    @case ('instagram') {
+                      <svg lucideCamera class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('youtube') {
+                      <svg lucideSquarePlay class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('tiktok') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('spotify') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('linkedin') {
+                      <svg lucideBriefcase class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('snapchat') {
+                      <svg lucideGhost class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @default {
+                      <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                  }
                   <span class="sr-only">, öffnet in einem neuen Fenster</span>
                 </a>
               </li>

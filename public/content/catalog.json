@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "items": [
     {
       "id": "wi-01",
@@ -296,6 +296,13 @@
       "heroImageId": "hedy-lamarr",
       "sourceLabel": null,
       "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Hedy Lamarr",
+          "subtitle": "Wien Geschichte Wiki",
+          "url": "https://www.geschichtewiki.wien.gv.at/Hedy_Lamarr"
+        }
+      ],
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true
@@ -309,6 +316,18 @@
       "heroImageId": "christina-koch",
       "sourceLabel": null,
       "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Christina Koch",
+          "subtitle": "NASA (Englisch)",
+          "url": "https://www.nasa.gov/humans-in-space/astronauts/christina-koch/"
+        },
+        {
+          "title": "@astro_christina",
+          "subtitle": "Instagram",
+          "url": "https://www.instagram.com/astro_christina/?hl=de"
+        }
+      ],
       "validFrom": null,
       "validTo": null,
       "eligibleForDaily": true
