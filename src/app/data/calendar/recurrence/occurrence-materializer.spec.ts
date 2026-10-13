@@ -90,6 +90,16 @@ describe('materializeAppItem', () => {
     expect(occurrences[0].provenance).toBe('standalone');
   });
 
+  it('reports a series whose rule cannot be expanded as incomplete instead of throwing', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const malformed = item({ rrule: 'FREQ=WEEKLY;BYDAY=XX' });
+
+    const result = materializeAppItem(malformed, [], context());
+
+    expect(result).toEqual({ occurrences: [], truncated: true });
+    expect(console.warn).toHaveBeenCalled();
+  });
+
   it('respects COUNT before the window ends', () => {
     const counted = item({ rrule: 'FREQ=WEEKLY;BYDAY=MO;COUNT=2' });
 

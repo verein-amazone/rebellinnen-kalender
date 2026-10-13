@@ -482,10 +482,8 @@ describe('CalendarRepository', () => {
     await repository.createItem(item({ rrule: 'FREQ=WEEKLY;BYDAY=MO' }), CONTEXT);
     const before = await occurrences.findCoverage('source-1');
 
-    // Corrupt the canonical rule directly (bypassing the interactor's validation) so
-    // rematerialization throws partway through the widened rebuild.
-    const master = await items.find('item-1');
-    await items.update({ ...master!, rrule: 'FREQ=BOGUS' });
+    // The widened rebuild fails partway through, after the old rows are gone.
+    vi.spyOn(occurrences, 'insertMany').mockRejectedValueOnce(new Error('disk full'));
 
     await expect(
       repository.extendCoverageForRange('2028-01-20T00:00:00Z', '2028-02-20T00:00:00Z', CONTEXT),
@@ -494,6 +492,23 @@ describe('CalendarRepository', () => {
     // Coverage and rows both roll back together - the old window stays in force, never a wider
     // one with nothing materialized inside it.
     await expect(occurrences.findCoverage('source-1')).resolves.toEqual(before);
+  });
+
+  it('flags the source of a series whose rule cannot be expanded, instead of failing', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    await repository.createItem(item({ rrule: 'FREQ=WEEKLY;BYDAY=MO' }), CONTEXT);
+
+    // Corrupt the canonical rule directly, bypassing the interactor's validation.
+    const master = await items.find('item-1');
+    await items.update({ ...master!, rrule: 'FREQ=BOGUS' });
+
+    await repository.extendCoverageForRange(
+      '2028-01-20T00:00:00Z',
+      '2028-02-20T00:00:00Z',
+      CONTEXT,
+    );
+
+    await expect(repository.findSource('source-1')).resolves.toMatchObject({ state: 'stale' });
   });
 
   it('leaves coverage alone when the queried range is far from every edge', async () => {
