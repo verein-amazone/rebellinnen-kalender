@@ -46,6 +46,14 @@ const DATA_SAFETY_HEADER =
   'Question ID (machine readable),Response ID (machine readable),Response value,Answer requirement,Human-friendly question label';
 const DATA_SAFETY_TOP_QUESTION = 'PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA';
 
+/**
+ * The privacy policy linked from both listings has to name every online calendar the app downloads
+ * from (section 5.2). The catalog is the one place a curated calendar is added; this catches a new
+ * entry the policy does not mention yet.
+ */
+const CURATED_CATALOG = join(ROOT, 'public', 'curated-calendars', 'catalog.json');
+const PRIVACY_POLICY = join(ROOT, 'public', 'legal', 'datenschutz.md');
+
 /** The 6.9" iPhone size; App Store Connect scales it down for every smaller iPhone. */
 const APP_STORE_SCREENSHOT = { width: 1320, height: 2868, min: 1, max: 10 };
 /** Play: 2-8 phone screenshots, each side 320-3840 px, the long side at most twice the short one. */
@@ -180,6 +188,20 @@ async function main() {
   }
   for (const [file, limit] of Object.entries(PLAY_FIELDS)) {
     checkField(join(PLAY_LOCALE, file), limit, { strict: true });
+  }
+
+  const catalog = readText(CURATED_CATALOG);
+  const privacyPolicy = readText(PRIVACY_POLICY);
+  if (catalog !== null && privacyPolicy !== null) {
+    // Markdown escapes the gender star (`Rebell\*innen`); the catalog does not.
+    const policyText = privacyPolicy.replaceAll('\\', '');
+    for (const { name } of JSON.parse(catalog).sources) {
+      if (!policyText.includes(name)) {
+        problems.push(
+          `${display(PRIVACY_POLICY)} does not name the curated calendar „${name}“ from ${display(CURATED_CATALOG)}`,
+        );
+      }
+    }
   }
 
   const dataSafety = readText(DATA_SAFETY_CSV);

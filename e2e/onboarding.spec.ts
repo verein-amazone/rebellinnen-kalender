@@ -84,6 +84,41 @@ test.describe('first-launch introduction', () => {
     await expect(page).toHaveURL(/\/settings$/);
   });
 
+  test('links the terms of use on the first step and returns there', async ({ page }) => {
+    await page.goto('/');
+    const heading = page.getByRole('heading', { level: 1, name: 'Schön, dass du da bist!' });
+    // Focused once a navigation has settled; a click during the view transition is lost.
+    await expect(heading).toBeFocused();
+    // The privacy policy belongs to the privacy step, not here.
+    await expect(page.getByRole('link', { name: /Datenschutz/ })).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'Nutzungsbedingungen lesen' }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Nutzungsbedingungen' }),
+    ).toBeFocused();
+    await page.getByRole('button', { name: 'Zurück' }).click();
+    await expect(heading).toBeFocused();
+    await expect(page).toHaveURL(/\/intro\/1$/);
+
+    // Reading them is optional: the introduction goes on as before.
+    await page.getByRole('button', { name: 'Erste Schritte überspringen' }).click();
+    await expect(page).toHaveURL(/\/today/);
+  });
+
+  test('links the privacy policy on the privacy step and keeps returnTo', async ({ page }) => {
+    await page.goto('/intro/4?returnTo=%2Fsettings');
+    const heading = page.getByRole('heading', { level: 1, name: 'Deine Daten bleiben bei dir' });
+    await expect(heading).toBeFocused();
+
+    await page.getByRole('link', { name: 'Mehr in der Datenschutzerklärung' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Datenschutz' })).toBeFocused();
+    await page.getByRole('button', { name: 'Zurück' }).click();
+    await expect(heading).toBeFocused();
+
+    await page.getByRole('button', { name: 'Los geht’s' }).click();
+    await expect(page).toHaveURL(/\/settings$/);
+  });
+
   test('continues where it was left off after the app was closed', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Weiter' }).click();

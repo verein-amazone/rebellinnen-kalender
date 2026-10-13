@@ -208,3 +208,28 @@ emoji unique per region, a `uri` scheme matching each action's type, and a `disp
 digits are the digits the `uri` dials. It runs as part of `pnpm test:ci`. Both exception lists in
 it - `SHARED_EMOJI_BY_DESIGN` and `HTTP_ONLY_BY_NECESSITY` - name the entry and the reason; add to
 them deliberately, never to silence a failure.
+
+## Adding a curated calendar (Amazone & Partnerkalender)
+
+`public/curated-calendars/catalog.json` is the one place a curated online calendar is listed (#2).
+Everything in the app follows from it: the introduction's „Welche Kalender willst du sehen?“ step,
+Settings → Kalender verwalten → Amazone & Partnerkalender, and the seeded calendar itself. No
+screen names a calendar in code.
+
+1. Add an entry: `id` (stable, kebab-case, never reused), `name`, `description` (one sentence,
+   shown under the toggle), `url` (`https:` or `webcal:`; plain `http:` is refused), `color`
+   (`#RRGGBB`) and `emoji`. The array order is the order on both screens.
+2. Bump the top-level `version`. Without it an existing install never seeds the new entry.
+3. Name the calendar and its provider in the privacy policy, `public/legal/datenschutz.md`
+   section 5.2, with a link to the provider's own privacy policy. `node scripts/check-store-listing.mjs`
+   fails while the policy does not name a catalog entry.
+4. Re-read the store descriptions (`fastlane/metadata/de-DE/description.txt`,
+   `fastlane/metadata/android/de-DE/full_description.txt`) and `docs/store-compliance.md`, which
+   describe which calendars ship, and update them to match.
+
+The colour, emoji and name are only applied the first time an entry is seeded; changing them later
+leaves existing installs as they are. Removing an entry never removes a seeded calendar from a
+device, see `CuratedCalendarSync`.
+
+On an existing install a new entry is seeded switched on and downloaded on the next calendar
+screen; only a fresh install gets to choose in the introduction first.

@@ -44,53 +44,90 @@ export class CuratedCalendarSync {
   private readonly store = inject(CuratedCalendarsStore);
 
   /**
-   * Several callers (Today, the calendar views, the management screen, a retry) can call
-   * `ensureSynced()` around the same time. Without serializing them, two concurrent calls can both
-   * see the same not-yet-synced version, both find no existing row for a catalog entry and both
-   * create one - the version is only marked synced once the whole reconciliation has committed.
-   * Every concurrent caller therefore awaits the same in-flight reconciliation instead of starting
-   * its own.
+   * Several callers (Today, the calendar views, the management screen, the introduction, a retry)
+   * can ask around the same time. Without serializing them, two concurrent calls can both see the
+   * same not-yet-synced version, both find no existing row for a catalog entry and both create
+   * one - the version is only marked synced once the whole reconciliation has committed. Every
+   * concurrent caller therefore awaits the same in-flight reconciliation instead of starting its
+   * own; the same goes for handing out the first downloads.
    */
-  private inFlight: Promise<{
+  private seeding: Promise<Catalog | null> | null = null;
+  private syncing: Promise<{
     catalog: Catalog | null;
     createdSubscriptionIds: readonly string[];
   }> | null = null;
 
   /**
-   * Fetches the catalog and creates any missing curated sources. Returns the parsed catalog (even
-   * when nothing needed reconciling - callers need its entries for descriptions) and the ids of
-   * subscriptions created by this call, so the caller can trigger their first download.
+   * Sources seeded but not yet handed to a caller for their first download. Seeding and the first
+   * download are separate so the introduction can list the curated calendars - and let them be
+   * switched off - before anything is fetched from a provider. Held in memory only: after a
+   * restart, `IcsSubscriptionInteractor.refreshAllDue()` downloads an enabled source that was
+   * never checked anyway.
    */
-  async ensureSynced(): Promise<{
-    catalog: Catalog | null;
-    createdSubscriptionIds: readonly string[];
-  }> {
-    if (this.inFlight !== null) {
-      return this.inFlight;
-    }
+  private readonly awaitingFirstDownload = new Set<string>();
 
-    const sync = this.doSync().finally(() => {
-      this.inFlight = null;
+  /**
+   * Fetches the catalog and creates any missing curated sources, without downloading anything.
+   * Returns the parsed catalog, or `null` when it is unavailable.
+   */
+  ensureSeeded(): Promise<Catalog | null> {
+    this.seeding ??= this.seed().finally(() => {
+      this.seeding = null;
     });
-    this.inFlight = sync;
-    return sync;
+    return this.seeding;
   }
 
-  private async doSync(): Promise<{
+  /** Whether a seeded source still waits for `ensureSynced()` to hand out its first download. */
+  awaitsFirstDownload(subscriptionId: string): boolean {
+    return this.awaitingFirstDownload.has(subscriptionId);
+  }
+
+  /**
+   * Seeds like `ensureSeeded()` and also returns the ids of seeded sources still waiting for their
+   * first download, so the caller can trigger it. Each id is handed out once, and only while its
+   * source is enabled: a source switched off before its first download is never contacted, and
+   * switching it on later downloads it then (`CuratedCalendarsInteractor.setEnabled`). The parsed
+   * catalog is returned even when nothing needed reconciling - callers need its entries for
+   * descriptions.
+   */
+  ensureSynced(): Promise<{
     catalog: Catalog | null;
     createdSubscriptionIds: readonly string[];
   }> {
-    const catalog = await this.fetchCatalog();
-    if (catalog === null) {
-      return { catalog: null, createdSubscriptionIds: [] };
-    }
-    if (catalog.version === this.store.syncedVersion()) {
+    this.syncing ??= this.takeFirstDownloads().finally(() => {
+      this.syncing = null;
+    });
+    return this.syncing;
+  }
+
+  private async takeFirstDownloads(): Promise<{
+    catalog: Catalog | null;
+    createdSubscriptionIds: readonly string[];
+  }> {
+    const catalog = await this.ensureSeeded();
+    if (this.awaitingFirstDownload.size === 0) {
       return { catalog, createdSubscriptionIds: [] };
     }
 
-    const createdSubscriptionIds = await this.reconcile(catalog.sources);
-    this.store.setSyncedVersion(catalog.version);
+    const enabledIds = new Set((await this.subscriptions.listEnabled()).map(({ id }) => id));
+    const createdSubscriptionIds = [...this.awaitingFirstDownload].filter((id) =>
+      enabledIds.has(id),
+    );
+    this.awaitingFirstDownload.clear();
     return { catalog, createdSubscriptionIds };
+  }
+
+  private async seed(): Promise<Catalog | null> {
+    const catalog = await this.fetchCatalog();
+    if (catalog === null || catalog.version === this.store.syncedVersion()) {
+      return catalog;
+    }
+
+    for (const id of await this.reconcile(catalog.sources)) {
+      this.awaitingFirstDownload.add(id);
+    }
+    this.store.setSyncedVersion(catalog.version);
+    return catalog;
   }
 
   private async reconcile(entries: readonly CatalogEntry[]): Promise<readonly string[]> {
