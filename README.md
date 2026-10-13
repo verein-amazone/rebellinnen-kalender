@@ -48,7 +48,7 @@ synchronization.
 | App ID (bundle ID) | `at.or.amazone.rebellinnenkalender`                                                                           |
 | Display name       | `Rebell*innen Kalender`                                                                                       |
 | Minimum iOS        | 16.4                                                                                                          |
-| Minimum Android    | API 24 (Android 7.0)                                                                                          |
+| Minimum Android    | API 26 (Android 8.0)                                                                                          |
 | Minimum WebView    | Safari 16.4, Chrome 108 ([why](./docs/architecture/frontend-architecture.md#supported-browsers-and-webviews)) |
 
 ### Web demo build

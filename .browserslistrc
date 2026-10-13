@@ -16,7 +16,7 @@ Safari >= 16.4
 
 # Android: the System WebView is Chromium and updates through the Play Store independently of the
 # OS. 108 is the first version with every layout feature the app relies on (`dvh`, container
-# queries, `:has()`, cascade layers); Android 7 (API 24), the native minimum, gets up to 119.
+# queries, `:has()`, cascade layers); Android 8 (API 26), the native minimum, gets newer ones.
 Chrome >= 108
 ChromeAndroid >= 108
 Android >= 108

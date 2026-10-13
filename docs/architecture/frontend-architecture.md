@@ -421,9 +421,11 @@ the demo site's worker is scoped to the whole project site, previews included.
 
 The app runs in WKWebView on iOS and in the Android System WebView, so its "browsers" are those two
 engines. Angular's default target is "baseline widely available", currently Chrome 119+ and Safari
-17+. That is above what the app's own minimums promise: iOS 16.4 ships Safari 16.4, and an Android
-7 phone gets the WebView only up to 119 - and only if the Play Store keeps it updated. Older phones
-are a real part of the audience, so `.browserslistrc` sets a lower floor:
+17+. That is above what the app's own minimums promise: iOS 16.4 ships Safari 16.4, the last iOS of the
+iPhone 8 and X. Older phones are a real part of the audience, so `.browserslistrc` sets a lower
+floor. Android is less of a constraint: the System WebView updates through the Play Store
+independently of the OS, and the native minimum, Android 8 (API 26), still gets versions well above
+the floor - the app only fails on a phone whose WebView was never updated.
 
 | Engine                          | Floor | What sets it                                                           |
 | ------------------------------- | ----- | ---------------------------------------------------------------------- |
