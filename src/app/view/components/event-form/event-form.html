@@ -24,6 +24,7 @@
 
   @if (notificationPreferences.isSupported) {
     @if (notificationPreferences.enabled()) {
+      <app-notifications-blocked />
       <app-reminder-list-field
         id="event-form-reminders"
         label="Erinnerungen"

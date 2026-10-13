@@ -322,6 +322,11 @@ instead of each caller re-fetching and re-shaping the same list itself. See
 [Design system § Field components](./design-system.md#field-components--viewcomponentsfield) for the
 components this backs.
 
+The form also reads `NotificationPreferencesInteractor`, so it only offers reminders while they are
+switched on, and composes the `notifications-blocked` block above them: reminders that are on but
+cannot arrive because the permission was taken away in the system settings (#150) must be said where
+the user sets them, not only on the settings page.
+
 ## Interactors (`interactors/`)
 
 Stateless Angular services representing application use cases. Group them by domain, not by page -

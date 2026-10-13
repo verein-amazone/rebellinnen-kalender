@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { LucideExternalLink } from '@lucide/angular';
 
+import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import {
   NotificationPreferencesInteractor,
   type NotificationPermission,
 } from '@app/interactors/notifications/notification-preferences.interactor';
+import { NotificationsBlockedBlock } from '@app/view/blocks/notifications-blocked/notifications-blocked.block';
 import { CheckHaptics } from '@app/view/components/field/check-haptics';
 import { ReminderListField } from '@app/view/components/reminder-list-field/reminder-list-field';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
@@ -18,7 +20,13 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-notifications',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [CheckHaptics, FocusedScreenScaffold, LucideExternalLink, ReminderListField],
+  imports: [
+    CheckHaptics,
+    FocusedScreenScaffold,
+    LucideExternalLink,
+    NotificationsBlockedBlock,
+    ReminderListField,
+  ],
   templateUrl: './notifications.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,7 +37,11 @@ export class NotificationsPage {
   protected readonly busy = signal(false);
 
   constructor() {
-    void this.preferences.permission().then((permission) => this.permission.set(permission));
+    void this.readPermission();
+    // The permission changes in the system settings, which „Einstellungen öffnen“ leads to, so it
+    // is read again on the way back (#147).
+    const stopWatchingResumes = inject(AppLifecycle).onResume(() => void this.readPermission());
+    inject(DestroyRef).onDestroy(stopWatchingResumes);
   }
 
   protected async toggle(event: Event): Promise<void> {
@@ -51,5 +63,9 @@ export class NotificationsPage {
 
   protected openSystemSettings(): void {
     void this.preferences.openSystemSettings();
+  }
+
+  private async readPermission(): Promise<void> {
+    this.permission.set(await this.preferences.permission());
   }
 }
