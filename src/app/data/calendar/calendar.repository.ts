@@ -646,6 +646,10 @@ export class CalendarRepository {
     return this.icsSubscriptions.list();
   }
 
+  listEnabledIcsSubscriptions(): Promise<IcsSubscriptionRecord[]> {
+    return this.icsSubscriptions.listEnabled();
+  }
+
   /**
    * Enables or disables an ICS subscription: its source and its single calendar together, since
    * `occurrencesInRange`/the source filters gate on both.

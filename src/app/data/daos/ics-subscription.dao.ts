@@ -40,6 +40,17 @@ export class IcsSubscriptionDao {
     return rows.map(toRecord);
   }
 
+  /** The subscriptions whose calendar source is switched on - the ones the app may download. */
+  async listEnabled(executor: SqliteExecutor = this.database): Promise<IcsSubscriptionRecord[]> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions
+       WHERE id IN (SELECT id FROM calendar_sources WHERE enabled = 1)
+       ORDER BY created_at ASC, id ASC`,
+    );
+
+    return rows.map(toRecord);
+  }
+
   async find(
     id: string,
     executor: SqliteExecutor = this.database,
