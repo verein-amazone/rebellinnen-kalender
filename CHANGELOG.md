@@ -1,3 +1,9 @@
+## [1.0.0-rc.47](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.46...v1.0.0-rc.47) (2026-10-13)
+
+### Features
+
+* **today:** avoid the same kind of impulse two days running ([ddbff9c](https://github.com/verein-amazone/rebellinnen-kalender/commit/ddbff9c29d4229ffa5caf867f19835e55fd2477b))
+
 ## [1.0.0-rc.46](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.45...v1.0.0-rc.46) (2026-10-13)
 
 ### Features
