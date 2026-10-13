@@ -1,0 +1,27 @@
+# The engines the app has to run in. This replaces Angular's default ("baseline widely available",
+# currently Chrome 119+ and Safari 17+) with a lower floor, so older phones keep working. The floor
+# and the reasoning behind every line are in docs/architecture/frontend-architecture.md, "Supported
+# browsers and WebViews". Change it together with that section, `minWebViewVersion` in
+# capacitor.config.ts and the minimum OS versions in the native projects.
+#
+# Angular downlevels JavaScript syntax and CSS to these targets, but adds no polyfills for missing
+# Web APIs - an API newer than this floor has to be feature-detected or polyfilled.
+#
+#   pnpm exec browserslist    lists what these queries select
+
+# iOS: every browser engine on iOS is WebKit; WKWebView matches the iOS version, and the native
+# minimum is 16.4 (IPHONEOS_DEPLOYMENT_TARGET).
+iOS >= 16.4
+Safari >= 16.4
+
+# Android: the System WebView is Chromium and updates through the Play Store independently of the
+# OS. 108 is the first version with every layout feature the app relies on (`dvh`, container
+# queries, `:has()`, cascade layers); Android 7 (API 24), the native minimum, gets up to 119.
+Chrome >= 108
+ChromeAndroid >= 108
+Android >= 108
+Edge >= 108
+
+# The web demo on GitHub Pages only.
+Firefox ESR
+last 2 Firefox versions

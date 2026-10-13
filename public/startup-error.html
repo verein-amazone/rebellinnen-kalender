@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+  Capacitor's `server.errorPath` (capacitor.config.ts). Shown instead of the app when the Android
+  System WebView is older than `android.minWebViewVersion` - by far the likeliest reason - and also
+  when the app's own page fails to load, on either platform. So the text leads with the WebView
+  update but stays true on an iPhone. It runs in exactly the WebViews the app cannot, so it uses
+  nothing newer than HTML and CSS from around 2015: no script, no custom properties, no web fonts.
+-->
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rebell*innen Kalender kann nicht starten</title>
+    <style>
+      body {
+        margin: 0;
+        background: #7dbdbb;
+        color: #15195f;
+        font-family: sans-serif;
+        font-size: 18px;
+        line-height: 1.5;
+      }
+      main {
+        margin: 32px 16px;
+        padding: 24px 20px;
+        background: #fffdf6;
+        border-radius: 10px;
+      }
+      h1 {
+        margin: 0 0 16px;
+        font-size: 24px;
+        line-height: 1.25;
+      }
+      p {
+        margin: 0 0 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Der Rebell*innen Kalender kann nicht starten</h1>
+      <p>
+        Auf Android liegt das fast immer an einer veralteten Version von „Android System WebView“.
+        Das ist ein Teil von Android, den der Play Store aktualisiert.
+      </p>
+      <p>
+        Öffne den Play Store, suche nach „Android System WebView“ und tippe auf „Aktualisieren“.
+        Öffne danach den Rebell*innen Kalender wieder.
+      </p>
+      <p>
+        Auf einem iPhone, oder wenn das nicht hilft: Schließe die App ganz und öffne sie neu.
+      </p>
+      <p>Deine Daten bleiben in jedem Fall erhalten.</p>
+    </main>
+  </body>
+</html>

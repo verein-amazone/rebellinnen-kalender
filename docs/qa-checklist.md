@@ -45,7 +45,10 @@ the items marked **(all devices)** on every device in the matrix.
 - [ ] iOS 16.4, the declared minimum (`IPHONEOS_DEPLOYMENT_TARGET`) - a device or a simulator
 - [ ] Current iOS on a real iPhone
 - [ ] A small iPhone (SE size) and a large one (Pro Max size)
-- [ ] Android API 24, the declared minimum (`minSdkVersion`) - an emulator is fine here
+- [ ] Android API 24, the declared minimum (`minSdkVersion`) - an emulator is fine here. Its stock
+      System WebView (53) is below the floor of 108: the app must show „Der Rebell\*innen Kalender
+      kann nicht starten“, not a white screen. Then update the WebView (or use an image with the
+      Play Store) and check that the app runs on WebView 108-119.
 - [ ] Current Android on a real phone
 - [ ] A small and a large Android phone
 - [ ] iPhone only and portrait only: the app does not offer itself on iPad and does not rotate
