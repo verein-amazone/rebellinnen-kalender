@@ -21,6 +21,7 @@ import {
 } from '@app/view/dialogs/confirmation/confirmation.dialog';
 import { IcsSubscriptionAddDialog } from '@app/view/dialogs/ics-subscription-add/ics-subscription-add.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { InfoToggletip } from '@app/view/components/info-toggletip/info-toggletip';
 
 /**
  * „Abonnierte Kalender“: adding, customising, enabling/disabling and removing read-only ICS
@@ -35,6 +36,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
   imports: [
+    InfoToggletip,
     FocusedScreenScaffold,
     CalendarAvatar,
     ToggleField,

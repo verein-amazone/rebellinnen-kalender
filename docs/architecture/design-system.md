@@ -45,6 +45,7 @@ src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
 src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
 src/styles/components/screen.css     .rk-shell, .rk-scroll-region, .rk-screen-*
 src/styles/components/sheet.css      .rk-sheet-*
+src/styles/components/toggletip.css  .rk-toggletip
 ```
 
 One file per primitive, because each carries a comment header explaining its constraints and those
@@ -350,6 +351,28 @@ Two things a call site has to get right, both learned the hard way in `reminder-
   without the deferred content the directive's "focus the first item" never lands.
 - On a `<button>` trigger, `preventDefault()` Enter and Space. The directive already opens on those
   keys, and the browser's synthesised click would immediately close the menu again.
+
+### Info button - `toggletip.css` + `app-info-toggletip`
+
+An explanation that is only needed the first time - what „Meine Sammlung“ collects, what a settings
+screen is for - sits behind an info button instead of above the content on every visit:
+
+```html
+<app-info-toggletip header-actions label="Info zu Abonnierte Kalender">
+  Kalender, die du per Link abonnierst, werden regelmäßig aktualisiert und sind schreibgeschützt.
+</app-info-toggletip>
+```
+
+It is the disclosure pattern, not a tooltip or a dialog: a native `<button>` with `aria-expanded`,
+and the explanation rendered right after it in the DOM, so a screen reader reaches it with the next
+swipe and nothing needs announcing or focusing. The panel only floats visually. Being non-modal it
+traps nothing, and it closes on the button, a tap elsewhere, Escape and Android's back button. The
+native `popover` attribute would cover the dismissing, but not on iOS 16.4.
+
+The panel opens below the button towards the start, so place the button at the end of a row - a
+focused screen's `header-actions`, or the last column of a tab's sticky header. Keep the text short:
+something a user must read before acting (an error, a consequence, a privacy promise next to the
+permission it explains) stays visible on the screen.
 
 ### Field, input and error - `field.css`
 

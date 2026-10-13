@@ -1,11 +1,10 @@
 <app-focused-screen heading="Abonnierte Kalender" fallbackLink="/settings/calendars">
+  <app-info-toggletip header-actions label="Info zu Abonnierte Kalender">
+    Kalender, die du per Link abonnierst, werden regelmäßig aktualisiert und sind schreibgeschützt.
+  </app-info-toggletip>
+
   <div class="space-y-6">
     @if (isNativePlatform) {
-      <p class="text-muted-foreground text-sm">
-        Kalender, die du per Link abonnierst, werden regelmäßig aktualisiert und sind
-        schreibgeschützt.
-      </p>
-
       @if (actionError(); as message) {
         <p role="alert" class="rk-error">{{ message }}</p>
       }
