@@ -1,3 +1,13 @@
+## [1.0.0-rc.40](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.39...v1.0.0-rc.40) (2026-10-13)
+
+### Bug Fixes
+
+* **calendar:** stop downloading switched-off calendars in the background ([59cc2e8](https://github.com/verein-amazone/rebellinnen-kalender/commit/59cc2e8e5c634992891f46b1abcfd03f7688bcc8))
+
+### Refactoring
+
+* **calendar:** filter disabled subscriptions in the query ([e774931](https://github.com/verein-amazone/rebellinnen-kalender/commit/e774931ca581eaa3c3668ce0afa35ad707e97e6a))
+
 ## [1.0.0-rc.39](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.38...v1.0.0-rc.39) (2026-10-13)
 
 ### Features
