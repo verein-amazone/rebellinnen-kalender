@@ -74,7 +74,26 @@ test.describe('application shell', () => {
     await expect(page).toHaveURL(/\/settings\/privacy$/);
     await expect(page.getByRole('heading', { name: 'Datenschutz', level: 1 })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Verantwortliche Stelle', level: 2 }),
+      page.getByRole('heading', { name: '2. Wer ist verantwortlich?', level: 2 }),
+    ).toBeVisible();
+    await expectNoBlockingViolations(page);
+
+    await page.getByRole('button', { name: 'Zurück' }).click();
+
+    await expect(page).toHaveURL(/\/settings$/);
+  });
+
+  test('opens the bundled terms of use from the settings and returns to them', async ({ page }) => {
+    await page.goto('/settings');
+    await page.getByRole('link', { name: 'Nutzungsbedingungen' }).click();
+
+    await expect(page).toHaveURL(/\/settings\/terms$/);
+    await expect(
+      page.getByRole('heading', { name: 'Nutzungsbedingungen', level: 1 }),
+    ).toBeVisible();
+    // The gender star is escaped in the Markdown, so it renders as text, not as emphasis.
+    await expect(
+      page.getByRole('heading', { name: '1. Über den Rebell*innen Kalender', level: 2 }),
     ).toBeVisible();
     await expectNoBlockingViolations(page);
 

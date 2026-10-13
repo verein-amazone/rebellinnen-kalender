@@ -93,21 +93,31 @@ Things to know:
 - The developer tools stay off screen: no screenshot shows the settings overview, which has the
   „Entwicklung“ section in a release candidate.
 
-## Privacy policy
+## Privacy policy and terms of use
 
-The app has its own privacy policy (#79), because Verein Amazone's website policy does not describe
-the app. Its one source is `public/legal/datenschutz.md`, and it reaches readers in two ways:
+The app has its own privacy policy and terms of use (#79), because Verein Amazone's website policy
+does not describe the app. Each has one source in `public/legal/` - `datenschutz.md` and
+`nutzungsbedingungen.md` - and reaches readers in two ways:
 
-- **In the app**, under Einstellungen → Datenschutz (`PrivacyPage`), read from the bundled file so
-  it works offline.
-- **On the web**, for the stores: `scripts/build-privacy-page.mjs` renders the same file to a
-  static `datenschutz/index.html` after every build, and the Pages deployment of `dev` publishes it
-  at <https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/>. That URL is in `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect
-  (App Privacy) and in the Play Console (App content → Privacy policy).
+- **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`), read from
+  the bundled file so it works offline.
+- **On the web**: `scripts/build-legal-pages.mjs` renders the same files to static pages after
+  every build, and the Pages deployment of `dev` publishes them at
+  <https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/> and
+  <https://verein-amazone.github.io/rebellinnen-kalender/nutzungsbedingungen/>. The privacy URL is
+  in `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
+  Console (App content → Privacy policy).
 
-The text is Verein Amazone's: change it with their review, like the store copy. Because the web page
-follows `dev`, a change is public as soon as it is merged - land it when it is true for the version
-in the stores. The Impressum stays on the Amazone website and is linked from the app.
+The texts are Verein Amazone's: change them with their review, like the store copy, and update the
+„Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
+one paragraph as emphasis; the renderer drops `mailto:` and `tel:` links, so addresses stay text.
+Because the web pages follow `dev`, a change is public as soon as it is merged - land it when it is
+true for the version in the stores. The Impressum stays on the Amazone website and is linked from
+the app.
+
+The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
+in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's
+minimum terms for one.
 
 ## Availability
 

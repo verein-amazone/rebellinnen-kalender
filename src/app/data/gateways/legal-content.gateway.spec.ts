@@ -65,6 +65,26 @@ describe('LegalContentGateway', () => {
     expect(await setup().fetchPrivacyPolicy()).toBeNull();
   });
 
+  it('returns the bundled terms of use', async () => {
+    const urls: string[] = [];
+    stubFetch((url) => {
+      urls.push(url);
+      return Promise.resolve(textResponse('## 1. Über den Rebell*innen Kalender'));
+    });
+    const gateway = setup();
+
+    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über den Rebell*innen Kalender');
+    expect(urls[0]).toContain('legal/nutzungsbedingungen.md');
+  });
+
+  it('returns null when the terms of use are missing or fetching them throws', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    expect(await setup().fetchTermsOfUse()).toBeNull();
+
+    stubFetch(() => Promise.reject(new Error('network down')));
+    expect(await setup().fetchTermsOfUse()).toBeNull();
+  });
+
   it('returns the parsed image attributions', async () => {
     const entries = [
       {

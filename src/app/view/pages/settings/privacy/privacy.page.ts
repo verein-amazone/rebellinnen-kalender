@@ -7,7 +7,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 /**
  * "Datenschutz" (#79): the app's own privacy policy, bundled as `public/legal/datenschutz.md` so it
  * reads offline. The same file is published as a static page for the store listings
- * (`scripts/build-privacy-page.mjs`), so the app and the stores always show the same text.
+ * (`scripts/build-legal-pages.mjs`), so the app and the stores always show the same text.
  */
 @Component({
   selector: 'app-settings-privacy',

@@ -20,6 +20,7 @@ import { PrivacyPage } from './privacy/privacy.page';
 import { ProfilePage } from './profile/profile.page';
 import { SettingsOverviewPage } from './overview/overview.page';
 import { SettingsRemindersPage } from './reminders/reminders.page';
+import { TermsPage } from './terms/terms.page';
 import { TextSizePage } from './text-size/text-size.page';
 import { ThemePage } from './theme/theme.page';
 import { VibrationPage } from './vibration/vibration.page';
@@ -50,6 +51,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },
   { path: 'about', component: AboutPage, title: 'Über die App' },
   { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },
+  { path: 'terms', component: TermsPage, title: 'Nutzungsbedingungen' },
   {
     path: 'content-catalog',
     component: ContentCatalogPage,
