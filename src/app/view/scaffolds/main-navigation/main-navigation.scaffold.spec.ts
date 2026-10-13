@@ -150,6 +150,14 @@ describe('MainNavigationScaffold', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
+  it('keeps the query parameters on the active destination, so tapping it only scrolls', async () => {
+    const { element } = await setUp('/calendar?view=month&day=2026-10-13');
+
+    const links = Array.from(element.querySelectorAll('nav a')).map((a) => a.getAttribute('href'));
+
+    expect(links).toEqual(['/today', '/calendar?view=month&day=2026-10-13', '/content']);
+  });
+
   it('scrolls without animation when the app is set to reduced motion', async () => {
     const { element } = await setUp('/calendar');
     TestBed.inject(AppearanceInteractor).selectMotion('reduced');

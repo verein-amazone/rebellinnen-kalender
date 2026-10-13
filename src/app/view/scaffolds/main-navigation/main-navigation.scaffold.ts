@@ -139,9 +139,10 @@ export class MainNavigationScaffold {
   /**
    * Tapping the active destination again scrolls its screen back to the top.
    *
-   * No `preventDefault()`: the router ignores a navigation to the URL that is already active, and
-   * where it does navigate (a tab link carries no query params, so `/calendar?view=month` becomes
-   * `/calendar`) the fresh screen starts at the top anyway.
+   * No `preventDefault()`: the active destination's link keeps the current query parameters (see
+   * the template), so it points at the URL that is already showing and the router ignores it. A
+   * plain `/calendar` would navigate away from `/calendar?view=month` to the week view, and the
+   * screen would jump instead of scrolling.
    */
   protected handleTabActivated(tab: Tab): void {
     if (tab !== this.activeTab()) {

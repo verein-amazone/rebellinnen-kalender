@@ -22,9 +22,11 @@
           <li class="flex-1">
             <!-- Tapping the destination you are already on scrolls its screen back to the top,
                  the way a phone's own tab bars behave - after reading a long list, the way back up
-                 is the control your thumb is already near. -->
+                 is the control your thumb is already near. It keeps the query parameters, so that
+                 tap stays on the same view (the calendar's month, say) instead of resetting it. -->
             <a
               [routerLink]="destination.link"
+              [queryParamsHandling]="destination.tab === active ? 'preserve' : null"
               [attr.aria-current]="destination.tab === active ? 'page' : null"
               (click)="handleTabActivated(destination.tab)"
               class="rk-tab"
