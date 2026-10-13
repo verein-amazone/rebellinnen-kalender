@@ -6,7 +6,7 @@ import {
   input,
   resource,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   LucideArrowLeft,
   LucideArrowRight,
@@ -77,6 +77,11 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
  * them but downloads nothing; the first download happens on the first calendar-showing screen,
  * for the ones still on.
  *
+ * The first step links the terms of use and the privacy policy, and the privacy step the privacy
+ * policy again. They are links, not something to accept: the privacy policy is information, the
+ * app asks for no consent, and the terms only restate the law (see docs/store-sign-off-1.0.0.md).
+ * The first step is the one every user sees, including those who skip.
+ *
  * Device calendar access is only explained here, and requested from the explicit „connect“ action in the
  * settings. The one permission the introduction can ask for is the notification permission (#81),
  * and only when the user taps „Ja, erinnere mich“ on the last step.
@@ -97,6 +102,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
     LucideChevronsRight,
     LucideShieldCheck,
     LucideSun,
+    RouterLink,
     ThemeSwatch,
     ToggleField,
   ],
@@ -188,6 +194,18 @@ export class IntroPage {
     await this.notificationPreferences.setEnabled(true);
     await this.finish();
   }
+
+  /**
+   * Where the terms of use and the privacy policy return to: this step, keeping `returnTo` when
+   * the introduction was reopened from the settings.
+   */
+  protected readonly legalReturnTo = computed(() =>
+    this.router.serializeUrl(
+      this.router.createUrlTree(['/intro', this.index() + 1], {
+        queryParams: { returnTo: this.returnTo() },
+      }),
+    ),
+  );
 
   protected readonly destination = computed(() => safeInAppUrl(this.returnTo()) ?? '/today');
 

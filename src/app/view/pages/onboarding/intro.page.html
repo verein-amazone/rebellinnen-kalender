@@ -39,6 +39,27 @@
               Dein Kalender für jeden Tag – mit Rebell*innen und Wissensimpulsen von Verein Amazone.
             </p>
           </div>
+          <div>
+            <p class="text-sm text-pretty">
+              Mit der Nutzung der App gelten die Nutzungsbedingungen. Wie die App mit deinen Daten
+              umgeht, steht in der Datenschutzerklärung.
+            </p>
+            <!-- Each link is its own touch target rather than a word inside the sentence. -->
+            <div class="flex flex-wrap justify-center gap-x-6">
+              <a
+                routerLink="/settings/terms"
+                [queryParams]="{ returnTo: legalReturnTo() }"
+                class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
+                >Nutzungsbedingungen</a
+              >
+              <a
+                routerLink="/settings/privacy"
+                [queryParams]="{ returnTo: legalReturnTo() }"
+                class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
+                >Datenschutzerklärung</a
+              >
+            </div>
+          </div>
         }
         @case ('areas') {
           <h1 class="text-2xl text-balance">{{ heading() }}</h1>
@@ -159,6 +180,12 @@
             } @else {
               <p class="text-pretty">Alles wird nur in diesem Browser gespeichert.</p>
             }
+            <a
+              routerLink="/settings/privacy"
+              [queryParams]="{ returnTo: legalReturnTo() }"
+              class="min-h-touch inline-flex items-center text-sm font-semibold underline underline-offset-2"
+              >Mehr in der Datenschutzerklärung</a
+            >
           </div>
         }
         @case ('reminders') {

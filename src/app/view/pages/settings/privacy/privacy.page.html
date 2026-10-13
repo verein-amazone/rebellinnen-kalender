@@ -1,4 +1,4 @@
-<app-focused-screen heading="Datenschutz" fallbackLink="/settings">
+<app-focused-screen heading="Datenschutz" fallbackLink="/settings" [returnTo]="safeReturnTo()">
   @if (markdown(); as policy) {
     <div class="rk-card px-4 py-5">
       <app-markdown-content [markdown]="policy" />
