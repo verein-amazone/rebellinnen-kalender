@@ -123,6 +123,15 @@ export class CalendarRepository {
     return this.items.find(itemId);
   }
 
+  /** The stored override or cancellation of one occurrence of an app series, if there is one. */
+  async findException(
+    seriesId: string,
+    originalStart: string,
+  ): Promise<AppItemExceptionRecord | null> {
+    const exceptions = await this.items.listExceptionsOfSeries(seriesId);
+    return exceptions.find((exception) => exception.originalStart === originalStart) ?? null;
+  }
+
   /**
    * The unified range query every calendar view consumes. Returns the occurrences of all enabled
    * sources and calendars overlapping the half-open UTC range, deterministically ordered (day,
