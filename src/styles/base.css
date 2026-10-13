@@ -67,14 +67,20 @@
   }
 
   /*
-   * Interactive elements. `touch-action: manipulation` drops the WebView's 300ms double-tap-to-zoom
-   * wait, which otherwise makes every tap feel late.
+   * No double-tap zoom anywhere: a double tap on a text, while reading a content item, would
+   * otherwise zoom the whole app in, and it also costs every tap a 300ms wait for a second one.
+   * Pinch zoom stays, so the user can still zoom (WCAG 1.4.4). Set on every element rather than on
+   * the root, because the WebView resets touch-action at each scroll container, `<main>` among
+   * them; a component that needs another value sets it in its own layer, which wins over this one.
    */
+  * {
+    touch-action: manipulation;
+  }
+
   button,
   a,
   [role='button'] {
     cursor: pointer;
-    touch-action: manipulation;
   }
 
   button:disabled {
