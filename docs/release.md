@@ -333,7 +333,7 @@ rollout percentage, and publish - with Managed publishing on, the listing change
 
 Play refuses to roll out any release, internal testing included, until the "App content"
 declarations are complete - privacy policy, data safety, content rating, target audience. The
-answers are in [store-compliance.md](./store-compliance.md) (#78); the privacy policy URL is #79.
+answers are in [store-compliance.md](./store-compliance.md) (#78); the privacy policy is described in [store-listing.md](./store-listing.md#privacy-policy).
 The upload itself works before they are answered; only the rollout waits.
 
 ## When an upload fails

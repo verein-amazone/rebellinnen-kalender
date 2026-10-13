@@ -29,7 +29,7 @@ fastlane/
 │   │   ├── keywords.txt                       100, comma-separated, no spaces
 │   │   ├── support_url.txt
 │   │   ├── marketing_url.txt
-│   │   └── privacy_url.txt                    see #79
+│   │   └── privacy_url.txt                    see "Privacy policy" below
 │   ├── copyright.txt
 │   ├── primary_category.txt                   App Store category ids
 │   ├── secondary_category.txt
@@ -92,6 +92,37 @@ Things to know:
   do not obviously allow a promotional screenshot.
 - The developer tools stay off screen: no screenshot shows the settings overview, which has the
   „Entwicklung“ section in a release candidate.
+
+## Privacy policy and terms of use
+
+The app has its own privacy policy and terms of use (#79), because Verein Amazone's website policy
+does not describe the app. Each has one source in `public/legal/` - `datenschutz.md` and
+`nutzungsbedingungen.md` - and reaches readers in two ways:
+
+- **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`), read from
+  the bundled file so it works offline.
+- **On the web**: `scripts/build-legal-pages.mjs` renders the same files to static pages after
+  every build, and the Pages deployment of `dev` publishes them at
+  <https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/> and
+  <https://verein-amazone.github.io/rebellinnen-kalender/nutzungsbedingungen/>. The privacy URL is
+  in `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
+  Console (App content → Privacy policy).
+
+The texts are Verein Amazone's: change them with their review, like the store copy, and update the
+„Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
+one paragraph as emphasis; the renderer drops `mailto:` and `tel:` links, so addresses stay text.
+Because the web pages follow `dev`, a change is public as soon as it is merged - land it when it is
+true for the version in the stores. The Impressum stays on the Amazone website and is linked from
+the app.
+
+The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
+in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's
+minimum terms for one.
+
+## Availability
+
+Austria only, free. Set in App Store Connect (Pricing and Availability) and on Play's production
+track (Countries / regions); neither comes from this repository.
 
 ## Changing the listing
 

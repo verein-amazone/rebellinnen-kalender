@@ -1,0 +1,11 @@
+<app-focused-screen heading="Datenschutz" fallbackLink="/settings">
+  @if (markdown(); as policy) {
+    <div class="rk-card px-4 py-5">
+      <app-markdown-content [markdown]="policy" />
+    </div>
+  } @else {
+    <p class="text-muted-foreground">
+      Die Datenschutzerklärung ist in diesem Build nicht verfügbar.
+    </p>
+  }
+</app-focused-screen>

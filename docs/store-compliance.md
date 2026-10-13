@@ -50,11 +50,11 @@ shown in the app and stored in its local database, and never sent anywhere.
 
 App Store Connect → App → App Privacy.
 
-| Question                                                        | Answer                                       | Why                                                                                                                                                                    |
-| --------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Do you or your third-party partners collect data from this app? | **No, we do not collect data from this app** | See above. Apple defines "collect" as transmitting data off the device in a way that the developer or a partner can access it; on-device processing is not collection. |
-| Tracking                                                        | None                                         | `NSPrivacyTracking` is `false` in `PrivacyInfo.xcprivacy`.                                                                                                             |
-| Privacy policy URL                                              | See #79                                      | Currently `https://www.amazone.or.at/impressum-datenschutz#datenschutz`; it has to describe the app, not only the website.                                             |
+| Question                                                        | Answer                                                               | Why                                                                                                                                                                    |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Do you or your third-party partners collect data from this app? | **No, we do not collect data from this app**                         | See above. Apple defines "collect" as transmitting data off the device in a way that the developer or a partner can access it; on-device processing is not collection. |
+| Tracking                                                        | None                                                                 | `NSPrivacyTracking` is `false` in `PrivacyInfo.xcprivacy`.                                                                                                             |
+| Privacy policy URL                                              | `https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/` | The app's own policy, see [store-listing.md](./store-listing.md#privacy-policy).                                                                                       |
 
 The result is the "Data Not Collected" label.
 
@@ -87,7 +87,7 @@ included, until it is answered.
 
 | Declaration                 | Answer                                                                                                                                                                |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Privacy policy              | The URL from #79.                                                                                                                                                     |
+| Privacy policy              | `https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/`                                                                                                  |
 | App access                  | All functionality is available without special access - there is no login.                                                                                            |
 | Ads                         | No, the app contains no ads.                                                                                                                                          |
 | Content rating              | See [Age rating](#age-rating).                                                                                                                                        |
