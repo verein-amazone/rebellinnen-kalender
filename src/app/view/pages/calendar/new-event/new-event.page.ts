@@ -8,6 +8,7 @@ import { AppEventEditingInteractor } from '@app/interactors/calendar/app-event-e
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 /**
  * The „Neuer Termin“ screen: `EventForm` in create mode, wired to
@@ -96,7 +97,7 @@ export class NewEventPage {
     // platform back gesture. Same reasoning as `FocusedScreenScaffold.dismiss()`.
     const origin = this.origin();
     if (origin !== null) {
-      await this.router.navigateByUrl(origin, { replaceUrl: true });
+      await this.router.navigateByUrl(origin, RETURN_NAVIGATION);
       return;
     }
 

@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 
 import { FocusedScreenScaffold } from './focused-screen.scaffold';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 @Component({ template: '<h1>Stub</h1>' })
 class StubPage {}
@@ -106,7 +107,7 @@ describe('FocusedScreenScaffold', () => {
     dismiss(element);
     await fixture.whenStable();
 
-    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
   });
 
   it("dismisses on Android's back button the way the back arrow does", async () => {
@@ -116,7 +117,7 @@ describe('FocusedScreenScaffold', () => {
     TestBed.inject(HardwareBack).press();
     await fixture.whenStable();
 
-    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
   });
 
   it('dismisses to the fallback link instead of walking the history back', async () => {
@@ -131,7 +132,7 @@ describe('FocusedScreenScaffold', () => {
     await fixture.whenStable();
 
     expect(backSpy).not.toHaveBeenCalled();
-    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
   });
 
   it('dismisses to returnTo when the caller supplied one', async () => {
@@ -144,9 +145,7 @@ describe('FocusedScreenScaffold', () => {
     dismiss(element);
     await fixture.whenStable();
 
-    expect(navigateByUrlSpy).toHaveBeenCalledWith('/settings/content-catalog', {
-      replaceUrl: true,
-    });
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/settings/content-catalog', RETURN_NAVIGATION);
   });
 });
 

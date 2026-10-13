@@ -1,12 +1,13 @@
 import { Component, input, signal, type Provider } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Router, provideRouter } from '@angular/router';
+import { Router, provideRouter, type NavigationBehaviorOptions } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
 import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 
 import { MainNavigationScaffold } from './main-navigation.scaffold';
+import { RETURN_NAVIGATION } from './scroll-memory';
 
 @Component({ template: '<h1>{{ title() }}</h1><input id="stub-field" aria-label="Feld" />' })
 class StubPage {
@@ -14,6 +15,18 @@ class StubPage {
 }
 
 describe('MainNavigationScaffold', () => {
+  // jsdom has no layout, and so no ResizeObserver; restoring a scroll position holds it with one.
+  beforeEach(() =>
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        disconnect = vi.fn();
+      },
+    ),
+  );
+  afterEach(() => vi.unstubAllGlobals());
+
   async function setUp(url: string, extraProviders: Provider[] = []) {
     await TestBed.configureTestingModule({
       imports: [MainNavigationScaffold],
@@ -33,8 +46,8 @@ describe('MainNavigationScaffold', () => {
     await router.navigateByUrl(url);
     await fixture.whenStable();
 
-    async function navigateTo(target: string) {
-      await router.navigateByUrl(target);
+    async function navigateTo(target: string, extras?: NavigationBehaviorOptions) {
+      await router.navigateByUrl(target, extras);
       await fixture.whenStable();
     }
 
@@ -156,6 +169,63 @@ describe('MainNavigationScaffold', () => {
     const links = Array.from(element.querySelectorAll('nav a')).map((a) => a.getAttribute('href'));
 
     expect(links).toEqual(['/today', '/calendar?view=month&day=2026-10-13', '/content']);
+  });
+
+  /** jsdom has no layout, so the scroll region gets a plain stored `scrollTop`. */
+  function stubScrollTop(element: HTMLElement): { top: number } {
+    const state = { top: 0 };
+    Object.defineProperty(element.querySelector('main'), 'scrollTop', {
+      get: () => state.top,
+      set: (value: number) => (state.top = value),
+      configurable: true,
+    });
+    return state;
+  }
+
+  it('brings a screen back where the user left it when returning to it', async () => {
+    const { element, navigateTo } = await setUp('/today');
+    const scroll = stubScrollTop(element);
+    scroll.top = 500;
+
+    await navigateTo('/calendar/event/new');
+    expect(scroll.top).toBe(0);
+
+    await navigateTo('/today', RETURN_NAVIGATION);
+    expect(scroll.top).toBe(500);
+  });
+
+  it('opens a screen at the top, even one that was scrolled on an earlier visit', async () => {
+    const { element, navigateTo } = await setUp('/today');
+    const scroll = stubScrollTop(element);
+    await navigateTo('/calendar/event/new');
+    scroll.top = 300;
+    await navigateTo('/today', RETURN_NAVIGATION);
+
+    await navigateTo('/calendar/event/new');
+
+    expect(scroll.top).toBe(0);
+  });
+
+  it('brings a primary destination back where it was left when switching back to it', async () => {
+    const { element, navigateTo } = await setUp('/today');
+    const scroll = stubScrollTop(element);
+    scroll.top = 500;
+
+    await navigateTo('/calendar');
+    expect(scroll.top).toBe(0);
+
+    await navigateTo('/today');
+    expect(scroll.top).toBe(500);
+  });
+
+  it('leaves the scroll position alone when only the query changes', async () => {
+    const { element, navigateTo } = await setUp('/calendar');
+    const scroll = stubScrollTop(element);
+    scroll.top = 400;
+
+    await navigateTo('/calendar?day=2026-10-14');
+
+    expect(scroll.top).toBe(400);
   });
 
   it('scrolls without animation when the app is set to reduced motion', async () => {

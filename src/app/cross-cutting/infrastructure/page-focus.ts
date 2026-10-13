@@ -23,9 +23,11 @@ export class PageFocus {
       return;
     }
 
-    // `-1` makes the heading programmatically focusable without adding a tab stop.
+    // `-1` makes the heading programmatically focusable without adding a tab stop. No scrolling:
+    // the screen's scroll position is `MainNavigationScaffold`'s to set, and a screen being
+    // returned to keeps the one the user left it at.
     heading.setAttribute('tabindex', '-1');
-    heading.focus();
+    heading.focus({ preventScroll: true });
   }
 
   /** Announce the current screen's title without taking focus away from the user. */

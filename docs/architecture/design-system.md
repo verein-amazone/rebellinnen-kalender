@@ -527,6 +527,16 @@ resolves `@container` against. `.rk-screen-body` and `.rk-screen-header-bar` car
 a focused screen's content and header; both trim past `--container-compact`, and the header's
 dismiss button is capped there too - it is label-less, so its glyph carries no text to scale.
 
+Because every screen shares that one scroll region, `MainNavigationScaffold` sets its position on
+each navigation instead of leaving the previous screen's offset behind. A screen being opened starts
+at the top. A screen being returned to comes back where the user left it: dismissed back to, switched
+back to in the bottom navigation, or reached with the browser's back button on the web. A change of
+query only (another calendar day, the other content area) leaves the position alone. The router's
+`withInMemoryScrolling` cannot do this - it restores on the browser's back button only and scrolls
+the window - so `scroll-memory.ts` keeps the offsets per URL, and a navigation that goes back passes
+`RETURN_NAVIGATION` instead of a bare `{ replaceUrl: true }`. `PageFocus` focuses the heading with
+`preventScroll` for the same reason: where the screen is scrolled to is the shell's decision.
+
 ### Tab bar - `navigation.css`
 
 `.rk-tab-bar` (the query container), `.rk-tab-list`, `.rk-tab`, `.rk-tab-icon`, `.rk-tab-indicator`.

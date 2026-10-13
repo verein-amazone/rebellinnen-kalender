@@ -53,6 +53,7 @@ import {
   type RecurrenceScopeDialogData,
 } from '@app/view/dialogs/recurrence-scope/recurrence-scope.dialog';
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 /**
  * The appointment detail screen: a read view built from `CalendarOccurrence`, an in-place edit
@@ -489,7 +490,7 @@ export class EventDetailPage {
     // reachable again by the platform back gesture. Same reasoning as `FocusedScreenScaffold`.
     const origin = this.origin();
     if (origin !== null) {
-      await this.router.navigateByUrl(origin, { replaceUrl: true });
+      await this.router.navigateByUrl(origin, RETURN_NAVIGATION);
       return;
     }
 
