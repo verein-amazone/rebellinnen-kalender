@@ -417,6 +417,39 @@ Pull-request previews are built without it as well, so that a preview cannot out
 it was deleted from. `ngsw-config.json` excludes `/pr-*` from `navigationUrls` for the same reason:
 the demo site's worker is scoped to the whole project site, previews included.
 
+### Supported browsers and WebViews
+
+The app runs in WKWebView on iOS and in the Android System WebView, so its "browsers" are those two
+engines. Angular's default target is "baseline widely available", currently Chrome 119+ and Safari
+17+. That is above what the app's own minimums promise: iOS 16.4 ships Safari 16.4, the last iOS of the
+iPhone 8 and X. Older phones are a real part of the audience, so `.browserslistrc` sets a lower
+floor. Android is less of a constraint: the System WebView updates through the Play Store
+independently of the OS, and the native minimum, Android 8 (API 26), still gets versions well above
+the floor - the app only fails on a phone whose WebView was never updated.
+
+| Engine                          | Floor | What sets it                                                           |
+| ------------------------------- | ----- | ---------------------------------------------------------------------- |
+| iOS / Safari (WKWebView)        | 16.4  | `IPHONEOS_DEPLOYMENT_TARGET`; container queries need 16.0              |
+| Chrome / Android System WebView | 108   | `dvh` units (108), container queries and `:has()` (105), `@layer` (99) |
+
+Angular downlevels JavaScript syntax and CSS to these targets, and warns about them at build time
+("Unsupported browsers") because they are below its own support policy. It does **not** add
+polyfills for missing Web APIs. The floor was set by checking the built bundle: every newer API in it
+is either polyfilled (`temporal-polyfill`) or feature-detected by the code that uses it
+(`Intl.DurationFormat`, `showPopover`, `requestIdleCallback`, `startViewTransition`), and every newer
+CSS feature is either cosmetic (`text-wrap`, `lh`) or inside an `@supports` block (`color-mix()`,
+relative colours). So:
+
+- **Before using a Web API or CSS feature newer than the floor,** feature-detect it or give it a
+  fallback, and check [caniuse.com](https://caniuse.com) against the table above. Raising the floor is
+  a product decision, not a side effect of a dependency update.
+- **An Android WebView below the floor** cannot run the app. `android.minWebViewVersion` in
+  `capacitor.config.ts` (equal to the Chrome floor) makes Capacitor load `public/startup-error.html`
+  instead of a white screen; it asks for the WebView update through the Play Store. The same page is
+  `server.errorPath`, which both platforms also show when the app's own page fails to load.
+- **Change the floor in all places at once:** `.browserslistrc`, `minWebViewVersion`, this table and
+  the README.
+
 ## Theming and appearance
 
 Colours, fonts and radii are **design tokens in CSS**, never values in TypeScript.

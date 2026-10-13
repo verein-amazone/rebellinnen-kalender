@@ -4,6 +4,18 @@ const config: CapacitorConfig = {
   appId: 'at.or.amazone.rebellinnenkalender',
   appName: 'Rebell*innen Kalender',
   webDir: 'dist/rebellinnen-kalender/browser',
+  // An Android System WebView older than the `.browserslistrc` floor cannot run the app - it shows a
+  // white screen. Below this version Capacitor loads `server.errorPath` instead - a static page that
+  // asks for the WebView update through the Play Store, and that both platforms also show when the
+  // app's own page fails to load. Keep the number equal to the Chrome floor
+  // in `.browserslistrc`. On iOS the WebView comes with the OS, and the deployment target already
+  // guarantees it.
+  android: {
+    minWebViewVersion: 108,
+  },
+  server: {
+    errorPath: 'startup-error.html',
+  },
   ios: {
     // Required by @capacitor/text-zoom: without it the plugin has no effect on iPad, where the
     // WebView would otherwise run in desktop content mode.

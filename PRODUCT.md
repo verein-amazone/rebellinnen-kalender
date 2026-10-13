@@ -6,7 +6,7 @@
 
 adaptive
 
-Note: targets both iOS (16.4+) and Android (API 24+) natively via Capacitor, no browser/PWA release
+Note: targets both iOS (16.4+) and Android (API 26+) natively via Capacitor, no browser/PWA release
 target. Visual/interaction language is deliberately unified across both OSes, not diverging per
 platform - `adaptive` here means "native on both OSes," not "different look per OS." Every surface
 must be touch-first: no mouse/keyboard-only interaction, no hover-dependent affordances (see
@@ -33,7 +33,7 @@ that content-driven community apps usually make.
 
 ## Operating Context
 
-- Native mobile only (iOS 16.4+, Android API 24+), via Capacitor - touch input only, no
+- Native mobile only (iOS 16.4+, Android API 26+), via Capacitor - touch input only, no
   mouse/keyboard interaction model.
 - Fully offline-capable: local SQLite persistence, device calendar integration
   (`@ebarooni/capacitor-calendar`), no backend, no cloud sync.
