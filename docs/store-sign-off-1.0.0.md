@@ -175,6 +175,15 @@ Der Text muss mindestens sagen:
   rechtliche Einschätzung des Vereins.
   Entscheidung: …
 - ☐ Wer ist die zweite Person mit Admin-Zugang, falls die Kontoinhaberin nicht erreichbar ist?
+- ☐ **Eigene Adresse für die Rechtstexte.** Können wir die Betreuer\*innen der Domain
+  amazone.or.at bitten, eine Subdomain einzurichten, zum Beispiel `kalender.amazone.or.at`? Dafür
+  reicht ein DNS-Eintrag: `CNAME` auf `verein-amazone.github.io`. Dann liegen Impressum,
+  Datenschutzerklärung und Nutzungsbedingungen unter einer Adresse von Verein Amazone. Sie werden
+  aber weiter aus dem GitHub-Repository veröffentlicht, wie heute unter
+  verein-amazone.github.io/rebellinnen-kalender. Die Web-Demo zieht mit um. Danach ändern wir die
+  Datenschutz-URL in beiden Stores und die Adresse der Web-Demo in der Datenschutzerklärung
+  (Abschnitt 9). Die Store-URL lässt sich auch nach der Einreichung ändern, ohne neue App-Version.
+  Ansprechperson für die Domain: …
 
 ## Ergebnis
 
