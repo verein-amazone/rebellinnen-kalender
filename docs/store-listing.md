@@ -29,7 +29,7 @@ fastlane/
 │   │   ├── keywords.txt                       100, comma-separated, no spaces
 │   │   ├── support_url.txt
 │   │   ├── marketing_url.txt
-│   │   └── privacy_url.txt                    see #79
+│   │   └── privacy_url.txt                    see "Privacy policy" below
 │   ├── copyright.txt
 │   ├── primary_category.txt                   App Store category ids
 │   ├── secondary_category.txt
@@ -92,6 +92,27 @@ Things to know:
   do not obviously allow a promotional screenshot.
 - The developer tools stay off screen: no screenshot shows the settings overview, which has the
   „Entwicklung“ section in a release candidate.
+
+## Privacy policy
+
+The app has its own privacy policy (#79), because Verein Amazone's website policy does not describe
+the app. Its one source is `public/legal/datenschutz.md`, and it reaches readers in two ways:
+
+- **In the app**, under Einstellungen → Datenschutz (`PrivacyPage`), read from the bundled file so
+  it works offline.
+- **On the web**, for the stores: `scripts/build-privacy-page.mjs` renders the same file to a
+  static `datenschutz/index.html` after every build, and the Pages deployment of `dev` publishes it
+  at <https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/>. That URL is in `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect
+  (App Privacy) and in the Play Console (App content → Privacy policy).
+
+The text is Verein Amazone's: change it with their review, like the store copy. Because the web page
+follows `dev`, a change is public as soon as it is merged - land it when it is true for the version
+in the stores. The Impressum stays on the Amazone website and is linked from the app.
+
+## Availability
+
+Austria only, free. Set in App Store Connect (Pricing and Availability) and on Play's production
+track (Countries / regions); neither comes from this repository.
 
 ## Changing the listing
 
