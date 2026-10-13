@@ -32,32 +32,32 @@ describe('SupportServiceCatalogGateway', () => {
     ],
   };
 
-  it('returns the catalog items', async () => {
+  it('returns the catalog version and items', async () => {
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [validItem] })));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([validItem]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [validItem] });
   });
 
-  it('returns an empty list when the catalog file is missing', async () => {
+  it('returns null when the catalog file is missing', async () => {
     stubFetch(() => Promise.resolve(jsonResponse({}, false)));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([]);
+    expect(await gateway.fetchCatalog()).toBeNull();
   });
 
-  it('returns an empty list when fetching the catalog throws', async () => {
+  it('returns null when fetching the catalog throws', async () => {
     stubFetch(() => Promise.reject(new Error('network down')));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([]);
+    expect(await gateway.fetchCatalog()).toBeNull();
   });
 
-  it('returns an empty list for a malformed payload', async () => {
+  it('returns null for a malformed payload', async () => {
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: 'not a list' })));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([]);
+    expect(await gateway.fetchCatalog()).toBeNull();
   });
 
   it('drops items missing a required field', async () => {
@@ -65,7 +65,7 @@ describe('SupportServiceCatalogGateway', () => {
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [validItem, invalidItem] })));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([validItem]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [validItem] });
   });
 
   it('drops an item whose action list contains an invalid action', async () => {
@@ -81,7 +81,7 @@ describe('SupportServiceCatalogGateway', () => {
     );
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([validItem]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [validItem] });
   });
 
   it('drops an item whose action has an unknown type', async () => {
@@ -97,7 +97,7 @@ describe('SupportServiceCatalogGateway', () => {
     );
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([validItem]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [validItem] });
   });
 
   it('accepts an item with an empty action list', async () => {
@@ -112,7 +112,7 @@ describe('SupportServiceCatalogGateway', () => {
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [minimalItem] })));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([minimalItem]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [minimalItem] });
   });
 
   it('drops an item missing icon', async () => {
@@ -121,6 +121,6 @@ describe('SupportServiceCatalogGateway', () => {
     stubFetch(() => Promise.resolve(jsonResponse({ version: 1, items: [itemWithoutIcon] })));
     const gateway = setup();
 
-    expect(await gateway.fetchCatalog()).toEqual([]);
+    expect(await gateway.fetchCatalog()).toEqual({ version: 1, items: [] });
   });
 });

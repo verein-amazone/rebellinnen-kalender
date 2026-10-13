@@ -117,4 +117,24 @@ describe('MarkdownRenderer', () => {
       expect(typeof renderer.render('**unterminated [broken](')).toBe('string');
     });
   });
+
+  describe('toPlainText', () => {
+    it('keeps the words and drops the syntax', () => {
+      expect(
+        renderer.toPlainText(
+          '## Phasen\n\n**Menstruation**  \nDie *erste* Phase.\n\n- eins\n- zwei & drei',
+        ),
+      ).toBe('Phasen Menstruation Die erste Phase. eins zwei & drei');
+    });
+
+    it('keeps a link label and leaves out its target', () => {
+      expect(renderer.toPlainText('Mehr bei [Amazone](https://www.amazone.or.at/).')).toBe(
+        'Mehr bei Amazone .',
+      );
+    });
+
+    it('returns an empty string for empty input', () => {
+      expect(renderer.toPlainText('')).toBe('');
+    });
+  });
 });

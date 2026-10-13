@@ -34,38 +34,49 @@ export interface SupportServiceCatalogItem {
   readonly actions: readonly SupportServiceCatalogAction[];
 }
 
+/** The whole asset: its version, bumped on every edit, and the entries that passed the checks. */
+export interface SupportServiceCatalog {
+  readonly version: number;
+  readonly items: readonly SupportServiceCatalogItem[];
+}
+
 /**
  * Reads the static support-services catalog shown under Content → Anlaufstellen (#24).
  *
- * Ships as a plain bundled asset, like `LegalContentGateway`'s licence files: the catalog has no
- * per-item state to persist (no bookmarking, no read history), so - unlike the daily-impulse
- * catalog - there is no SQLite sync layer, just a fetch.
+ * Ships as a bundled, versioned JSON asset. `SupportServiceCatalogSync` reconciles it into the
+ * `support_services` table, so the Anlaufstellen can be searched in SQLite like the content - this
+ * gateway is only the read of the file.
  */
 @Injectable({ providedIn: 'root' })
 export class SupportServiceCatalogGateway {
-  /** Empty on any failure - a missing/unreachable/malformed file must never break the page. */
-  async fetchCatalog(): Promise<readonly SupportServiceCatalogItem[]> {
+  /**
+   * `null` on any failure - a missing, unreachable or malformed file must never break the page, and
+   * the sync then keeps what it reconciled last. An entry that fails its checks is dropped alone.
+   */
+  async fetchCatalog(): Promise<SupportServiceCatalog | null> {
     try {
       const response = await fetch(assetUrl(CATALOG_URL));
       if (!response.ok) {
-        return [];
+        return null;
       }
 
       const data: unknown = await response.json();
-      return isCatalogPayload(data) ? data.items.filter(isCatalogItem) : [];
+      return isCatalogPayload(data)
+        ? { version: data.version, items: data.items.filter(isCatalogItem) }
+        : null;
     } catch {
-      return [];
+      return null;
     }
   }
 }
 
-function isCatalogPayload(value: unknown): value is { items: unknown[] } {
+function isCatalogPayload(value: unknown): value is { version: number; items: unknown[] } {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
-  const candidate = value as { items?: unknown };
-  return Array.isArray(candidate.items);
+  const candidate = value as { version?: unknown; items?: unknown };
+  return typeof candidate.version === 'number' && Array.isArray(candidate.items);
 }
 
 function isCatalogItem(value: unknown): value is SupportServiceCatalogItem {

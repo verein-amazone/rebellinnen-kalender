@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
+import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { BookmarkDao } from '@app/data/daos/bookmark.dao';
+import { ContentSearchDao } from '@app/data/daos/content-search.dao';
 import type { BookmarkRecord } from '@app/data/entities/bookmark.record';
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
@@ -60,7 +62,18 @@ class FakeBookmarkDao {
   }
 }
 
+class FakeContentSearchDao {
+  matches: string[] = [];
+  lastMatch: string | null = null;
+
+  searchBookmarkedIds(match: string): Promise<string[]> {
+    this.lastMatch = match;
+    return Promise.resolve(this.matches);
+  }
+}
+
 describe('BookmarksInteractor', () => {
+  let search: FakeContentSearchDao;
   let dao: FakeBookmarkDao;
   let contentItems: FakeContentItemsInteractor;
   let interactor: BookmarksInteractor;
@@ -69,17 +82,36 @@ describe('BookmarksInteractor', () => {
   beforeEach(() => {
     dao = new FakeBookmarkDao();
     contentItems = new FakeContentItemsInteractor();
+    search = new FakeContentSearchDao();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: BookmarkDao, useValue: dao },
         { provide: ContentItemsInteractor, useValue: contentItems },
+        { provide: ContentSearchDao, useValue: search },
+        { provide: ContentCatalogSync, useValue: { ensureSynced: () => Promise.resolve() } },
       ],
     });
 
     interactor = TestBed.inject(BookmarksInteractor);
     changes = TestBed.inject(BookmarkChanges);
+  });
+
+  it('searches the saved items in the order the index ranks them, dropping vanished ones', async () => {
+    contentItems.items.set('reb-01', item({ id: 'reb-01', title: 'Ada Lovelace' }));
+    contentItems.items.set('reb-02', item({ id: 'reb-02', title: 'Hedy Lamarr' }));
+    search.matches = ['reb-02', 'gone', 'reb-01'];
+
+    const found = await interactor.searchSavedItems('Rebell*innen');
+
+    expect(search.lastMatch).toBe('"rebellinnen"');
+    expect(found?.map((entry) => entry.id)).toEqual(['reb-02', 'reb-01']);
+  });
+
+  it('does not search a query too short for the index', async () => {
+    await expect(interactor.searchSavedItems('ab')).resolves.toBeNull();
+    expect(search.lastMatch).toBeNull();
   });
 
   it('reports an item as not bookmarked initially', async () => {

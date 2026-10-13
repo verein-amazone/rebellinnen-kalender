@@ -158,13 +158,10 @@ Notes from doing this for the first 41 items:
 Anlaufstellen (`public/support-services/catalog.json`, shown under Content → Anlaufstellen, #24)
 are a **separate, simpler catalog** from the one above - don't confuse the two:
 
-- No SQLite sync. `SupportServiceCatalogGateway` fetches the file directly on every page load; there
-  is no `content_items` table and no build step, and editing the file is the whole update path.
-  The file does carry a top-level `version`, but nothing reads it - unlike the Wissensimpulse
-  catalog's, it is a bookkeeping note for content review, and forgetting it breaks nothing.
-  Anlaufstellen has no per-item state to persist (no bookmarking, no daily rotation, no read
-  history), so the `ContentCatalogSync` machinery the Wissensimpulse/Rebell\*in catalog needs would
-  add nothing here. Fields per entry:
+- **Bump the top-level `version` with every edit.** Like the Wissensimpulse catalog, the file is
+  reconciled into SQLite (`SupportServiceCatalogSync`, into `support_services` and its search
+  index), and only a changed version triggers the rewrite - skip the bump and an existing install
+  keeps showing, and finding, the old entries. Fields per entry:
 
 | Field            | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

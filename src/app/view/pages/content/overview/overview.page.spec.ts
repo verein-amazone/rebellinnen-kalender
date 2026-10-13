@@ -58,6 +58,15 @@ class FakeBookmarksInteractor {
     return Promise.resolve(this.savedItems);
   }
 
+  /** Stands in for the FTS search: a title match, `null` below three characters. */
+  searchSavedItems(query: string): Promise<ContentItemView[] | null> {
+    return Promise.resolve(
+      query.length < 3
+        ? null
+        : this.savedItems.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())),
+    );
+  }
+
   toggle(contentItemId: string): Promise<void> {
     this.savedItems = this.savedItems.filter((item) => item.id !== contentItemId);
     return Promise.resolve();
@@ -74,6 +83,14 @@ class FakeSupportServicesInteractor {
 
   listRegions(): Promise<SupportServiceRegion[]> {
     return Promise.resolve(this.regions);
+  }
+
+  search(query: string): Promise<SupportServiceView[] | null> {
+    return Promise.resolve(
+      query.length < 3
+        ? null
+        : this.services.filter((entry) => entry.name.toLowerCase().includes(query.toLowerCase())),
+    );
   }
 }
 
@@ -348,5 +365,160 @@ describe('ContentOverviewPage', () => {
     await whenStable();
 
     expect(element.textContent).toContain('Was tut dir gut?');
+  });
+
+  describe('search', () => {
+    /** Longer than the field's debounce, so the typed query has been searched for. */
+    async function typeQuery(
+      element: HTMLElement,
+      whenStable: () => Promise<void>,
+      text: string,
+    ): Promise<void> {
+      const input = element.querySelector<HTMLInputElement>('input[type="search"]')!;
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await whenStable();
+    }
+
+    function button(element: HTMLElement, name: string): HTMLButtonElement | undefined {
+      return Array.from(element.querySelectorAll('button')).find(
+        (candidate) => candidate.getAttribute('aria-label') === name,
+      );
+    }
+
+    it('offers a search named after the area, next to the info button', async () => {
+      const { element } = await setup();
+
+      expect(button(element, 'In Meine Sammlung suchen')).toBeDefined();
+      expect(button(element, 'Info zu Meine Sammlung')).toBeDefined();
+    });
+
+    it('opens a labelled field in place of the row, with the focus in it', async () => {
+      const { element, whenStable } = await setup();
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+
+      const input = element.querySelector<HTMLInputElement>('input[type="search"]');
+      expect(input).not.toBeNull();
+      expect(document.activeElement).toBe(input);
+      expect(element.querySelector(`label[for="${input!.id}"]`)?.textContent?.trim()).toBe(
+        'In Meine Sammlung suchen',
+      );
+      expect(input!.placeholder).toBe('In Meine Sammlung suchen');
+      expect(button(element, 'Info zu Meine Sammlung')).toBeUndefined();
+    });
+
+    it('narrows the collection to the matches and says how many there are', async () => {
+      const { element, whenStable, navigate } = await setup({
+        items: [
+          item({ id: 'reb-01', kind: 'rebellin', title: 'Ada Lovelace' }),
+          item({ id: 'reb-02', kind: 'rebellin', title: 'Hedy Lamarr' }),
+        ],
+      });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'lovelace');
+
+      expect(element.textContent).toContain('Ada Lovelace');
+      expect(element.textContent).not.toContain('Hedy Lamarr');
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe('1 Treffer');
+      expect(navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: { q: 'lovelace' }, replaceUrl: true }),
+      );
+    });
+
+    it('keeps the whole collection and asks for more while the query is too short', async () => {
+      const { element, whenStable } = await setup({
+        items: [item({ id: 'reb-01', title: 'Ada Lovelace' })],
+      });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'ad');
+
+      expect(element.textContent).toContain('Ada Lovelace');
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe(
+        'Mindestens 3 Zeichen eingeben',
+      );
+    });
+
+    it('says when nothing matches and what to try instead', async () => {
+      const { element, whenStable } = await setup({
+        items: [item({ id: 'reb-01', title: 'Ada Lovelace' })],
+      });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'zyklus');
+
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe(
+        'Keine Treffer für „zyklus“',
+      );
+      expect(element.textContent).toContain('versuche einen Teil des Wortes');
+    });
+
+    it('searches every region, without the region chips, and names each result’s region', async () => {
+      const { element, whenStable } = await setup({
+        queryParams: { area: 'services' },
+        regions: [
+          { id: 'online', label: 'Online & Telefon' },
+          { id: 'tirol', label: 'Tirol' },
+        ],
+        services: [
+          service({ id: 'rat-auf-draht', region: 'online', name: 'Rat auf Draht' }),
+          service({ id: 'evita', region: 'tirol', name: 'Evita Frauenberatung' }),
+        ],
+      });
+
+      button(element, 'In Anlaufstellen suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'evita');
+
+      expect(element.querySelector('button[role="radio"]')).toBeNull();
+      expect(element.textContent).toContain('Evita Frauenberatung');
+      expect(element.textContent).toContain('Tirol');
+      expect(element.textContent).not.toContain('Rat auf Draht');
+    });
+
+    it('closes, clears and hands the focus back to the search button', async () => {
+      const { element, whenStable } = await setup({
+        items: [
+          item({ id: 'reb-01', title: 'Ada Lovelace' }),
+          item({ id: 'reb-02', title: 'Hedy Lamarr' }),
+        ],
+      });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'lovelace');
+      button(element, 'Suche schließen')!.click();
+      await whenStable();
+
+      expect(element.querySelector('input[type="search"]')).toBeNull();
+      expect(document.activeElement).toBe(button(element, 'In Meine Sammlung suchen'));
+      expect(element.textContent).toContain('Hedy Lamarr');
+    });
+
+    it('reopens a search from the returnTo query params, and carries it into the next returnTo', async () => {
+      const { element, whenStable } = await setup({
+        items: [
+          item({ id: 'reb-01', title: 'Ada Lovelace' }),
+          item({ id: 'reb-02', title: 'Hedy Lamarr' }),
+        ],
+        queryParams: { area: 'collection', q: 'hedy' },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await whenStable();
+
+      expect(element.querySelector<HTMLInputElement>('input[type="search"]')?.value).toBe('hedy');
+      expect(element.textContent).not.toContain('Ada Lovelace');
+      expect(element.querySelector('a[href*="returnTo"]')?.getAttribute('href')).toContain(
+        encodeURIComponent('q=hedy'),
+      );
+    });
   });
 });

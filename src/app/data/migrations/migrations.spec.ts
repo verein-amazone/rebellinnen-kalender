@@ -21,17 +21,33 @@ const TABLES = [
   'calendar_sources',
   'calendars',
   'content_items',
+  'content_search',
   'ics_item_exceptions',
   'ics_items',
   'ics_subscriptions',
   'occurrences',
   'reminders',
   'source_coverage',
+  'support_service_search',
+  'support_services',
 ];
+
+/** The tables version 21 adds, absent from a database that stopped at version 20. */
+const SEARCH_TABLES = ['content_search', 'support_service_search', 'support_services'];
 
 async function tableNames(database: InMemorySqliteDatabase): Promise<string[]> {
   const rows = await database.query<{ readonly name: string }>(
-    "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+    // An FTS5 table keeps its index in shadow tables (`content_search_data`, …). They are the
+    // index's storage, not part of the schema a migration declares.
+    `SELECT name FROM sqlite_master AS t
+     WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+       AND NOT EXISTS (
+         SELECT 1 FROM sqlite_master AS v
+         WHERE v.type = 'table' AND v.sql LIKE 'CREATE VIRTUAL TABLE%'
+           AND t.name IN (v.name || '_data', v.name || '_idx', v.name || '_content',
+                          v.name || '_docsize', v.name || '_config')
+       )
+     ORDER BY name`,
   );
   return rows.map((row) => row.name);
 }
@@ -127,6 +143,25 @@ describe('MIGRATIONS', () => {
     database.close();
   });
 
+  it('indexes the search tables by trigram, so a part of a word matches', async () => {
+    const database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+
+    await database.run(
+      `INSERT INTO support_service_search (support_service_id, name, teaser, region, contacts)
+       VALUES ('a', 'frauenberatung perg', '', '', '')`,
+    );
+
+    await expect(
+      database.query(
+        `SELECT support_service_id FROM support_service_search WHERE support_service_search MATCH ?`,
+        ['"beratung"'],
+      ),
+    ).resolves.toEqual([{ support_service_id: 'a' }]);
+
+    database.close();
+  });
+
   describe('version 20 over a version 19 database', () => {
     /** A 1.0.0 database with a content item in the old shape and a bookmark on it. */
     async function versionNineteenDatabase(): Promise<InMemorySqliteDatabase> {
@@ -163,7 +198,9 @@ describe('MIGRATIONS', () => {
         'eligible_for_daily',
         'related_sources',
       ]);
-      expect(await tableNames(database)).toEqual(TABLES);
+      expect(await tableNames(database)).toEqual(
+        TABLES.filter((table) => !SEARCH_TABLES.includes(table)),
+      );
 
       database.close();
     });

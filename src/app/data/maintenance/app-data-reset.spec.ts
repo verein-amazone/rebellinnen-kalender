@@ -45,6 +45,25 @@ describe('AppDataReset', () => {
     }
   });
 
+  it('empties a search index without touching its shadow tables, so it can be searched again', async () => {
+    const search = `SELECT content_item_id FROM content_search WHERE content_search MATCH ?`;
+    await database.run(
+      `INSERT INTO content_search (content_item_id, title, teaser, body) VALUES (?, ?, ?, ?)`,
+      ['wi-01', 'beratung', '', ''],
+    );
+
+    await reset.clearEverything();
+
+    await expect(database.query(search, ['"beratung"'])).resolves.toEqual([]);
+    await database.run(
+      `INSERT INTO content_search (content_item_id, title, teaser, body) VALUES (?, ?, ?, ?)`,
+      ['wi-02', 'frauenberatung', '', ''],
+    );
+    await expect(database.query(search, ['"beratung"'])).resolves.toEqual([
+      { content_item_id: 'wi-02' },
+    ]);
+  });
+
   it('keeps the schema, so the app carries on against the same database', async () => {
     await reset.clearEverything();
 

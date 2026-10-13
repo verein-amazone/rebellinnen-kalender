@@ -1,5 +1,6 @@
 import { CREATE_SCHEMA } from './019-create-schema';
 import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
+import { CREATE_SEARCH_INDEX } from './021-search-index';
 import type { Migration } from './migration';
 
 /**
@@ -12,7 +13,11 @@ import type { Migration } from './migration';
  * so the edit would only affect fresh installs and the two would drift apart. Add a new migration
  * with the next `toVersion` instead.
  */
-export const MIGRATIONS: readonly Migration[] = [CREATE_SCHEMA, REBUILD_CONTENT_ITEMS];
+export const MIGRATIONS: readonly Migration[] = [
+  CREATE_SCHEMA,
+  REBUILD_CONTENT_ITEMS,
+  CREATE_SEARCH_INDEX,
+];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */
 export const DATABASE_VERSION = MIGRATIONS.reduce(

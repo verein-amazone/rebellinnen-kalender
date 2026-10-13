@@ -1,11 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 
 import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
+import { MarkdownRenderer } from '@app/cross-cutting/markdown/markdown-renderer';
 
 import { BookmarkDao } from '../daos/bookmark.dao';
 import { ContentItemDao } from '../daos/content-item.dao';
+import { ContentSearchDao, type ContentSearchEntry } from '../daos/content-search.dao';
 import type { ContentItemKind, ContentItemRecord } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
+import { foldForSearch } from '../search/search-text';
 import { ContentCatalogStore } from '../stores/content-catalog.store';
 
 const CATALOG_URL = '/content/catalog.json';
@@ -65,6 +68,8 @@ export class ContentCatalogSync {
   private readonly contentItems = inject(ContentItemDao);
   private readonly bookmarks = inject(BookmarkDao);
   private readonly store = inject(ContentCatalogStore);
+  private readonly contentSearch = inject(ContentSearchDao);
+  private readonly markdown = inject(MarkdownRenderer);
 
   async ensureSynced(): Promise<void> {
     const catalog = await this.fetchCatalog();
@@ -72,7 +77,11 @@ export class ContentCatalogSync {
       return;
     }
 
-    if (catalog.version === this.store.syncedVersion() && (await this.hasStoredItems(catalog))) {
+    if (
+      catalog.version === this.store.syncedVersion() &&
+      (await this.hasStoredItems(catalog)) &&
+      (await this.hasCompleteIndex(catalog))
+    ) {
       return;
     }
 
@@ -95,7 +104,18 @@ export class ContentCatalogSync {
     return (await this.contentItems.listIds()).length > 0;
   }
 
+  /**
+   * The search index arrived with schema version 21, after most devices had already synced the
+   * catalog version they ship with - so an unchanged version alone would never fill it. An index
+   * that does not hold every item is rebuilt like a version change.
+   */
+  private async hasCompleteIndex(catalog: Catalog): Promise<boolean> {
+    return (await this.contentSearch.count()) === catalog.items.length;
+  }
+
   private async reconcile(entries: readonly CatalogEntry[]): Promise<void> {
+    const toPlainText = (markdown: string) => this.markdown.toPlainText(markdown);
+
     await this.database.transaction(async (tx) => {
       const catalogIds = new Set(entries.map((entry) => entry.id));
 
@@ -108,6 +128,11 @@ export class ContentCatalogSync {
           await this.removeItem(id, tx);
         }
       }
+
+      await this.contentSearch.replaceAll(
+        entries.map((entry) => toSearchEntry(entry, toPlainText)),
+        tx,
+      );
     });
   }
 
@@ -140,6 +165,18 @@ function isCatalog(value: unknown): value is Catalog {
 
   const candidate = value as Partial<Catalog>;
   return typeof candidate.version === 'number' && Array.isArray(candidate.items);
+}
+
+function toSearchEntry(
+  entry: CatalogEntry,
+  toPlainText: (markdown: string) => string,
+): ContentSearchEntry {
+  return {
+    contentItemId: entry.id,
+    title: foldForSearch(entry.title),
+    teaser: foldForSearch(entry.teaser),
+    body: foldForSearch(toPlainText(entry.bodyMarkdown)),
+  };
 }
 
 function toRecord(entry: CatalogEntry): ContentItemRecord {

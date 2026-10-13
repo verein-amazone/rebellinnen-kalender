@@ -415,6 +415,8 @@ Stored locally:
 - App-owned events and content (canonical, editable in the app).
 - Calendar sources, calendars, ICS subscriptions with their normalized items, and the materialized
   occurrence rows of all three source types.
+- Copies of the bundled curated catalogs - content (`content_items`) and Anlaufstellen
+  (`support_services`) - reconciled from their versioned JSON assets, and their full-text indexes.
 
 About device calendar data specifically:
 
@@ -433,6 +435,36 @@ About device calendar data specifically:
 ICS subscription URLs may embed access tokens. They live only in `ics_subscriptions`, and every
 log- or UI-facing string uses `redactIcsUrl()` (origin plus path tail). HTTPS is required unless a
 subscription explicitly opts into `http`.
+
+## Full-text search
+
+Meine Sammlung and the Anlaufstellen are searched in SQLite, through two FTS5 tables with the
+`trigram` tokenizer (`021-search-index.ts`): `content_search` and `support_service_search`. FTS5
+trigram is available on every runtime - the SQLCipher builds on iOS and Android, SQLite's wasm
+build in the browser (see [SQLite in the browser](#sqlite-in-the-browser)) and `node:sqlite` in
+the specs.
+
+- **Why trigram.** Every run of three characters is indexed, so a term matches anywhere inside a
+  word. German compounds need that: „beratung“ must find „Mädchenberatungsstelle“, which a
+  word-based or prefix index only finds from „mädchen“. The cost is a three-character minimum per
+  term.
+- **Folding is ours, in TypeScript** (`data/search/search-text.ts`). The index holds folded copies of
+  the text, never the displayed text: lowercase, no diacritics, `ß` as `ss`, gender characters
+  inside a word dropped (`Rebell*innen` → `rebellinnen`), every other punctuation mark a space.
+  `toFtsMatch` folds the query the same way, drops terms under three characters, quotes each term
+  as an FTS5 string - so nothing typed is read as query syntax - and requires all of them, in any
+  column and any order. It returns `null` when no term is left, and the screen then shows the
+  unfiltered list.
+- **Ranking** is `bm25()` with column weights: a hit in the title (or name) outranks one in the
+  teaser, which outranks one in the body or the contact details. Equal matches keep the list's own
+  order.
+- **The syncs write the index.** `ContentCatalogSync` and `SupportServiceCatalogSync` rebuild their
+  index in the same transaction as the rows, from Markdown reduced to plain text
+  (`MarkdownRenderer.toPlainText`) and the region's display name. Not a trigger: the folding is
+  TypeScript. An index that does not hold every row counts as not caught up, which is how devices
+  that synced before version 21 fill theirs.
+- **The dev-tools reset skips the shadow tables** (`*_data`, `*_idx`, …) that hold an FTS5 index -
+  SQLite refuses a `DELETE` on them - and empties the FTS5 table itself instead.
 
 ## Stores
 

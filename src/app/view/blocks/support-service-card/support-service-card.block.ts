@@ -35,6 +35,11 @@ const EXTERNAL_LINK_TYPES: readonly SupportServiceActionType[] = ['website', 'ch
 })
 export class SupportServiceCardBlock {
   readonly service = input.required<SupportServiceView>();
+  /**
+   * The entry's region, shown above its name - for a list that is not already sorted under region
+   * chips, such as search results across every region. `null` shows none.
+   */
+  readonly regionLabel = input<string | null>(null);
 
   protected isExternal(type: SupportServiceActionType): boolean {
     return EXTERNAL_LINK_TYPES.includes(type);

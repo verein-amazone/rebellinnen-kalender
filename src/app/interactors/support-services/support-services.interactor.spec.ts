@@ -1,31 +1,103 @@
 import { TestBed } from '@angular/core/testing';
 
 import { SupportServiceCatalogGateway } from '@app/data/gateways/support-service-catalog.gateway';
-import type { SupportServiceCatalogItem } from '@app/data/gateways/support-service-catalog.gateway';
+import type {
+  SupportServiceCatalog,
+  SupportServiceCatalogItem,
+} from '@app/data/gateways/support-service-catalog.gateway';
+import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
+import { InMemorySqliteDatabase } from '@app/data/gateways/sqlite-database.testing';
+import { MIGRATIONS } from '@app/data/migrations/migrations';
 
 import { SupportServicesInteractor } from './support-services.interactor';
 
 class FakeSupportServiceCatalogGateway {
   items: SupportServiceCatalogItem[] = [];
 
-  fetchCatalog(): Promise<readonly SupportServiceCatalogItem[]> {
-    return Promise.resolve(this.items);
+  fetchCatalog(): Promise<SupportServiceCatalog | null> {
+    return Promise.resolve({ version: 1, items: this.items });
   }
+}
+
+function service(
+  id: string,
+  region: string,
+  name: string,
+  teaser = 'T',
+  actions: SupportServiceCatalogItem['actions'] = [],
+): SupportServiceCatalogItem {
+  return { id, region, name, teaser, icon: '🧠', actions };
 }
 
 describe('SupportServicesInteractor', () => {
   let gateway: FakeSupportServiceCatalogGateway;
+  let database: InMemorySqliteDatabase;
   let interactor: SupportServicesInteractor;
 
   beforeEach(() => {
     gateway = new FakeSupportServiceCatalogGateway();
+    database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+    localStorage.clear();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: SupportServiceCatalogGateway, useValue: gateway }],
+      providers: [
+        { provide: SupportServiceCatalogGateway, useValue: gateway },
+        { provide: SQLITE_DATABASE, useValue: database },
+      ],
     });
 
     interactor = TestBed.inject(SupportServicesInteractor);
+  });
+
+  afterEach(() => {
+    database.close();
+  });
+
+  describe('search', () => {
+    beforeEach(() => {
+      gateway.items = [
+        service('rat-auf-draht', 'online', 'Rat auf Draht', 'Beratung für Kinder und Jugendliche', [
+          { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
+        ]),
+        service('perg', 'oberoesterreich', 'Frauenberatung Perg'),
+        service('evita', 'tirol', 'Evita, Frauen- und Mädchen*beratungsstelle'),
+        service('zara', 'online', 'ZARA', 'Beratungsstellen #GegenHassimNetz'),
+      ];
+    });
+
+    async function ids(query: string): Promise<string[] | undefined> {
+      return (await interactor.search(query))?.map((item) => item.id);
+    }
+
+    it('finds a term inside a compound, across every region, the best match first', async () => {
+      const found = await ids('beratung');
+
+      expect(found).toHaveLength(4);
+      // A hit in the name outranks one in the teaser.
+      expect(found!.slice(0, 2).sort()).toEqual(['evita', 'perg']);
+    });
+
+    it('requires every term, and searches the region by its name', async () => {
+      await expect(ids('frauen tirol')).resolves.toEqual(['evita']);
+    });
+
+    it('finds an entry by the number it shows', async () => {
+      await expect(ids('147')).resolves.toEqual(['rat-auf-draht']);
+    });
+
+    it('reads a gendered word without its gender character', async () => {
+      await expect(ids('mädchenberatung')).resolves.toEqual(['evita']);
+    });
+
+    it('is empty when nothing matches', async () => {
+      await expect(ids('schwimmbad')).resolves.toEqual([]);
+    });
+
+    it('is null for a query too short to search', async () => {
+      await expect(interactor.search('ab')).resolves.toBeNull();
+    });
   });
 
   describe('listAll', () => {
