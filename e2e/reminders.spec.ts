@@ -464,6 +464,25 @@ test.describe('the „Nicht vergessen“ list', () => {
     await expect(page.getByRole('menuitem', { name: 'Löschen' })).toBeHidden();
   });
 
+  // #151: re-ordering the rows moves the trigger in the DOM, which blurs it in a real browser, so
+  // without putting focus back a keyboard or screen reader user started again from the top.
+  test('keeps focus on the menu of an entry moved from the keyboard', async ({ page }) => {
+    await page.goto('/today');
+    await addReminder(page, 'Eins');
+    await addReminder(page, 'Zwei');
+    await expectOrder(page, ['Zwei', 'Eins']);
+
+    const trigger = row(page, 'Eins').getByRole('button', { name: 'Optionen für „Eins“' });
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+    const moveUp = page.getByRole('menuitem', { name: 'Nach oben' });
+    await expect(moveUp).toBeFocused();
+    await moveUp.press('Enter');
+
+    await expectOrder(page, ['Eins', 'Zwei']);
+    await expect(trigger).toBeFocused();
+  });
+
   test('has no serious or critical accessibility violations with entries or an open sheet', async ({
     page,
   }) => {

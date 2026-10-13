@@ -62,6 +62,7 @@
                   class="rk-icon-button"
                   ngMenuTrigger
                   [menu]="rowMenu"
+                  [attr.data-menu-of]="calendar.id"
                   (keydown.enter)="$event.preventDefault()"
                   (keydown.space)="$event.preventDefault()"
                 >

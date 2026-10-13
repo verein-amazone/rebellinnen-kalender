@@ -8,10 +8,13 @@ import {
 } from '@angular/cdk/drag-drop';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
+  Injector,
   resource,
   signal,
 } from '@angular/core';
@@ -70,6 +73,8 @@ export class CalendarOrderPage {
   private readonly calendarFilters = inject(CalendarFiltersInteractor);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly haptics = inject(HapticsInteractor);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   private readonly calendars = resource({
     loader: () => this.calendarFilters.listFilterable(),
@@ -104,15 +109,35 @@ export class CalendarOrderPage {
     await this.moveTo(event.previousIndex, event.currentIndex);
   }
 
+  /**
+   * A move from a row's menu. Focus goes back to the moved calendar's menu trigger afterwards
+   * (#151): the menu hands it back as it closes, but re-ordering the rows moves the trigger in the
+   * DOM, and a browser blurs an element it moves.
+   */
   protected async runAction(action: CalendarOrderAction, index: number): Promise<void> {
-    await this.moveTo(index, action === 'move-up' ? index - 1 : index + 1);
+    const moved = this.rows()[index];
+    if (moved === undefined) {
+      return;
+    }
+
+    if (await this.moveTo(index, action === 'move-up' ? index - 1 : index + 1)) {
+      afterNextRender(
+        () =>
+          // Matched by value rather than in the selector: an id is not guaranteed to be CSS-safe.
+          Array.from(this.host.nativeElement.querySelectorAll<HTMLElement>('[data-menu-of]'))
+            .find((trigger) => trigger.dataset['menuOf'] === moved.id)
+            ?.focus(),
+        { injector: this.injector },
+      );
+    }
   }
 
-  private async moveTo(from: number, to: number): Promise<void> {
+  /** Resolves to whether there was a move to make. */
+  private async moveTo(from: number, to: number): Promise<boolean> {
     const rows = this.rows();
     const moved = rows[from];
     if (moved === undefined || to < 0 || to >= rows.length) {
-      return;
+      return false;
     }
 
     const reordered = [...rows];
@@ -125,5 +150,6 @@ export class CalendarOrderPage {
     // and after a menu selection the menu that was operated has already closed. A second, visible
     // live region would make one move sound like two.
     this.announcer.announce(`„${moved.name}“ ist jetzt an Position ${to + 1} von ${rows.length}`);
+    return true;
   }
 }

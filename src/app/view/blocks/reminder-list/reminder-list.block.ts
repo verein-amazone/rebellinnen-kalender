@@ -7,11 +7,14 @@ import {
   type CdkDragDrop,
 } from '@angular/cdk/drag-drop';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
+  Injector,
   resource,
   signal,
 } from '@angular/core';
@@ -98,6 +101,8 @@ export class ReminderListBlock {
   private readonly announcer = inject(LiveAnnouncer);
   private readonly currentDay = inject(LocalDay);
   private readonly reminderChanges = inject(ReminderChanges);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   protected readonly items = resource({
     // Reloads by itself when the day rolls over, which is when completed entries stop being shown.
@@ -242,7 +247,13 @@ export class ReminderListBlock {
     await this.moveWithin(item, group, group.indexOf(item), target);
   }
 
-  /** The same move from the row's menu, one step at a time. */
+  /**
+   * The same move from the row's menu, one step at a time.
+   *
+   * Focus goes back to the moved entry's menu trigger afterwards (#151). The menu hands it back as it
+   * closes, but re-ordering the rows moves the trigger in the DOM, and a browser blurs an element it
+   * moves - a keyboard or screen reader user would otherwise start again from the top of the page.
+   */
   protected async moveBy(item: Reminder, groupIndex: number, offset: number): Promise<void> {
     const group = item.completed ? this.doneItems() : this.openItems();
     const target = groupIndex + offset;
@@ -251,7 +262,16 @@ export class ReminderListBlock {
       return;
     }
 
-    await this.moveWithin(item, group, groupIndex, target);
+    if (await this.moveWithin(item, group, groupIndex, target)) {
+      afterNextRender(
+        () =>
+          // Matched by value rather than in the selector: an id is not guaranteed to be CSS-safe.
+          Array.from(this.host.nativeElement.querySelectorAll<HTMLElement>('[data-menu-of]'))
+            .find((trigger) => trigger.dataset['menuOf'] === item.id)
+            ?.focus(),
+        { injector: this.injector },
+      );
+    }
   }
 
   protected runAction(action: ReminderAction, item: Reminder, groupIndex: number): void {
@@ -275,14 +295,14 @@ export class ReminderListBlock {
     group: readonly Reminder[],
     from: number,
     to: number,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (from === to || from < 0) {
-      return;
+      return false;
     }
 
     const reordered = [...group];
     moveItemInArray(reordered, from, to);
-    await this.applyMove(item, reordered, to);
+    return this.applyMove(item, reordered, to);
   }
 
   /**
@@ -291,18 +311,20 @@ export class ReminderListBlock {
    * The new position is announced through the `LiveAnnouncer` and nowhere else: after a drop nothing
    * on screen states where the row ended up, and after a menu selection the menu that was operated
    * has already closed. A second, visible live region would make one move sound like two.
+   *
+   * Resolves to whether the move was written.
    */
   private async applyMove(
     item: Reminder,
     section: readonly Reminder[],
     toIndex: number,
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       await this.reminders.move(item.id, toIndex);
     } catch {
       // The order on screen would otherwise claim a move that never reached the database.
       this.reload();
-      return;
+      return false;
     }
 
     this.ordered.set(
@@ -311,6 +333,7 @@ export class ReminderListBlock {
     this.announcer.announce(
       `„${item.text}“ ist jetzt an Position ${toIndex + 1} von ${section.length}`,
     );
+    return true;
   }
 
   private edit(item: Reminder): void {
