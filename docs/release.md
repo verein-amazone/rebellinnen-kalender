@@ -116,6 +116,26 @@ that `main` is about to be merged from:
    `needsReview` removed, and no `unclear` licence left - or the image removed. CI fails the pull
    request into `main` until then (`scripts/check-image-rights.mjs`, #11).
 
+## After a release from `main`
+
+**Merge `main` back into `dev` straight away**, before any other pull request lands on `dev`:
+
+```bash
+git fetch origin
+git switch -c back-merge-v<version> origin/dev
+git merge --no-ff origin/main   # keep git's own "Merge …" message
+git push -u origin back-merge-v<version> && gh pr create --base dev --fill
+```
+
+The release commit (`chore(release): <version>`) and the `v<version>` tag exist only on `main`.
+Until `dev` contains them, semantic-release on `dev` cannot see that `<version>` has shipped and
+keeps counting prereleases of it: after 1.0.0 the next merge into `dev` would cut `1.0.0-rc.42`,
+build `10000042` - lower than the `10000999` both stores already have for 1.0.0, so App Store
+Connect and Play reject it. With the tag reachable from `dev`, the next prerelease is
+`1.0.1-rc.1` or `1.1.0-rc.1` instead. Keep git's default merge message: commitlint and
+semantic-release both skip a "Merge …" subject, so the back-merge cuts no release of its own,
+whereas a `chore:` subject would count as a patch.
+
 ## First-time setup
 
 In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
@@ -371,8 +391,9 @@ prerelease that never reached a tester.
 ## Hotfixing a released version
 
 Not yet applicable - nothing has been released from `main`. Once it has: branch from `main`, land
-the fix there with a `fix:` commit so it releases as a patch, then merge `main` back into `dev` so
-the fix is not lost on the next prerelease.
+the fix there with a `fix:` commit so it releases as a patch, then merge `main` back into `dev` as
+in [After a release from `main`](#after-a-release-from-main), so neither the fix nor the new tag is
+lost on the next prerelease.
 
 ## When a store rejects a build
 
