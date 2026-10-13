@@ -107,3 +107,44 @@ jobs:
       tag: ${{ needs.release.outputs.tag }}
       channel: ${{ github.ref_name == 'main' && 'release' || 'prerelease' }}
     secrets: inherit
+
+  # A release from `main` exists only on `main`: its tag and release commit are not reachable from
+  # `dev`, so the next prerelease on `dev` would keep counting rc builds of a version that has
+  # already shipped (1.0.0-rc.42, build 10000042 < 10000999) and both stores would reject it. This
+  # job merges the tag back into `dev` right after the release, with the deploy key that also pushes
+  # the release commit.
+  #
+  # When nothing landed on `dev` since the release pull request, the merge is a fast-forward to the
+  # release commit, whose `[skip ci]` keeps the push from starting any workflow. Otherwise git writes
+  # its own "Merge tag 'v…' into dev" commit, which commitlint and semantic-release both skip; the
+  # push then runs CI and cuts the next prerelease from the commits that were waiting on `dev`. A
+  # conflict fails the job, and the merge is done by hand (docs/release.md).
+  back-merge:
+    name: Back-merge into dev
+    needs: release
+    if: github.ref_name == 'main' && needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+          fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+          persist-credentials: true
+
+      - name: Merge the release tag into dev
+        env:
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
+          if ! git merge --no-edit "$TAG"; then
+            echo "::error::$TAG does not merge cleanly into dev; merge it by hand as described in docs/release.md, 'After a release from main'."
+            exit 1
+          fi
+          git push "git@github.com:${GITHUB_REPOSITORY}.git" HEAD:refs/heads/dev
