@@ -1,3 +1,5 @@
+import { Temporal } from 'temporal-polyfill';
+
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 
 import { selectDailyImpulse } from './select-daily-impulse';
@@ -22,13 +24,20 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
 
 describe('selectDailyImpulse', () => {
   it('returns null when there is nothing eligible', () => {
-    expect(selectDailyImpulse({ eligible: [], recentIds: [], today: '2027-02-05' })).toBeNull();
+    expect(
+      selectDailyImpulse({ eligible: [], recentIds: [], previous: null, today: '2027-02-05' }),
+    ).toBeNull();
   });
 
   it('picks the only eligible item', () => {
     const only = item({ id: 'only' });
 
-    const picked = selectDailyImpulse({ eligible: [only], recentIds: [], today: '2027-02-05' });
+    const picked = selectDailyImpulse({
+      eligible: [only],
+      recentIds: [],
+      previous: null,
+      today: '2027-02-05',
+    });
 
     expect(picked).toEqual(only);
   });
@@ -40,6 +49,7 @@ describe('selectDailyImpulse', () => {
     const picked = selectDailyImpulse({
       eligible: [evergreen, oneDay],
       recentIds: [],
+      previous: null,
       today: '2027-02-05',
     });
 
@@ -53,6 +63,7 @@ describe('selectDailyImpulse', () => {
     const picked = selectDailyImpulse({
       eligible: [wideWindow, narrowWindow],
       recentIds: [],
+      previous: null,
       today: '2027-02-05',
     });
 
@@ -66,6 +77,7 @@ describe('selectDailyImpulse', () => {
     const picked = selectDailyImpulse({
       eligible: [openEnded, narrowWindow],
       recentIds: [],
+      previous: null,
       today: '2027-02-05',
     });
 
@@ -79,6 +91,7 @@ describe('selectDailyImpulse', () => {
     const picked = selectDailyImpulse({
       eligible: [a, b],
       recentIds: ['a'],
+      previous: null,
       today: '2027-02-05',
     });
 
@@ -92,6 +105,7 @@ describe('selectDailyImpulse', () => {
     const picked = selectDailyImpulse({
       eligible: [a, b],
       recentIds: ['a', 'b'],
+      previous: null,
       today: '2027-02-05',
     });
 
@@ -101,8 +115,18 @@ describe('selectDailyImpulse', () => {
   it('is deterministic for the same inputs', () => {
     const eligible = [item({ id: 'a' }), item({ id: 'b' }), item({ id: 'c' })];
 
-    const first = selectDailyImpulse({ eligible, recentIds: [], today: '2027-02-05' });
-    const second = selectDailyImpulse({ eligible, recentIds: [], today: '2027-02-05' });
+    const first = selectDailyImpulse({
+      eligible,
+      recentIds: [],
+      previous: null,
+      today: '2027-02-05',
+    });
+    const second = selectDailyImpulse({
+      eligible,
+      recentIds: [],
+      previous: null,
+      today: '2027-02-05',
+    });
 
     expect(first).toEqual(second);
   });
@@ -112,10 +136,76 @@ describe('selectDailyImpulse', () => {
 
     const picks = new Set(
       ['2025-01-01', '2025-04-01', '2026-01-01', '2026-04-01'].map(
-        (today) => selectDailyImpulse({ eligible, recentIds: [], today })?.id,
+        (today) => selectDailyImpulse({ eligible, recentIds: [], previous: null, today })?.id,
       ),
     );
 
     expect(picks.size).toBeGreaterThan(1);
+  });
+
+  describe('after the previous impulse', () => {
+    /** Every day of 2027, to see how often a kind wins rather than which item one day picks. */
+    const YEAR = Array.from({ length: 365 }, (_, index) =>
+      Temporal.PlainDate.from('2027-01-01').add({ days: index }).toString(),
+    );
+
+    it('makes the kind of the previous impulse unlikely, but not impossible', () => {
+      const previous = item({ id: 'reb-01', kind: 'rebellin' });
+      const eligible = [item({ id: 'reb-02', kind: 'rebellin' }), item({ id: 'wi-01' })];
+
+      const picks = YEAR.map(
+        (today) => selectDailyImpulse({ eligible, recentIds: [], previous, today })?.id,
+      );
+      const repeats = picks.filter((id) => id === 'reb-02').length;
+
+      // One trait shared weighs a tenth, so about 1 day in 11 repeats the kind.
+      expect(repeats).toBeGreaterThan(0);
+      expect(repeats).toBeLessThan(YEAR.length * 0.2);
+    });
+
+    it('leaves the odds alone without a previous impulse', () => {
+      const eligible = [item({ id: 'reb-02', kind: 'rebellin' }), item({ id: 'wi-01' })];
+
+      const picks = YEAR.map(
+        (today) => selectDailyImpulse({ eligible, recentIds: [], previous: null, today })?.id,
+      );
+      const rebellinnen = picks.filter((id) => id === 'reb-02').length;
+
+      expect(rebellinnen).toBeGreaterThan(YEAR.length * 0.35);
+      expect(rebellinnen).toBeLessThan(YEAR.length * 0.65);
+    });
+
+    it('still picks an item of the same kind when nothing else is eligible', () => {
+      const previous = item({ id: 'reb-01', kind: 'rebellin' });
+      const only = item({ id: 'reb-02', kind: 'rebellin' });
+
+      const picked = selectDailyImpulse({
+        eligible: [only],
+        recentIds: [],
+        previous,
+        today: '2027-02-05',
+      });
+
+      expect(picked?.id).toBe('reb-02');
+    });
+
+    it('still favors a single-day item of the same kind over an evergreen one of another', () => {
+      const previous = item({ id: 'reb-01', kind: 'rebellin' });
+      const oneDay = item({
+        id: 'reb-02',
+        kind: 'rebellin',
+        validFrom: '2027-02-05',
+        validTo: '2027-02-05',
+      });
+
+      const picked = selectDailyImpulse({
+        eligible: [item({ id: 'wi-01' }), oneDay],
+        recentIds: [],
+        previous,
+        today: '2027-02-05',
+      });
+
+      expect(picked?.id).toBe('reb-02');
+    });
   });
 });
