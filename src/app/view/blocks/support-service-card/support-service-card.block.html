@@ -1,6 +1,9 @@
 <div class="rk-card space-y-3 p-4">
   <div class="flex gap-3">
     <div class="min-w-0 flex-1 space-y-1">
+      @if (regionLabel(); as region) {
+        <span class="rk-pill text-xs">{{ region }}</span>
+      }
       <p class="font-semibold">{{ service().name }}</p>
       <p class="text-muted-foreground">{{ service().teaser }}</p>
     </div>

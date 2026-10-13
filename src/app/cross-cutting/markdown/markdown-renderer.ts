@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import DOMPurify, { type Config } from 'dompurify';
-import { Marked } from 'marked';
+import { Marked, type Token } from 'marked';
 
 /**
  * Internal wrapper around the `marked` package. This is the only place `marked`
@@ -45,4 +45,32 @@ export class MarkdownRenderer {
     const rawHtml = this.marked.parse(markdown, { async: false });
     return DOMPurify.sanitize(rawHtml, SANITIZE_CONFIG);
   }
+
+  /**
+   * The readable text of a Markdown document, without its syntax - what a search index should see.
+   * Link targets and image sources are left out; their labels are kept. Blocks are separated by a
+   * space so the last word of one paragraph never runs into the first of the next.
+   */
+  toPlainText(markdown: string): string {
+    if (!markdown) {
+      return '';
+    }
+
+    return plainText(this.marked.lexer(markdown)).replace(/\s+/g, ' ').trim();
+  }
+}
+
+/** Leaf text of a token tree: a token with children contributes its children, any other its text. */
+function plainText(tokens: readonly Token[]): string {
+  return tokens
+    .map((token) => {
+      if ('tokens' in token && Array.isArray(token.tokens) && token.tokens.length > 0) {
+        return plainText(token.tokens);
+      }
+      if (token.type === 'list') {
+        return plainText(token.items as Token[]);
+      }
+      return 'text' in token && typeof token.text === 'string' ? token.text : '';
+    })
+    .join(' ');
 }

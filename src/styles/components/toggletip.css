@@ -18,4 +18,23 @@
     max-inline-size: min(22rem, calc(100cqi - 2rem));
     max-block-size: 60dvh;
   }
+
+  /*
+   * The info button's icon: a disc in the accent colour - the colour of the active tab's indicator -
+   * with the `i` in the accent's foreground colour.
+   *
+   * A disc rather than an accent-coloured outline icon, because the accent is chosen to stand out
+   * against the navigation bar, not against the page: as a line on the page background it falls far
+   * below the 3:1 a meaningful graphic needs on three of the four themes (orange on Amazone's teal is
+   * 1.2:1). The `i` against the disc is the pairing the theme already guarantees - accent and
+   * accent-foreground - so the icon reads on every theme.
+   */
+  .rk-info-icon circle {
+    fill: var(--color-accent);
+    stroke: var(--color-accent);
+  }
+
+  .rk-info-icon path {
+    stroke: var(--color-accent-foreground);
+  }
 }

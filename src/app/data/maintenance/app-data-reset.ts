@@ -26,9 +26,18 @@ export class AppDataReset {
 
   private async clearDatabase(): Promise<void> {
     // `sqlite_%` is SQLite's own bookkeeping (`sqlite_sequence`), `_%` the plugin's - neither is
-    // application data, and emptying either would corrupt state the app does not own.
+    // application data, and emptying either would corrupt state the app does not own. The same goes
+    // for an FTS5 table's shadow tables (`content_search_data`, …): they are the index's storage,
+    // SQLite refuses a `DELETE` on them, and emptying the FTS5 table itself empties them.
     const tables = await this.database.query<{ readonly name: string }>(
-      "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '\\_%' ESCAPE '\\';",
+      `SELECT name FROM sqlite_master AS t
+       WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '\\_%' ESCAPE '\\'
+         AND NOT EXISTS (
+           SELECT 1 FROM sqlite_master AS v
+           WHERE v.type = 'table' AND v.sql LIKE 'CREATE VIRTUAL TABLE%'
+             AND t.name IN (v.name || '_data', v.name || '_idx', v.name || '_content',
+                            v.name || '_docsize', v.name || '_config')
+         );`,
     );
 
     await this.database.transaction(async (tx) => {

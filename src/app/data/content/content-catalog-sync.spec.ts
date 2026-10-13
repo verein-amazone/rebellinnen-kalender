@@ -108,6 +108,40 @@ describe('ContentCatalogSync', () => {
     expect(await contentItems.listIds()).toEqual(['wi-01']);
   });
 
+  it('indexes every item for search, the body as plain folded text', async () => {
+    mockFetch({
+      version: 1,
+      items: [
+        catalogEntry({
+          title: 'Mädchen*beratung',
+          bodyMarkdown: '**Zyklus** und [Link](https://x.at)',
+        }),
+      ],
+    });
+
+    await sync.ensureSynced();
+
+    await expect(
+      database.query('SELECT content_item_id, title, body FROM content_search'),
+    ).resolves.toEqual([
+      { content_item_id: 'wi-01', title: 'madchenberatung', body: 'zyklus und link' },
+    ]);
+  });
+
+  it('builds the index when the version matches but the index is empty', async () => {
+    // A device that synced its catalog before the index existed (schema version 21) has the
+    // version stored and items in place - the index must still be filled.
+    mockFetch({ version: 2, items: [catalogEntry()] });
+    await sync.ensureSynced();
+    await database.run('DELETE FROM content_search');
+
+    await sync.ensureSynced();
+
+    await expect(database.query('SELECT content_item_id FROM content_search')).resolves.toEqual([
+      { content_item_id: 'wi-01' },
+    ]);
+  });
+
   it('updates a changed item in place and removes one no longer in the catalog', async () => {
     await contentItems.upsert({
       id: 'wi-01',

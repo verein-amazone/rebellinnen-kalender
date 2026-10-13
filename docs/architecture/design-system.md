@@ -372,10 +372,34 @@ swipe and nothing needs announcing or focusing. The panel only floats visually. 
 traps nothing, and it closes on the button, a tap elsewhere, Escape and Android's back button. The
 native `popover` attribute would cover the dismissing, but not on iOS 16.4.
 
+The icon is a disc in the accent colour - the colour of the active tab's indicator - with the `i` in
+`accent-foreground` (`.rk-info-icon`). Not an accent-coloured outline: the accent is picked to stand
+out against the navigation bar, and as a thin line on the page background it misses the 3:1 a
+meaningful graphic needs on three of the four themes (orange on Amazone's teal is 1.2:1). The `i`
+against the disc is the accent / accent-foreground pairing every theme already guarantees.
+
 The panel opens below the button towards the start, so place the button at the end of a row - a
-focused screen's `header-actions`, or the last column of a tab's sticky header. Keep the text short:
+focused screen's `header-actions`, or the end of a tab's sticky header (Inhalte puts it in the row
+below its tabs, opposite the search button). Keep the text short:
 something a user must read before acting (an error, a consequence, a privacy promise next to the
 permission it explains) stays visible on the screen.
+
+### Search row - Inhalte
+
+Inhalte's second header row holds the screen's own actions: a ghost `rk-icon-button` with a
+magnifier on the start side, named after the area it searches („In Meine Sammlung suchen“), and the
+info button on the end side. Tapping the magnifier turns the row into the search field - an
+`.rk-field` with `type="search"` and `enterkeyhint="search"`, focused at once - plus a ✕ „Suche
+schließen“ that clears the query and hands focus back to the magnifier. The info button gives way
+while the field is open. The field's `<label for>` is visually hidden but says exactly what the
+placeholder shows, so the accessible name matches what is on screen; Android's back button closes
+the search before it leaves the screen.
+
+Below the row, one `role="status"` line reports each settled result once: „3 Treffer“, „Keine
+Treffer für „…““, or „Mindestens 3 Zeichen eingeben“ while the query is too short for the index. A
+search across Anlaufstellen spans every region, so the region chips step aside and each card shows
+its region as a pill. See [Data & persistence](./data-persistence.md#full-text-search) for how
+matching works.
 
 ### Field, input and error - `field.css`
 
