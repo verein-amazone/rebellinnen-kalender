@@ -1,5 +1,11 @@
+<!-- Past the `row` container width (large text sizes) the card stacks: the emoji's box is sized in
+     rem, so at 2x it alone claimed half the width and squeezed the name to a letter per line. The
+     emoji then sits above the text in a fixed-pixel box - it is decoration, and the compact rule is
+     that decoration stops scaling while text never does - and the actions go one per line. Below
+     that, the actions start at their natural width (`flex-auto`) and the second one wraps to its
+     own line once both no longer fit, rather than both shrinking until „Anrufen“ hyphenates. -->
 <div class="rk-card space-y-3 p-4">
-  <div class="flex gap-3">
+  <div class="@max-row:flex-col-reverse flex gap-3">
     <div class="min-w-0 flex-1 space-y-1">
       @if (regionLabel(); as region) {
         <span class="rk-pill text-xs">{{ region }}</span>
@@ -12,19 +18,22 @@
          only competes with the card's own surface. Purely decorative - the service is named in
          text right next to it - so it is `aria-hidden`. The fixed box keeps emoji of different
          widths lined up down a scrolling list. -->
-    <span aria-hidden="true" class="grid size-24 shrink-0 place-content-center text-6xl">
+    <span
+      aria-hidden="true"
+      class="@max-row:size-[64px] @max-row:text-[48px] grid size-24 shrink-0 place-content-center text-6xl"
+    >
       {{ service().icon }}
     </span>
   </div>
 
   @if (service().actions.length > 0) {
-    <div class="flex gap-2">
+    <div class="@max-row:flex-col flex flex-wrap gap-2">
       @for (action of service().actions; track action.uri; let first = $first) {
         <a
           [href]="action.uri"
           [attr.target]="isExternal(action.type) ? '_blank' : null"
           [attr.rel]="isExternal(action.type) ? 'noopener noreferrer' : null"
-          class="rk-button flex-1"
+          class="rk-button flex-auto hyphens-none"
           [class.rk-button-primary]="first"
           [class.rk-button-outline-primary]="!first"
           [attr.aria-label]="actionAriaLabel(service().name, action.label, action.displayValue)"
