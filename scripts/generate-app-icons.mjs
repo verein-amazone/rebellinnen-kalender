@@ -32,6 +32,9 @@
  *   when the web demo build (see README) is installed to a home screen. The maskable one carries
  *   the same adaptive safe-zone padding as the Android foreground, because a browser applies a mask
  *   of its own.
+ * - `public/icons/apple-touch-icon.png` - the 180px home-screen icon Safari on iOS uses when the web
+ *   build is added to a home screen; it prefers this link over the manifest's icons.
+ * - `public/favicon.ico` - the browser tab icon, 16, 32 and 48px in one file.
  * - `fastlane/metadata/android/de-DE/images/icon.png` - the 512px hi-res icon of the Play listing,
  *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
  *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
@@ -81,10 +84,17 @@ const PREVIEW_SIZE = 192;
 /** Web app manifest icons, from the default icon. 192 and 512 are what every browser asks for. */
 const MANIFEST_ICON_SIZES = [192, 512];
 
+/** The size of `apple-touch-icon` that current iPhones ask for; iOS scales it for everything else. */
+const APPLE_TOUCH_ICON_SIZE = 180;
+
+/** The images inside `favicon.ico`: a browser tab, a high-density tab, and a desktop shortcut. */
+const FAVICON_SIZES = [16, 32, 48];
+
 const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
 const manifestIconDir = join(root, 'public/icons');
+const faviconPath = join(root, 'public/favicon.ico');
 const playListingImageDir = join(root, 'fastlane/metadata/android/de-DE/images');
 
 /** The Play listing's hi-res icon must be exactly this size. */
@@ -111,6 +121,8 @@ async function main() {
 
     if (icon.catalog === 'AppIcon') {
       await writeManifestIcons(source, background);
+      await writeAppleTouchIcon(source);
+      await writeFavicon(source);
       await writePlayListingIcon(source);
     }
 
@@ -313,6 +325,50 @@ async function writeManifestIcons(source, background) {
     ])
     .png({ compressionLevel: 9 })
     .toFile(join(manifestIconDir, `icon-${maskableSize}-maskable.png`));
+}
+
+/**
+ * Full-bleed and flattened, like the iOS app icon: iOS rounds the corners itself and would render
+ * transparency black.
+ */
+async function writeAppleTouchIcon(source) {
+  await sharp(source)
+    .resize(APPLE_TOUCH_ICON_SIZE, APPLE_TOUCH_ICON_SIZE, { fit: 'cover' })
+    .flatten()
+    .png({ compressionLevel: 9 })
+    .toFile(join(manifestIconDir, 'apple-touch-icon.png'));
+}
+
+/**
+ * An ICO file holding one PNG per size. `sharp` cannot write ICO, but the container is only a
+ * 6-byte header and a 16-byte directory entry per image in front of the PNGs themselves, which every
+ * browser has accepted for well over a decade.
+ */
+async function writeFavicon(source) {
+  const images = await Promise.all(
+    FAVICON_SIZES.map((size) =>
+      sharp(source).resize(size, size, { fit: 'cover' }).png({ compressionLevel: 9 }).toBuffer(),
+    ),
+  );
+
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(images.length, 4);
+
+  const directory = Buffer.alloc(16 * images.length);
+  let offset = header.length + directory.length;
+  images.forEach((image, index) => {
+    const entry = index * 16;
+    directory.writeUInt8(FAVICON_SIZES[index], entry); // width
+    directory.writeUInt8(FAVICON_SIZES[index], entry + 1); // height
+    directory.writeUInt16LE(1, entry + 4); // colour planes
+    directory.writeUInt16LE(32, entry + 6); // bits per pixel
+    directory.writeUInt32LE(image.length, entry + 8);
+    directory.writeUInt32LE(offset, entry + 12);
+    offset += image.length;
+  });
+
+  await writeFile(faviconPath, Buffer.concat([header, directory, ...images]));
 }
 
 /** The Play listing's hi-res icon, full-bleed like the iOS one. */
