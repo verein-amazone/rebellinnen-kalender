@@ -1,3 +1,9 @@
+## [1.0.0-rc.42](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.41...v1.0.0-rc.42) (2026-10-13)
+
+### Chores
+
+* **deps:** bump gradle-wrapper ([f032ee5](https://github.com/verein-amazone/rebellinnen-kalender/commit/f032ee5e471a058fcdb94184c9c43f47637b2d0c))
+
 ## [1.0.0-rc.41](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.40...v1.0.0-rc.41) (2026-10-13)
 
 ### Features
