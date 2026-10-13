@@ -234,19 +234,7 @@ export class IcsSubscriptionInteractor {
    */
   async refreshAllDue(): Promise<void> {
     const now = Date.now();
-    const [sources, subscriptions] = await Promise.all([
-      this.sources.listSources(),
-      this.repository.listIcsSubscriptions(),
-    ]);
-    const enabledSourceIds = new Set(
-      sources.filter((source) => source.enabled).map((source) => source.id),
-    );
-
-    for (const subscription of subscriptions) {
-      if (!enabledSourceIds.has(subscription.id)) {
-        continue;
-      }
-
+    for (const subscription of await this.repository.listEnabledIcsSubscriptions()) {
       // Measured against the last *check*, not the last stored revision: a feed that answers `304`
       // is being confirmed as current, and gating on `lastSuccessAt` made such a feed count as due
       // forever - re-downloaded on every launch and every foreground. `lastSuccessAt` is the
