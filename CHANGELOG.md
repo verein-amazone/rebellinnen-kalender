@@ -1,3 +1,15 @@
+## [1.0.0-rc.39](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.38...v1.0.0-rc.39) (2026-10-13)
+
+### Features
+
+* **pages:** app favicon, iOS touch icon, and keep the web build unindexed ([5c49d21](https://github.com/verein-amazone/rebellinnen-kalender/commit/5c49d21ad97770b606c1a56362d66a9cc430ffb1))
+* **settings:** ship the app's own privacy policy ([1c999e8](https://github.com/verein-amazone/rebellinnen-kalender/commit/1c999e8e18d4505b00b9969d7b3ee229e483be16)), closes [#79](https://github.com/verein-amazone/rebellinnen-kalender/issues/79)
+* **settings:** ship the privacy policy text and the terms of use ([ac7fde6](https://github.com/verein-amazone/rebellinnen-kalender/commit/ac7fde647480b7a84498af277547a04ff6b13849))
+
+### Bug Fixes
+
+* **onboarding:** resolve the welcome image against the base href ([ecbd122](https://github.com/verein-amazone/rebellinnen-kalender/commit/ecbd1225394fca841476df1a89a138d8f775b71a))
+
 ## [1.0.0-rc.38](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.37...v1.0.0-rc.38) (2026-10-13)
 
 ### Bug Fixes
