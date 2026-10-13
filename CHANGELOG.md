@@ -1,3 +1,36 @@
+## [1.0.0-rc.43](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.42...v1.0.0-rc.43) (2026-10-13)
+
+### Bug Fixes
+
+* **android:** drop the unused biometric permissions from the manifest ([b0dd700](https://github.com/verein-amazone/rebellinnen-kalender/commit/b0dd7000d2f997d12c5010d7fc3e87fc430be8cd))
+* **android:** route the back button through sheets and screens instead of the WebView history ([4937d5c](https://github.com/verein-amazone/rebellinnen-kalender/commit/4937d5c038c8252050687e4da145213b56a8786c))
+* **calendar:** ask before leaving an appointment edit with changes ([1dc1511](https://github.com/verein-amazone/rebellinnen-kalender/commit/1dc1511273185f342c96e2581bd6564f9a4b4af0))
+* **calendar:** keep background calendar refreshes from rejecting ([4b25600](https://github.com/verein-amazone/rebellinnen-kalender/commit/4b25600fe38cd4e311fd72809b04db89ada85993))
+* **calendar:** keep one unexpandable recurrence from breaking the calendar ([736750c](https://github.com/verein-amazone/rebellinnen-kalender/commit/736750c16c0ca91df5dbb8cfcdd5432b40463e14))
+* **calendar:** keep the device calendar window anchored on today ([c4e9021](https://github.com/verein-amazone/rebellinnen-kalender/commit/c4e902148076545a4091e6ac0e41cd8599d17bb7))
+* **calendar:** keep the moved time when an edited occurrence is edited again ([b23868d](https://github.com/verein-amazone/rebellinnen-kalender/commit/b23868da9e33641efa9808841f423094907af350))
+* **calendar:** match UTC exceptions of an ICS series to its zoned start ([8886b07](https://github.com/verein-amazone/rebellinnen-kalender/commit/8886b0786c6d0855c845b019e96769eefb5d2801))
+* **calendar:** save an appointment once and say so when saving fails ([47228f9](https://github.com/verein-amazone/rebellinnen-kalender/commit/47228f927e5e811c5fda3f83ded00b5c11da83f5))
+* **ci:** skip the commit-message check on pull requests into main ([dd2b3c3](https://github.com/verein-amazone/rebellinnen-kalender/commit/dd2b3c39c02b9b41bfb4ca35cf1ef890f116e06d))
+* **onboarding:** put the skip icon after its label, like Weiter ([b402a1e](https://github.com/verein-amazone/rebellinnen-kalender/commit/b402a1e7cab110501aba6b66c51f99613f2222eb))
+* **today:** report a change to the Nicht-vergessen list that cannot be saved ([a25f6cb](https://github.com/verein-amazone/rebellinnen-kalender/commit/a25f6cb430a54cd105059d1092a23cfc5b7f9f1e))
+* **view:** report calendar, collection and introduction changes that cannot be saved ([b3e3842](https://github.com/verein-amazone/rebellinnen-kalender/commit/b3e3842949966ee5b66d933c34ac3798ad34d20b))
+* **view:** show the retry card instead of a broken screen when loading fails ([bfd5f73](https://github.com/verein-amazone/rebellinnen-kalender/commit/bfd5f73b637b901b50697b0425154b514ea9236e))
+
+### Performance
+
+* **calendar:** stop loading the raw ICS document with every subscription ([de82304](https://github.com/verein-amazone/rebellinnen-kalender/commit/de82304b401e24fc30079d628183db510e0da69b))
+
+### Chores
+
+* keep local Claude Code settings out of the format check ([34ea4b0](https://github.com/verein-amazone/rebellinnen-kalender/commit/34ea4b07bc657b0e0293bca20a0f03516be223a4))
+
+### Delivery
+
+* **release:** merge each release from main back into dev ([eefd96d](https://github.com/verein-amazone/rebellinnen-kalender/commit/eefd96d35d23ce1622dd099060e53f091c817ea8))
+* **release:** turn off the success comments of the GitHub release ([f32dc37](https://github.com/verein-amazone/rebellinnen-kalender/commit/f32dc37410eef234497efef0eac0dae70e4993ac))
+* **store:** serialise the jobs that write the App Store version ([51fc46f](https://github.com/verein-amazone/rebellinnen-kalender/commit/51fc46f071dbb7955eabe6db58668af41efb052f))
+
 ## [1.0.0-rc.42](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.41...v1.0.0-rc.42) (2026-10-13)
 
 ### Chores
