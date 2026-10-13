@@ -1,3 +1,14 @@
+## [1.0.0-rc.41](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.40...v1.0.0-rc.41) (2026-10-13)
+
+### Features
+
+* **onboarding:** choose the curated calendars in the introduction ([68ac5cc](https://github.com/verein-amazone/rebellinnen-kalender/commit/68ac5ccac315cc6fd86f0bcf665a1a07f37b62dc))
+* **onboarding:** link the terms of use and the privacy policy ([ca15d04](https://github.com/verein-amazone/rebellinnen-kalender/commit/ca15d048ac21327a2e0f1e38ab309ec21081295c))
+
+### Bug Fixes
+
+* **onboarding:** link only the terms of use on the first step ([da9acb6](https://github.com/verein-amazone/rebellinnen-kalender/commit/da9acb6ca4eaeb628f279ab1f8c96523792f40d4))
+
 ## [1.0.0-rc.40](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.39...v1.0.0-rc.40) (2026-10-13)
 
 ### Bug Fixes
