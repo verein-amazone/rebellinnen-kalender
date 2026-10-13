@@ -107,10 +107,24 @@ reviewer asks:
 
 | Permission                                           | Declared in                                    | Why                                                                                                                                                                                         |
 | ---------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `INTERNET`                                           | `android/app/src/main/AndroidManifest.xml:96`  | Downloading subscribed and curated calendars.                                                                                                                                               |
-| `READ_CALENDAR`, `WRITE_CALENDAR`                    | `AndroidManifest.xml:97-99`                    | Showing the phone's own calendars next to the app's, and saving an appointment into one of them when the user picks it. Requested only from the explicit „Gerätekalender verbinden“ action. |
-| `USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` (≤ API 32) | `AndroidManifest.xml:100-109`                  | Appointment reminders on time.                                                                                                                                                              |
+| `INTERNET`                                           | `android/app/src/main/AndroidManifest.xml:98`  | Downloading subscribed and curated calendars.                                                                                                                                               |
+| `READ_CALENDAR`, `WRITE_CALENDAR`                    | `AndroidManifest.xml:99-101`                   | Showing the phone's own calendars next to the app's, and saving an appointment into one of them when the user picks it. Requested only from the explicit „Gerätekalender verbinden“ action. |
+| `USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` (≤ API 32) | `AndroidManifest.xml:102-111`                  | Appointment reminders on time.                                                                                                                                                              |
 | `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`       | `@capacitor/local-notifications`' own manifest | Showing reminders, and re-scheduling them after a restart. Requested only from a tap on the reminders switch.                                                                               |
+| `WAKE_LOCK`                                          | `@capacitor/local-notifications`' own manifest | Delivering a reminder while the phone sleeps. Granted at install, never asked for.                                                                                                          |
+| `VIBRATE`                                            | `@capawesome/capacitor-haptics`' own manifest  | Haptic feedback on taps, which the user can switch off under Einstellungen → Vibration. Granted at install, never asked for.                                                                |
+
+`USE_BIOMETRIC` and `USE_FINGERPRINT` would arrive through `@capacitor-community/sqlite`, which
+depends on `androidx.biometric` for an optional biometric database lock the app does not use.
+`AndroidManifest.xml:112-116` removes both from the merged manifest, so they are not on the Play
+listing. Check the merged manifest
+(`android/app/build/intermediates/merged_manifest/*/process*MainManifest/AndroidManifest.xml`) after a
+plugin update for permissions that arrive the same way.
+
+**If Play rejects the exact alarm declaration**, the fallback is to drop `USE_EXACT_ALARM` and keep
+`SCHEDULE_EXACT_ALARM` without its `maxSdkVersion`: Android 13+ then denies exact alarms by default,
+and `cross-cutting/infrastructure/notifications.ts` already falls back to inexact delivery, so
+reminders arrive up to a few minutes late instead of not at all.
 
 ## Age rating
 

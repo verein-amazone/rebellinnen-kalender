@@ -1,5 +1,6 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { LucideRotateCw } from '@lucide/angular';
 
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { AppIconInteractor, type AppIconId } from '@app/interactors/settings/app-icon.interactor';
@@ -17,7 +18,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-app-icon',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, ChoiceRow],
+  imports: [FocusedScreenScaffold, ChoiceRow, LucideRotateCw],
   templateUrl: './app-icon.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

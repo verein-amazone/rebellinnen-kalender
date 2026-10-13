@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
 import { CREATE_SCHEMA } from './019-create-schema';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
@@ -60,6 +62,32 @@ describe('MIGRATIONS', () => {
     // The plugin only upgrades: a database already at the requested version or above it is opened
     // unchanged. A baseline at or below a pre-release version would skip that device for good.
     expect(CREATE_SCHEMA.toVersion).toBeGreaterThan(LAST_PRE_RELEASE_VERSION);
+  });
+
+  it('never changes a migration that has shipped', () => {
+    // A device that applied a migration never runs it again, so an edit would only reach fresh
+    // installs. Add a migration with the next version instead; append its hash here when it ships.
+    const shipped: Record<number, string> = {
+      19: 'db6eed6e1d8b048dfd4702179d7f9aff59467616753084da8b94d166cd05d290',
+    };
+
+    for (const migration of MIGRATIONS.filter((entry) => entry.toVersion in shipped)) {
+      const hash = createHash('sha256').update(JSON.stringify(migration.statements)).digest('hex');
+      expect(hash, `migration ${migration.toVersion}`).toBe(shipped[migration.toVersion]);
+    }
+  });
+
+  it('can apply every migration a second time', async () => {
+    // The plugin commits a migration's statements and only then stamps the new version, in a
+    // separate step. A crash in between runs the migration again on the next launch, so running it
+    // twice must succeed - or every later launch fails to open the database.
+    const database = new InMemorySqliteDatabase();
+    database.migrate(MIGRATIONS);
+
+    expect(() => database.migrate(MIGRATIONS)).not.toThrow();
+    expect(await tableNames(database)).toEqual(TABLES);
+
+    database.close();
   });
 
   it('creates every table on an empty database', async () => {

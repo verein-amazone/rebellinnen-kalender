@@ -73,6 +73,18 @@ export class DeviceCalendarSyncInteractor {
     // window untouched would let the next automatic trigger immediately redo it.
     this.lastAutomaticRefreshAt = now;
 
+    // Never rejects: every caller fires this from a lifecycle event or after a write that already
+    // succeeded, where a rejection would either be unhandled or make that write look failed - and
+    // a retried native create would then exist twice in the OS calendar.
+    try {
+      return await this.refreshCache();
+    } catch (error) {
+      console.warn('Die Gerätekalender konnten nicht aktualisiert werden.', error);
+      return false;
+    }
+  }
+
+  private async refreshCache(): Promise<boolean> {
     const context = this.context();
     const source = await this.repository.findSource(DEVICE_SOURCE_ID);
     if (source === null) {
@@ -96,7 +108,7 @@ export class DeviceCalendarSyncInteractor {
       return false;
     }
 
-    const range = await this.fetchRange(context);
+    const range = this.fetchRange(context);
     try {
       const calendars = await this.gateway.listCalendars();
       const instances = await this.gateway.listEventInstances(
@@ -157,25 +169,21 @@ export class DeviceCalendarSyncInteractor {
     );
   }
 
-  /** The covered range extended by the buffer, or the default window for a first fetch. */
-  private async fetchRange(
-    context: CalendarContext,
-  ): Promise<{ startUtc: string; endUtc: string }> {
-    const coverage = await this.repository.findCoverage(DEVICE_SOURCE_ID);
-    if (coverage !== null) {
-      return {
-        startUtc: addDays(coverage.windowStartUtc, -RANGE_BUFFER_DAYS),
-        endUtc: addDays(coverage.windowEndUtc, RANGE_BUFFER_DAYS),
-      };
-    }
-
-    const now = Temporal.Instant.from(context.nowUtc).toZonedDateTimeISO(context.timeZone);
+  /**
+   * The window the device cache covers: the materialization window around today, plus the buffer.
+   * Anchored on the start of today rather than on the stored coverage, so it moves with the date
+   * instead of growing on every refresh, and changes at most once a day.
+   */
+  private fetchRange(context: CalendarContext): { startUtc: string; endUtc: string } {
+    const today = Temporal.Instant.from(context.nowUtc)
+      .toZonedDateTimeISO(context.timeZone)
+      .startOfDay();
     return {
-      startUtc: now
+      startUtc: today
         .subtract({ months: WINDOW_PAST_MONTHS, days: RANGE_BUFFER_DAYS })
         .toInstant()
         .toString(),
-      endUtc: now
+      endUtc: today
         .add({ months: WINDOW_FUTURE_MONTHS, days: RANGE_BUFFER_DAYS })
         .toInstant()
         .toString(),
@@ -188,10 +196,4 @@ export class DeviceCalendarSyncInteractor {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
   }
-}
-
-function addDays(instantIso: string, days: number): string {
-  return Temporal.Instant.from(instantIso)
-    .add({ hours: days * 24 })
-    .toString();
 }

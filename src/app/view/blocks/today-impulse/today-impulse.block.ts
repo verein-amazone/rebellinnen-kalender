@@ -18,6 +18,7 @@ import type { ContentItemView } from '@app/interactors/daily-content/content-ite
 import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-impulse.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { ShakeInteractor } from '@app/interactors/feedback/shake.interactor';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * The Today page's featured content card (#1): today's stable "Wissen" piece or Rebell*in, the
@@ -66,7 +67,7 @@ export class TodayImpulseBlock {
     loader: ({ params: { today } }) => this.daily.featuredItem(today),
   });
 
-  protected readonly item = computed<ContentItemView | null>(() => this.data.value() ?? null);
+  protected readonly item = computed<ContentItemView | null>(() => valueOr(this.data, null));
 
   /**
    * Whether today's item leads with its picture instead of its teaser - an editorial call carried

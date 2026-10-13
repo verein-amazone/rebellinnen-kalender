@@ -13,6 +13,7 @@ import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calenda
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 
@@ -37,6 +38,9 @@ export class App {
   private destroyed = false;
 
   constructor() {
+    // Takes Android's back button over from the WebView history before the first press.
+    inject(HardwareBack);
+
     // Registered first thing: a tap on a reminder may be what launched the app, and the OS holds
     // that tap back only until a handler exists.
     this.reminders.onReminderTapped(
@@ -103,9 +107,13 @@ export class App {
     // change, an app update and reminders that fired while the app was closed.
     void this.reminders.reschedule();
     void this.deviceCalendarSync.refresh();
-    void import('@app/interactors/calendar/ics-subscription.interactor').then(
-      ({ IcsSubscriptionInteractor }) =>
+    void import('@app/interactors/calendar/ics-subscription.interactor')
+      .then(({ IcsSubscriptionInteractor }) =>
         this.destroyed ? undefined : this.injector.get(IcsSubscriptionInteractor).refreshAllDue(),
-    );
+      )
+      .catch((error: unknown) => {
+        // A failed chunk load (an update replaced it) or a failed listing; the next resume retries.
+        console.warn('Die abonnierten Kalender konnten nicht aktualisiert werden.', error);
+      });
   }
 }

@@ -48,6 +48,7 @@ import { TextareaField } from '@app/view/components/field/textarea-field';
 import { TextField } from '@app/view/components/field/text-field';
 import { DateTimeField } from './date-time-field';
 import { RecurrenceField, type RepeatChoice, type RepeatEndChoice } from './recurrence-field';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 export type AppEventFormMode = 'create' | 'edit';
 
@@ -211,7 +212,7 @@ export class EventForm {
     loader: () => this.calendarsInteractor.listWritable(),
   });
 
-  protected readonly calendars = computed(() => this.calendarsResource.value() ?? []);
+  protected readonly calendars = computed(() => valueOr(this.calendarsResource, []));
 
   /**
    * On a fresh install there is no app calendar yet (creating one is issue #20, "Kalender

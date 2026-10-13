@@ -235,23 +235,34 @@ export class AppEventEditingInteractor {
     );
   }
 
-  /** Edits only one occurrence of a series: stores an override, never a new authoritative event. */
+  /**
+   * Edits only one occurrence of a series: stores an override, never a new authoritative event.
+   * A field left out of `changes` keeps what an earlier override of the same occurrence set, so
+   * renaming a moved occurrence does not move it back to the series' time.
+   */
   async updateOccurrence(
     seriesId: string,
     originalStart: string,
     changes: AppEventChanges,
   ): Promise<void> {
     const context = this.context();
+    const existing = await this.repository.findException(seriesId, originalStart);
+    const previous = existing?.status === 'override' ? existing : null;
+    // Start and end travel together: the form sends both or neither.
+    const timing =
+      changes.start !== undefined
+        ? { start: changes.start, end: changes.end ?? null }
+        : { start: previous?.start ?? null, end: previous?.end ?? null };
     const exception: AppItemExceptionRecord = {
       seriesId,
       originalStart,
       status: 'override',
-      title: changes.title !== undefined ? validatedTitle(changes.title) : null,
-      location: changes.location !== undefined ? changes.location : null,
-      note: changes.note !== undefined ? changes.note : null,
-      start: changes.start ?? null,
-      end: changes.end !== undefined ? changes.end : null,
-      createdAt: context.nowUtc,
+      title:
+        changes.title !== undefined ? validatedTitle(changes.title) : (previous?.title ?? null),
+      location: changes.location !== undefined ? changes.location : (previous?.location ?? null),
+      note: changes.note !== undefined ? changes.note : (previous?.note ?? null),
+      ...timing,
+      createdAt: previous?.createdAt ?? context.nowUtc,
       updatedAt: context.nowUtc,
     };
 

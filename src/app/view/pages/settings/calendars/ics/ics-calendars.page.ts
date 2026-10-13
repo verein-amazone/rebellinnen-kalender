@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
 import { LucidePlus, LucideRotateCw, LucideTrash2 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
@@ -63,6 +63,9 @@ export class IcsCalendarsPage {
     loader: () => this.icsSubscriptions.listForManagement(),
   });
 
+  /** Why the last change on this page failed; cleared by the next one. */
+  protected readonly actionError = signal<string | null>(null);
+
   protected async addIcsSubscription(): Promise<void> {
     const result = await firstValueFrom(
       this.sheets.open<{ subscriptionId: string; outcome: string } | undefined, undefined>(
@@ -105,15 +108,23 @@ export class IcsCalendarsPage {
       return;
     }
 
-    await this.icsSubscriptions.updateIdentity(subscriptionId, result);
-    void this.haptics.confirm();
-    this.icsResource.reload();
-    this.announcer.announce('Kalender gespeichert');
+    const saved = await this.attempt(
+      () => this.icsSubscriptions.updateIdentity(subscriptionId, result),
+      'Der Kalender konnte nicht gespeichert werden.',
+    );
+    if (saved) {
+      void this.haptics.confirm();
+      this.announcer.announce('Kalender gespeichert');
+    }
   }
 
   protected async toggleIcs(subscriptionId: string, enabled: boolean): Promise<void> {
-    await this.icsSubscriptions.setEnabled(subscriptionId, enabled);
-    this.icsResource.reload();
+    await this.attempt(
+      () => this.icsSubscriptions.setEnabled(subscriptionId, enabled),
+      enabled
+        ? 'Der Kalender konnte nicht eingeschaltet werden.'
+        : 'Der Kalender konnte nicht ausgeschaltet werden.',
+    );
   }
 
   protected async retryIcs(subscriptionId: string): Promise<void> {
@@ -146,8 +157,31 @@ export class IcsCalendarsPage {
   }
 
   private async removeIcs(subscriptionId: string): Promise<void> {
-    await this.icsSubscriptions.remove(subscriptionId);
-    this.icsResource.reload();
-    this.announcer.announce('Kalender entfernt');
+    const removed = await this.attempt(
+      () => this.icsSubscriptions.remove(subscriptionId),
+      'Der Kalender konnte nicht entfernt werden.',
+    );
+    if (removed) {
+      this.announcer.announce('Kalender entfernt');
+    }
+  }
+
+  /**
+   * Runs one change and reloads the list either way, so it shows what is stored. A failure is shown
+   * as an alert on the page instead of becoming an unhandled rejection. Resolves to whether the
+   * change went through.
+   */
+  private async attempt(change: () => Promise<unknown>, failure: string): Promise<boolean> {
+    this.actionError.set(null);
+    try {
+      await change();
+      return true;
+    } catch (error) {
+      console.warn(failure, error);
+      this.actionError.set(`${failure} Versuche es noch einmal.`);
+      return false;
+    } finally {
+      this.icsResource.reload();
+    }
   }
 }

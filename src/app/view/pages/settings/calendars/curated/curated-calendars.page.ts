@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
 import { LucideRotateCw } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
@@ -53,6 +53,9 @@ export class CuratedCalendarsPage {
     loader: () => this.curated.listForManagement(),
   });
 
+  /** Why the last change on this page failed; cleared by the next one. */
+  protected readonly actionError = signal<string | null>(null);
+
   protected async editCuratedIdentity(
     sourceId: string,
     current: CalendarIdentityEditDialogData,
@@ -72,15 +75,23 @@ export class CuratedCalendarsPage {
       return;
     }
 
-    await this.curated.updateIdentity(sourceId, result);
-    void this.haptics.confirm();
-    this.curatedResource.reload();
-    this.announcer.announce('Kalender gespeichert');
+    const saved = await this.attempt(
+      () => this.curated.updateIdentity(sourceId, result),
+      'Der Kalender konnte nicht gespeichert werden.',
+    );
+    if (saved) {
+      void this.haptics.confirm();
+      this.announcer.announce('Kalender gespeichert');
+    }
   }
 
   protected async toggleCurated(sourceId: string, enabled: boolean): Promise<void> {
-    await this.curated.setEnabled(sourceId, enabled);
-    this.curatedResource.reload();
+    await this.attempt(
+      () => this.curated.setEnabled(sourceId, enabled),
+      enabled
+        ? 'Der Kalender konnte nicht eingeschaltet werden.'
+        : 'Der Kalender konnte nicht ausgeschaltet werden.',
+    );
   }
 
   protected async retryCurated(sourceId: string): Promise<void> {
@@ -89,5 +100,24 @@ export class CuratedCalendarsPage {
     this.announcer.announce(
       outcome === 'failed' ? 'Aktualisierung fehlgeschlagen' : 'Kalender aktualisiert',
     );
+  }
+
+  /**
+   * Runs one change and reloads the list either way, so it shows what is stored. A failure is shown
+   * as an alert on the page instead of becoming an unhandled rejection. Resolves to whether the
+   * change went through.
+   */
+  private async attempt(change: () => Promise<unknown>, failure: string): Promise<boolean> {
+    this.actionError.set(null);
+    try {
+      await change();
+      return true;
+    } catch (error) {
+      console.warn(failure, error);
+      this.actionError.set(`${failure} Versuche es noch einmal.`);
+      return false;
+    } finally {
+      this.curatedResource.reload();
+    }
   }
 }

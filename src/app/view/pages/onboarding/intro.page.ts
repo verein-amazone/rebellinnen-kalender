@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   resource,
+  signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -36,6 +38,7 @@ import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-av
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { ToggleField } from '@app/view/components/field/toggle-field';
 import { ThemeSwatch } from '@app/view/components/theme-swatch/theme-swatch';
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 
 type IntroStepId = 'welcome' | 'areas' | 'personal' | 'calendars' | 'privacy' | 'reminders';
 
@@ -172,6 +175,9 @@ export class IntroPage {
     loader: () => this.curatedCalendars.listForIntroduction(),
   });
 
+  /** Why the last switch on the calendars step failed; cleared by the next one. */
+  protected readonly calendarError = signal<string | null>(null);
+
   /** Same as Settings → Profil: stored as typed, so leaving the step needs no save. */
   protected updateName(value: string): void {
     this.profile.setName(value);
@@ -185,13 +191,27 @@ export class IntroPage {
 
   /** Same as Settings → Amazone & Partnerkalender, minus the colour and symbol. */
   protected async toggleCalendar(sourceId: string, enabled: boolean): Promise<void> {
-    await this.curatedCalendars.setEnabled(sourceId, enabled);
-    this.calendars.reload();
+    this.calendarError.set(null);
+    try {
+      await this.curatedCalendars.setEnabled(sourceId, enabled);
+    } catch (error) {
+      console.warn('Der Kalender konnte nicht umgeschaltet werden.', error);
+      this.calendarError.set(
+        'Das hat nicht geklappt. Du kannst die Kalender auch später in den Einstellungen ändern.',
+      );
+    } finally {
+      this.calendars.reload();
+    }
   }
 
   /** Asks for the permission from this tap, then finishes whatever the answer. */
   protected async enableReminders(): Promise<void> {
-    await this.notificationPreferences.setEnabled(true);
+    try {
+      await this.notificationPreferences.setEnabled(true);
+    } catch (error) {
+      // The introduction still has to end; reminders can be switched on in the settings later.
+      console.warn('Die Erinnerungen konnten nicht eingeschaltet werden.', error);
+    }
     await this.finish();
   }
 
@@ -208,6 +228,20 @@ export class IntroPage {
   );
 
   protected readonly destination = computed(() => safeInAppUrl(this.returnTo()) ?? '/today');
+
+  constructor() {
+    // Android's back button steps back through the introduction, like „Zurück“; on the first step
+    // nothing takes it, and the app goes to the background.
+    inject(DestroyRef).onDestroy(
+      inject(HardwareBack).register(() => {
+        if (this.isFirst()) {
+          return false;
+        }
+        this.back();
+        return true;
+      }),
+    );
+  }
 
   protected next(): void {
     if (this.isLast()) {

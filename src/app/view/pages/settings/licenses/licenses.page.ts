@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, resource } from '
 
 import { LegalContentInteractor } from '@app/interactors/settings/legal-content.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * "Open-Source-Lizenzen" (#11): the third-party licence file of production builds - Angular's
@@ -21,5 +22,5 @@ export class LicensesPage {
 
   private readonly data = resource({ loader: () => this.legalContent.thirdPartyLicenses() });
 
-  protected readonly text = computed(() => this.data.value() ?? null);
+  protected readonly text = computed(() => valueOr(this.data, null));
 }

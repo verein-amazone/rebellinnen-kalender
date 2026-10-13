@@ -5,11 +5,13 @@ import {
   inject,
   input,
   resource,
+  signal,
 } from '@angular/core';
 import {
   LucideBookmark,
   LucideBookmarkCheck,
   LucideExternalLink,
+  LucideRotateCw,
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
@@ -31,6 +33,7 @@ import {
   type ConfirmationDialogData,
 } from '@app/view/dialogs/confirmation/confirmation.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /** One related-source link, with its publisher/domain derived for display (#22). */
 export interface RelatedSourceRow {
@@ -57,6 +60,7 @@ export interface RelatedSourceRow {
     LucideBookmark,
     LucideBookmarkCheck,
     LucideExternalLink,
+    LucideRotateCw,
     LucideSparkles,
     LucideUsers,
   ],
@@ -94,8 +98,17 @@ export class ContentDetailPage {
     },
   });
 
-  protected readonly item = computed<ContentItemView | null>(() => this.data.value()?.item ?? null);
-  protected readonly bookmarked = computed(() => this.data.value()?.bookmarked ?? false);
+  protected readonly item = computed<ContentItemView | null>(
+    () => valueOr(this.data, undefined)?.item ?? null,
+  );
+  protected readonly bookmarked = computed(
+    () => valueOr(this.data, undefined)?.bookmarked ?? false,
+  );
+
+  protected readonly loadFailed = computed(() => this.data.error() !== undefined);
+
+  /** Why the last change to „Meine Sammlung“ failed; cleared by the next one. */
+  protected readonly bookmarkError = signal<string | null>(null);
 
   protected readonly heading = computed(() => this.item()?.title ?? 'Inhalt');
 
@@ -112,6 +125,10 @@ export class ContentDetailPage {
     this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
   );
 
+  protected reload(): void {
+    this.data.reload();
+  }
+
   protected async toggleBookmark(): Promise<void> {
     const current = this.item();
     if (current === null) {
@@ -125,7 +142,16 @@ export class ContentDetailPage {
       return;
     }
 
-    await this.bookmarks.toggle(current.id);
+    this.bookmarkError.set(null);
+    try {
+      await this.bookmarks.toggle(current.id);
+    } catch (error) {
+      console.warn('Der Inhalt konnte nicht gespeichert werden.', error);
+      this.bookmarkError.set(
+        'Der Inhalt konnte nicht in „Meine Sammlung“ gespeichert werden. Versuche es noch einmal.',
+      );
+      return;
+    }
     void this.haptics.tick();
     this.data.update((value) => (value === undefined ? value : { ...value, bookmarked: true }));
   }
@@ -148,7 +174,16 @@ export class ContentDetailPage {
           return;
         }
 
-        await this.bookmarks.toggle(item.id);
+        this.bookmarkError.set(null);
+        try {
+          await this.bookmarks.toggle(item.id);
+        } catch (error) {
+          console.warn('Der Inhalt konnte nicht entfernt werden.', error);
+          this.bookmarkError.set(
+            'Der Inhalt konnte nicht aus „Meine Sammlung“ entfernt werden. Versuche es noch einmal.',
+          );
+          return;
+        }
         await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, { replaceUrl: true });
       });
   }

@@ -12,6 +12,7 @@ import { pickClosingCopy } from '@app/interactors/today/today-closing-copy';
 import { selectTodayClosingState } from '@app/interactors/today/today-closing-state';
 import type { TodayClosingState } from '@app/interactors/today/today-closing-state.vm';
 import { TodayClosingMessage } from '@app/view/components/today-closing-message/today-closing-message';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * The Today page's closing footer, loaded and resolved to text here - the only place in the feature
@@ -65,7 +66,7 @@ export class TodayClosingBlock {
   });
 
   protected readonly state = computed<TodayClosingState | null>(() => {
-    const loaded = this.data.value();
+    const loaded = valueOr(this.data, undefined);
     if (loaded === undefined) {
       return null;
     }
@@ -80,7 +81,7 @@ export class TodayClosingBlock {
 
   protected readonly headline = computed(() => {
     const state = this.state();
-    const today = this.data.value()?.today;
+    const today = valueOr(this.data, undefined)?.today;
     return state === null || today === undefined
       ? ''
       : resolve(state.headlineKey, today, state, state.nextAppointment);
@@ -88,7 +89,7 @@ export class TodayClosingBlock {
 
   protected readonly supportingLine = computed(() => {
     const state = this.state();
-    const today = this.data.value()?.today;
+    const today = valueOr(this.data, undefined)?.today;
     if (state === null || today === undefined || state.supportingLineKey === null) {
       return null;
     }

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, resource } from '
 
 import { LegalContentInteractor } from '@app/interactors/settings/legal-content.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * "Bildnachweise" (#11): every image bundled with the app, credited from
@@ -21,5 +22,5 @@ export class ImageCreditsPage {
 
   private readonly data = resource({ loader: () => this.legalContent.imageAttributions() });
 
-  protected readonly items = computed(() => this.data.value() ?? []);
+  protected readonly items = computed(() => valueOr(this.data, []));
 }

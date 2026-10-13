@@ -3,6 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { InteractivityChecker } from '@angular/cdk/a11y';
 import { provideRouter } from '@angular/router';
 
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
+
 import { SHEET_DATA, SheetRef } from './sheet-ref';
 import { SheetService } from './sheet.service';
 
@@ -130,6 +132,20 @@ describe('SheetService', () => {
 
     expect(dialog()).toBeNull();
     expect(result).toBeUndefined();
+  });
+
+  it("closes on Android's back button before the screen underneath sees it", async () => {
+    const back = TestBed.inject(HardwareBack);
+    const screen = vi.fn(() => true);
+    back.register(screen);
+    service.open(ContentComponent, { heading: 'Kalender wählen' });
+    await flush();
+
+    back.press();
+    await settleExit();
+
+    expect(dialog()).toBeNull();
+    expect(screen).not.toHaveBeenCalled();
   });
 
   it('closes on a backdrop click when it is dismissible', async () => {

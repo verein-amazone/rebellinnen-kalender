@@ -262,9 +262,10 @@ the outlined variant instead.
 **Every text button carries an icon, and the icon comes first.** A `.rk-button` is
 `<svg lucide… class="rk-icon" aria-hidden="true"></svg><span>Label</span>` - the icon before the
 label (inline-start), in every variant, so „Zurück“ shows `arrow-left` on the left. The one
-exception is the forward step - „Weiter“, and „Los geht's“ on the same button - whose
-`arrow-right` trails the label (`<span>Label</span><svg …>`), because the arrow points where the
-button goes. Do not extend the exception to other actions. The icon repeats the verb's meaning
+exception is moving forward through the introduction - „Weiter“ (and „Los geht's“ on the same
+button) with `arrow-right`, and „Erste Schritte überspringen“ with `chevrons-right` - whose icon
+trails the label (`<span>Label</span><svg …>`), because the arrow points where the button goes.
+Do not extend the exception to other actions. The icon repeats the verb's meaning
 on a second channel; it never replaces the label. Reuse the pairing an action already has
 elsewhere:
 

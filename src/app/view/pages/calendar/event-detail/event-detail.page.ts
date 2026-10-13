@@ -20,6 +20,7 @@ import {
   LucideExternalLink,
   LucidePencil,
   LucideRepeat,
+  LucideRotateCw,
   LucideTrash2,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
@@ -51,6 +52,7 @@ import {
   type RecurrenceScope,
   type RecurrenceScopeDialogData,
 } from '@app/view/dialogs/recurrence-scope/recurrence-scope.dialog';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * The appointment detail screen: a read view built from `CalendarOccurrence`, an in-place edit
@@ -74,6 +76,7 @@ import {
     LucideExternalLink,
     LucidePencil,
     LucideRepeat,
+    LucideRotateCw,
     LucideTrash2,
   ],
   templateUrl: './event-detail.page.html',
@@ -108,8 +111,14 @@ export class EventDetailPage {
    */
   private readonly eventFormComponent = viewChild(EventForm);
   protected readonly canSubmitEdit = computed(
-    () => this.eventFormComponent()?.canSubmit() ?? false,
+    () => !this.saving() && (this.eventFormComponent()?.canSubmit() ?? false),
   );
+
+  /** A save in flight: a second tap on the check mark must not apply the same edit twice. */
+  private readonly saving = signal(false);
+
+  /** Why the last save or delete failed; shown on the page, which stays where it was. */
+  protected readonly actionError = signal<string | null>(null);
 
   readonly id = input.required<string>();
   /** Bound from the `view` query parameter the calendar's appointment links carry - see `backLink`. */
@@ -125,7 +134,7 @@ export class EventDetailPage {
     loader: ({ params }) => this.occurrencesInteractor.findById(params),
   });
 
-  protected readonly occurrence = computed(() => this.occurrenceResource.value() ?? null);
+  protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
 
   /**
    * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a
@@ -138,21 +147,23 @@ export class EventDetailPage {
     loader: ({ params }) => this.eventEditing.findRecord(params),
   });
 
-  protected readonly note = computed(() => this.recordResource.value()?.note ?? null);
-  protected readonly rrule = computed(() => this.recordResource.value()?.rrule ?? null);
+  protected readonly note = computed(() => valueOr(this.recordResource, undefined)?.note ?? null);
+  protected readonly rrule = computed(() => valueOr(this.recordResource, undefined)?.rrule ?? null);
   /** The start the series' rule is anchored on; `null` for a standalone appointment. */
   protected readonly seriesStart = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     return record?.rrule ? record.start : null;
   });
-  protected readonly reminders = computed(() => this.recordResource.value()?.reminders ?? null);
+  protected readonly reminders = computed(
+    () => valueOr(this.recordResource, undefined)?.reminders ?? null,
+  );
 
   /**
    * „15 Minuten vorher, 1 Stunde vorher“ for an app-owned appointment while reminders are on -
    * the appointment's own list or the defaults it follows. `null` when nothing will remind.
    */
   protected readonly reminderSummary = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     const occurrence = this.occurrence();
     if (
       record === undefined ||
@@ -176,7 +187,7 @@ export class EventDetailPage {
 
   /** „Jede Woche am Montag“ for an app-owned series; `null` for anything else. */
   protected readonly recurrenceSummary = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     return record?.rrule ? describeStoredRecurrence(record.rrule, record.start) : null;
   });
 
@@ -194,6 +205,7 @@ export class EventDetailPage {
   });
 
   protected startEditing(): void {
+    this.actionError.set(null);
     this.editing.set(true);
     // The `@if` in the template swaps the whole read view (including the button just activated) for
     // the edit view, which drops focus to `<body>` unless it is moved explicitly. `afterNextRender`
@@ -202,6 +214,7 @@ export class EventDetailPage {
   }
 
   protected cancelEdit(): void {
+    this.actionError.set(null);
     this.editing.set(false);
     // Mirrors `startEditing()`: the edit view is swapped back out, so focus returns to the pencil
     // button that opened it.
@@ -251,12 +264,36 @@ export class EventDetailPage {
       return false;
     }
 
-    this.cancelEdit();
+    if (this.eventFormComponent()?.canSubmit() === true) {
+      this.confirmDiscard();
+    } else {
+      this.cancelEdit();
+    }
     return true;
   };
 
+  /** Leaving an edit with changes asks first: the back arrow and Android's back are easy to hit. */
+  private confirmDiscard(): void {
+    const data: ConfirmationDialogData = {
+      message: 'Deine Änderungen an diesem Termin gehen verloren.',
+      confirmLabel: 'Verwerfen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Änderungen verwerfen?',
+        data,
+      })
+      .closed.subscribe((confirmed) => {
+        if (confirmed === true) {
+          this.cancelEdit();
+        }
+      });
+  }
+
   protected async handleSave(result: AppEventFormResult): Promise<void> {
-    if (result.mode !== 'edit') {
+    if (result.mode !== 'edit' || this.saving()) {
       return;
     }
 
@@ -265,10 +302,26 @@ export class EventDetailPage {
       return;
     }
 
+    this.saving.set(true);
+    this.actionError.set(null);
+    try {
+      await this.saveEdit(occurrence, occurrence.itemId, result.changes);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gespeichert werden.', error);
+      this.actionError.set('Der Termin konnte nicht gespeichert werden. Versuche es noch einmal.');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  private async saveEdit(
+    occurrence: CalendarOccurrence,
+    itemId: string,
+    changes: AppEventChanges,
+  ): Promise<void> {
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
       // A changed rule or changed reminders describe the series, never a single occurrence.
-      const ruleChanged =
-        result.changes.rrule !== undefined || result.changes.reminders !== undefined;
+      const ruleChanged = changes.rrule !== undefined || changes.reminders !== undefined;
       const scope = await this.askRecurrenceScope(
         'Was möchtest du ändern?',
         ruleChanged
@@ -284,10 +337,10 @@ export class EventDetailPage {
         scope,
         { seriesId: occurrence.seriesId, originalStart: occurrence.originalStart },
         occurrence.start,
-        result.changes,
+        changes,
       );
     } else {
-      await this.eventEditing.updateAll(occurrence.itemId, result.changes);
+      await this.eventEditing.updateAll(itemId, changes);
     }
 
     this.editing.set(false);
@@ -296,7 +349,7 @@ export class EventDetailPage {
     // The user may have moved the appointment to a different day; navigate to wherever it ended up
     // rather than back to the day it used to be on. `EventForm` only sets `start` when the time
     // fields changed, so an edit that left them alone still resolves to the occurrence's own day.
-    await this.navigateToOccurrenceDay(deviceLocalDay(result.changes.start ?? occurrence.start));
+    await this.navigateToOccurrenceDay(deviceLocalDay(changes.start ?? occurrence.start));
   }
 
   protected confirmDelete(): void {
@@ -349,6 +402,16 @@ export class EventDetailPage {
   }
 
   private async performDelete(occurrence: CalendarOccurrence): Promise<void> {
+    this.actionError.set(null);
+    try {
+      await this.deleteOccurrence(occurrence);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gelöscht werden.', error);
+      this.actionError.set('Der Termin konnte nicht gelöscht werden. Versuche es noch einmal.');
+    }
+  }
+
+  private async deleteOccurrence(occurrence: CalendarOccurrence): Promise<void> {
     if (occurrence.itemId === null) {
       return;
     }

@@ -95,6 +95,11 @@ jobs:
     # processing to finish (the Fastfile caps that at 45 minutes); otherwise `pilot` waits only until
     # the build appears in App Store Connect, long enough to attach the release notes.
     timeout-minutes: 100
+    # Shared with the App Store job in store-listing.yml. A release push to `main` that also changes
+    # fastlane/metadata starts both workflows, and both write the same App Store version.
+    concurrency:
+      group: app-store-connect-version
+      cancel-in-progress: false
     permissions:
       contents: read
     steps:

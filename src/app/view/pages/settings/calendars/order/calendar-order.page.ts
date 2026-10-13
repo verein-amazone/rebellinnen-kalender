@@ -29,6 +29,7 @@ import {
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /** What a row's menu can do. */
 export type CalendarOrderAction = 'move-up' | 'move-down';
@@ -82,7 +83,7 @@ export class CalendarOrderPage {
   private readonly arranged = signal<readonly CalendarFilterOption[] | null>(null);
 
   protected readonly rows = computed<readonly CalendarFilterOption[]>(
-    () => this.arranged() ?? this.calendars.value() ?? [],
+    () => this.arranged() ?? valueOr(this.calendars, []),
   );
 
   protected readonly isLoading = computed(() => this.calendars.isLoading());

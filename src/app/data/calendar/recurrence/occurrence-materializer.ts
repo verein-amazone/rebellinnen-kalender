@@ -35,7 +35,10 @@ export interface MaterializationContext {
 
 export interface MaterializationResult {
   readonly occurrences: readonly OccurrenceRecord[];
-  /** True when the series hit the per-series cap and was cut off inside the window. */
+  /**
+   * True when the window's rows of the series are incomplete: it hit the per-series cap and was
+   * cut off, or its rule could not be expanded at all and produced no rows.
+   */
   readonly truncated: boolean;
 }
 
@@ -57,13 +60,22 @@ export function materializeAppItem(
     return { occurrences: [standaloneRow(item, context, branding)], truncated: false };
   }
 
-  const rule = engineRule(item.start, item.rrule, context.timeZone);
-
-  const generated = rule.between(
-    new Date(context.windowStartUtc),
-    new Date(context.windowEndUtc),
-    true,
-  );
+  // One rule the engine cannot expand - an imported rule with a malformed part such as
+  // `BYDAY=XX`, or one that exceeds MAX_RULE_ITERATIONS - must not take every other series and the
+  // whole calendar down with it. The series shows no rows, and the caller flags its source.
+  let rule: RRuleTemporal;
+  let generated: Temporal.ZonedDateTime[];
+  try {
+    rule = engineRule(item.start, item.rrule, context.timeZone);
+    generated = rule.between(
+      new Date(context.windowStartUtc),
+      new Date(context.windowEndUtc),
+      true,
+    );
+  } catch (error) {
+    console.warn(`Could not expand the recurrence of series ${item.id}`, error);
+    return { occurrences: [], truncated: true };
+  }
   const cap = context.maxOccurrencesPerSeries ?? MAX_OCCURRENCES_PER_SERIES;
   const truncated = generated.length > cap;
   const bounded = truncated ? generated.slice(0, cap) : generated;

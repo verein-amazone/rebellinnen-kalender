@@ -62,8 +62,11 @@ jobs:
       # semantic-release derives the released version from the commit types, so a mistyped subject
       # silently changes what ships. A conditional step rather than a conditional job: a job that
       # skips on push events would report `skipped` to `ci-success`, which only accepts `success`.
+      # Pull requests into `main` are skipped: they carry commits that were already checked on their
+      # way into `dev`, and the history before commitlint was set up has subjects it rejects, which
+      # would block the release pull request for good, since `main` cannot be force-pushed.
       - name: Check commit messages
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

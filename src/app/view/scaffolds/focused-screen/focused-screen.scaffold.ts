@@ -1,14 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  type ElementRef,
   computed,
   contentChild,
+  DestroyRef,
   inject,
   input,
+  type ElementRef,
 } from '@angular/core';
 import { LucideArrowLeft, LucideX } from '@lucide/angular';
 import { Router } from '@angular/router';
+
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 
 /**
  * How the screen is dismissed.
@@ -68,6 +71,17 @@ export class FocusedScreenScaffold {
   readonly beforeDismiss = input<(() => boolean) | undefined>();
 
   private readonly router = inject(Router);
+
+  constructor() {
+    // Android's back button does what the header's back arrow or cross does. A sheet opened over
+    // this screen registers later, so it is asked first.
+    inject(DestroyRef).onDestroy(
+      inject(HardwareBack).register(() => {
+        this.dismiss();
+        return true;
+      }),
+    );
+  }
 
   /** Set via a template reference variable (`#focusedScreenFooter`) on the projected footer content. */
   protected readonly footerContent = contentChild<ElementRef>('focusedScreenFooter');

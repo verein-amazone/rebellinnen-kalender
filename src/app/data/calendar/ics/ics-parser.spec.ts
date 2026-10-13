@@ -65,6 +65,37 @@ describe('parseIcsCalendar', () => {
     expect(override?.start?.value).toBe('2026-10-27T09:00:00');
   });
 
+  it('keys UTC exceptions of a master with a TZID in the wall time of the master', () => {
+    const text = calendar([
+      ...VIENNA_TIMEZONE,
+      'BEGIN:VEVENT',
+      'UID:plenum@verein',
+      'SUMMARY:Plenum',
+      'DTSTART;TZID=Europe/Vienna:20261012T180000',
+      'DTEND;TZID=Europe/Vienna:20261012T200000',
+      'RRULE:FREQ=WEEKLY;BYDAY=MO',
+      // 18:00 in Vienna is 16:00 UTC in summer time and 17:00 UTC after 25 October.
+      'EXDATE:20261019T160000Z',
+      'END:VEVENT',
+      'BEGIN:VEVENT',
+      'UID:plenum@verein',
+      'RECURRENCE-ID:20261026T170000Z',
+      'SUMMARY:Plenum (verschoben)',
+      'DTSTART;TZID=Europe/Vienna:20261026T190000',
+      'DTEND;TZID=Europe/Vienna:20261026T210000',
+      'END:VEVENT',
+    ]);
+
+    const parsed = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+    expect(
+      parsed.exceptions.map(({ status, originalStart }) => ({ status, originalStart })),
+    ).toEqual([
+      { status: 'cancelled', originalStart: '2026-10-19T18:00:00' },
+      { status: 'override', originalStart: '2026-10-26T18:00:00' },
+    ]);
+  });
+
   it('turns the exclusive DTEND of an all-day event into an inclusive last day', () => {
     const text = calendar([
       'BEGIN:VEVENT',

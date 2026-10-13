@@ -5,8 +5,8 @@ complements [frontend-architecture.md](./frontend-architecture.md).
 
 > Status: the SQLite foundation exists (gateway with transactions, migration registry, DAOs), and
 > the calendar data architecture (#29) is in place: canonical app items, the materialized occurrence
-> layer, the native calendar gateway with its offline cache, and ICS subscriptions. The calendar
-> screens consuming it are still outstanding.
+> layer, the native calendar gateway with its offline cache, and ICS subscriptions, together with
+> the calendar screens consuming it.
 
 ## Local-only persistence
 
@@ -29,7 +29,10 @@ depends on the `SqliteDatabase` contract in `sqlite-database.ts` - `query()` and
 
 - **The connection opens lazily on first use, not from an app initializer.** Nothing in the first
   paint needs the database, and a database that cannot open has to surface as an error inside the
-  screen that wanted it rather than aborting the bootstrap. The open promise is memoised so
+  screen that wanted it rather than aborting the bootstrap. In practice the first use comes right
+  after bootstrap anyway: the root `App` component starts the calendar consistency check
+  (`CalendarMaintenanceInteractor`) from its constructor, without awaiting it, and a failure there
+  is only logged. The open promise is memoised so
   concurrent callers share one open sequence, and it is dropped on failure so a retry really retries.
 - **The open sequence starts with `checkConnectionsConsistency()`.** The plugin keeps a connection
   dictionary that survives a dev-server reload; without this reconciliation `createConnection` fails
@@ -142,7 +145,16 @@ All schema changes are **versioned migrations** under `data/migrations/`: one fi
 (`019-create-schema.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
 the highest `toVersion`. Never mutate an existing shipped migration - a device that already applied
 it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
-Add a new migration instead.
+Add a new migration instead - and when it ships, add its hash to the pinned list in
+`migrations.spec.ts`, which fails on any later edit.
+
+**Every migration must survive running twice.** The plugin commits a migration's statements and
+only afterwards stamps the new version in a separate step, so a crash or a killed app between the
+two runs the same migration again on the next launch. A statement that fails the second time - a
+plain `ALTER TABLE … ADD COLUMN`, a `CREATE TABLE` without `IF NOT EXISTS` - would then stop the
+database from opening on every launch after it. Use `IF NOT EXISTS` / `IF EXISTS`, and add a column
+by rebuilding the table (create the new shape, copy, drop, rename) rather than with `ADD COLUMN`.
+`migrations.spec.ts` applies the whole registry twice to hold every migration to this.
 
 **Version 19 is the baseline.** The pre-release versions 1-18 were squashed into one migration
 before 1.0.0 (#32), so a fresh install creates the whole schema in one step. It is numbered 19, not
@@ -395,7 +407,10 @@ About device calendar data specifically:
 - The OS (EventKit / Calendar Provider) stays **authoritative**; device events are never stored as
   canonical app records and cached instances are never editable in the app.
 - Concrete instances for the covered range **are cached** in the `occurrences` table as
-  disposable, rebuildable rows for offline display, replaced transactionally per refreshed range.
+  disposable, rebuildable rows for offline display, replaced transactionally on every refresh. The
+  covered range is the materialization window around today (6 months back, 18 months ahead, plus a
+  day of buffer), anchored on the start of today: it moves with the date rather than growing, and
+  rows it has moved past are dropped with the next rebuild.
   (This deliberately supersedes the earlier „queried on demand, never copied“ rule: offline views
   need the rows, and their disposability keeps the ownership story intact.)
 - Losing calendar permission or a failing native query keeps the cache and flags the source

@@ -56,7 +56,10 @@ class FakeNativeCalendarGateway {
     return Promise.resolve(this.calendars);
   }
 
-  listEventInstances(): Promise<DeviceEventInstance[]> {
+  readonly fetchedRanges: { startUtc: string; endUtc: string }[] = [];
+
+  listEventInstances(startUtc: string, endUtc: string): Promise<DeviceEventInstance[]> {
+    this.fetchedRanges.push({ startUtc, endUtc });
     if (this.failNative) {
       return Promise.reject(new Error('native failure'));
     }
@@ -166,6 +169,42 @@ describe('DeviceCalendarSyncInteractor', () => {
     const rows = await occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z');
     expect(rows).toHaveLength(1);
     expect(rows[0].startUtc).toBe('2026-08-11T08:00:00Z');
+  });
+
+  it('fetches the same window on every refresh of a day instead of growing it', async () => {
+    await interactor.connect();
+    await interactor.refresh({ force: true });
+    await interactor.refresh({ force: true });
+
+    const [first, ...later] = gateway.fetchedRanges;
+    expect(later).toEqual([first, first]);
+    const coverage = await occurrences.findCoverage(DEVICE_SOURCE_ID);
+    expect(coverage?.windowStartUtc).toBe(first.startUtc);
+    expect(coverage?.windowEndUtc).toBe(first.endUtc);
+  });
+
+  it('drops cached rows the window has moved past', async () => {
+    await interactor.connect();
+    await occurrences.insertMany([
+      {
+        ...(await occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z'))[0],
+        id: 'long-gone',
+        startUtc: '2020-01-01T08:00:00Z',
+        endUtc: '2020-01-01T09:00:00Z',
+      },
+    ]);
+
+    await interactor.refresh({ force: true });
+
+    const old = await occurrences.listInRange('2019-12-01T00:00:00Z', '2020-02-01T00:00:00Z');
+    expect(old).toEqual([]);
+  });
+
+  it('resolves false instead of rejecting when the cache itself cannot be read', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(repository, 'findSource').mockRejectedValueOnce(new Error('database closed'));
+
+    await expect(interactor.refresh({ force: true })).resolves.toBe(false);
   });
 
   it('a calendar removed on the device takes its cached rows with it', async () => {

@@ -191,7 +191,6 @@ export class CuratedCalendarSync {
           lastAttemptAt: null,
           lastError: null,
           activeRevisionId: null,
-          rawIcs: null,
           createdAt: nowUtc,
           updatedAt: nowUtc,
           curatedId: entry.id,

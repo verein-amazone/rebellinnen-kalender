@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideCheck } from '@lucide/angular';
 
@@ -65,12 +65,31 @@ export class NewEventPage {
     return view === undefined ? '/calendar' : `/calendar?view=${view}`;
   });
 
+  /**
+   * A save in flight. The form emits on every submit, so without it two quick taps on the check mark
+   * would create the appointment twice before the navigation away lands.
+   */
+  protected readonly saving = signal(false);
+
+  /** Why the last save failed; the form stays filled in so nothing has to be typed again. */
+  protected readonly saveError = signal<string | null>(null);
+
   protected async handleSave(result: AppEventFormResult): Promise<void> {
-    if (result.mode !== 'create') {
+    if (result.mode !== 'create' || this.saving()) {
       return;
     }
 
-    await this.eventEditing.create(result.draft);
+    this.saving.set(true);
+    this.saveError.set(null);
+    try {
+      await this.eventEditing.create(result.draft);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gespeichert werden.', error);
+      this.saveError.set('Der Termin konnte nicht gespeichert werden. Versuche es noch einmal.');
+      this.saving.set(false);
+      return;
+    }
+
     void this.haptics.confirm();
 
     // Replaces rather than pushes: the form is finished and must not be reachable again by the

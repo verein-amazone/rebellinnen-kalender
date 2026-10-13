@@ -103,9 +103,9 @@
       />
     </div>
 
-    @if ((filterableCalendars.value() ?? []).length > 0) {
+    @if (filterableCalendars().length > 0) {
       <app-calendar-source-filter
-        [calendars]="filterableCalendars.value() ?? []"
+        [calendars]="filterableCalendars()"
         [hiddenIds]="hiddenCalendarIds()"
         (toggled)="toggleCalendar($event)"
       />

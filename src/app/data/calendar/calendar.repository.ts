@@ -123,6 +123,15 @@ export class CalendarRepository {
     return this.items.find(itemId);
   }
 
+  /** The stored override or cancellation of one occurrence of an app series, if there is one. */
+  async findException(
+    seriesId: string,
+    originalStart: string,
+  ): Promise<AppItemExceptionRecord | null> {
+    const exceptions = await this.items.listExceptionsOfSeries(seriesId);
+    return exceptions.find((exception) => exception.originalStart === originalStart) ?? null;
+  }
+
   /**
    * The unified range query every calendar view consumes. Returns the occurrences of all enabled
    * sources and calendars overlapping the half-open UTC range, deterministically ordered (day,
@@ -504,10 +513,11 @@ export class CalendarRepository {
   }
 
   /**
-   * Replaces one device source's cache for a refreshed range in a single transaction: the calendar
-   * snapshot is reconciled (removed native calendars take their rows with them), the range's rows
-   * are swapped against the fresh instances, and coverage grows to include the range. The UI never
-   * sees a half-replaced cache, and cached rows never become app-owned records.
+   * Replaces one device source's cache with a refreshed window in a single transaction: the
+   * calendar snapshot is reconciled (removed native calendars take their rows with them), the
+   * source's rows are swapped against the fresh instances, and coverage becomes exactly the
+   * window. The UI never sees a half-replaced cache, and cached rows never become app-owned
+   * records.
    *
    * The swap is skipped entirely when the instances normalize to exactly the rows already cached.
    * The OS offers no change token on either platform, so the instances still have to be fetched and
@@ -594,19 +604,15 @@ export class CalendarRepository {
       const rowsAreCurrent =
         coverage?.contentFingerprint === fingerprint && cachedCount === rows.length;
 
+      // The fetched range is the whole window the device cache covers, so the rebuild replaces every
+      // row of the source: rows the window has moved past go with it instead of piling up.
       if (!rowsAreCurrent) {
-        await this.occurrences.deleteOfSourceInRange(sourceId, rangeStartUtc, rangeEndUtc, tx);
+        await this.occurrences.deleteOfSource(sourceId, tx);
         await this.occurrences.insertMany(rows, tx);
       }
 
-      const windowStartUtc =
-        coverage !== null && coverage.windowStartUtc < rangeStartUtc
-          ? coverage.windowStartUtc
-          : rangeStartUtc;
-      const windowEndUtc =
-        coverage !== null && coverage.windowEndUtc > rangeEndUtc
-          ? coverage.windowEndUtc
-          : rangeEndUtc;
+      const windowStartUtc = rangeStartUtc;
+      const windowEndUtc = rangeEndUtc;
 
       // Written only when it would say something new. Re-stamping it on every launch would also
       // invalidate the read path's coverage guard every launch, for no change at all.

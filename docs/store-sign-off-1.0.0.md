@@ -164,6 +164,17 @@ Der Text muss mindestens sagen:
 
   Entscheidung: …
 
+- ☐ **„Termine dort speichern“ stimmt auf Android nicht.** Die Store-Beschreibung verspricht
+  „Kalender deines Handys anzeigen und Termine dort speichern“. Auf dem iPhone geht beides. Auf
+  Android zeigt die App die Kalender des Handys an, kann aber keine Termine hineinschreiben: Das
+  Kalender-Plugin meldet unter Android nicht, welche Kalender beschreibbar sind, und die App behandelt
+  sie deshalb sicherheitshalber alle als schreibgeschützt (#133). Bis das behoben ist, steht es in
+  den bekannten Einschränkungen (`docs/v1-scope.md`). Zu entscheiden, Vorschlag:
+  - Play Store: „Kalender deines Handys anzeigen“ (ohne „und Termine dort speichern“).
+  - App Store: unverändert lassen, dort stimmt der Satz.
+
+  Entscheidung: …
+
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
   Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen.“, darunter den
   Link „Nutzungsbedingungen lesen“. Diesen Schritt sehen alle, auch wer die Einführung überspringt.

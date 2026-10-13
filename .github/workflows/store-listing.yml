@@ -80,6 +80,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: testflight
     timeout-minutes: 30
+    # Shared with the App Store job in store-upload.yml, which writes the same App Store version
+    # when a release from `main` also changes the listing.
+    concurrency:
+      group: app-store-connect-version
+      cancel-in-progress: false
     permissions:
       contents: read
     steps:

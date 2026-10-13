@@ -1,3 +1,7 @@
+@if (writeError(); as message) {
+  <p role="alert" class="rk-error mb-3">{{ message }}</p>
+}
+
 @if (items.error() !== undefined) {
   <div class="rk-card space-y-3 px-4 py-6 text-center">
     <p>Die Liste konnte nicht geladen werden.</p>
@@ -79,7 +83,7 @@
                 appCheckHaptics
                 [checked]="row.item.completed"
                 [attr.aria-label]="toggleLabel(row.item)"
-                (change)="toggle(row.item)"
+                (change)="toggle(row.item, $event)"
               />
               <!--
                   Completion is signalled three ways, none of them colour: the checkmark itself, the

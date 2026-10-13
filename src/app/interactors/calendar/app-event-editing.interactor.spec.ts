@@ -199,6 +199,27 @@ describe('AppEventEditingInteractor', () => {
     expect(stored!.ruleRevision).toBe(0);
   });
 
+  it('keeps the moved time of an occurrence when it is edited again without a new time', async () => {
+    const id = await interactor.create(draft());
+    const moved = {
+      start: { kind: 'zoned', value: '2026-09-14T19:00:00', timeZone: 'Europe/Vienna' },
+      end: { kind: 'zoned', value: '2026-09-14T21:00:00', timeZone: 'Europe/Vienna' },
+    } as const;
+
+    await interactor.updateOccurrence(id, '2026-09-14T18:00:00', { title: 'Plenum', ...moved });
+    await interactor.updateOccurrence(id, '2026-09-14T18:00:00', {
+      title: 'Plenum (verschoben)',
+      location: null,
+      note: null,
+    });
+
+    const exceptions = await items.listExceptionsOfSeries(id);
+    expect(exceptions).toHaveLength(1);
+    expect(exceptions[0].title).toBe('Plenum (verschoben)');
+    expect(exceptions[0].start).toEqual(moved.start);
+    expect(exceptions[0].end).toEqual(moved.end);
+  });
+
   it('stores a cancellation for only one occurrence', async () => {
     const id = await interactor.create(draft());
 

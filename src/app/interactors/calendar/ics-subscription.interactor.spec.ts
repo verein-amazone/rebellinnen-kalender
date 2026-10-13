@@ -147,7 +147,7 @@ describe('IcsSubscriptionInteractor', () => {
 
     const stored = await subscriptions.find(subscriptionId);
     expect(stored!.url).toBe('https://example.org/cal.ics');
-    expect(stored!.rawIcs).toBe(FEED);
+    await expect(subscriptions.findRawIcs(subscriptionId)).resolves.toBe(FEED);
     expect(stored!.etag).toBe('"v1"');
     expect(stored!.lastSuccessAt).not.toBeNull();
   });
@@ -231,6 +231,24 @@ describe('IcsSubscriptionInteractor', () => {
     await interactor.refreshAllDue();
 
     expect(http.downloads).toBe(before + 1);
+  });
+
+  it('keeps refreshing the other due feeds when one of them fails outright', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    await interactor.add('Verein', 'https://example.org/cal.ics');
+    await interactor.add('Schule', 'https://example.org/schule.ics');
+    await database.run(`UPDATE ics_subscriptions SET last_success_at = ?, last_checked_at = ?`, [
+      new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+      new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    ]);
+    const refresh = vi
+      .spyOn(interactor, 'refresh')
+      .mockRejectedValueOnce(new Error('database closed'))
+      .mockResolvedValueOnce('updated');
+
+    await expect(interactor.refreshAllDue()).resolves.toBeUndefined();
+
+    expect(refresh).toHaveBeenCalledTimes(2);
   });
 
   it('never refreshes a disabled subscription in the background, however long since its last check', async () => {
@@ -317,7 +335,7 @@ describe('IcsSubscriptionInteractor', () => {
     const source = await repository.findSource(subscriptionId);
     expect(source!.state).toBe('stale');
     const stored = await subscriptions.find(subscriptionId);
-    expect(stored!.rawIcs).toBe(FEED);
+    await expect(subscriptions.findRawIcs(subscriptionId)).resolves.toBe(FEED);
     expect(stored!.lastError).not.toBeNull();
   });
 
@@ -487,7 +505,6 @@ describe('IcsSubscriptionInteractor', () => {
         lastAttemptAt: null,
         lastError: null,
         activeRevisionId: null,
-        rawIcs: null,
         createdAt: '2026-08-01T09:00:00.000Z',
         updatedAt: '2026-08-01T09:00:00.000Z',
         curatedId: 'at-public-holidays',
@@ -555,7 +572,6 @@ describe('IcsSubscriptionInteractor on the web', () => {
       lastAttemptAt: null,
       lastError: null,
       activeRevisionId: null,
-      rawIcs: null,
       createdAt: '2026-08-01T09:00:00.000Z',
       updatedAt: '2026-08-01T09:00:00.000Z',
       curatedId: null,

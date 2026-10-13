@@ -600,6 +600,32 @@ describe('EventDetailPage, edit', () => {
     expect(eventEditing.updateAllCalls).toEqual([]);
   });
 
+  it('asks before the header back-arrow discards changed fields, and keeps them when declined', async () => {
+    const { button, element, settle, sheets } = await setup({
+      id: 'occ-1',
+      occurrence: occurrence(),
+    });
+    button('Bearbeiten')?.click();
+    await settle();
+    const title = element.querySelector<HTMLInputElement>('#event-form-title')!;
+    title.value = 'Zahnarzt (verschoben)';
+    title.dispatchEvent(new Event('input'));
+    await settle();
+
+    sheets.results = [false];
+    button('Zurück')?.click();
+    await settle();
+
+    expect(sheets.opens.map((open) => open.heading)).toEqual(['Änderungen verwerfen?']);
+    expect(element.querySelector('app-event-form')).toBeTruthy();
+
+    sheets.results = [true];
+    button('Zurück')?.click();
+    await settle();
+
+    expect(element.querySelector('app-event-form')).toBeFalsy();
+  });
+
   for (const scope of ['occurrence', 'following', 'all'] as const) {
     it(`saves a series occurrence through the "${scope}" scope`, async () => {
       const { button, settle, emitFormSave, eventEditing, sheets, navigate } = await setup({

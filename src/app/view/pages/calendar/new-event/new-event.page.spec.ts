@@ -35,9 +35,19 @@ class FakeAppEventEditingInteractor {
   readonly createCalls: AppEventDraft[] = [];
   nextId = 'new-item-1';
 
-  create(draft: AppEventDraft): Promise<string> {
+  /** Holds the next `create` open until the test resolves it, when set. */
+  pending: Promise<void> | null = null;
+  failure: Error | null = null;
+
+  async create(draft: AppEventDraft): Promise<string> {
     this.createCalls.push(draft);
-    return Promise.resolve(this.nextId);
+    if (this.pending !== null) {
+      await this.pending;
+    }
+    if (this.failure !== null) {
+      throw this.failure;
+    }
+    return this.nextId;
   }
 }
 
@@ -195,6 +205,44 @@ describe('NewEventPage, create', () => {
       queryParams: { day: '2026-09-01' },
       replaceUrl: true,
     });
+  });
+
+  it('creates the appointment once when save is tapped twice in a row', async () => {
+    const page = await setup();
+    await page.expandDateTime();
+    await page.type('event-form-title', 'Plenum');
+    await page.pickAllDay(true);
+    await page.type('event-form-date-time-start-date', '2026-09-01');
+    await page.type('event-form-date-time-end-date', '2026-09-01');
+    let release!: () => void;
+    page.eventEditing.pending = new Promise((resolve) => (release = resolve));
+
+    // The second tap lands while the first save is still writing.
+    await page.submit();
+    await page.submit();
+    release();
+    await page.eventEditing.pending;
+
+    expect(page.eventEditing.createCalls).toHaveLength(1);
+  });
+
+  it('keeps the form and says so when saving fails', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const page = await setup();
+    await page.expandDateTime();
+    await page.type('event-form-title', 'Plenum');
+    await page.pickAllDay(true);
+    await page.type('event-form-date-time-start-date', '2026-09-01');
+    await page.type('event-form-date-time-end-date', '2026-09-01');
+    page.eventEditing.failure = new Error('database closed');
+
+    await page.submit();
+
+    expect(page.element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Der Termin konnte nicht gespeichert werden.',
+    );
+    expect(page.navigate).not.toHaveBeenCalled();
+    expect(page.element.querySelector('form')).not.toBeNull();
   });
 
   it('returns to the screen that opened the form after saving, when one was named', async () => {

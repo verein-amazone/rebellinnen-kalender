@@ -151,21 +151,6 @@ export class OccurrenceDao {
     await executor.run(`DELETE FROM occurrences WHERE source_id = ?`, [sourceId]);
   }
 
-  /** Removes one source's rows overlapping a range - the swap a device refresh replaces. */
-  async deleteOfSourceInRange(
-    sourceId: string,
-    rangeStartUtc: string,
-    rangeEndUtc: string,
-    executor: SqliteExecutor = this.database,
-  ): Promise<void> {
-    await executor.run(
-      `DELETE FROM occurrences
-       WHERE source_id = ?
-         AND ((start_utc < ? AND end_utc > ?) OR (start_utc = end_utc AND start_utc >= ? AND start_utc < ?))`,
-      [sourceId, rangeEndUtc, rangeStartUtc, rangeStartUtc, rangeEndUtc],
-    );
-  }
-
   async deleteByCalendar(
     calendarId: string,
     executor: SqliteExecutor = this.database,

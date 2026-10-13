@@ -56,7 +56,12 @@ class FakeReminderListInteractor {
     return Promise.resolve();
   }
 
+  failure: Error | null = null;
+
   complete(id: string): Promise<void> {
+    if (this.failure !== null) {
+      return Promise.reject(this.failure);
+    }
     this.completed.push(id);
     return Promise.resolve();
   }
@@ -313,6 +318,21 @@ describe('ReminderListBlock', () => {
 
     expect(block.interactor.completed).toEqual(['a']);
     expect(block.interactor.reopened).toEqual(['b']);
+  });
+
+  it('says so when a change cannot be saved, and keeps showing what is stored', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const block = await setup([open]);
+    block.interactor.failure = new Error('database closed');
+
+    await block.click('input[type="checkbox"]', 0);
+
+    expect(block.element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Die Erinnerung konnte nicht gespeichert werden.',
+    );
+    expect(block.element.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(
+      false,
+    );
   });
 
   it('notifies ReminderChanges after completing an entry, so the Today closing message can react', async () => {

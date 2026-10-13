@@ -54,7 +54,9 @@ here, each with its issue.
   the app schedules the next 60 and tops them up on every start. A phone that is not opened for
   weeks while carrying many reminders a day can miss later ones. See
   [data-persistence.md](./architecture/data-persistence.md#appointment-reminders).
-- **Android all-day appointments in device calendars** are verified on iOS only; whether they land
-  on the right day on Android is still open (#98).
+- **Android: no appointments into the phone's own calendars.** The app shows them, but cannot tell
+  which of them are writable, because the calendar plugin does not report it on Android, so it
+  treats every one as read-only and offers only its own calendars in the form (#133). Writing into
+  them works on iPhone.
 - **The web demo** cannot deliver reminders while the page is closed and cannot reach device
   calendars.

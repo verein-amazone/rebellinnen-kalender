@@ -77,7 +77,7 @@ export function parseIcsCalendar(
   }
 
   const items = new Map<string, IcsItemRecord>();
-  const exceptions: IcsItemExceptionRecord[] = [];
+  const exceptions: PendingException[] = [];
   const warnings: string[] = [];
 
   for (const vevent of events) {
@@ -91,9 +91,23 @@ export function parseIcsCalendar(
   return {
     items: [...items.values()],
     // Only exceptions whose master exists are meaningful.
-    exceptions: exceptions.filter((exception) => items.has(exception.uid)),
+    exceptions: exceptions.flatMap(({ original, exception }) => {
+      const master = items.get(exception.uid);
+      return master === undefined
+        ? []
+        : [{ ...exception, originalStart: originalStartInKindOf(original, master.start) }];
+    }),
     warnings,
   };
+}
+
+/**
+ * An exception whose original start is still in the form the feed gave it. It is keyed only once
+ * every master is known: see `originalStartInKindOf`.
+ */
+interface PendingException {
+  readonly original: TemporalValue;
+  readonly exception: Omit<IcsItemExceptionRecord, 'originalStart'>;
 }
 
 function collectEvent(
@@ -101,7 +115,7 @@ function collectEvent(
   subscriptionId: string,
   revisionId: string,
   items: Map<string, IcsItemRecord>,
-  exceptions: IcsItemExceptionRecord[],
+  exceptions: PendingException[],
 ): void {
   const event = new ICAL.Event(vevent);
   if (!event.uid || !event.startDate) {
@@ -114,16 +128,18 @@ function collectEvent(
   if (recurrenceId !== null) {
     // An override of one occurrence of the (separately delivered) master.
     exceptions.push({
-      subscriptionId,
-      uid: event.uid,
-      originalStart: recurrenceId.value,
-      revisionId,
-      status: 'override',
-      title: event.summary ?? null,
-      location: event.location ?? null,
-      note: event.description ?? null,
-      start,
-      end: event.endDate ? toEndTemporal(event.endDate, start.kind === 'date') : null,
+      original: recurrenceId,
+      exception: {
+        subscriptionId,
+        uid: event.uid,
+        revisionId,
+        status: 'override',
+        title: event.summary ?? null,
+        location: event.location ?? null,
+        note: event.description ?? null,
+        start,
+        end: event.endDate ? toEndTemporal(event.endDate, start.kind === 'date') : null,
+      },
     });
     return;
   }
@@ -143,20 +159,66 @@ function collectEvent(
 
   for (const property of vevent.getAllProperties('exdate')) {
     for (const value of property.getValues()) {
-      const excluded = toTemporal(value as ICAL.Time);
       exceptions.push({
-        subscriptionId,
-        uid: event.uid,
-        originalStart: excluded.value,
-        revisionId,
-        status: 'cancelled',
-        title: null,
-        location: null,
-        note: null,
-        start: null,
-        end: null,
+        original: toTemporal(value as ICAL.Time),
+        exception: {
+          subscriptionId,
+          uid: event.uid,
+          revisionId,
+          status: 'cancelled',
+          title: null,
+          location: null,
+          note: null,
+          start: null,
+          end: null,
+        },
       });
     }
+  }
+}
+
+/**
+ * The original start of an EXDATE or RECURRENCE-ID in the form the materializer generates for the
+ * master, so the two match. RFC 5545 lets them differ from DTSTART - a UTC `…Z` EXDATE against a
+ * DTSTART with a TZID is common - and compared as strings, such a cancellation would never apply
+ * and such an override would not parse as the master's kind.
+ */
+function originalStartInKindOf(original: TemporalValue, masterStart: TemporalValue): string {
+  if (original.kind === masterStart.kind && original.timeZone === masterStart.timeZone) {
+    return original.value;
+  }
+
+  switch (masterStart.kind) {
+    case 'zoned':
+      return wallTimeIn(original, masterStart.timeZone ?? 'UTC').toString();
+    case 'utc':
+      return wallTimeIn(original, 'UTC')
+        .toZonedDateTime('UTC')
+        .toInstant()
+        .toString({ smallestUnit: 'second' });
+    case 'floating':
+      return wallTimeIn(original, original.timeZone ?? 'UTC').toString();
+    case 'date':
+      return wallTimeIn(original, original.timeZone ?? 'UTC')
+        .toPlainDate()
+        .toString();
+  }
+}
+
+/** The wall time of a value in a zone; floating and date values have no zone and keep theirs. */
+function wallTimeIn(value: TemporalValue, timeZone: string): Temporal.PlainDateTime {
+  switch (value.kind) {
+    case 'utc':
+      return Temporal.Instant.from(value.value).toZonedDateTimeISO(timeZone).toPlainDateTime();
+    case 'zoned':
+      return Temporal.PlainDateTime.from(value.value)
+        .toZonedDateTime(value.timeZone ?? timeZone)
+        .withTimeZone(timeZone)
+        .toPlainDateTime();
+    case 'floating':
+      return Temporal.PlainDateTime.from(value.value);
+    case 'date':
+      return Temporal.PlainDate.from(value.value).toPlainDateTime();
   }
 }
 
