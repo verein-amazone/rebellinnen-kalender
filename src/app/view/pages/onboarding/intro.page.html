@@ -226,15 +226,16 @@
           <span>Zurück</span>
         </button>
       } @else {
-        <!-- The one button whose icon trails its label: the arrow points where „Weiter“ goes. -->
+        <!-- The two buttons whose icon trails its label: the arrows point where „Weiter“ and the skip
+             go - forward. -->
         <button type="button" class="rk-button rk-button-primary w-full" (click)="next()">
           <span>{{ isLast() ? 'Los geht’s' : 'Weiter' }}</span>
           <svg lucideArrowRight class="rk-icon" aria-hidden="true"></svg>
         </button>
         @if (isFirst()) {
           <button type="button" class="rk-button rk-button-ghost w-full" (click)="finish()">
-            <svg lucideChevronsRight class="rk-icon" aria-hidden="true"></svg>
             <span>Erste Schritte überspringen</span>
+            <svg lucideChevronsRight class="rk-icon" aria-hidden="true"></svg>
           </button>
         } @else {
           <button type="button" class="rk-button rk-button-ghost w-full" (click)="back()">
