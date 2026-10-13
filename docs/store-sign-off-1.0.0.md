@@ -147,14 +147,23 @@ Der Text muss mindestens sagen:
 
 ## 5. Offene Punkte aus der Prüfung der Rechtstexte
 
-- ☐ **Online-Kalender von Verein Amazone und Feiertage.** Beide sind nach der Installation
-  eingeschaltet; die App lädt sie beim ersten Öffnen eines Kalenders von Google Kalender und
-  wien.gv.at. Außerdem lädt die App ausgeschaltete abonnierte Kalender weiter im Hintergrund nach
-  (Fehler, wird vor der Veröffentlichung behoben). Zu entscheiden: eingeschaltet lassen (so steht
-  es in der Datenschutzerklärung, Abschnitt 5.2) oder erst nach einem Tipp einschalten (so steht es
-  in der Store-Beschreibung: „mit einem Tipp einschalten“). Beschreibung und Datenschutzerklärung
-  müssen danach dasselbe sagen.
+- ☐ **Online-Kalender von Verein Amazone und Feiertage.** Die Einführung hat jetzt einen eigenen
+  Schritt „Welche Kalender willst du sehen?“. Er zeigt jeden Kalender aus dem Katalog der App mit
+  einem Schalter, alle eingeschaltet. Die App lädt erst etwas, wenn die Einführung vorbei ist, und
+  nur die Kalender, die dann noch eingeschaltet sind. Wer die Einführung überspringt, bekommt beide
+  eingeschaltet. Ausgeschaltete Kalender lädt die App auch im Hintergrund nicht mehr nach (#143).
+  Kommt später ein Kalender dazu, erscheint er automatisch in diesem Schritt; Store-Beschreibung
+  und Datenschutzerklärung (Abschnitt 5.2) müssen dann von Hand ergänzt werden.
+  Zu entscheiden: dieselbe Aussage in Store-Beschreibung und Datenschutzerklärung. Vorschlag:
+  - Store-Beschreibung statt „… mit einem Tipp einschalten“: „Die Termine von Verein Amazone und
+    die österreichischen Feiertage – beim ersten Start auswählbar“
+  - Datenschutzerklärung 5.2, statt „können beim erstmaligen Verwenden der Kalenderfunktionen
+    abgerufen werden“: „In der Einführung kannst du auswählen, welche dieser Kalender die App
+    laden soll; ausgeschaltete Kalender werden nicht abgerufen. Das kannst du jederzeit in der
+    Kalenderverwaltung ändern.“
+
   Entscheidung: …
+
 - ☐ **Gerätesicherungen.** Android und iOS nehmen die App-Daten in Gerätesicherungen auf (iCloud,
   Google). Die Datenschutzerklärung sagt das (Abschnitt 8.1). Zu entscheiden: so lassen, oder die
   App von Sicherungen ausnehmen – dann sind Termine nach einem Gerätewechsel weg.

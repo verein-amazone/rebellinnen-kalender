@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
   LucideArrowLeft,
@@ -15,6 +22,7 @@ import {
 
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
+import { CuratedCalendarsInteractor } from '@app/interactors/calendar/curated-calendars.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
@@ -24,22 +32,25 @@ import {
   type ThemeId,
 } from '@app/interactors/settings/appearance.interactor';
 import { ProfileInteractor } from '@app/interactors/settings/profile.interactor';
+import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
+import { ToggleField } from '@app/view/components/field/toggle-field';
 import { ThemeSwatch } from '@app/view/components/theme-swatch/theme-swatch';
 
-type IntroStepId = 'welcome' | 'areas' | 'personal' | 'privacy' | 'reminders';
+type IntroStepId = 'welcome' | 'areas' | 'personal' | 'calendars' | 'privacy' | 'reminders';
 
 interface IntroStep {
   readonly id: IntroStepId;
   readonly heading: string;
 }
 
-const STEPS: readonly IntroStep[] = [
-  { id: 'welcome', heading: 'Schön, dass du da bist!' },
-  { id: 'areas', heading: 'Was kann die App?' },
-  { id: 'personal', heading: 'Mach die App zu deiner' },
-  { id: 'privacy', heading: 'Deine Daten bleiben bei dir' },
-];
+const WELCOME_STEP: IntroStep = { id: 'welcome', heading: 'Schön, dass du da bist!' };
+const AREAS_STEP: IntroStep = { id: 'areas', heading: 'Was kann die App?' };
+const PERSONAL_STEP: IntroStep = { id: 'personal', heading: 'Mach die App zu deiner' };
+const PRIVACY_STEP: IntroStep = { id: 'privacy', heading: 'Deine Daten bleiben bei dir' };
+
+/** Only the apps can download a calendar feed, so the browser build skips this step. */
+const CALENDARS_STEP: IntroStep = { id: 'calendars', heading: 'Welche Kalender willst du sehen?' };
 
 /** Only the apps can deliver a reminder, so the browser build skips this step. */
 const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinnern?' };
@@ -60,7 +71,13 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
  * the name Heute greets with and the colour theme - through the same interactors as their settings
  * screens. Both are optional; „Weiter“ works with neither touched.
  *
- * Calendar access is only explained here, and requested from the explicit „connect“ action in the
+ * The „Welche Kalender“ step lists the curated online calendars from
+ * `public/curated-calendars/catalog.json` - whatever it lists, so a new catalog entry needs no
+ * change here - and lets each be switched off before the app first downloads it. Listing them seeds
+ * them but downloads nothing; the first download happens on the first calendar-showing screen,
+ * for the ones still on.
+ *
+ * Device calendar access is only explained here, and requested from the explicit „connect“ action in the
  * settings. The one permission the introduction can ask for is the notification permission (#81),
  * and only when the user taps „Ja, erinnere mich“ on the last step.
  */
@@ -68,6 +85,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
   selector: 'app-intro',
   host: { class: 'block' },
   imports: [
+    CalendarAvatar,
     ChoiceRow,
     LucideArrowLeft,
     LucideArrowRight,
@@ -80,6 +98,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
     LucideShieldCheck,
     LucideSun,
     ThemeSwatch,
+    ToggleField,
   ],
   templateUrl: './intro.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,15 +111,21 @@ export class IntroPage {
   protected readonly profile = inject(ProfileInteractor);
   protected readonly appearance = inject(AppearanceInteractor);
   private readonly haptics = inject(HapticsInteractor);
+  private readonly curatedCalendars = inject(CuratedCalendarsInteractor);
 
   /** Bound from the `:step` route parameter, 1-based. */
   readonly step = input<string>('1');
   /** Bound from `?returnTo=`: where finishing goes when reopened from the settings. */
   readonly returnTo = input<string | null>(null);
 
-  protected readonly steps = this.notificationPreferences.isSupported
-    ? [...STEPS, REMINDERS_STEP]
-    : STEPS;
+  protected readonly steps: readonly IntroStep[] = [
+    WELCOME_STEP,
+    AREAS_STEP,
+    PERSONAL_STEP,
+    ...(this.isNativePlatform ? [CALENDARS_STEP] : []),
+    PRIVACY_STEP,
+    ...(this.notificationPreferences.isSupported ? [REMINDERS_STEP] : []),
+  ];
 
   protected readonly index = computed(() => {
     const parsed = Number.parseInt(this.step(), 10);
@@ -135,6 +160,12 @@ export class IntroPage {
     return sentence.charAt(0).toUpperCase() + sentence.slice(1);
   });
 
+  /** Loaded only on the calendars step, so the earlier steps never touch the database. */
+  protected readonly calendars = resource({
+    params: () => (this.current().id === 'calendars' ? true : undefined),
+    loader: () => this.curatedCalendars.listForIntroduction(),
+  });
+
   /** Same as Settings → Profil: stored as typed, so leaving the step needs no save. */
   protected updateName(value: string): void {
     this.profile.setName(value);
@@ -144,6 +175,12 @@ export class IntroPage {
   protected selectTheme(theme: ThemeId): void {
     this.appearance.selectTheme(theme);
     void this.haptics.selection();
+  }
+
+  /** Same as Settings → Amazone & Partnerkalender, minus the colour and symbol. */
+  protected async toggleCalendar(sourceId: string, enabled: boolean): Promise<void> {
+    await this.curatedCalendars.setEnabled(sourceId, enabled);
+    this.calendars.reload();
   }
 
   /** Asks for the permission from this tap, then finishes whatever the answer. */

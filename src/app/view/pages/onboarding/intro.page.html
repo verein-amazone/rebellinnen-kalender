@@ -108,6 +108,43 @@
             </fieldset>
           </div>
         }
+        @case ('calendars') {
+          <div class="bg-card text-primary mx-auto w-fit rounded-full p-5 text-3xl">
+            <svg lucideCalendarDays class="rk-icon" aria-hidden="true"></svg>
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+            <p class="text-pretty">
+              Die App lädt diese Kalender aus dem Internet, direkt beim jeweiligen Anbieter.
+              Änderbar in den Einstellungen.
+            </p>
+          </div>
+          @if (calendars.value(); as sources) {
+            @if (sources.length > 0) {
+              <ul class="rk-list text-left">
+                @for (source of sources; track source.id) {
+                  <li class="rk-row items-center gap-3">
+                    <app-calendar-avatar
+                      class="shrink-0"
+                      [color]="source.color"
+                      [emoji]="source.emoji"
+                    />
+                    <app-toggle-field
+                      [id]="'intro-calendar-' + source.id"
+                      [label]="source.name"
+                      [description]="source.description"
+                      class="min-w-0 flex-1"
+                      [checked]="source.enabled"
+                      (checkedChange)="toggleCalendar(source.id, $event)"
+                    />
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-muted-foreground text-sm">Derzeit sind keine Kalender verfügbar.</p>
+            }
+          }
+        }
         @case ('privacy') {
           <div class="bg-card text-primary mx-auto w-fit rounded-full p-5 text-3xl">
             <svg lucideShieldCheck class="rk-icon" aria-hidden="true"></svg>

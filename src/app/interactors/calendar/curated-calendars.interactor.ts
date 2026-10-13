@@ -1,6 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 
-import { CuratedCalendarSync } from '@app/data/calendar/curated/curated-calendar-sync';
+import {
+  CuratedCalendarSync,
+  type Catalog,
+} from '@app/data/calendar/curated/curated-calendar-sync';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
@@ -43,9 +46,22 @@ export class CuratedCalendarsInteractor {
     return this.icsSubscriptions.updateIdentity(subscriptionId, identity);
   }
 
-  /** Enables or disables the subscription; its source and calendar flip together. */
-  setEnabled(subscriptionId: string, enabled: boolean): Promise<void> {
-    return this.icsSubscriptions.setEnabled(subscriptionId, enabled);
+  /**
+   * Enables or disables the subscription; its source and calendar flip together. A source switched
+   * off in the introduction was never downloaded and has nothing to show, so switching it on later
+   * downloads it right away rather than on the next start. Inside the introduction it is still
+   * waiting for its first download, which the next calendar screen does.
+   */
+  async setEnabled(subscriptionId: string, enabled: boolean): Promise<void> {
+    await this.icsSubscriptions.setEnabled(subscriptionId, enabled);
+    if (!enabled || this.sync.awaitsFirstDownload(subscriptionId)) {
+      return;
+    }
+
+    const subscription = await this.subscriptions.find(subscriptionId);
+    if (subscription?.lastAttemptAt === null) {
+      await this.icsSubscriptions.refresh(subscriptionId, { force: true });
+    }
   }
 
   /** Retries a subscription's download, e.g. from the management screen's error state. */
@@ -69,6 +85,19 @@ export class CuratedCalendarsInteractor {
       await this.icsSubscriptions.refresh(subscriptionId, { force: true });
     }
 
+    return this.list(catalog);
+  }
+
+  /**
+   * The same list for the introduction's choice step: seeds every catalog entry but downloads
+   * nothing, so a calendar switched off there is never contacted. The first download happens on
+   * the first calendar-showing screen, for the sources still enabled by then.
+   */
+  async listForIntroduction(): Promise<CuratedCalendarRow[]> {
+    return this.list(await this.sync.ensureSeeded());
+  }
+
+  private async list(catalog: Catalog | null): Promise<CuratedCalendarRow[]> {
     const catalogEntries = catalog?.sources ?? [];
     const descriptionByCatalogId = new Map(
       catalogEntries.map((entry) => [entry.id, entry.description]),

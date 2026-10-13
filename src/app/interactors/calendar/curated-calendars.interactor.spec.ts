@@ -138,6 +138,56 @@ describe('CuratedCalendarsInteractor', () => {
     expect(rows.map((row) => row.name)).toEqual(['Rebell*innen Kalender', 'Feiertage Österreich']);
   });
 
+  it('lists the curated sources for the introduction without downloading any', async () => {
+    const rows = await interactor.listForIntroduction();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ name: 'Feiertage Österreich', enabled: true });
+    expect(http.requests).toHaveLength(0);
+  });
+
+  it('never downloads a source switched off in the introduction', async () => {
+    const [row] = await interactor.listForIntroduction();
+    await interactor.setEnabled(row.id, false);
+
+    await interactor.listForManagement();
+
+    expect(http.requests).toHaveLength(0);
+  });
+
+  it('downloads a source left on in the introduction on the next calendar screen', async () => {
+    await interactor.listForIntroduction();
+
+    await interactor.listForManagement();
+
+    expect(http.requests).toHaveLength(1);
+  });
+
+  it('downloads nothing while a source is switched off and on in the introduction', async () => {
+    const [row] = await interactor.listForIntroduction();
+
+    await interactor.setEnabled(row.id, false);
+    await interactor.setEnabled(row.id, true);
+    expect(http.requests).toHaveLength(0);
+
+    await interactor.listForManagement();
+    expect(http.requests).toHaveLength(1);
+  });
+
+  it('downloads a never-downloaded source as soon as it is switched on', async () => {
+    const [row] = await interactor.listForIntroduction();
+    await interactor.setEnabled(row.id, false);
+    await interactor.listForManagement();
+
+    await interactor.setEnabled(row.id, true);
+
+    expect(http.requests).toHaveLength(1);
+    // Already downloaded: switching it off and on again needs no new download.
+    await interactor.setEnabled(row.id, false);
+    await interactor.setEnabled(row.id, true);
+    expect(http.requests).toHaveLength(1);
+  });
+
   it('never exposes add or remove on its surface', () => {
     expect((interactor as unknown as { add?: unknown }).add).toBeUndefined();
     expect((interactor as unknown as { remove?: unknown }).remove).toBeUndefined();

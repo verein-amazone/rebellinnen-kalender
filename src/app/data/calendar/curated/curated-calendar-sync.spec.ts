@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import { SQLITE_DATABASE } from '@app/data/gateways/sqlite-database';
@@ -148,6 +149,34 @@ describe('CuratedCalendarSync', () => {
     expect(second).toBe(third);
     expect(first.createdSubscriptionIds).toHaveLength(1);
     expect(await sources.listSources()).toHaveLength(1);
+  });
+
+  it('seeds without handing out a download until a caller asks for one', async () => {
+    mockFetch({ version: 1, sources: [catalogEntry()] });
+
+    const catalog = await sync.ensureSeeded();
+    expect(catalog?.sources).toHaveLength(1);
+    expect(await subscriptions.list()).toHaveLength(1);
+
+    const first = await sync.ensureSynced();
+    expect(first.createdSubscriptionIds).toHaveLength(1);
+    // Handed out once: a later caller must not download the same source again.
+    const second = await sync.ensureSynced();
+    expect(second.createdSubscriptionIds).toEqual([]);
+  });
+
+  it('never hands out a first download for a source switched off after seeding', async () => {
+    mockFetch({ version: 1, sources: [catalogEntry()] });
+    await sync.ensureSeeded();
+    const [subscription] = await subscriptions.list();
+    await TestBed.inject(CalendarRepository).setIcsSubscriptionEnabled(subscription.id, false, {
+      nowUtc: new Date().toISOString(),
+      timeZone: 'Europe/Vienna',
+    });
+
+    const { createdSubscriptionIds } = await sync.ensureSynced();
+
+    expect(createdSubscriptionIds).toEqual([]);
   });
 
   it('never removes a source whose catalog entry disappears', async () => {
