@@ -8,6 +8,8 @@ export interface SelectDailyImpulseInput {
   readonly eligible: readonly ContentItemRecord[];
   /** Ids shown on recent days, oldest first - excluded from today's pick where possible. */
   readonly recentIds: readonly string[];
+  /** The impulse featured before today, which today's pick should not resemble; `null` if none. */
+  readonly previous: ContentItemRecord | null;
   /** Today, `YYYY-MM-DD`. Also seeds the deterministic pick among equally-eligible candidates. */
   readonly today: string;
 }
@@ -18,6 +20,13 @@ export interface SelectDailyImpulseInput {
  * clearly less urgent than a dated item, without ever reaching zero probability.
  */
 const EVERGREEN_WINDOW_DAYS = 90;
+
+/**
+ * The factor an item's weight is multiplied by for each trait it shares with the previous impulse,
+ * so a Rebell*in after a Rebell*in is ten times less likely than the item's own weight would make it.
+ * Unlikely, not excluded: when only alike items are eligible, one of them is still picked.
+ */
+const REPEAT_WEIGHT = 0.1;
 
 /**
  * Picks the Today page's featured content item from today's eligible items.
@@ -37,9 +46,12 @@ const EVERGREEN_WINDOW_DAYS = 90;
  * a specific `validFrom`–`validTo` span gets a weight of `1 / windowDays`, so a one-day item is far
  * more likely to be picked than a week-long one, which in turn beats evergreen content - without
  * ever hard-excluding anything the way a strict "dated beats evergreen" rule would.
+ *
+ * That weight is then lowered for every trait an item shares with the `previous` impulse (see
+ * `varietyTraits`), so consecutive impulses tend to differ in kind rather than repeat it.
  */
 export function selectDailyImpulse(input: SelectDailyImpulseInput): ContentItemRecord | null {
-  const { eligible, recentIds, today } = input;
+  const { eligible, recentIds, previous, today } = input;
 
   if (eligible.length === 0) {
     return null;
@@ -49,7 +61,22 @@ export function selectDailyImpulse(input: SelectDailyImpulseInput): ContentItemR
   const notRecentlyShown = eligible.filter((item) => !recent.has(item.id));
   const candidates = notRecentlyShown.length > 0 ? notRecentlyShown : eligible;
 
-  return weightedPick(candidates, today);
+  return weightedPick(candidates, previous, today);
+}
+
+/**
+ * What makes two impulses feel alike when one follows the other. Every trait counts on its own, so
+ * an item sharing two of them with the previous impulse is lowered twice. Content with a video adds
+ * a `video` trait once items can carry one, so that a video does not follow a video either.
+ */
+function varietyTraits(item: ContentItemRecord): readonly string[] {
+  return [`kind:${item.kind}`];
+}
+
+/** `1 / windowDays`, lowered by `REPEAT_WEIGHT` once per trait shared with the previous impulse. */
+function weightOf(item: ContentItemRecord, previousTraits: ReadonlySet<string>): number {
+  const shared = varietyTraits(item).filter((trait) => previousTraits.has(trait)).length;
+  return REPEAT_WEIGHT ** shared / windowDays(item);
 }
 
 /** How many days an item is eligible for - narrower windows get picked more often. */
@@ -63,15 +90,17 @@ function windowDays(item: ContentItemRecord): number {
 }
 
 /**
- * Deterministically picks one item, weighted by `1 / windowDays`: `today` is hashed into a
+ * Deterministically picks one item, weighted by `weightOf`: `today` is hashed into a
  * fraction of the total weight, then candidates are walked in order, accumulating weight, until
  * that fraction is reached - the same technique as picking a slice of a pie chart by angle.
  */
 function weightedPick(
   candidates: readonly ContentItemRecord[],
+  previous: ContentItemRecord | null,
   today: string,
 ): ContentItemRecord | null {
-  const weights = candidates.map((item) => 1 / windowDays(item));
+  const previousTraits = new Set(previous === null ? [] : varietyTraits(previous));
+  const weights = candidates.map((item) => weightOf(item, previousTraits));
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
 
   const HASH_RESOLUTION = 1_000_000;

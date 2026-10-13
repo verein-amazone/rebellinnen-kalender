@@ -8,6 +8,7 @@ import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
 import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
 
 import { DailyImpulseInteractor } from './daily-impulse.interactor';
+import { selectDailyImpulse } from './select-daily-impulse';
 
 function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
   return {
@@ -141,6 +142,26 @@ describe('DailyImpulseInteractor', () => {
 
     expect(picked?.id).toBe('b');
     expect(TestBed.inject(DailyImpulseStore).pick()).toEqual({ day: '2027-02-06', itemId: 'b' });
+  });
+
+  it('steers the next pick away from the kind of the impulse featured before', async () => {
+    const previous = item({ id: 'reb-01', kind: 'rebellin' });
+    const eligible = [item({ id: 'reb-02', kind: 'rebellin' }), item({ id: 'wi-01' })];
+    // A day on which the Rebell*in wins on her own, so only the previous impulse can turn it round.
+    const day = ['2027-02-05', '2027-02-06', '2027-02-07', '2027-02-08', '2027-02-09'].find(
+      (today) =>
+        selectDailyImpulse({ eligible, recentIds: [], previous: null, today })?.id === 'reb-02' &&
+        selectDailyImpulse({ eligible, recentIds: [], previous, today })?.id === 'wi-01',
+    );
+    dao.eligible = [previous];
+    const interactor = TestBed.inject(DailyImpulseInteractor);
+    await interactor.featuredItem('2027-02-04');
+
+    dao.eligible = eligible;
+    const picked = await interactor.featuredItem(day ?? '');
+
+    expect(day).toBeDefined();
+    expect(picked?.id).toBe('wi-01');
   });
 
   it('reports no featured id before a pick was made, and the pick afterwards', async () => {

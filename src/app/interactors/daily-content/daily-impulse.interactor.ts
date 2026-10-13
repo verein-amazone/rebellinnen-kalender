@@ -14,7 +14,8 @@ import { selectDailyImpulse } from './select-daily-impulse';
 /**
  * Orchestrates the Today page's featured content item: today's stable pick if one was already
  * made, otherwise a fresh pick from today's eligible items, written back to the store so it stays
- * stable for the rest of the day.
+ * stable for the rest of the day. The fresh pick is steered away from the kind of the impulse
+ * featured before it.
  */
 @Injectable({ providedIn: 'root' })
 export class DailyImpulseInteractor {
@@ -41,7 +42,14 @@ export class DailyImpulseInteractor {
     }
 
     const eligible = await this.contentItems.listEligibleForDay(today);
-    const picked = selectDailyImpulse({ eligible, recentIds: this.store.recentIds(), today });
+    // The last impulse featured, however many days ago: it is the one the user saw before today's.
+    const previous = stable === null ? null : await this.contentItems.findById(stable.itemId);
+    const picked = selectDailyImpulse({
+      eligible,
+      recentIds: this.store.recentIds(),
+      previous,
+      today,
+    });
 
     if (picked !== null) {
       this.store.setPick(today, picked.id);
