@@ -1,3 +1,13 @@
+## [1.0.0-rc.49](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.48...v1.0.0-rc.49) (2026-10-13)
+
+### Features
+
+* **content:** search Meine Sammlung and Anlaufstellen ([a0e71e7](https://github.com/verein-amazone/rebellinnen-kalender/commit/a0e71e734e65744b4d74a715b2031c641eae93d3))
+
+### Bug Fixes
+
+* **content:** keep an Anlaufstelle card readable at large text sizes ([2c51fd8](https://github.com/verein-amazone/rebellinnen-kalender/commit/2c51fd8cd3c21b4baa023f2cc4d1eea4fd32bae6))
+
 ## [1.0.0-rc.48](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.47...v1.0.0-rc.48) (2026-10-13)
 
 ### Refactoring
