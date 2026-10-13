@@ -6,6 +6,10 @@
         schreibgeschützt.
       </p>
 
+      @if (actionError(); as message) {
+        <p role="alert" class="rk-error">{{ message }}</p>
+      }
+
       @if (icsResource.hasValue() && icsResource.value(); as subscriptions) {
         @if (subscriptions.length > 0) {
           <ul class="rk-list">

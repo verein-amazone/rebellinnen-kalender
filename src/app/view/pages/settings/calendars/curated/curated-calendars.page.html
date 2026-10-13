@@ -7,6 +7,10 @@
         werden von Verein Amazone und Partnerorganisationen gepflegt.
       </p>
 
+      @if (actionError(); as message) {
+        <p role="alert" class="rk-error">{{ message }}</p>
+      }
+
       @if (curatedResource.hasValue() && curatedResource.value(); as sources) {
         @if (sources.length > 0) {
           <ul class="rk-list">

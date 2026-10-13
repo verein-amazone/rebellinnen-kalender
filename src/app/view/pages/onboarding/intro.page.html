@@ -131,6 +131,9 @@
               Änderbar in den Einstellungen.
             </p>
           </div>
+          @if (calendarError(); as message) {
+            <p role="alert" class="rk-error">{{ message }}</p>
+          }
           @if (calendars.hasValue() && calendars.value(); as sources) {
             @if (sources.length > 0) {
               <ul class="rk-list text-left">

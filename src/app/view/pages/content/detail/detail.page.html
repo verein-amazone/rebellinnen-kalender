@@ -17,6 +17,10 @@
     </button>
   }
 
+  @if (bookmarkError(); as message) {
+    <p role="alert" class="rk-error mb-4">{{ message }}</p>
+  }
+
   @if (item(); as content) {
     <div class="space-y-4">
       <!-- The content type is never colour alone: an icon and its own text label always ship
