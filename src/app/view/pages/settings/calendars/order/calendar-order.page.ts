@@ -33,6 +33,7 @@ import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor'
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+import { InfoToggletip } from '@app/view/components/info-toggletip/info-toggletip';
 
 /** What a row's menu can do. */
 export type CalendarOrderAction = 'move-up' | 'move-down';
@@ -52,6 +53,7 @@ export type CalendarOrderAction = 'move-up' | 'move-down';
   selector: 'app-settings-calendar-order',
   host: { class: 'block' },
   imports: [
+    InfoToggletip,
     CalendarAvatar,
     CdkDrag,
     CdkDragHandle,

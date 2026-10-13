@@ -17,11 +17,15 @@ import { AppearanceInteractor } from '@app/interactors/settings/appearance.inter
 import {
   ActivatedRouteSnapshot,
   NavigationEnd,
+  NavigationStart,
   Router,
   RouterLink,
   RouterOutlet,
+  UrlSerializer,
 } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
+
+import { isReturnNavigation, ScrollMemory } from './scroll-memory';
 
 /** The primary navigation destinations, in the order they appear in the bottom bar. */
 const DESTINATIONS = [
@@ -64,6 +68,11 @@ export class MainNavigationScaffold {
   /** The tab of the previous navigation, used to tell a tab switch from any other navigation. */
   private previousTab: Tab | null = null;
 
+  /** The screen of the previous navigation, used to tell a new screen from a query change. */
+  private previousScreen: string | null = null;
+
+  private readonly scrollMemory = new ScrollMemory(inject(UrlSerializer));
+
   protected readonly destinations = DESTINATIONS;
 
   protected readonly activeTab = toSignal(
@@ -76,12 +85,13 @@ export class MainNavigationScaffold {
   );
 
   constructor() {
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => this.handleNavigation());
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.leaveScreen();
+      } else if (event instanceof NavigationEnd) {
+        this.handleNavigation(event);
+      }
+    });
 
     // The shell does not resize for the keyboard; the scroll region and the sheet body pad
     // themselves by the part it covers instead (keyboard-visibility.ts). The field is focused before
@@ -109,20 +119,45 @@ export class MainNavigationScaffold {
     });
   }
 
+  /** Remembers how far the screen being left was scrolled, in case the user comes back to it. */
+  private leaveScreen(): void {
+    this.scrollMemory.stop();
+    const region = this.scrollRegion()?.nativeElement;
+    if (region !== undefined) {
+      this.scrollMemory.save(this.router.url, region.scrollTop);
+    }
+  }
+
   /**
-   * Decide what happens to focus once the new screen has rendered.
+   * Decide what happens to focus and to the scroll position once the new screen has rendered.
    *
    * Moving between two primary destinations means the user is operating the bottom navigation, so
    * focus stays where it is and the new page is only announced. Every other navigation - opening a
    * focused screen, closing one, or the initial load - replaces the context entirely, so focus
    * moves to the new screen's title.
+   *
+   * There is one scroll region for every screen, so it would otherwise keep the previous screen's
+   * offset. A screen being returned to - closed back to, switched back to in the bottom
+   * navigation, or reached with the browser's back button on the web - comes back where the user
+   * left it; a screen being opened starts at the top. A navigation that only changes the query
+   * string (another calendar day, the other content area) stays on the same screen and leaves the
+   * scroll position alone.
    */
-  private handleNavigation(): void {
+  private handleNavigation(event: NavigationEnd): void {
     const previousTab = this.previousTab;
     const currentTab = this.currentTab();
     this.previousTab = currentTab;
 
+    const previousScreen = this.previousScreen;
+    const currentScreen = this.scrollMemory.screenOf(event.urlAfterRedirects);
+    this.previousScreen = currentScreen;
+
     const isTabSwitch = previousTab !== null && currentTab !== null;
+    const navigation = this.router.currentNavigation();
+    const isReturn =
+      isTabSwitch ||
+      navigation?.trigger === 'popstate' ||
+      isReturnNavigation(navigation?.extras.info);
 
     afterNextRender(
       () => {
@@ -130,6 +165,16 @@ export class MainNavigationScaffold {
           this.pageFocus.announcePageHeading();
         } else {
           this.pageFocus.focusPageHeading();
+        }
+
+        const region = this.scrollRegion()?.nativeElement;
+        if (region === undefined || previousScreen === currentScreen) {
+          return;
+        }
+        if (isReturn) {
+          this.scrollMemory.restore(region, event.urlAfterRedirects);
+        } else {
+          region.scrollTop = 0;
         }
       },
       { injector: this.injector },
@@ -139,15 +184,17 @@ export class MainNavigationScaffold {
   /**
    * Tapping the active destination again scrolls its screen back to the top.
    *
-   * No `preventDefault()`: the router ignores a navigation to the URL that is already active, and
-   * where it does navigate (a tab link carries no query params, so `/calendar?view=month` becomes
-   * `/calendar`) the fresh screen starts at the top anyway.
+   * No `preventDefault()`: the active destination's link keeps the current query parameters (see
+   * the template), so it points at the URL that is already showing and the router ignores it. A
+   * plain `/calendar` would navigate away from `/calendar?view=month` to the week view, and the
+   * screen would jump instead of scrolling.
    */
   protected handleTabActivated(tab: Tab): void {
     if (tab !== this.activeTab()) {
       return;
     }
 
+    this.scrollMemory.stop();
     this.scrollRegion()?.nativeElement.scrollTo({ top: 0, behavior: this.scrollBehavior() });
   }
 

@@ -1,0 +1,21 @@
+/*
+ * The explanation an info button (`app-info-toggletip`) shows below itself.
+ *
+ * It floats over the content rather than pushing it down, so opening it does not move the list the
+ * user is looking at. It opens towards the start from the button's end edge, which is why the button
+ * belongs at the end of a row.
+ *
+ * The width resolves against `.rk-scroll-region`, the query container every screen sits in, and
+ * leaves a 1rem margin on each side of the screen. The height cap keeps it scrollable at large text
+ * sizes: it often hangs off a sticky header, and a panel taller than the screen there could never be
+ * scrolled into view by scrolling the page.
+ */
+
+@layer components {
+  .rk-toggletip {
+    @apply bg-card text-card-foreground border-border absolute end-0 top-full z-20 mt-1 overflow-y-auto rounded-lg border px-4 py-3 text-left shadow-lg;
+    inline-size: max-content;
+    max-inline-size: min(22rem, calc(100cqi - 2rem));
+    max-block-size: 60dvh;
+  }
+}

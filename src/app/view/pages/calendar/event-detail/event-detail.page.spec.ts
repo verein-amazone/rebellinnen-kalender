@@ -22,6 +22,7 @@ import { EventForm, type AppEventFormResult } from '@app/view/components/event-f
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { EventDetailPage } from './event-detail.page';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurrence {
   return {
@@ -481,7 +482,7 @@ describe('EventDetailPage, edit', () => {
     await settle();
     await emitFormSave({ mode: 'edit', changes: { title: 'Zahnarzt (verschoben)' } });
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -533,7 +534,7 @@ describe('EventDetailPage, edit', () => {
     button('Zurück')?.click();
     await settle();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/calendar?day=2026-08-10', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/calendar?day=2026-08-10', RETURN_NAVIGATION);
   });
 
   it('returns to the screen the appointment was opened from when one was named', async () => {
@@ -546,7 +547,7 @@ describe('EventDetailPage, edit', () => {
     button('Zurück')?.click();
     await settle();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
   });
 
   it("keeps the calendar's week/month view when the back-arrow is used", async () => {
@@ -561,9 +562,10 @@ describe('EventDetailPage, edit', () => {
     button('Zurück')?.click();
     await settle();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/calendar?view=month&day=2026-08-10', {
-      replaceUrl: true,
-    });
+    expect(navigateByUrl).toHaveBeenCalledWith(
+      '/calendar?view=month&day=2026-08-10',
+      RETURN_NAVIGATION,
+    );
   });
 
   it('returns focus to the „Bearbeiten“ button when the header back-arrow cancels edit mode', async () => {

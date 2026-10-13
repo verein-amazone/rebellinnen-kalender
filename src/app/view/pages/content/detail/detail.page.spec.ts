@@ -8,6 +8,7 @@ import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.in
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ContentDetailPage } from './detail.page';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
   return {
@@ -127,7 +128,7 @@ describe('ContentDetailPage', () => {
     dismiss();
     await settle();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/content', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/content', RETURN_NAVIGATION);
   });
 
   it('returns to the origin the link carried in ?returnTo=', async () => {
@@ -140,7 +141,7 @@ describe('ContentDetailPage', () => {
     dismiss();
     await settle();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/settings/content-catalog', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/settings/content-catalog', RETURN_NAVIGATION);
   });
 
   it('shows the title, type label and body of the item', async () => {
@@ -214,7 +215,7 @@ describe('ContentDetailPage', () => {
 
     expect(sheets.opens[0]?.heading).toContain('entfernen');
     expect(bookmarks.bookmarked.has('wi-01')).toBe(false);
-    expect(navigateByUrl).toHaveBeenCalledWith('/content?area=collection', { replaceUrl: true });
+    expect(navigateByUrl).toHaveBeenCalledWith('/content?area=collection', RETURN_NAVIGATION);
   });
 
   it('keeps the item and stays on the page when the removal is declined', async () => {

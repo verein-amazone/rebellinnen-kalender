@@ -31,6 +31,20 @@
         <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
         <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
       </ul>
+
+      <!-- What the selected area is for. Needed the first time, not every time, so it sits behind
+           an info button instead of above each list. -->
+      @if (activeArea() === 'collection') {
+        <app-info-toggletip label="Info zu Meine Sammlung">
+          Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
+          persönlichen Fundstücke immer griffbereit.
+        </app-info-toggletip>
+      } @else {
+        <app-info-toggletip label="Info zu Anlaufstellen">
+          Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an die
+          du dich wenden kannst.
+        </app-info-toggletip>
+      }
     </div>
   </div>
 
@@ -47,11 +61,6 @@
     >
       <ng-template ngTabContent>
         <div class="space-y-4">
-          <p class="text-muted-foreground">
-            Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
-            persönlichen Fundstücke immer griffbereit.
-          </p>
-
           @if (!hasSavedItems()) {
             <!-- Empty states sit on a card here for the same reason they do on the calendar and
                  Today screens (`calendar-agenda.block.html`): a bare sentence on the page
@@ -115,11 +124,6 @@
     >
       <ng-template ngTabContent>
         <div class="space-y-4">
-          <p class="text-muted-foreground">
-            Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an die
-            du dich wenden kannst.
-          </p>
-
           @if (servicesError()) {
             <div class="rk-card space-y-3 px-4 py-6 text-center">
               <p>Die Anlaufstellen konnten nicht geladen werden.</p>

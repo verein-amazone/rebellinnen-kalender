@@ -15,6 +15,7 @@ import {
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { NewEventPage } from './new-event.page';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -256,7 +257,7 @@ describe('NewEventPage, create', () => {
     await page.submit();
 
     expect(page.eventEditing.createCalls).toHaveLength(1);
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
     expect(page.navigate).not.toHaveBeenCalled();
   });
 
@@ -315,7 +316,7 @@ describe('NewEventPage, cancel', () => {
     await page.clickCancel();
 
     expect(page.eventEditing.createCalls).toEqual([]);
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', RETURN_NAVIGATION);
   });
 
   it('returns to the screen that opened the form when one was named', async () => {
@@ -323,7 +324,7 @@ describe('NewEventPage, cancel', () => {
 
     await page.clickCancel();
 
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', { replaceUrl: true });
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/today', RETURN_NAVIGATION);
   });
 
   it('ignores a return target that would leave the app', async () => {
@@ -331,7 +332,7 @@ describe('NewEventPage, cancel', () => {
 
     await page.clickCancel();
 
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', RETURN_NAVIGATION);
   });
 
   it('leaves the browser history alone even when there is in-app history to walk back', async () => {
@@ -350,6 +351,6 @@ describe('NewEventPage, cancel', () => {
 
     expect(page.eventEditing.createCalls).toEqual([]);
     expect(page.locationBack).not.toHaveBeenCalled();
-    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', { replaceUrl: true });
+    expect(page.navigateByUrl).toHaveBeenCalledWith('/calendar', RETURN_NAVIGATION);
   });
 });

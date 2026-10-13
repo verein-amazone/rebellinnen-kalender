@@ -291,6 +291,33 @@ test.describe('application shell', () => {
     }
   });
 
+  test('explains each content area behind an info button instead of above its list', async ({
+    page,
+  }) => {
+    await page.goto('/content');
+    const info = page.getByRole('button', { name: 'Info zu Meine Sammlung' });
+    await expect(info).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByText('Inhalte, die du mit dem Lesezeichen markiert hast')).toBeHidden();
+
+    await info.click();
+
+    await expect(info).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.getByText('Inhalte, die du mit dem Lesezeichen markiert hast')).toBeVisible();
+    await expectNoBlockingViolations(page);
+
+    await page.keyboard.press('Escape');
+    await expect(info).toHaveAttribute('aria-expanded', 'false');
+    await expect(info).toBeFocused();
+
+    await page.getByRole('tab', { name: 'Anlaufstellen' }).click();
+    await page.getByRole('button', { name: 'Info zu Anlaufstellen' }).click();
+    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeVisible();
+
+    // A tap anywhere else closes it.
+    await page.locator('main').click({ position: { x: 20, y: 400 } });
+    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeHidden();
+  });
+
   test('has no serious or critical accessibility violations on Today', async ({ page }) => {
     await page.goto('/');
 

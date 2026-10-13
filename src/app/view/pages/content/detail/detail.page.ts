@@ -34,6 +34,7 @@ import {
 } from '@app/view/dialogs/confirmation/confirmation.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 /** One related-source link, with its publisher/domain derived for display (#22). */
 export interface RelatedSourceRow {
@@ -184,7 +185,7 @@ export class ContentDetailPage {
           );
           return;
         }
-        await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, { replaceUrl: true });
+        await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, RETURN_NAVIGATION);
       });
   }
 }

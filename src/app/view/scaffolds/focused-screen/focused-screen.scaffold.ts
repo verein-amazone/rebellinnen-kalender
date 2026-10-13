@@ -12,6 +12,7 @@ import { LucideArrowLeft, LucideX } from '@lucide/angular';
 import { Router } from '@angular/router';
 
 import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
 /**
  * How the screen is dismissed.
@@ -38,7 +39,8 @@ export type FocusedScreenDismissal = 'back' | 'close';
  * pushed dismiss navigation makes the two screens point at each other, and the user is stuck
  * alternating between them (a deep-linked settings subpage, or any detail screen opened with
  * `returnTo`, reproduced exactly that). Replacing also keeps the stack from growing, so the
- * platform back gesture leaves the screen instead of re-entering it.
+ * platform back gesture leaves the screen instead of re-entering it. The screen dismissed to comes
+ * back scrolled to where the user left it (`RETURN_NAVIGATION`).
  */
 @Component({
   selector: 'app-focused-screen',
@@ -96,6 +98,6 @@ export class FocusedScreenScaffold {
       return;
     }
 
-    void this.router.navigateByUrl(this.returnTo() ?? this.fallbackLink(), { replaceUrl: true });
+    void this.router.navigateByUrl(this.returnTo() ?? this.fallbackLink(), RETURN_NAVIGATION);
   }
 }

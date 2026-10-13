@@ -28,6 +28,7 @@ import {
 import { SupportServiceCardBlock } from '@app/view/blocks/support-service-card/support-service-card.block';
 import { SupportServiceRegionFilterBlock } from '@app/view/blocks/support-service-region-filter/support-service-region-filter.block';
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+import { InfoToggletip } from '@app/view/components/info-toggletip/info-toggletip';
 
 type ContentArea = 'services' | 'collection';
 
@@ -64,6 +65,7 @@ function isContentItemKind(value: string): value is ContentItemKind {
     TabContent,
     ContentKindFilterBlock,
     LucideRotateCw,
+    InfoToggletip,
   ],
   templateUrl: './overview.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

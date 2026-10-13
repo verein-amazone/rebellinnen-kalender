@@ -16,6 +16,7 @@ import {
   type CalendarIdentityEditResult,
 } from '@app/view/dialogs/calendar-identity-edit/calendar-identity-edit.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { InfoToggletip } from '@app/view/components/info-toggletip/info-toggletip';
 
 /**
  * „Amazone & Partnerkalender“: the curated calendars shipped with the app (#2) - Amazone events,
@@ -31,7 +32,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   selector: 'app-settings-curated-calendars',
   // Component hosts are unknown elements and therefore inline by default.
   host: { class: 'block' },
-  imports: [FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideRotateCw],
+  imports: [InfoToggletip, FocusedScreenScaffold, CalendarAvatar, ToggleField, LucideRotateCw],
   templateUrl: './curated-calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

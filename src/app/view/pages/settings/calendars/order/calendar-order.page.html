@@ -1,10 +1,10 @@
 <app-focused-screen heading="Reihenfolge" fallbackLink="/settings/calendars">
-  <div class="space-y-3">
-    <p class="text-muted-foreground text-sm">
-      In dieser Reihenfolge erscheinen die Kalender im Kalender-Tab. Ziehe einen Kalender am Griff
-      oder verschiebe ihn über sein Menü.
-    </p>
+  <app-info-toggletip header-actions label="Info zu Reihenfolge">
+    In dieser Reihenfolge erscheinen die Kalender im Kalender-Tab. Ziehe einen Kalender am Griff
+    oder verschiebe ihn über sein Menü.
+  </app-info-toggletip>
 
+  <div class="space-y-3">
     @if (isLoading()) {
       <div class="rk-card space-y-3 px-4 py-4" aria-hidden="true">
         <span class="rk-skeleton block h-5 w-2/3"></span>

@@ -1,0 +1,18 @@
+<button
+  #trigger
+  type="button"
+  class="rk-icon-button"
+  [attr.aria-label]="label()"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="open() ? panelId : null"
+  (click)="toggle()"
+>
+  <svg lucideInfo class="rk-icon" aria-hidden="true"></svg>
+</button>
+
+@if (open()) {
+  <!-- Focusable so the panel can be scrolled from a keyboard when it is taller than its cap. -->
+  <div [id]="panelId" class="rk-toggletip" tabindex="0">
+    <ng-content />
+  </div>
+}
