@@ -110,15 +110,16 @@ und Hilfsangebote. Nichts davon wird gezeigt oder ausgemalt.
 
 ## 4. Datenschutz und rechtliche Angaben
 
-| Punkt                                       | Vorschlag                                                                                                                                                                                                                                           | OK / Änderung |
-| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text siehe unten. | ☐             |
-| Impressum                                   | Weiter der Link auf https://www.amazone.or.at/impressum-datenschutz#impressum                                                                                                                                                                       | ☐             |
-| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                | ☐             |
-| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                         | ☐             |
-| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                       | ☐             |
-| Kontakt für App-Prüfung (Apple)             | Name, Telefon, E-Mail: …                                                                                                                                                                                                                            | ☐             |
-| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                             | ☐             |
+| Punkt                                       | Vorschlag                                                                                                                                                                                                                                                                                 | OK / Änderung |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text: `public/legal/datenschutz.md`.                    | ☐             |
+| Nutzungsbedingungen                         | In der App unter Einstellungen → Nutzungsbedingungen und öffentlich unter https://verein-amazone.github.io/rebellinnen-kalender/nutzungsbedingungen/. Text: `public/legal/nutzungsbedingungen.md`. Sie ersetzen nicht die Standard-Lizenzvereinbarung (EULA) von Apple, die daneben gilt. | ☐             |
+| Impressum                                   | Weiter der Link auf https://www.amazone.or.at/impressum-datenschutz#impressum                                                                                                                                                                                                             | ☐             |
+| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                                                      | ☐             |
+| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                                                               | ☐             |
+| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                                                             | ☐             |
+| Kontakt für App-Prüfung (Apple)             | Name, Telefon, E-Mail: …                                                                                                                                                                                                                                                                  | ☐             |
+| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                                                                   | ☐             |
 
 ### Inhalt der Datenschutzerklärung
 
@@ -142,9 +143,29 @@ Der Text muss mindestens sagen:
    Datenschutzbehörde) – kurz, weil der Verein über die App keine Daten verarbeitet.
 9. Stand-Datum und der Hinweis, dass sich der Text mit App-Updates ändern kann.
 
-☐ Text geliefert und freigegeben (Konstantin liefert den Text als Markdown)
+☐ Datenschutzerklärung und Nutzungsbedingungen (Stand 13. Oktober 2026) freigegeben
 
-## 5. Nur Verein Amazone kann das erledigen
+## 5. Offene Punkte aus der Prüfung der Rechtstexte
+
+- ☐ **Online-Kalender von Verein Amazone und Feiertage.** Beide sind nach der Installation
+  eingeschaltet; die App lädt sie beim ersten Öffnen eines Kalenders von Google Kalender und
+  wien.gv.at. Außerdem lädt die App ausgeschaltete abonnierte Kalender weiter im Hintergrund nach
+  (Fehler, wird vor der Veröffentlichung behoben). Zu entscheiden: eingeschaltet lassen (so steht
+  es in der Datenschutzerklärung, Abschnitt 5.2) oder erst nach einem Tipp einschalten (so steht es
+  in der Store-Beschreibung: „mit einem Tipp einschalten“). Beschreibung und Datenschutzerklärung
+  müssen danach dasselbe sagen.
+  Entscheidung: …
+- ☐ **Gerätesicherungen.** Android und iOS nehmen die App-Daten in Gerätesicherungen auf (iCloud,
+  Google). Die Datenschutzerklärung sagt das (Abschnitt 8.1). Zu entscheiden: so lassen, oder die
+  App von Sicherungen ausnehmen – dann sind Termine nach einem Gerätewechsel weg.
+  Entscheidung: …
+- ☐ **Altersgrenze.** Das Projekt richtet sich an Jugendliche ab 12, die Stores sind mit 13+
+  (Apple) und PEGI 12 (Google) vorgeschlagen, siehe Abschnitt 3. Die App braucht keine
+  datenschutzrechtliche Einwilligung, die österreichische Grenze von 14 Jahren dafür betrifft sie
+  also nicht. Zu bestätigen: 13+ bei Apple (die nächstniedrigere Stufe dort ist 9+).
+  Entscheidung: …
+
+## 6. Nur Verein Amazone kann das erledigen
 
 - ☐ **EU-Händlerstatus (Digital Services Act) in App Store Connect.** Ohne diese Angabe nimmt
   Apple keine App für die EU an, also auch nicht für Österreich. Das kann nur die
