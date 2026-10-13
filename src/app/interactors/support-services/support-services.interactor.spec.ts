@@ -55,6 +55,17 @@ describe('SupportServicesInteractor', () => {
     database.close();
   });
 
+  it('reads the catalog file once per session, not on every search', async () => {
+    gateway.items = [service('perg', 'oberoesterreich', 'Frauenberatung Perg')];
+    const fetchCatalog = vi.spyOn(gateway, 'fetchCatalog');
+
+    await interactor.listAll();
+    await interactor.search('frau');
+    await interactor.search('frauen');
+
+    expect(fetchCatalog).toHaveBeenCalledTimes(1);
+  });
+
   describe('search', () => {
     beforeEach(() => {
       gateway.items = [

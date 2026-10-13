@@ -15,8 +15,8 @@ import { supportServiceRegionLabel } from './support-service-regions';
 /**
  * Reconciles the Anlaufstellen catalog (`public/support-services/catalog.json`) into
  * `support_services` and its search index, the same way `ContentCatalogSync` does for the content:
- * the catalog ships as a versioned JSON asset, and only a version change - or a database that lost
- * its rows - triggers the write.
+ * the catalog ships as a versioned JSON asset, only a version change - or a database that lost its
+ * rows - triggers the write, and once caught up the rest of the session skips even the fetch.
  *
  * Called lazily from `SupportServicesInteractor`, never at boot.
  */
@@ -27,14 +27,33 @@ export class SupportServiceCatalogSync {
   private readonly supportServices = inject(SupportServiceDao);
   private readonly store = inject(SupportServiceCatalogStore);
 
-  async ensureSynced(): Promise<void> {
+  /** Settled once this session is caught up - see `ContentCatalogSync.caughtUp`. */
+  private caughtUp: Promise<void> | null = null;
+
+  ensureSynced(): Promise<void> {
+    this.caughtUp ??= this.sync().then(
+      (synced) => {
+        if (!synced) {
+          this.caughtUp = null;
+        }
+      },
+      (error: unknown) => {
+        this.caughtUp = null;
+        throw error;
+      },
+    );
+    return this.caughtUp;
+  }
+
+  /** `false` when there was no catalog to sync against. */
+  private async sync(): Promise<boolean> {
     const catalog = await this.gateway.fetchCatalog();
     if (catalog === null) {
-      return;
+      return false;
     }
 
     if (catalog.version === this.store.syncedVersion() && (await this.isComplete(catalog))) {
-      return;
+      return true;
     }
 
     const records = catalog.items.map(toRecord);
@@ -42,6 +61,7 @@ export class SupportServiceCatalogSync {
       this.supportServices.replaceAll(records, records.map(toSearchEntry), tx),
     );
     this.store.setSyncedVersion(catalog.version);
+    return true;
   }
 
   /**

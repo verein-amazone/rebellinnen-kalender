@@ -62,6 +62,34 @@ describe('ContentCatalogSync', () => {
     vi.unstubAllGlobals();
   });
 
+  /** A fresh sync on the same database and storage, the way the next app start sees them. */
+  function relaunch(): ContentCatalogSync {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: SQLITE_DATABASE, useValue: database }],
+    });
+    return TestBed.inject(ContentCatalogSync);
+  }
+
+  it('fetches the catalog once per session, however often it is asked', async () => {
+    mockFetch({ version: 1, items: [catalogEntry()] });
+
+    await Promise.all([sync.ensureSynced(), sync.ensureSynced()]);
+    await sync.ensureSynced();
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('tries the fetch again on the next call after it failed', async () => {
+    mockFetch(null, false);
+    await sync.ensureSynced();
+    mockFetch({ version: 1, items: [catalogEntry()] });
+
+    await sync.ensureSynced();
+
+    expect(await contentItems.listIds()).toEqual(['wi-01']);
+  });
+
   it('inserts every catalog item into an empty database', async () => {
     mockFetch({ version: 1, items: [catalogEntry(), catalogEntry({ id: 'reb-01' })] });
 
@@ -135,7 +163,7 @@ describe('ContentCatalogSync', () => {
     await sync.ensureSynced();
     await database.run('DELETE FROM content_search');
 
-    await sync.ensureSynced();
+    await relaunch().ensureSynced();
 
     await expect(database.query('SELECT content_item_id FROM content_search')).resolves.toEqual([
       { content_item_id: 'wi-01' },
