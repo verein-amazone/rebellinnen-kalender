@@ -114,6 +114,9 @@ export class ReminderListBlock {
    */
   private readonly ordered = signal<readonly Reminder[] | null>(null);
 
+  /** Why the last change to the list failed; cleared by the next one. */
+  protected readonly writeError = signal<string | null>(null);
+
   protected readonly entries = computed(() => this.ordered() ?? valueOr(this.items, []));
 
   protected readonly openItems = computed(() => this.entries().filter((item) => !item.completed));
@@ -171,20 +174,22 @@ export class ReminderListBlock {
           return;
         }
 
-        await this.reminders.add(text);
-        void this.haptics.confirm();
-        this.reload();
+        if (await this.write(() => this.reminders.add(text), 'gespeichert')) {
+          void this.haptics.confirm();
+        }
       });
   }
 
-  protected async toggle(item: Reminder): Promise<void> {
-    if (item.completed) {
-      await this.reminders.reopen(item.id);
-    } else {
-      await this.reminders.complete(item.id);
+  protected async toggle(item: Reminder, event: Event): Promise<void> {
+    const saved = await this.write(
+      () => (item.completed ? this.reminders.reopen(item.id) : this.reminders.complete(item.id)),
+      'gespeichert',
+    );
+    if (!saved) {
+      // The tap already flipped the box, and the reloaded entry binds the same `completed` value,
+      // so Angular has no change to write back: put the stored state back by hand.
+      (event.target as HTMLInputElement).checked = item.completed;
     }
-
-    this.reload();
   }
 
   /** A row was lifted for dragging. Felt together with the drop, like a detent. */
@@ -323,9 +328,9 @@ export class ReminderListBlock {
           return;
         }
 
-        await this.reminders.rename(item.id, text);
-        void this.haptics.confirm();
-        this.reload();
+        if (await this.write(() => this.reminders.rename(item.id, text), 'gespeichert')) {
+          void this.haptics.confirm();
+        }
       });
   }
 
@@ -346,11 +351,11 @@ export class ReminderListBlock {
           return;
         }
 
-        await this.reminders.remove(item.id);
-        this.reload();
-        // The row simply disappears, and focus has returned to the page heading by now, so the
-        // outcome would otherwise go unannounced.
-        this.announcer.announce(`„${item.text}“ gelöscht`);
+        if (await this.write(() => this.reminders.remove(item.id), 'gelöscht')) {
+          // The row simply disappears, and focus has returned to the page heading by now, so the
+          // outcome would otherwise go unannounced.
+          this.announcer.announce(`„${item.text}“ gelöscht`);
+        }
       });
   }
 
@@ -359,6 +364,27 @@ export class ReminderListBlock {
    * place every write funnels through, so it doubles as the notification the Today page's closing
    * message - a sibling block with no other view of this list - reacts to.
    */
+  /**
+   * Runs one change to the list and reloads it either way, so the rows always show what the
+   * database holds. A failure is reported in the block's alert rather than as an unhandled
+   * rejection. Resolves to whether the change went through.
+   */
+  private async write(change: () => Promise<unknown>, outcome: string): Promise<boolean> {
+    this.writeError.set(null);
+    try {
+      await change();
+      return true;
+    } catch (error) {
+      console.warn('Die Erinnerung konnte nicht geändert werden.', error);
+      this.writeError.set(
+        `Die Erinnerung konnte nicht ${outcome} werden. Versuche es noch einmal.`,
+      );
+      return false;
+    } finally {
+      this.reload();
+    }
+  }
+
   protected reload(): void {
     this.ordered.set(null);
     this.items.reload();
