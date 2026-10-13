@@ -264,9 +264,33 @@ export class EventDetailPage {
       return false;
     }
 
-    this.cancelEdit();
+    if (this.eventFormComponent()?.canSubmit() === true) {
+      this.confirmDiscard();
+    } else {
+      this.cancelEdit();
+    }
     return true;
   };
+
+  /** Leaving an edit with changes asks first: the back arrow and Android's back are easy to hit. */
+  private confirmDiscard(): void {
+    const data: ConfirmationDialogData = {
+      message: 'Deine Änderungen an diesem Termin gehen verloren.',
+      confirmLabel: 'Verwerfen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Änderungen verwerfen?',
+        data,
+      })
+      .closed.subscribe((confirmed) => {
+        if (confirmed === true) {
+          this.cancelEdit();
+        }
+      });
+  }
 
   protected async handleSave(result: AppEventFormResult): Promise<void> {
     if (result.mode !== 'edit' || this.saving()) {
