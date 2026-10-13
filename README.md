@@ -73,6 +73,11 @@ nature:
   profile, not on a device and not on a server, and a browser may evict them. The demo site and
   every preview keep their own database, so nothing one of them does reaches another.
 
+The demo site is a complete installable web app - manifest, icons and the Angular service worker -
+so it can be offered as a PWA later without further work, but it is not one of the products today.
+Every deployment carries `<meta name="robots" content="noindex, nofollow">`, so search engines do
+not index it. Previews ship without the service worker (see the workflow for why).
+
 The pull-request preview is deleted when its pull request closes. See
 [.github/workflows/pages.yml](./.github/workflows/pages.yml) for how both are published, and
 [Data & persistence](./docs/architecture/data-persistence.md) for the storage details.
