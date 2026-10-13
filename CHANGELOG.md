@@ -1,3 +1,9 @@
+## [1.0.0-rc.50](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.49...v1.0.0-rc.50) (2026-10-13)
+
+### Bug Fixes
+
+* **content:** read each catalog once per session and tidy the Inhalte search row ([abf8c1d](https://github.com/verein-amazone/rebellinnen-kalender/commit/abf8c1dde32d5a3ca6dfe9ec71a0f42e59923dcf))
+
 ## [1.0.0-rc.49](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.48...v1.0.0-rc.49) (2026-10-13)
 
 ### Features
