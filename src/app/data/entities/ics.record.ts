@@ -4,8 +4,10 @@ import type { TemporalValue } from './temporal-value';
 /**
  * One ICS subscription: authoritative configuration plus the retained snapshot of the last valid
  * download. `url` is sensitive - it may carry an access token - and must never appear in full in
- * logs or error state; `rawIcs` is the last successful document, kept so derived data can be
- * rebuilt offline.
+ * logs or error state. The last successful document is retained in the table as well, so derived
+ * data can be rebuilt offline, but it is not part of this record: it can be megabytes, and every
+ * list and lookup of subscriptions would otherwise carry it over the bridge
+ * (`IcsSubscriptionDao.findRawIcs` reads it on its own).
  */
 export interface IcsSubscriptionRecord {
   readonly id: string;
@@ -24,7 +26,6 @@ export interface IcsSubscriptionRecord {
   readonly lastAttemptAt: string | null;
   readonly lastError: string | null;
   readonly activeRevisionId: string | null;
-  readonly rawIcs: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   /** The curated catalog entry this subscription was seeded from, or `null` for a user-added one. */

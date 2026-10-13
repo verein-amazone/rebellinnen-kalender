@@ -15,14 +15,14 @@ interface SubscriptionRow {
   readonly last_attempt_at: string | null;
   readonly last_error: string | null;
   readonly active_revision_id: string | null;
-  readonly raw_ics: string | null;
   readonly created_at: string;
   readonly updated_at: string;
   readonly curated_id: string | null;
 }
 
+// `raw_ics` is left out on purpose: see `IcsSubscriptionRecord`.
 const COLUMNS = `id, url, allow_insecure, etag, last_modified, last_success_at, last_checked_at,
-  last_attempt_at, last_error, active_revision_id, raw_ics, created_at, updated_at, curated_id`;
+  last_attempt_at, last_error, active_revision_id, created_at, updated_at, curated_id`;
 
 /**
  * Table access for ICS subscriptions. The URL is sensitive; this DAO stores and returns it, and
@@ -82,7 +82,7 @@ export class IcsSubscriptionDao {
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     await executor.run(
-      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
         record.url,
@@ -94,12 +94,21 @@ export class IcsSubscriptionDao {
         record.lastAttemptAt,
         record.lastError,
         record.activeRevisionId,
-        record.rawIcs,
         record.createdAt,
         record.updatedAt,
         record.curatedId,
       ],
     );
+  }
+
+  /** The last successful document of a subscription, or `null` before its first download. */
+  async findRawIcs(id: string, executor: SqliteExecutor = this.database): Promise<string | null> {
+    const rows = await executor.query<{ readonly raw_ics: string | null }>(
+      `SELECT raw_ics FROM ics_subscriptions WHERE id = ?`,
+      [id],
+    );
+
+    return rows[0]?.raw_ics ?? null;
   }
 
   /** A successful refresh: the new revision is active, HTTP cache metadata and raw text kept. */
@@ -166,7 +175,6 @@ function toRecord(row: SubscriptionRow): IcsSubscriptionRecord {
     lastAttemptAt: row.last_attempt_at ?? null,
     lastError: row.last_error ?? null,
     activeRevisionId: row.active_revision_id ?? null,
-    rawIcs: row.raw_ics ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     curatedId: row.curated_id ?? null,

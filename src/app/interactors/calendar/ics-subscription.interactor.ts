@@ -128,7 +128,6 @@ export class IcsSubscriptionInteractor {
         lastAttemptAt: null,
         lastError: null,
         activeRevisionId: null,
-        rawIcs: null,
         createdAt: context.nowUtc,
         updatedAt: context.nowUtc,
         curatedId: null,

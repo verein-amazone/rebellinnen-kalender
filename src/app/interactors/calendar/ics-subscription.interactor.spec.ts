@@ -147,7 +147,7 @@ describe('IcsSubscriptionInteractor', () => {
 
     const stored = await subscriptions.find(subscriptionId);
     expect(stored!.url).toBe('https://example.org/cal.ics');
-    expect(stored!.rawIcs).toBe(FEED);
+    await expect(subscriptions.findRawIcs(subscriptionId)).resolves.toBe(FEED);
     expect(stored!.etag).toBe('"v1"');
     expect(stored!.lastSuccessAt).not.toBeNull();
   });
@@ -317,7 +317,7 @@ describe('IcsSubscriptionInteractor', () => {
     const source = await repository.findSource(subscriptionId);
     expect(source!.state).toBe('stale');
     const stored = await subscriptions.find(subscriptionId);
-    expect(stored!.rawIcs).toBe(FEED);
+    await expect(subscriptions.findRawIcs(subscriptionId)).resolves.toBe(FEED);
     expect(stored!.lastError).not.toBeNull();
   });
 
@@ -487,7 +487,6 @@ describe('IcsSubscriptionInteractor', () => {
         lastAttemptAt: null,
         lastError: null,
         activeRevisionId: null,
-        rawIcs: null,
         createdAt: '2026-08-01T09:00:00.000Z',
         updatedAt: '2026-08-01T09:00:00.000Z',
         curatedId: 'at-public-holidays',
@@ -555,7 +554,6 @@ describe('IcsSubscriptionInteractor on the web', () => {
       lastAttemptAt: null,
       lastError: null,
       activeRevisionId: null,
-      rawIcs: null,
       createdAt: '2026-08-01T09:00:00.000Z',
       updatedAt: '2026-08-01T09:00:00.000Z',
       curatedId: null,
