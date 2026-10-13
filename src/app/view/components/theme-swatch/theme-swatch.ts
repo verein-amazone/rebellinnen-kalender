@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { PaletteId } from '@app/interactors/settings/appearance.interactor';
 
 /**
- * The colour preview next to a theme option: background, primary and accent as three dots.
+ * The colour preview next to a theme option: background, primary and text colour as three dots, so
+ * the preview also shows how the theme's text reads on its background.
  *
  * It is rendered by switching the token layer on the element itself, so no colour value has to be
  * duplicated in TypeScript. Given more than one palette, each dot is split between them - the
@@ -33,5 +34,5 @@ import type { PaletteId } from '@app/interactors/settings/appearance.interactor'
 export class ThemeSwatch {
   readonly palettes = input.required<readonly PaletteId[]>();
 
-  protected readonly dots = ['bg-background', 'bg-primary', 'bg-accent'] as const;
+  protected readonly dots = ['bg-background', 'bg-primary', 'bg-foreground'] as const;
 }

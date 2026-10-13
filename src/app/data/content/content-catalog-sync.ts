@@ -4,36 +4,42 @@ import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
 
 import { BookmarkDao } from '../daos/bookmark.dao';
 import { ContentItemDao } from '../daos/content-item.dao';
-import type {
-  ContentItemKind,
-  ContentItemRecord,
-  DailyRenderMode,
-  RelatedSourceRecord,
-} from '../entities/content-item.record';
+import type { ContentItemKind, ContentItemRecord } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
 import { ContentCatalogStore } from '../stores/content-catalog.store';
 
 const CATALOG_URL = '/content/catalog.json';
 
-/** One curated item as it ships in the catalog asset - everything except its derived image path. */
+/**
+ * One "More on this topic" link as it ships in the catalog: a title, an optional second line, and
+ * the URL it opens.
+ */
+export interface CatalogRelatedSource {
+  readonly title: string;
+  readonly subtitle?: string;
+  readonly url: string;
+}
+
+/**
+ * One curated item as it ships in the catalog asset. Its picture is only named, by `heroImageId`:
+ * the file, what it shows and whom it credits are in the image catalog
+ * (`public/content/images.json`), with the rest of what is recorded about each image.
+ */
 export interface CatalogEntry {
   readonly id: string;
   readonly kind: ContentItemKind;
   readonly title: string;
   readonly teaser: string;
   readonly bodyMarkdown: string;
-  /** What the bundled image shows, in German. Mandatory - see `public/content/README.md`. */
-  readonly imageAlt: string;
-  readonly imageAttribution: string | null;
+  /** The id of the item's picture in the image catalog. Optional - an item may ship without one. */
+  readonly heroImageId?: string;
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
   /** "More on this topic" links (#22). Optional - omitted on entries that ship without any. */
-  readonly relatedSources?: readonly RelatedSourceRecord[];
+  readonly relatedSources?: readonly CatalogRelatedSource[];
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
-  /** How this item renders as today's impulse. Omitted means `teaser`, the ordinary layout. */
-  readonly dailyRender?: DailyRenderMode;
 }
 
 export interface Catalog {
@@ -139,14 +145,11 @@ function isCatalog(value: unknown): value is Catalog {
 function toRecord(entry: CatalogEntry): ContentItemRecord {
   return {
     ...entry,
-    relatedSources: entry.relatedSources ?? [],
-    imagePath: imagePathFor(entry),
-    dailyRender: entry.dailyRender ?? 'teaser',
+    heroImageId: entry.heroImageId ?? null,
+    relatedSources: (entry.relatedSources ?? []).map((source) => ({
+      title: source.title,
+      subtitle: source.subtitle ?? null,
+      url: source.url,
+    })),
   };
-}
-
-/** Every catalog entry has a matching bundled image at this path - see `public/content/README`. */
-function imagePathFor(entry: CatalogEntry): string {
-  const dir = entry.kind === 'rebellin' ? 'rebellinnen' : 'wissensimpulse';
-  return `/content/${dir}/${entry.id}.webp`;
 }

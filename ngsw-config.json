@@ -36,7 +36,7 @@
         "/content/catalog.json",
         "/curated-calendars/catalog.json",
         "/support-services/catalog.json",
-        "/image-attributions.json",
+        "/content/images.json",
         "/3rdpartylicenses.txt"
       ],
       "cacheConfig": {

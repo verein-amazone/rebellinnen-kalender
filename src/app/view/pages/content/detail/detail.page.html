@@ -55,34 +55,64 @@
       }
 
       @if (relatedSources().length > 0) {
-        <div>
-          <h2 class="text-muted-foreground text-sm font-semibold">Mehr zum Thema</h2>
-          <ul class="mt-2 space-y-2">
+        <!-- One card for every link, below the body card: each row opens its page outside the
+             app, with an icon on the right that says so, or names the platform it opens. -->
+        <section class="rk-card px-4 py-4" aria-labelledby="related-sources-heading">
+          <h2 id="related-sources-heading" class="text-muted-foreground text-sm font-semibold">
+            Mehr zum Thema
+          </h2>
+          <ul class="divide-border mt-1 divide-y">
             @for (source of relatedSources(); track source.url) {
               <li>
                 <a
                   [href]="source.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="rk-card flex items-start justify-between gap-3 px-4 py-3"
+                  class="min-h-touch flex items-center justify-between gap-3 py-3"
                 >
-                  <!-- The title wraps rather than truncating: there is no second place to read it
-                       in full, and a truncated line is exactly what the scaling rules forbid. -->
+                  <!-- Title and subtitle wrap rather than truncating: there is no second place to
+                       read them in full, and a truncated line is exactly what the scaling rules
+                       forbid. -->
                   <span class="min-w-0">
                     <span class="block font-semibold break-words">{{ source.title }}</span>
-                    <span class="text-muted-foreground block text-sm break-words">{{
-                      source.publisher
-                    }}</span>
+                    @if (source.subtitle; as subtitle) {
+                      <span class="text-muted-foreground block text-sm break-words">{{
+                        subtitle
+                      }}</span>
+                    }
                   </span>
-                  <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
-                  <span class="sr-only"
-                    >, öffnet {{ source.publisher }} in einem neuen Fenster</span
-                  >
+                  <!-- Lucide has no brand logos, so a platform gets the closest plain symbol; any
+                       other site keeps the external-link icon. Decoration only: the subtitle names
+                       the platform. -->
+                  @switch (source.platform) {
+                    @case ('instagram') {
+                      <svg lucideCamera class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('youtube') {
+                      <svg lucideSquarePlay class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('tiktok') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('spotify') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('linkedin') {
+                      <svg lucideBriefcase class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('snapchat') {
+                      <svg lucideGhost class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @default {
+                      <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                  }
+                  <span class="sr-only">, öffnet in einem neuen Fenster</span>
                 </a>
               </li>
             }
           </ul>
-        </div>
+        </section>
       }
 
       @if (content.sourceLabel || content.sourceUrl || content.imageAttribution) {

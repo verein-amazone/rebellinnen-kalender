@@ -1,14 +1,14 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 
-import { assetUrl } from '@app/cross-cutting/helpers/asset-url';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
-import type { ContentItemRecord } from '@app/data/entities/content-item.record';
+import { ImageCatalogGateway } from '@app/data/gateways/image-catalog.gateway';
 import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
 import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
 
 import type { ContentItemView } from './content-item.vm';
+import { toContentItemView } from './content-item-view';
 import { selectDailyImpulse } from './select-daily-impulse';
 
 /**
@@ -22,6 +22,7 @@ export class DailyImpulseInteractor {
   private readonly store = inject(DailyImpulseStore);
   private readonly catalogSync = inject(ContentCatalogSync);
   private readonly preferences = inject(ImpulsePreferencesStore);
+  private readonly images = inject(ImageCatalogGateway);
 
   constructor() {
     // A return from the background is an opening of the app, so „Bei jedem Öffnen“ may greet again.
@@ -36,7 +37,7 @@ export class DailyImpulseInteractor {
     const stable = this.store.pick();
     if (stable !== null && stable.day === today) {
       const record = await this.contentItems.findById(stable.itemId);
-      return record === null ? null : toView(record);
+      return record === null ? null : toContentItemView(record, this.images);
     }
 
     const eligible = await this.contentItems.listEligibleForDay(today);
@@ -46,7 +47,7 @@ export class DailyImpulseInteractor {
       this.store.setPick(today, picked.id);
     }
 
-    return picked === null ? null : toView(picked);
+    return picked === null ? null : toContentItemView(picked, this.images);
   }
 
   /**
@@ -89,22 +90,4 @@ export class DailyImpulseInteractor {
   featureItem(today: string, itemId: string): void {
     this.store.overridePick(today, itemId);
   }
-}
-
-function toView(record: ContentItemRecord): ContentItemView {
-  return {
-    id: record.id,
-    kind: record.kind,
-    title: record.title,
-    teaser: record.teaser,
-    bodyMarkdown: record.bodyMarkdown,
-    // Stored as a root-relative path; the deployment's base href is only known at runtime.
-    imagePath: record.imagePath === null ? null : assetUrl(record.imagePath),
-    imageAlt: record.imageAlt,
-    imageAttribution: record.imageAttribution,
-    sourceLabel: record.sourceLabel,
-    sourceUrl: record.sourceUrl,
-    relatedSources: record.relatedSources,
-    dailyRender: record.dailyRender,
-  };
 }

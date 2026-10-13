@@ -9,16 +9,13 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     title: 'Titel',
     teaser: 'Teaser',
     bodyMarkdown: 'Text',
-    imagePath: null,
-    imageAlt: null,
-    imageAttribution: null,
+    heroImageId: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
-    dailyRender: 'teaser',
     ...overrides,
   };
 }

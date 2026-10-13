@@ -2,7 +2,8 @@
 
 How to add or edit a "Wissen" or "Rebell\*innen" item - the two content types, by the names the app
 shows for them (`CONTENT_KIND_LABELS`) - the content shown on the Today page and under `/content`.
-Covers the full pipeline: catalog entry, image conversion, and licensing.
+Covers the full pipeline: catalog entry, image conversion, and the image's entry in the image catalog
+(description, creator, source and licence).
 
 Related code: `src/app/data/content/content-catalog-sync.ts` (reconciles the catalog into the
 `content_items` table at runtime), `public/content/README.md` (asset directory notes),
@@ -23,23 +24,21 @@ by diffing against the stored `version`. So:
 
 Fields per entry:
 
-| Field                      | Notes                                                                                                                                                                                                                                                                                                                                                                                    |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                       | `wi-NN` or `reb-NN`, next free number in that series.                                                                                                                                                                                                                                                                                                                                    |
-| `kind`                     | `'wissensimpulse'` or `'rebellin'`.                                                                                                                                                                                                                                                                                                                                                      |
-| `title`, `teaser`          | Plain text.                                                                                                                                                                                                                                                                                                                                                                              |
-| `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                                                                                                                                                                                                                    |
-| `imageAlt`                 | **Required.** German description of what the picture shows, for people who cannot see it. Describe the picture, never the credit; include any text that is part of the image.                                                                                                                                                                                                            |
-| `imageAttribution`         | Human-readable credit string shown in the app footer - not the licensing record (that's §4). Never used as the image's `alt` text; that is `imageAlt`.                                                                                                                                                                                                                                   |
-| `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                                                                                                                                                                                                                                 |
-| `relatedSources`           | Optional array of `{ title, url }` "Mehr zum Thema" links, shown below the body. Publisher/domain is derived from `url` automatically - omit the field entirely when there are none. **Only ever link what Amazone supplied with the entry**; never research a link (a Wikipedia article, say) and add it yourself - the app then vouches for a page nobody in the editorial team chose. |
-| `validFrom`, `validTo`     | ISO dates for date-scoped items, or both `null` for evergreen content.                                                                                                                                                                                                                                                                                                                   |
-| `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                                                                                                                                                                                                                       |
-| `dailyRender`              | Optional `'image'` or `'teaser'` (default). How the Today card renders this item: `image` leads with the picture, `teaser` leads with the teaser line. Pick `image` only when the picture says more than the teaser does.                                                                                                                                                                |
+| Field                      | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                       | `wi-NN` or `reb-NN`, next free number in that series.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `kind`                     | `'wissensimpulse'` or `'rebellin'`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `title`, `teaser`          | Plain text.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `heroImageId`              | The `id` of the item's picture in `public/content/images.json` (§4). Every item ships one: the Today page leads with it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `relatedSources`           | Optional array of `{ title, subtitle?, url }` "Mehr zum Thema" links, shown together in one card below the body, each opening outside the app. `title` and `url` (https) are required, `subtitle` is an optional second line such as the publisher or platform. A link to Instagram, YouTube, TikTok, Spotify, LinkedIn or Snapchat gets a matching symbol instead of the external-link icon (`link-platform.ts` next to the detail page) - omit the field entirely when there are none. **Only ever link what Amazone supplied with the entry**; never research a link (a Wikipedia article, say) and add it yourself - the app then vouches for a page nobody in the editorial team chose. |
+| `validFrom`, `validTo`     | ISO dates for date-scoped items, or both `null` for evergreen content.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
-Do **not** put an `imagePath` field in the catalog - it's derived automatically from `kind` and
-`id` (`imagePathFor()` in `content-catalog-sync.ts`): `/content/wissensimpulse/<id>.webp` or
-`/content/rebellinnen/<id>.webp`.
+An entry names its picture by `heroImageId` and nothing else. The file, its description and its
+attribution belong to the image, and are recorded with it in `public/content/images.json` (§4), so
+one image could serve several items without anything being written twice.
 
 ## 2. Convert and place the image
 
@@ -58,11 +57,13 @@ resize with `ffmpeg` into a temporary PNG, then encode to WebP with the separate
 ffmpeg -i source-photo.jpg -vf "scale='min(1280,iw)':-2" /tmp/resized.png
 
 # 2. Encode to WebP
-cwebp -q 75 /tmp/resized.png -o public/content/rebellinnen/reb-20.webp
+cwebp -q 75 /tmp/resized.png -o public/content/images/rosa-parks.webp
 ```
 
-Use `wissensimpulse/` or `rebellinnen/` to match the entry's `kind`, and name the file `<id>.webp`
-exactly - that's what `imagePathFor()` expects.
+Every image lives in `public/content/images/`, named `<image id>.webp`: the image's id (§4) is the
+file name, which is how the app finds the file (`imagePathFor()` in `image-catalog.gateway.ts`). Pick
+a short slug - lower case, words joined by hyphens, umlauts written out (`ae`, `oe`, `ue`, `ss`) -
+that names what the picture shows, usually the person or the topic.
 
 ## 3. Markdown conventions
 
@@ -79,19 +80,21 @@ for how each renders.
 - Never import `marked` outside `cross-cutting/markdown/` - always go through
   `MarkdownContentComponent`, per the frontend architecture rules.
 
-## 4. Record the image's licence in `image-attributions.json`
+## 4. Record the image in `images.json`
 
 Per [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11): **an image only
 belongs in the repo once its rights are actually clarified.** Don't add an image on the assumption
 that licensing will be sorted out later - resolve it first, or don't commit the image yet.
 
-Add one entry to `public/image-attributions.json` (shown to users under Settings → Lizenzen &
-Impressum → Bildnachweise):
+Add one entry to `public/content/images.json`, the image catalog. It is everything the app says
+about an image: the content screens take the picture's file, description and credit line from it,
+and Settings → Lizenzen & Impressum → Bildnachweise lists it with its full attribution.
 
 ```json
 {
-  "path": "/content/rebellinnen/reb-20.webp",
+  "id": "rosa-parks",
   "title": "Person or item title",
+  "alt": "Schwarzweißfoto: eine Frau mit kurzen Haaren spricht in ein Mikrofon.",
   "creator": "Photographer or illustrator name",
   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exact_File_Name.jpg",
   "license": "CC BY-SA 4.0",
@@ -100,13 +103,23 @@ Impressum → Bildnachweise):
 }
 ```
 
+`alt` is **required**: a German description of what the picture shows, for people who cannot see
+it. Describe the picture, never the credit, and include any text that is part of the image.
+`images.content.spec.ts` fails when it is missing.
+
+There is no credit line to write: the app builds it. Under the picture on the detail screen it shows
+`Bild: <creator>, <license>`; Bildnachweise shows everything - creator, licence with its link, source
+and changes. Leave `creator` out when it is genuinely unknown (the screens then say so) rather than
+writing "Unknown".
+
 Write the licence as Creative Commons writes it - `CC BY-SA 4.0`, `CC BY-SA 3.0 DE`, `CC0 1.0` - or
 `Public Domain`, and link its canonical deed without a language suffix. The accepted names and their
-links are the `LICENSES` table in `src/app/data/content/image-attributions.content.spec.ts`; a new
-licence goes there first. That spec also fails when an image under `public/` has no entry, or two.
+links are the `LICENSES` table in `src/app/data/content/images.content.spec.ts`; a new
+licence goes there first. That spec also fails when an image under `public/` has no entry, or two,
+and when an entry is not the picture of any item.
 `Alle Rechte vorbehalten` (no link) is for an image used without an open licence by a decision of
-Verein Amazone, crediting the rightsholder; so far only `reb-10` (Johanna Dohnal, Parlamentsdirektion,
-#11) is.
+Verein Amazone, crediting the rightsholder; so far only `johanna-dohnal` (Parlamentsdirektion, #11)
+is.
 The app's own icons (`public/icons/`, `public/app-icons/`) are the only exception.
 
 Notes from doing this for the first 41 items:
@@ -136,7 +149,7 @@ Notes from doing this for the first 41 items:
 1. `pnpm test:ci` - the catalog sync and content interactors have unit tests, but they don't cover
    authored content itself; this just confirms nothing broke.
 2. Run the app (see the `run` skill / `pnpm start`), open `/content` (the debug content list) and
-   click through the new item: image loads, markdown renders as expected, footer attribution shows.
+   click through the new item: image loads, markdown renders as expected, the credit line shows.
 3. If the item is `eligibleForDaily`, the Today card only shows one stable item per day - force a
    look by clearing `localStorage` (`rk.dailyImpulse`) or checking on a day where it's due to rotate.
 

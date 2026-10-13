@@ -10,9 +10,14 @@ import {
 import {
   LucideBookmark,
   LucideBookmarkCheck,
+  LucideBriefcase,
+  LucideCamera,
   LucideExternalLink,
+  LucideGhost,
+  LucideMusic,
   LucideRotateCw,
   LucideSparkles,
+  LucideSquarePlay,
   LucideUsers,
 } from '@lucide/angular';
 import { Router } from '@angular/router';
@@ -36,12 +41,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
-/** One related-source link, with its publisher/domain derived for display (#22). */
-export interface RelatedSourceRow {
-  readonly title: string;
-  readonly url: string;
-  readonly publisher: string;
-}
+import { linkPlatform, type LinkPlatform } from './link-platform';
 
 /**
  * The curated content detail screen: content-type label, title, image, complete body, a "More on
@@ -51,6 +51,11 @@ export interface RelatedSourceRow {
  * The bookmark toggle is the only way in or out of „Meine Sammlung“. Removing asks first and then
  * takes the user to the collection, so the result of the removal is visible where it happened.
  */
+/** One "Mehr zum Thema" link, with the platform its icon is picked by. */
+interface RelatedSourceRow extends RelatedSourceView {
+  readonly platform: LinkPlatform;
+}
+
 @Component({
   selector: 'app-content-detail',
   // Component hosts are unknown elements and therefore inline by default.
@@ -60,9 +65,14 @@ export interface RelatedSourceRow {
     MarkdownContentComponent,
     LucideBookmark,
     LucideBookmarkCheck,
+    LucideBriefcase,
+    LucideCamera,
     LucideExternalLink,
+    LucideGhost,
+    LucideMusic,
     LucideRotateCw,
     LucideSparkles,
+    LucideSquarePlay,
     LucideUsers,
   ],
   templateUrl: './detail.page.html',
@@ -119,7 +129,10 @@ export class ContentDetailPage {
   });
 
   protected readonly relatedSources = computed<readonly RelatedSourceRow[]>(() =>
-    (this.item()?.relatedSources ?? []).map(toRelatedSourceRow),
+    (this.item()?.relatedSources ?? []).map((source) => ({
+      ...source,
+      platform: linkPlatform(source.url),
+    })),
   );
 
   protected readonly bookmarkActionLabel = computed(() =>
@@ -187,18 +200,5 @@ export class ContentDetailPage {
         }
         await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, RETURN_NAVIGATION);
       });
-  }
-}
-
-/** Derives a human-readable publisher/domain label from a related source's URL, e.g. `example.org`. */
-function toRelatedSourceRow(source: RelatedSourceView): RelatedSourceRow {
-  return { ...source, publisher: publisherOf(source.url) };
-}
-
-function publisherOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
   }
 }

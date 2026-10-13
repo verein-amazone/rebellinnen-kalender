@@ -161,8 +161,8 @@ and a screen reader user could not perform it at all. The same rows can be dragg
 and „Nach oben“ / „Nach unten“ sit in that menu so the drag stays an accelerator rather than the way.
 The calendar grid pages to the previous or next week/month on a horizontal swipe for the same reason
 it is allowed to: the chevrons in the header do the same thing and stay. A swiping element needs
-`touch-pan-y touch-pinch-zoom` - `touch-action` is intersected with the `manipulation` its buttons
-already carry, so `pan-y` alone would take pinch-zoom away inside it.
+`touch-pan-y touch-pinch-zoom` - `touch-action` is intersected with the `manipulation` every element
+inside it carries, so `pan-y` alone would take pinch-zoom away inside it.
 
 **Targets stay at `min-h-touch`.** 48px, as a minimum rather than a fixed height, so a label that wraps
 at a large text size does not clip. Icon buttons get it from `rk-control-base`.
@@ -172,8 +172,11 @@ never zooms back out, leaving the app magnified and scrolling in both directions
 `input`, `textarea` and `select` at `max(1rem, 16px)`.
 
 **Keep the platform's own gestures intact.** No `user-scalable=no` or `maximum-scale` in the viewport -
-pinch-zoom is an accessibility feature. `touch-action: manipulation` on interactive elements drops the
-300ms double-tap-to-zoom wait without taking anything else away. Use `dvh` rather than `vh`, because
+pinch-zoom is an accessibility feature. Double-tap zoom is not: a double tap on a text while reading
+zooms the whole app in. `base.css` sets `touch-action: manipulation` on every element, which turns
+double-tap zoom off, drops the 300ms wait for a second tap and leaves panning and pinch-zoom alone. It
+goes on every element rather than the root because WebKit resets `touch-action` at each scroll
+container, and `<main>` is one. Use `dvh` rather than `vh`, because
 `vh` ignores the dynamic browser chrome and cuts content off.
 
 **Do not lean on pointer-only affordances.** Cursors, tooltips via `title`, custom scrollbars and

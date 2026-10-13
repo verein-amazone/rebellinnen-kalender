@@ -23,7 +23,6 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
-    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -160,7 +159,7 @@ describe('ContentDetailPage', () => {
 
   it('shows the teaser above the image', async () => {
     const { element } = await setup({
-      item: item({ imagePath: '/content/wissensimpulse/wi-02.webp', imageAlt: 'Eine Badewanne' }),
+      item: item({ imagePath: '/content/images/was-tut-dir-gut.webp', imageAlt: 'Eine Badewanne' }),
     });
 
     const teaser = [...element.querySelectorAll('p')].find((paragraph) =>
@@ -177,9 +176,9 @@ describe('ContentDetailPage', () => {
   it('describes the image instead of crediting it in the alt text', async () => {
     const { element } = await setup({
       item: item({
-        imagePath: '/content/rebellinnen/reb-01.webp',
+        imagePath: '/content/images/hedy-lamarr.webp',
         imageAlt: 'Schwarz-weißes Porträtfoto von Hedy Lamarr',
-        imageAttribution: 'Los Angeles Times, CC BY 4.0, via Wikimedia Commons',
+        imageAttribution: 'Los Angeles Times, Public Domain',
       }),
     });
 
@@ -187,7 +186,7 @@ describe('ContentDetailPage', () => {
       'Schwarz-weißes Porträtfoto von Hedy Lamarr',
     );
     // The credit is a caption, and stays one.
-    expect(element.textContent).toContain('Los Angeles Times, CC BY 4.0, via Wikimedia Commons');
+    expect(element.textContent).toContain('Bild: Los Angeles Times, Public Domain');
   });
 
   it('shows a graceful fallback when the item cannot be found', async () => {
@@ -254,16 +253,58 @@ describe('ContentDetailPage', () => {
     expect(button.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('shows related sources with their publisher domain when present', async () => {
+  it('marks a link to a known platform with its symbol, and any other with the external-link icon', async () => {
     const { element } = await setup({
       item: item({
-        relatedSources: [{ title: 'Mehr erfahren', url: 'https://www.example.org/artikel' }],
+        relatedSources: [
+          {
+            title: '@astro_christina',
+            subtitle: 'Instagram',
+            url: 'https://www.instagram.com/astro_christina/',
+          },
+          { title: 'Christina Koch', subtitle: 'NASA', url: 'https://www.nasa.gov/' },
+        ],
       }),
     });
 
-    expect(element.textContent).toContain('Mehr zum Thema');
-    expect(element.textContent).toContain('Mehr erfahren');
-    expect(element.textContent).toContain('example.org');
+    const [instagram, nasa] = [...element.querySelectorAll('section a')];
+    expect(instagram?.querySelector('svg[lucideCamera]')).not.toBeNull();
+    expect(instagram?.querySelector('svg[lucideExternalLink]')).toBeNull();
+    expect(nasa?.querySelector('svg[lucideExternalLink]')).not.toBeNull();
+  });
+
+  it('lists related sources in one card, each a link with its title and optional subtitle', async () => {
+    const { element } = await setup({
+      item: item({
+        relatedSources: [
+          {
+            title: 'Mehr erfahren',
+            subtitle: 'Ein Artikel',
+            url: 'https://www.example.org/artikel',
+          },
+          { title: 'Studie', subtitle: null, url: 'https://example.com/studie' },
+        ],
+      }),
+    });
+
+    const card = element.querySelector('section[aria-labelledby="related-sources-heading"]');
+    expect(card?.querySelector('h2')?.textContent).toContain('Mehr zum Thema');
+
+    const links = [...(card?.querySelectorAll('a') ?? [])];
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      'https://www.example.org/artikel',
+      'https://example.com/studie',
+    ]);
+    expect(links[0]?.textContent).toContain('Mehr erfahren');
+    expect(links[0]?.textContent).toContain('Ein Artikel');
+    expect(links[1]?.textContent).toContain('Studie');
+    expect(links[1]?.querySelectorAll('.text-sm')).toHaveLength(0);
+    for (const link of links) {
+      expect(link.getAttribute('target')).toBe('_blank');
+      expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+      expect(link.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+      expect(link.textContent).toContain('öffnet in einem neuen Fenster');
+    }
   });
 
   it('omits the related-sources section when there are none', async () => {

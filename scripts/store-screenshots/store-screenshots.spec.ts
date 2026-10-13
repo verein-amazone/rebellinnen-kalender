@@ -36,7 +36,7 @@ const TODAY = '2026-03-08';
 /**
  * The content the screenshots show. Rebell*innen whose portraits are in the public domain and
  * Wissensimpulse illustrated by Verein Amazone itself, so no screenshot carries third-party licence
- * terms into the store (see `public/image-attributions.json`).
+ * terms into the store (see `public/content/images.json`).
  */
 const REBELLIN_ID = 'reb-09';
 const WISSEN_ID = 'wi-10';

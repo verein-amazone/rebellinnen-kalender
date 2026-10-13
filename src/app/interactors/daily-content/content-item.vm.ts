@@ -1,7 +1,7 @@
-import type { ContentItemKind, DailyRenderMode } from '@app/data/entities/content-item.record';
+import type { ContentItemKind } from '@app/data/entities/content-item.record';
 
 /** Re-exported so views can name a content type without importing the data-layer record. */
-export type { ContentItemKind, DailyRenderMode };
+export type { ContentItemKind };
 
 /**
  * Each content type's display name, in the order the types are listed. The one place the names are
@@ -21,9 +21,10 @@ export function contentKindLabel(kind: ContentItemKind): string {
   return CONTENT_KIND_LABELS.find((entry) => entry.id === kind)?.label ?? kind;
 }
 
-/** One "More on this topic" link - a title and the URL it points to. */
+/** One "More on this topic" link - a title, an optional second line, and the URL it opens. */
 export interface RelatedSourceView {
   readonly title: string;
+  readonly subtitle: string | null;
   readonly url: string;
 }
 
@@ -44,5 +45,4 @@ export interface ContentItemView {
   readonly sourceLabel: string | null;
   readonly sourceUrl: string | null;
   readonly relatedSources: readonly RelatedSourceView[];
-  readonly dailyRender: DailyRenderMode;
 }
