@@ -242,7 +242,12 @@ export class IcsSubscriptionInteractor {
       const lastChecked = subscription.lastCheckedAt ?? subscription.lastSuccessAt;
       const checkedAt = lastChecked === null ? 0 : Date.parse(lastChecked);
       if (now - checkedAt >= ICS_AUTO_REFRESH_MAX_AGE_MS) {
-        await this.refresh(subscription.id);
+        // One subscription whose failure could not even be recorded must not hold back the rest.
+        try {
+          await this.refresh(subscription.id);
+        } catch (error) {
+          console.warn(`ICS subscription ${subscription.id} could not be refreshed.`, error);
+        }
       }
     }
   }

@@ -200,6 +200,13 @@ describe('DeviceCalendarSyncInteractor', () => {
     expect(old).toEqual([]);
   });
 
+  it('resolves false instead of rejecting when the cache itself cannot be read', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.spyOn(repository, 'findSource').mockRejectedValueOnce(new Error('database closed'));
+
+    await expect(interactor.refresh({ force: true })).resolves.toBe(false);
+  });
+
   it('a calendar removed on the device takes its cached rows with it', async () => {
     await interactor.connect();
     gateway.calendars = [];

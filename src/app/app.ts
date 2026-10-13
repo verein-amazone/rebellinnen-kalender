@@ -103,9 +103,13 @@ export class App {
     // change, an app update and reminders that fired while the app was closed.
     void this.reminders.reschedule();
     void this.deviceCalendarSync.refresh();
-    void import('@app/interactors/calendar/ics-subscription.interactor').then(
-      ({ IcsSubscriptionInteractor }) =>
+    void import('@app/interactors/calendar/ics-subscription.interactor')
+      .then(({ IcsSubscriptionInteractor }) =>
         this.destroyed ? undefined : this.injector.get(IcsSubscriptionInteractor).refreshAllDue(),
-    );
+      )
+      .catch((error: unknown) => {
+        // A failed chunk load (an update replaced it) or a failed listing; the next resume retries.
+        console.warn('Die abonnierten Kalender konnten nicht aktualisiert werden.', error);
+      });
   }
 }

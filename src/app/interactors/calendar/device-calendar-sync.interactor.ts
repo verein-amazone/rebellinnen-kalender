@@ -73,6 +73,18 @@ export class DeviceCalendarSyncInteractor {
     // window untouched would let the next automatic trigger immediately redo it.
     this.lastAutomaticRefreshAt = now;
 
+    // Never rejects: every caller fires this from a lifecycle event or after a write that already
+    // succeeded, where a rejection would either be unhandled or make that write look failed - and
+    // a retried native create would then exist twice in the OS calendar.
+    try {
+      return await this.refreshCache();
+    } catch (error) {
+      console.warn('Die Gerätekalender konnten nicht aktualisiert werden.', error);
+      return false;
+    }
+  }
+
+  private async refreshCache(): Promise<boolean> {
     const context = this.context();
     const source = await this.repository.findSource(DEVICE_SOURCE_ID);
     if (source === null) {

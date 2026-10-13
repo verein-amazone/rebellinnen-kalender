@@ -233,6 +233,24 @@ describe('IcsSubscriptionInteractor', () => {
     expect(http.downloads).toBe(before + 1);
   });
 
+  it('keeps refreshing the other due feeds when one of them fails outright', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    await interactor.add('Verein', 'https://example.org/cal.ics');
+    await interactor.add('Schule', 'https://example.org/schule.ics');
+    await database.run(`UPDATE ics_subscriptions SET last_success_at = ?, last_checked_at = ?`, [
+      new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+      new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    ]);
+    const refresh = vi
+      .spyOn(interactor, 'refresh')
+      .mockRejectedValueOnce(new Error('database closed'))
+      .mockResolvedValueOnce('updated');
+
+    await expect(interactor.refreshAllDue()).resolves.toBeUndefined();
+
+    expect(refresh).toHaveBeenCalledTimes(2);
+  });
+
   it('never refreshes a disabled subscription in the background, however long since its last check', async () => {
     const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
     const longAgo = new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString();
