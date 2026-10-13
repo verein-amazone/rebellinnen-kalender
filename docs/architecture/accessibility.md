@@ -273,7 +273,10 @@ Recorded here so they are not rediscovered as new findings:
   „Nach oben“ / „Nach unten“ in the row's own menu, and the drag handle is `aria-hidden` and not
   focusable: a control whose only behaviour is a pointer drag would be a stop in the tab order that
   does nothing. Reordering is announced once through the `LiveAnnouncer` - after a drop nothing on
-  screen states the new position, and after a menu selection the menu has already closed.
+  screen states the new position, and after a menu selection the menu has already closed. After a
+  menu move, focus goes back to the moved row's menu trigger by hand: re-ordering the rows moves the
+  trigger in the DOM, and a browser blurs an element it moves (#151). jsdom does not, so this is
+  guarded in Playwright, not in a unit spec.
 - **The switch primitive is `app-toggle-field`.** It stays a native `<input type="checkbox">` with
   `role="switch"` added purely to change the announced role/state - checked state, Space/Enter and
   label association are still the browser's. This is the same technique Angular Material's own

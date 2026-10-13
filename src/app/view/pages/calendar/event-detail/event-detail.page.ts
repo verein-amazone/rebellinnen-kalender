@@ -322,13 +322,12 @@ export class EventDetailPage {
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
       // A changed rule or changed reminders describe the series, never a single occurrence.
       const ruleChanged = changes.rrule !== undefined || changes.reminders !== undefined;
-      const scope = await this.askRecurrenceScope(
-        'Was möchtest du ändern?',
-        ruleChanged
+      const scope = await this.askRecurrenceScope('Was möchtest du ändern?', {
+        message: ruleChanged
           ? 'Dieser Termin gehört zu einer Serie. Ab wann soll die Änderung gelten?'
           : 'Dieser Termin gehört zu einer Serie. Was soll geändert werden?',
-        !ruleChanged,
-      );
+        allowSingleOccurrence: !ruleChanged,
+      });
       if (scope === undefined) {
         return;
       }
@@ -352,9 +351,19 @@ export class EventDetailPage {
     await this.navigateToOccurrenceDay(deviceLocalDay(changes.start ?? occurrence.start));
   }
 
+  /**
+   * Asks before deleting. An occurrence of a series goes straight to the scope sheet, which carries
+   * the warning itself (#152): a generic „wird gelöscht“ first read as if the whole series were
+   * going before the user had chosen what to delete, and was one confirmation more than editing asks.
+   */
   protected confirmDelete(): void {
     const occurrence = this.occurrence();
     if (occurrence === null) {
+      return;
+    }
+
+    if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
+      void this.performDelete(occurrence);
       return;
     }
 
@@ -417,10 +426,12 @@ export class EventDetailPage {
     }
 
     if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
-      const scope = await this.askRecurrenceScope(
-        'Was möchtest du löschen?',
-        'Dieser Termin gehört zu einer Serie. Was soll gelöscht werden?',
-      );
+      const scope = await this.askRecurrenceScope('Was möchtest du löschen?', {
+        message:
+          'Dieser Termin gehört zu einer Serie. Was soll gelöscht werden? Das kann nicht rückgängig gemacht werden.',
+        confirmLabel: 'Löschen',
+        destructive: true,
+      });
       if (scope === undefined) {
         return;
       }
@@ -463,13 +474,12 @@ export class EventDetailPage {
 
   private askRecurrenceScope(
     heading: string,
-    message: string,
-    allowSingleOccurrence = true,
+    data: RecurrenceScopeDialogData,
   ): Promise<RecurrenceScope | undefined> {
     return firstValueFrom(
       this.sheets.open<RecurrenceScope, RecurrenceScopeDialogData>(RecurrenceScopeDialog, {
         heading,
-        data: { message, allowSingleOccurrence },
+        data,
       }).closed,
     );
   }

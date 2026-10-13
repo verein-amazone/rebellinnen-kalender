@@ -118,6 +118,7 @@ async function setup(inputs: {
                 enabled: signal(true),
                 timedDefaults: signal(inputs.reminderDefaults.timed),
                 allDayDefaults: signal(inputs.reminderDefaults.allDay),
+                permission: () => Promise.resolve('granted'),
               },
             },
           ]),

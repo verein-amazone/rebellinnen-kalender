@@ -81,6 +81,20 @@ describe('NotificationPreferencesInteractor', () => {
     expect(notifications.requests).toBe(0);
   });
 
+  it('asks again for a permission taken away later, keeps reminders on and reschedules', async () => {
+    notifications.current = 'granted';
+    const preferences = TestBed.inject(NotificationPreferencesInteractor);
+    await preferences.setEnabled(true);
+    notifications.current = 'prompt';
+    notifications.answer = 'denied';
+
+    await expect(preferences.requestPermission()).resolves.toBe('denied');
+
+    expect(notifications.requests).toBe(1);
+    expect(preferences.enabled()).toBe(true);
+    expect(scheduler.reschedules).toBe(2);
+  });
+
   it('keeps at most five defaults, earliest reminder first', () => {
     const preferences = TestBed.inject(NotificationPreferencesInteractor);
 

@@ -43,6 +43,7 @@ import {
 } from '@app/interactors/calendar/recurrence';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { CalendarPickerField } from '@app/view/components/field/calendar-picker-field';
+import { NotificationsBlockedBlock } from '@app/view/blocks/notifications-blocked/notifications-blocked.block';
 import { ReminderListField } from '@app/view/components/reminder-list-field/reminder-list-field';
 import { TextareaField } from '@app/view/components/field/textarea-field';
 import { TextField } from '@app/view/components/field/text-field';
@@ -162,6 +163,7 @@ function noRepeat(): Pick<EventFormModel, (typeof REPEAT_FIELDS)[number]> {
     CalendarPickerField,
     DateTimeField,
     FormField,
+    NotificationsBlockedBlock,
     RecurrenceField,
     ReminderListField,
   ],

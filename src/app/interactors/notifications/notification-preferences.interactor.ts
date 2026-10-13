@@ -19,7 +19,9 @@ export type { NotificationPermission } from '@app/cross-cutting/infrastructure/n
  * Turning reminders on is the one place the app asks for the notification permission - from the
  * settings switch or the introduction, always in response to a tap. If the user declines, the
  * switch stays off; the settings then point to the system settings, since the OS will not ask a
- * second time.
+ * second time. The permission can also be taken away later in the system settings while the switch
+ * stays on (#150); the scheduler then has nothing to schedule, so the screens that show reminders
+ * say so instead of looking as if they were working.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationPreferencesInteractor {
@@ -55,6 +57,17 @@ export class NotificationPreferencesInteractor {
     const permission =
       current === 'prompt' ? await this.notifications.requestPermission() : current;
     this.store.update({ enabled: permission === 'granted' });
+    await this.scheduler().reschedule();
+    return permission;
+  }
+
+  /**
+   * Asks again for a permission the user took away after turning reminders on, where the OS still
+   * allows the app to ask (Android reports `prompt` then). Reminders stay on either way; a grant
+   * puts the pending notifications back.
+   */
+  async requestPermission(): Promise<NotificationPermission> {
+    const permission = await this.notifications.requestPermission();
     await this.scheduler().reschedule();
     return permission;
   }

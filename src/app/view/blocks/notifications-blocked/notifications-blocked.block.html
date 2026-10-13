@@ -1,0 +1,32 @@
+<div role="status">
+  @if (blocked()) {
+    <div class="rk-card space-y-3 px-4 py-4">
+      @if (permission() === 'prompt') {
+        <p>
+          Mitteilungen für diese App sind ausgeschaltet. Deine Erinnerungen kommen erst wieder an,
+          wenn du sie erlaubst.
+        </p>
+        <button type="button" class="rk-button rk-button-secondary w-full" (click)="allow()">
+          Mitteilungen erlauben
+        </button>
+      } @else {
+        <p>
+          Mitteilungen für diese App sind in den Systemeinstellungen ausgeschaltet. Deine
+          Erinnerungen kommen erst wieder an, wenn du sie dort erlaubst.
+        </p>
+        <button
+          type="button"
+          class="rk-button rk-button-secondary w-full"
+          (click)="openSystemSettings()"
+        >
+          <svg lucideExternalLink class="rk-icon" aria-hidden="true"></svg>
+          <span>Einstellungen öffnen</span>
+        </button>
+      }
+    </div>
+  } @else if (restored()) {
+    <p #confirmation tabindex="-1" class="rk-card px-4 py-4">
+      Mitteilungen sind wieder erlaubt. Deine Erinnerungen kommen an.
+    </p>
+  }
+</div>

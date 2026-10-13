@@ -107,6 +107,7 @@
               class="rk-icon-button"
               ngMenuTrigger
               [menu]="rowMenu"
+              [attr.data-menu-of]="row.item.id"
               (keydown.enter)="$event.preventDefault()"
               (keydown.space)="$event.preventDefault()"
             >

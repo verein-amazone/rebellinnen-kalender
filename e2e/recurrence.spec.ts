@@ -100,14 +100,12 @@ test.describe('recurring appointments', () => {
     await page.goto('/calendar?day=2026-08-17');
     await occurrenceLink(page, 'Lesekreis').click();
     await page.getByRole('button', { name: 'Löschen' }).click();
-    await page
-      .getByRole('dialog', { name: 'Termin löschen?' })
-      .getByRole('button', { name: 'Löschen' })
-      .click();
 
+    // No generic confirmation first: the scope sheet is the one that asks (#152).
     const scope = page.getByRole('dialog', { name: 'Was möchtest du löschen?' });
+    await expect(scope).toContainText('Das kann nicht rückgängig gemacht werden.');
     await scope.getByRole('radio', { name: 'Nur dieser Termin' }).check();
-    await scope.getByRole('button', { name: 'Bestätigen' }).click();
+    await scope.getByRole('button', { name: 'Löschen' }).click();
 
     await expect(page).toHaveURL(/\/calendar\?day=2026-08-17/);
     await expect(page.getByRole('link', { name: /Lesekreis/ })).toHaveCount(0);
