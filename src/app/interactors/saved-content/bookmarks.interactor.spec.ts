@@ -21,7 +21,6 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
-    dailyRender: 'teaser',
     ...overrides,
   };
 }

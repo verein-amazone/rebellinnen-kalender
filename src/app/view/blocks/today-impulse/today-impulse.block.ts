@@ -27,9 +27,8 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
  * The card names itself „Für dich“ and nothing else - the content type is on the detail screen,
  * where it belongs; on Today it competed with the one label that matters. The label addresses the
  * reader, as testers asked; the feature behind it keeps the name „Tagesimpuls“ in Einstellungen
- * and in this card's empty and error states. Two layouts, chosen by
- * the entry's own `dailyRender`: an image-led one for the entries whose picture says more than
- * their teaser does, and the teaser-led one for everything else. Loaded and resolved to view state
+ * and in this card's empty and error states. The card leads with the item's picture and its title,
+ * as Verein Amazone asked; the teaser is left for the detail screen. Loaded and resolved to view state
  * here, the same split `TodayClosingBlock` uses, so `today.page.html` stays a thin shell.
  *
  * No bookmark toggle here - bookmarking lives on the detail view only, so this card has exactly
@@ -70,14 +69,14 @@ export class TodayImpulseBlock {
   protected readonly item = computed<ContentItemView | null>(() => valueOr(this.data, null));
 
   /**
-   * Whether today's item leads with its picture instead of its teaser - an editorial call carried
-   * per entry in the catalog (`dailyRender`). An item marked that way without an image falls back
-   * to the teaser layout rather than rendering an empty frame.
+   * Whether the card bleeds a picture to its edges: today's item has one, or it is still loading and
+   * the placeholder takes the picture's place, so the card does not change shape when it arrives.
+   * Every catalog item ships an image; one without would fall back to its title and teaser rather
+   * than an empty frame.
    */
-  protected readonly leadsWithImage = computed(() => {
-    const content = this.item();
-    return content !== null && content.dailyRender === 'image' && content.imagePath !== null;
-  });
+  protected readonly leadsWithImage = computed(
+    () => this.data.status() === 'loading' || (this.item()?.imagePath ?? null) !== null,
+  );
 
   /**
    * Latched rather than derived: marking the greeting done immediately flips the interactor's answer,

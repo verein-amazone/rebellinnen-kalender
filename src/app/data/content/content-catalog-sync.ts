@@ -7,7 +7,6 @@ import { ContentItemDao } from '../daos/content-item.dao';
 import type {
   ContentItemKind,
   ContentItemRecord,
-  DailyRenderMode,
   RelatedSourceRecord,
 } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
@@ -32,8 +31,6 @@ export interface CatalogEntry {
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
-  /** How this item renders as today's impulse. Omitted means `teaser`, the ordinary layout. */
-  readonly dailyRender?: DailyRenderMode;
 }
 
 export interface Catalog {
@@ -141,7 +138,6 @@ function toRecord(entry: CatalogEntry): ContentItemRecord {
     ...entry,
     relatedSources: entry.relatedSources ?? [],
     imagePath: imagePathFor(entry),
-    dailyRender: entry.dailyRender ?? 'teaser',
   };
 }
 

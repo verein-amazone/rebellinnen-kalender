@@ -105,6 +105,5 @@ function toView(record: ContentItemRecord): ContentItemView {
     sourceLabel: record.sourceLabel,
     sourceUrl: record.sourceUrl,
     relatedSources: record.relatedSources,
-    dailyRender: record.dailyRender,
   };
 }

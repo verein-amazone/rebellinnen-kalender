@@ -28,7 +28,6 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
-    dailyRender: 'teaser',
     ...overrides,
   };
 }
@@ -158,19 +157,9 @@ describe('TodayImpulseBlock', () => {
     expect(element.textContent).not.toContain('Wissen & Impulse');
   });
 
-  it('leads with the teaser and no image by default', async () => {
-    const { element } = await setup({
-      item: item({ imagePath: '/content/wissensimpulse/wi-02.webp', imageAlt: 'Ein Bild' }),
-    });
-
-    expect(element.querySelector('img')).toBeNull();
-    expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');
-  });
-
-  it('leads with the image, its description and no teaser when the entry says so', async () => {
+  it('leads with the image, its description and no teaser', async () => {
     const { element } = await setup({
       item: item({
-        dailyRender: 'image',
         imagePath: '/content/rebellinnen/reb-09.webp',
         imageAlt: 'Gemaltes Porträt von Ada Lovelace',
         title: 'Ada Lovelace',
@@ -184,8 +173,8 @@ describe('TodayImpulseBlock', () => {
     expect(element.textContent).not.toContain('Wir haben ein paar Ideen für dich!');
   });
 
-  it('falls back to the teaser layout when an image-led entry has no image', async () => {
-    const { element } = await setup({ item: item({ dailyRender: 'image', imagePath: null }) });
+  it('falls back to the title and teaser when an item has no image', async () => {
+    const { element } = await setup({ item: item({ imagePath: null }) });
 
     expect(element.querySelector('img')).toBeNull();
     expect(element.textContent).toContain('Wir haben ein paar Ideen für dich!');

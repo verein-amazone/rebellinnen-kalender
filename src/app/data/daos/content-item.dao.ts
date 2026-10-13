@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import type {
   ContentItemKind,
   ContentItemRecord,
-  DailyRenderMode,
   RelatedSourceRecord,
 } from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor, type SqlValue } from '../gateways/sqlite-database';
@@ -24,12 +23,15 @@ interface ContentItemRow {
   readonly valid_from: string | null;
   readonly valid_to: string | null;
   readonly eligible_for_daily: number;
-  readonly daily_render: DailyRenderMode | null;
 }
 
+/**
+ * Every column the app reads and writes. `daily_render` is left out on purpose: the daily impulse
+ * always leads with its picture now, and the column stays in the table only because a column cannot
+ * be dropped in a migration that has to be safe to run twice (see `migrations.spec.ts`).
+ */
 const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_alt, image_attribution,
-  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily,
-  daily_render`;
+  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily`;
 
 /**
  * Table access for curated content items. No business rules live here - the daily-selection logic
@@ -97,7 +99,7 @@ export class ContentItemDao {
     if (existing === null) {
       await executor.run(
         `INSERT INTO content_items (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         toValues(record),
       );
       return;
@@ -107,7 +109,7 @@ export class ContentItemDao {
       `UPDATE content_items
        SET kind = ?, title = ?, teaser = ?, body_markdown = ?, image_path = ?, image_alt = ?,
            image_attribution = ?, source_label = ?, source_url = ?, related_sources = ?,
-           valid_from = ?, valid_to = ?, eligible_for_daily = ?, daily_render = ?
+           valid_from = ?, valid_to = ?, eligible_for_daily = ?
        WHERE id = ?`,
       [
         record.kind,
@@ -123,7 +125,6 @@ export class ContentItemDao {
         record.validFrom,
         record.validTo,
         record.eligibleForDaily ? 1 : 0,
-        record.dailyRender,
         record.id,
       ],
     );
@@ -150,7 +151,6 @@ function toValues(record: ContentItemRecord): SqlValue[] {
     record.validFrom,
     record.validTo,
     record.eligibleForDaily ? 1 : 0,
-    record.dailyRender,
   ];
 }
 
@@ -170,8 +170,6 @@ function toRecord(row: ContentItemRow): ContentItemRecord {
     validFrom: row.valid_from ?? null,
     validTo: row.valid_to ?? null,
     eligibleForDaily: row.eligible_for_daily === 1,
-    // A row written before the column existed carries the layout the card had back then.
-    dailyRender: row.daily_render ?? 'teaser',
   };
 }
 

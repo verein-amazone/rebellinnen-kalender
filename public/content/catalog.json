@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "items": [
     {
       "id": "wi-01",
@@ -13,8 +13,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-02",
@@ -28,8 +27,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-03",
@@ -43,8 +41,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-04",
@@ -58,8 +55,7 @@
       "sourceUrl": "https://forms.gle/Y5UxyyAa1Y7qS2Gg7",
       "validFrom": "2027-01-02",
       "validTo": "2027-04-14",
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-05",
@@ -73,8 +69,7 @@
       "sourceUrl": null,
       "validFrom": "2027-02-01",
       "validTo": "2027-02-10",
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-06",
@@ -88,8 +83,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-07",
@@ -103,8 +97,7 @@
       "sourceUrl": "https://zara.or.at/beratung/",
       "validFrom": "2027-02-09",
       "validTo": "2027-02-09",
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-08",
@@ -118,8 +111,7 @@
       "sourceUrl": null,
       "validFrom": "2027-03-08",
       "validTo": "2027-03-08",
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-09",
@@ -133,8 +125,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-10",
@@ -148,8 +139,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-11",
@@ -163,8 +153,7 @@
       "sourceUrl": null,
       "validFrom": "2027-01-01",
       "validTo": "2027-01-01",
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-12",
@@ -178,8 +167,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-13",
@@ -193,8 +181,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-14",
@@ -208,8 +195,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-15",
@@ -223,8 +209,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-16",
@@ -238,8 +223,7 @@
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-01",
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-17",
@@ -253,8 +237,7 @@
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-30",
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-18",
@@ -268,8 +251,7 @@
       "sourceUrl": null,
       "validFrom": "2027-06-01",
       "validTo": "2027-06-30",
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-19",
@@ -283,8 +265,7 @@
       "sourceUrl": null,
       "validFrom": "2027-07-01",
       "validTo": "2027-07-01",
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-20",
@@ -298,8 +279,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-21",
@@ -313,8 +293,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "wi-22",
@@ -328,8 +307,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-01",
@@ -343,8 +321,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-02",
@@ -358,8 +335,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-03",
@@ -373,8 +349,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-04",
@@ -388,8 +363,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-05",
@@ -403,8 +377,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-06",
@@ -418,8 +391,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-07",
@@ -433,8 +405,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-08",
@@ -448,8 +419,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-09",
@@ -463,8 +433,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-10",
@@ -478,8 +447,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-11",
@@ -493,8 +461,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-12",
@@ -508,8 +475,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-13",
@@ -523,8 +489,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-14",
@@ -538,8 +503,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-15",
@@ -553,8 +517,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-16",
@@ -568,8 +531,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-17",
@@ -583,8 +545,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "teaser"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-18",
@@ -598,8 +559,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-19",
@@ -613,8 +573,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-20",
@@ -628,8 +587,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-21",
@@ -643,8 +601,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-22",
@@ -658,8 +615,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-23",
@@ -673,8 +629,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-24",
@@ -688,8 +643,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-25",
@@ -703,8 +657,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-26",
@@ -718,8 +671,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-27",
@@ -733,8 +685,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-28",
@@ -748,8 +699,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-29",
@@ -763,8 +713,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-30",
@@ -778,8 +727,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-31",
@@ -793,8 +741,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-32",
@@ -808,8 +755,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-33",
@@ -823,8 +769,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-34",
@@ -838,8 +783,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-35",
@@ -853,8 +797,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-36",
@@ -868,8 +811,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-37",
@@ -883,8 +825,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-38",
@@ -898,8 +839,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-39",
@@ -913,8 +853,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-40",
@@ -928,8 +867,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-41",
@@ -943,8 +881,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-42",
@@ -958,8 +895,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-43",
@@ -973,8 +909,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-44",
@@ -988,8 +923,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-45",
@@ -1003,8 +937,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-46",
@@ -1018,8 +951,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-47",
@@ -1033,8 +965,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-48",
@@ -1048,8 +979,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-49",
@@ -1063,8 +993,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-50",
@@ -1078,8 +1007,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-51",
@@ -1093,8 +1021,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     },
     {
       "id": "reb-52",
@@ -1108,8 +1035,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "dailyRender": "image"
+      "eligibleForDaily": true
     }
   ]
 }

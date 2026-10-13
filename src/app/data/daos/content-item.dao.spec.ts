@@ -22,7 +22,6 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
-    dailyRender: 'teaser',
     ...overrides,
   };
 }

@@ -64,7 +64,6 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
-      dailyRender: 'teaser',
     };
     dao.items.set('wi-01', record);
 
@@ -81,7 +80,6 @@ describe('ContentItemsInteractor', () => {
         sourceLabel: null,
         sourceUrl: null,
         relatedSources: [],
-        dailyRender: 'teaser',
       },
     ]);
   });
@@ -106,7 +104,6 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
-      dailyRender: 'teaser',
     };
     dao.items.set('wi-01', record);
 
@@ -122,7 +119,6 @@ describe('ContentItemsInteractor', () => {
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
-      dailyRender: 'teaser',
     });
   });
 });

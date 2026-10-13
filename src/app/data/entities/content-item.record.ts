@@ -1,14 +1,6 @@
 export const CONTENT_ITEM_KINDS = ['wissensimpulse', 'rebellin'] as const;
 export type ContentItemKind = (typeof CONTENT_ITEM_KINDS)[number];
 
-/**
- * How an item renders when it is the Today page's daily impulse: `image` leads with the picture,
- * `teaser` leads with the teaser line. An editorial call per item - some pictures say more than
- * their teaser does, most do not.
- */
-export const DAILY_RENDER_MODES = ['teaser', 'image'] as const;
-export type DailyRenderMode = (typeof DAILY_RENDER_MODES)[number];
-
 /** One "More on this topic" link - a title and the URL it points to. */
 export interface RelatedSourceRecord {
   readonly title: string;
@@ -40,5 +32,4 @@ export interface ContentItemRecord {
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
-  readonly dailyRender: DailyRenderMode;
 }

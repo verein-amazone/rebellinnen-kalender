@@ -1,7 +1,7 @@
 <!-- The label is a heading (the section's `aria-labelledby` target) that is *styled* as a pill, not
-     a pill next to a heading. It appears in two places - over the image in the image-led layout,
-     on the card surface everywhere else - so it lives in one template rather than being written
-     out twice. -->
+     a pill next to a heading. It appears in two places - over the image (or its placeholder), and
+     on the card surface in the empty and error states - so it lives in one template rather than
+     being written out twice. -->
 <ng-template #impulseLabel>
   <h2 id="impulse-heading" class="rk-pill-solid">
     <svg lucideSparkle class="rk-icon-sm" aria-hidden="true"></svg>
@@ -17,7 +17,22 @@
   [class.px-4]="!leadsWithImage()"
   [class.py-5]="!leadsWithImage()"
 >
-  @if (leadsWithImage() && item(); as content) {
+  @if (data.status() === 'loading') {
+    <!-- Shaped like the loaded card: the picture, then the title and the "Mehr lesen" line. -->
+    <div class="relative">
+      <span
+        class="rk-skeleton block aspect-[4/3] max-h-64 w-full rounded-none"
+        aria-hidden="true"
+      ></span>
+      <div class="absolute top-3 left-3">
+        <ng-container [ngTemplateOutlet]="impulseLabel" />
+      </div>
+    </div>
+    <div class="space-y-2 px-4 pt-3 pb-4" aria-hidden="true">
+      <span class="rk-skeleton block h-4 w-2/3"></span>
+      <span class="rk-skeleton block h-3 w-1/4"></span>
+    </div>
+  } @else if (leadsWithImage() && item(); as content) {
     <!-- The picture leads and bleeds to the top, left and right edges; the title sits below it on
          the plain card surface, so no long text is ever laid over a photograph and the contrast
          holds for every image in every theme. Only the label floats on the picture, and it carries
@@ -58,13 +73,6 @@
           <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
           <span>Erneut versuchen</span>
         </button>
-      </div>
-    } @else if (data.status() === 'loading') {
-      <!-- Shaped like the loaded card: title, two teaser lines. -->
-      <div class="space-y-2" aria-hidden="true">
-        <span class="rk-skeleton block h-4 w-2/3"></span>
-        <span class="rk-skeleton block h-3 w-full"></span>
-        <span class="rk-skeleton block h-3 w-4/5"></span>
       </div>
     } @else if (item(); as content) {
       <a
