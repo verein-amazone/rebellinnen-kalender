@@ -1,32 +1,46 @@
 import { TestBed } from '@angular/core/testing';
 
-import type { ImageAttribution } from '@app/data/gateways/legal-content.gateway';
+import {
+  ImageCatalogGateway,
+  type ImageCatalogEntry,
+} from '@app/data/gateways/image-catalog.gateway';
 import { LegalContentGateway } from '@app/data/gateways/legal-content.gateway';
 
 import { LegalContentInteractor } from './legal-content.interactor';
 
 class FakeLegalContentGateway {
   thirdPartyLicenses: string | null = 'MIT License...';
-  imageAttributions: readonly ImageAttribution[] = [];
 
   fetchThirdPartyLicenses(): Promise<string | null> {
     return Promise.resolve(this.thirdPartyLicenses);
   }
+}
 
-  fetchImageAttributions(): Promise<readonly ImageAttribution[]> {
-    return Promise.resolve(this.imageAttributions);
+class FakeImageCatalogGateway {
+  entries: readonly ImageCatalogEntry[] = [];
+
+  list(): Promise<readonly ImageCatalogEntry[]> {
+    return Promise.resolve(this.entries);
   }
 }
 
-function setup(): { interactor: LegalContentInteractor; gateway: FakeLegalContentGateway } {
+function setup(): {
+  interactor: LegalContentInteractor;
+  gateway: FakeLegalContentGateway;
+  images: FakeImageCatalogGateway;
+} {
   const gateway = new FakeLegalContentGateway();
+  const images = new FakeImageCatalogGateway();
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [{ provide: LegalContentGateway, useValue: gateway }],
+    providers: [
+      { provide: LegalContentGateway, useValue: gateway },
+      { provide: ImageCatalogGateway, useValue: images },
+    ],
   });
 
-  return { interactor: TestBed.inject(LegalContentInteractor), gateway };
+  return { interactor: TestBed.inject(LegalContentInteractor), gateway, images };
 }
 
 describe('LegalContentInteractor', () => {
@@ -37,17 +51,19 @@ describe('LegalContentInteractor', () => {
     expect(await interactor.thirdPartyLicenses()).toBe('Some licence text');
   });
 
-  it('returns the image attributions from the gateway', async () => {
-    const { interactor, gateway } = setup();
-    const attribution: ImageAttribution = {
-      path: '/content/wissensimpulse/wi-01.webp',
+  it('returns the image credits from the image catalog', async () => {
+    const { interactor, images } = setup();
+    const attribution: ImageCatalogEntry = {
+      id: 'menstruation-hormone-zyklus',
+      path: '/content/images/menstruation-hormone-zyklus.webp',
       title: 'Titel',
+      alt: 'Viele rote Tropfen auf dunkelblauem Grund.',
       creator: 'Verein Amazone',
       license: 'All rights reserved (used with permission)',
       licenseUrl: null,
       changes: [],
     };
-    gateway.imageAttributions = [attribution];
+    images.entries = [attribution];
 
     expect(await interactor.imageAttributions()).toEqual([attribution]);
   });

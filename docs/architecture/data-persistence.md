@@ -142,7 +142,7 @@ in `occurrence.dao.ts` for the reasoning, and `reminder.dao.ts` for the `CASE`-p
 ## Migrations
 
 All schema changes are **versioned migrations** under `data/migrations/`: one file per version
-(`019-create-schema.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
+(`019-create-schema.ts`, `020-rebuild-content-items.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
 the highest `toVersion`. Never mutate an existing shipped migration - a device that already applied
 it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
 Add a new migration instead - and when it ships, add its hash to the pinned list in
@@ -152,8 +152,9 @@ Add a new migration instead - and when it ships, add its hash to the pinned list
 only afterwards stamps the new version in a separate step, so a crash or a killed app between the
 two runs the same migration again on the next launch. A statement that fails the second time - a
 plain `ALTER TABLE … ADD COLUMN`, a `CREATE TABLE` without `IF NOT EXISTS` - would then stop the
-database from opening on every launch after it. Use `IF NOT EXISTS` / `IF EXISTS`, and add a column
-by rebuilding the table (create the new shape, copy, drop, rename) rather than with `ADD COLUMN`.
+database from opening on every launch after it. Use `IF NOT EXISTS` / `IF EXISTS`, and add or drop
+a column by rebuilding the table (create the new shape, copy, drop, rename) rather than with
+`ADD COLUMN` or `DROP COLUMN`.
 `migrations.spec.ts` applies the whole registry twice to hold every migration to this.
 
 **Version 19 is the baseline.** The pre-release versions 1-18 were squashed into one migration
@@ -163,8 +164,12 @@ to 18, and the plugin only upgrades: a device at 18 asked for 1 would keep its o
 run a later migration. Version 19 drops every table first and recreates it, so those devices start
 over with an empty database - the agreed price for pre-release data. Local state that describes the
 database has to start over with it: the curated-calendar sync moved to a new `localStorage` key for
-that reason, and the content catalog sync already re-checks that its table is not empty. The next
-schema change is version 20.
+that reason, and the content catalog sync already re-checks that its table is not empty.
+
+Version 20 is the first change on top of it: `content_items` names its picture by an image id
+(`hero_image_id`) and drops the columns the image catalog made redundant. It rebuilds the table rather than using `DROP COLUMN` or `RENAME COLUMN`, which would fail on a
+second run, and puts `bookmarks` aside around the rebuild, because dropping the table its foreign key points
+at fails while a bookmark is still on it.
 
 Applying them is the plugin's job, not ours: the gateway hands the registry to
 `addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is

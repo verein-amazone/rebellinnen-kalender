@@ -196,7 +196,7 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 - **Apple, Content Rights:** "Does your app contain, show, or access third-party content?" -
   **Yes**: portrait photos and texts about real people, under the licences documented in
-  `public/image-attributions.json`. Answering "and you have the necessary rights" depends on the
+  `public/content/images.json`. Answering "and you have the necessary rights" depends on the
   image review in #11.
 - **Apple, EU Digital Services Act trader status:** depends on which legal entity holds the Apple
   developer account (Verein Amazone or Independo GmbH). A trader has to publish an address, phone

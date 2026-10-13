@@ -36,13 +36,6 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
 
-/** One related-source link, with its publisher/domain derived for display (#22). */
-export interface RelatedSourceRow {
-  readonly title: string;
-  readonly url: string;
-  readonly publisher: string;
-}
-
 /**
  * The curated content detail screen: content-type label, title, image, complete body, a "More on
  * this topic" related-sources section, and a bookmark toggle for one "Wissen & Impulse" piece or
@@ -118,8 +111,8 @@ export class ContentDetailPage {
     return item === null ? '' : contentKindLabel(item.kind);
   });
 
-  protected readonly relatedSources = computed<readonly RelatedSourceRow[]>(() =>
-    (this.item()?.relatedSources ?? []).map(toRelatedSourceRow),
+  protected readonly relatedSources = computed<readonly RelatedSourceView[]>(
+    () => this.item()?.relatedSources ?? [],
   );
 
   protected readonly bookmarkActionLabel = computed(() =>
@@ -187,18 +180,5 @@ export class ContentDetailPage {
         }
         await this.router.navigateByUrl(ContentDetailPage.COLLECTION_URL, RETURN_NAVIGATION);
       });
-  }
-}
-
-/** Derives a human-readable publisher/domain label from a related source's URL, e.g. `example.org`. */
-function toRelatedSourceRow(source: RelatedSourceView): RelatedSourceRow {
-  return { ...source, publisher: publisherOf(source.url) };
-}
-
-function publisherOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
   }
 }

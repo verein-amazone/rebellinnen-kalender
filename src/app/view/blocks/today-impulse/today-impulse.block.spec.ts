@@ -160,14 +160,14 @@ describe('TodayImpulseBlock', () => {
   it('leads with the image, its description and no teaser', async () => {
     const { element } = await setup({
       item: item({
-        imagePath: '/content/rebellinnen/reb-09.webp',
+        imagePath: '/content/images/ada-lovelace.webp',
         imageAlt: 'Gemaltes Porträt von Ada Lovelace',
         title: 'Ada Lovelace',
       }),
     });
 
     const image = element.querySelector('img');
-    expect(image?.getAttribute('src')).toBe('/content/rebellinnen/reb-09.webp');
+    expect(image?.getAttribute('src')).toBe('/content/images/ada-lovelace.webp');
     expect(image?.getAttribute('alt')).toBe('Gemaltes Porträt von Ada Lovelace');
     expect(element.textContent).toContain('Ada Lovelace');
     expect(element.textContent).not.toContain('Wir haben ein paar Ideen für dich!');

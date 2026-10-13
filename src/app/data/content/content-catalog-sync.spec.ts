@@ -15,8 +15,6 @@ function catalogEntry(overrides: Partial<Catalog['items'][number]> = {}): Catalo
     title: 'Was tut dir gut?',
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: '- Ein Bad nehmen',
-    imageAlt: 'Eine Badewanne voller Schaum',
-    imageAttribution: 'Verein Amazone',
     sourceLabel: null,
     sourceUrl: null,
     validFrom: null,
@@ -82,9 +80,7 @@ describe('ContentCatalogSync', () => {
       title: 'Von Hand geändert',
       teaser: 't',
       bodyMarkdown: 'b',
-      imagePath: null,
-      imageAlt: 'Bildbeschreibung',
-      imageAttribution: null,
+      heroImageId: null,
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
@@ -119,9 +115,7 @@ describe('ContentCatalogSync', () => {
       title: 'Alter Titel',
       teaser: 't',
       bodyMarkdown: 'b',
-      imagePath: null,
-      imageAlt: null,
-      imageAttribution: null,
+      heroImageId: null,
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
@@ -135,9 +129,7 @@ describe('ContentCatalogSync', () => {
       title: 'Wird entfernt',
       teaser: 't',
       bodyMarkdown: 'b',
-      imagePath: null,
-      imageAlt: null,
-      imageAttribution: null,
+      heroImageId: null,
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
@@ -156,23 +148,18 @@ describe('ContentCatalogSync', () => {
     await expect(bookmarks.isBookmarked('wi-99')).resolves.toBe(false);
   });
 
-  it('derives the image path from kind and id', async () => {
+  it('carries the hero image id, and none for an entry without a picture', async () => {
     mockFetch({
       version: 1,
-      items: [
-        catalogEntry({ id: 'wi-01', kind: 'wissensimpulse' }),
-        catalogEntry({ id: 'reb-01', kind: 'rebellin' }),
-      ],
+      items: [catalogEntry({ id: 'reb-09', heroImageId: 'ada-lovelace' }), catalogEntry()],
     });
 
     await sync.ensureSynced();
 
-    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({
-      imagePath: '/content/wissensimpulse/wi-01.webp',
+    await expect(contentItems.findById('reb-09')).resolves.toMatchObject({
+      heroImageId: 'ada-lovelace',
     });
-    await expect(contentItems.findById('reb-01')).resolves.toMatchObject({
-      imagePath: '/content/rebellinnen/reb-01.webp',
-    });
+    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ heroImageId: null });
   });
 
   it('defaults related sources to an empty list when the catalog entry omits them', async () => {
@@ -183,26 +170,27 @@ describe('ContentCatalogSync', () => {
     await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources: [] });
   });
 
-  it('carries the image description through', async () => {
+  it('carries related sources through, with no subtitle where the entry gives none', async () => {
     mockFetch({
       version: 1,
-      items: [catalogEntry({ id: 'wi-01', imageAlt: 'Eine Badewanne voller Schaum' })],
+      items: [
+        catalogEntry({
+          relatedSources: [
+            { title: 'Mehr erfahren', subtitle: 'Ein Artikel', url: 'https://example.org/artikel' },
+            { title: 'Studie', url: 'https://example.org/studie' },
+          ],
+        }),
+      ],
     });
 
     await sync.ensureSynced();
 
     await expect(contentItems.findById('wi-01')).resolves.toMatchObject({
-      imageAlt: 'Eine Badewanne voller Schaum',
+      relatedSources: [
+        { title: 'Mehr erfahren', subtitle: 'Ein Artikel', url: 'https://example.org/artikel' },
+        { title: 'Studie', subtitle: null, url: 'https://example.org/studie' },
+      ],
     });
-  });
-
-  it('carries related sources through from the catalog entry', async () => {
-    const relatedSources = [{ title: 'Mehr erfahren', url: 'https://example.org/artikel' }];
-    mockFetch({ version: 1, items: [catalogEntry({ relatedSources })] });
-
-    await sync.ensureSynced();
-
-    await expect(contentItems.findById('wi-01')).resolves.toMatchObject({ relatedSources });
   });
 
   it('does nothing and does not update the stored version when the fetch fails', async () => {

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -15,22 +15,16 @@ import type { Catalog } from './content-catalog-sync';
  */
 const PUBLIC_DIR = join(process.cwd(), 'public');
 
-interface ImageAttribution {
-  readonly path: string;
+interface ImageCatalogEntry {
+  readonly id: string;
 }
 
 const catalog = JSON.parse(
   readFileSync(join(PUBLIC_DIR, 'content/catalog.json'), 'utf8'),
 ) as Catalog;
-const attributions = JSON.parse(
-  readFileSync(join(PUBLIC_DIR, 'image-attributions.json'), 'utf8'),
-) as ImageAttribution[];
-
-/** Mirrors `imagePathFor()` in `content-catalog-sync.ts`. */
-function imagePathFor(entry: Catalog['items'][number]): string {
-  const dir = entry.kind === 'rebellin' ? 'rebellinnen' : 'wissensimpulse';
-  return `/content/${dir}/${entry.id}.webp`;
-}
+const images = JSON.parse(
+  readFileSync(join(PUBLIC_DIR, 'content/images.json'), 'utf8'),
+) as ImageCatalogEntry[];
 
 describe('public/content/catalog.json', () => {
   it('has a numeric version and at least one item', () => {
@@ -44,26 +38,43 @@ describe('public/content/catalog.json', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('ships a bundled image for every entry', () => {
-    const missing = catalog.items
-      .map(imagePathFor)
-      .filter((path) => !existsSync(join(PUBLIC_DIR, path)));
+  it('gives every entry a picture from the image catalog', () => {
+    // The daily impulse leads with the picture, so every item ships one. The file itself is checked
+    // by images.content.spec.ts.
+    const known = new Set(images.map((image) => image.id));
 
-    expect(missing).toEqual([]);
+    for (const item of catalog.items) {
+      expect(item.heroImageId, item.id).toBeDefined();
+      expect(known.has(item.heroImageId ?? ''), `${item.id} ${item.heroImageId}`).toBe(true);
+    }
   });
 
-  it('records the licence of every entry image in image-attributions.json', () => {
-    const attributed = new Set(attributions.map((attribution) => attribution.path));
-    const unattributed = catalog.items.map(imagePathFor).filter((path) => !attributed.has(path));
-
-    expect(unattributed).toEqual([]);
+  it('gives every related source a title, an https link and, if any, a non-empty subtitle', () => {
+    for (const item of catalog.items) {
+      for (const source of item.relatedSources ?? []) {
+        expect(source.title.trim(), item.id).not.toBe('');
+        expect(new URL(source.url).protocol, `${item.id} ${source.url}`).toBe('https:');
+        if (source.subtitle !== undefined) {
+          expect(source.subtitle.trim(), `${item.id} ${source.title}`).not.toBe('');
+        }
+      }
+    }
   });
 
   it('keeps the text fields free of leading and trailing whitespace', () => {
     for (const item of catalog.items) {
-      for (const field of ['title', 'teaser', 'bodyMarkdown', 'imageAlt'] as const) {
+      for (const field of ['title', 'teaser', 'bodyMarkdown'] as const) {
         const value = item[field];
         expect(value.trim(), `${item.id} ${field}`).toBe(value);
+      }
+    }
+  });
+
+  it('leaves everything about a picture to the image catalog, and names it only by id', () => {
+    // Recorded once, with the rest of what is known about the image, so the two cannot disagree.
+    for (const item of catalog.items) {
+      for (const key of ['imagePath', 'imageAlt', 'imageAttribution']) {
+        expect(Object.keys(item), item.id).not.toContain(key);
       }
     }
   });

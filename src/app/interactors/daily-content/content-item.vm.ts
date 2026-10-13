@@ -21,9 +21,10 @@ export function contentKindLabel(kind: ContentItemKind): string {
   return CONTENT_KIND_LABELS.find((entry) => entry.id === kind)?.label ?? kind;
 }
 
-/** One "More on this topic" link - a title and the URL it points to. */
+/** One "More on this topic" link - a title, an optional second line, and the URL it opens. */
 export interface RelatedSourceView {
   readonly title: string;
+  readonly subtitle: string | null;
   readonly url: string;
 }
 

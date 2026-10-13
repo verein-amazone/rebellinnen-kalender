@@ -3,9 +3,11 @@
  * data-layer gateway type directly (enforced by the `view/**` → `data/**` ESLint boundary).
  */
 export interface ImageCreditView {
+  readonly id: string;
   readonly path: string;
   readonly title: string;
-  readonly creator: string;
+  /** Absent when who made the picture is unknown. */
+  readonly creator?: string;
   readonly sourceUrl?: string;
   readonly source?: string;
   readonly license: string;

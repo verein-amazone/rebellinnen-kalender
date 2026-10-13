@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 
 import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
 import { CREATE_SCHEMA } from './019-create-schema';
+import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -124,6 +125,79 @@ describe('MIGRATIONS', () => {
     expect(indexes.map((index) => index.name)).toContain('idx_reminders_order');
 
     database.close();
+  });
+
+  describe('version 20 over a version 19 database', () => {
+    /** A 1.0.0 database with a content item in the old shape and a bookmark on it. */
+    async function versionNineteenDatabase(): Promise<InMemorySqliteDatabase> {
+      const database = new InMemorySqliteDatabase();
+      await database.run('PRAGMA foreign_keys = ON;');
+      database.migrate([CREATE_SCHEMA]);
+      await database.run(
+        `INSERT INTO content_items (id, kind, title, teaser, body_markdown, image_path,
+          image_attribution, image_alt, daily_render, eligible_for_daily, related_sources)
+         VALUES ('reb-09', 'rebellin', 'Ada Lovelace', 'Teaser', 'Text', '/content/reb-09.webp',
+          'Bild: Alfred Edward Chalon', 'Gemaltes Porträt', 'image', 1, '[]')`,
+      );
+      await database.run(
+        `INSERT INTO bookmarks (content_item_id, created_at) VALUES ('reb-09', '2026-10-01')`,
+      );
+      return database;
+    }
+
+    it('names the picture by its image id and drops the columns the image catalog replaced', async () => {
+      const database = await versionNineteenDatabase();
+      database.migrate([REBUILD_CONTENT_ITEMS]);
+
+      expect(await columnNames(database, 'content_items')).toEqual([
+        'id',
+        'kind',
+        'title',
+        'teaser',
+        'body_markdown',
+        'hero_image_id',
+        'source_label',
+        'source_url',
+        'valid_from',
+        'valid_to',
+        'eligible_for_daily',
+        'related_sources',
+      ]);
+      expect(await tableNames(database)).toEqual(TABLES);
+
+      database.close();
+    });
+
+    it('keeps the content and the bookmarks on it, still bound to their item', async () => {
+      const database = await versionNineteenDatabase();
+      database.migrate([REBUILD_CONTENT_ITEMS]);
+      database.migrate([REBUILD_CONTENT_ITEMS]);
+
+      expect(
+        await database.query(
+          `SELECT id, title, hero_image_id, eligible_for_daily FROM content_items`,
+        ),
+      ).toEqual([
+        {
+          id: 'reb-09',
+          title: 'Ada Lovelace',
+          // Filled by the catalog sync, which the catalog version shipping with it triggers.
+          hero_image_id: null,
+          eligible_for_daily: 1,
+        },
+      ]);
+      expect(await database.query(`SELECT * FROM bookmarks`)).toEqual([
+        { content_item_id: 'reb-09', created_at: '2026-10-01' },
+      ]);
+      expect(
+        await database.query<{ readonly table: string }>(`PRAGMA foreign_key_list(bookmarks)`),
+      ).toEqual([expect.objectContaining({ table: 'content_items' })]);
+      await expect(async () =>
+        database.run(`INSERT INTO bookmarks (content_item_id, created_at) VALUES ('gone', 'x')`),
+      ).rejects.toThrow('FOREIGN KEY');
+
+      database.close();
+    });
   });
 
   describe('over a pre-release database', () => {

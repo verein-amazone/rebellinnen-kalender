@@ -227,7 +227,7 @@ Images, photographs, editorial content and other media assets are not
 covered by the MIT License. Each asset is subject to its own licence or
 permission terms. Image licence and attribution information is documented
 in the image attribution data included in this repository
-([public/image-attributions.json](./public/image-attributions.json)).
+([public/content/images.json](./public/content/images.json)).
 
 No permission to reuse an asset should be assumed beyond the licence or
 permission explicitly documented for that asset.

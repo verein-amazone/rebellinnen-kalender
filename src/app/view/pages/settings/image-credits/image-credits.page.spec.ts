@@ -8,7 +8,8 @@ import { ImageCreditsPage } from './image-credits.page';
 
 function attribution(overrides: Partial<ImageCreditView> = {}): ImageCreditView {
   return {
-    path: '/content/wissensimpulse/wi-01.webp',
+    id: 'menstruation-hormone-zyklus',
+    path: '/content/images/menstruation-hormone-zyklus.webp',
     title: 'Menstruation, Hormone & Zyklus',
     creator: 'Verein Amazone',
     source: 'Verein Amazone',
@@ -69,11 +70,41 @@ describe('ImageCreditsPage', () => {
 
   it('shows the credited image itself alongside its credit', async () => {
     const { element } = await setup({
-      items: [attribution({ path: '/content/rebellinnen/reb-01.webp' })],
+      items: [attribution({ id: 'hedy-lamarr', path: '/content/images/hedy-lamarr.webp' })],
     });
 
-    const image = element.querySelector('img[src="/content/rebellinnen/reb-01.webp"]');
+    const image = element.querySelector('img[src="/content/images/hedy-lamarr.webp"]');
     expect(image).not.toBeNull();
+  });
+
+  it('says so when who made a picture is unknown', async () => {
+    const { element } = await setup({ items: [attribution({ creator: undefined })] });
+
+    expect(element.textContent).toContain('Urheber*in unbekannt');
+  });
+
+  it('lists the changes made to a picture in German', async () => {
+    const { element } = await setup({
+      items: [attribution({ changes: ['resized', 'cropped', 'converted to WebP'] })],
+    });
+
+    expect(element.textContent).toContain(
+      'Änderungen: verkleinert, zugeschnitten, in WebP umgewandelt',
+    );
+  });
+
+  it('shows the source as a link when it has an address, and as text otherwise', async () => {
+    const { element } = await setup({
+      items: [
+        attribution({ id: 'a', sourceUrl: 'https://commons.wikimedia.org/wiki/File:A.jpg' }),
+        attribution({ id: 'b', source: 'Verein Amazone' }),
+      ],
+    });
+
+    expect(
+      element.querySelector('a[href="https://commons.wikimedia.org/wiki/File:A.jpg"]'),
+    ).not.toBeNull();
+    expect(element.textContent).toContain('Quelle: Verein Amazone');
   });
 
   it('shows a fallback when there are no credited images', async () => {

@@ -5,10 +5,21 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
- * "Bildnachweise" (#11): every image bundled with the app, credited from
- * `public/image-attributions.json` - the central attribution data source (see that file's
- * neighbouring `public/content/README.md`). Loaded as a local asset, so this works offline; the
- * source and licence links only resolve while a connection is available.
+ * The image catalog records each change in English, as the licences' own wording expects; the
+ * screen says it in German. A change without an entry here is shown as recorded.
+ */
+const CHANGE_LABELS: Readonly<Record<string, string>> = {
+  resized: 'verkleinert',
+  cropped: 'zugeschnitten',
+  'converted to WebP': 'in WebP umgewandelt',
+};
+
+/**
+ * "Bildnachweise" (#11): every image bundled with the app, with its full attribution - creator,
+ * licence, source and changes - from the image catalog `public/content/images.json` (see
+ * `public/content/README.md`). The content screens only show creator and licence under a picture;
+ * this is where the rest is. Loaded as a local asset, so this works offline; the source and licence
+ * links only resolve while a connection is available.
  */
 @Component({
   selector: 'app-settings-image-credits',
@@ -22,5 +33,10 @@ export class ImageCreditsPage {
 
   private readonly data = resource({ loader: () => this.legalContent.imageAttributions() });
 
-  protected readonly items = computed(() => valueOr(this.data, []));
+  protected readonly items = computed(() =>
+    valueOr(this.data, []).map((item) => ({
+      ...item,
+      changesLabel: item.changes.map((change) => CHANGE_LABELS[change] ?? change).join(', '),
+    })),
+  );
 }

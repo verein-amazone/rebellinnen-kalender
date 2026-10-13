@@ -14,9 +14,7 @@ interface ContentItemRow {
   readonly title: string;
   readonly teaser: string;
   readonly body_markdown: string;
-  readonly image_path: string | null;
-  readonly image_alt: string | null;
-  readonly image_attribution: string | null;
+  readonly hero_image_id: string | null;
   readonly source_label: string | null;
   readonly source_url: string | null;
   readonly related_sources: string | null;
@@ -25,13 +23,8 @@ interface ContentItemRow {
   readonly eligible_for_daily: number;
 }
 
-/**
- * Every column the app reads and writes. `daily_render` is left out on purpose: the daily impulse
- * always leads with its picture now, and the column stays in the table only because a column cannot
- * be dropped in a migration that has to be safe to run twice (see `migrations.spec.ts`).
- */
-const COLUMNS = `id, kind, title, teaser, body_markdown, image_path, image_alt, image_attribution,
-  source_label, source_url, related_sources, valid_from, valid_to, eligible_for_daily`;
+const COLUMNS = `id, kind, title, teaser, body_markdown, hero_image_id, source_label, source_url,
+  related_sources, valid_from, valid_to, eligible_for_daily`;
 
 /**
  * Table access for curated content items. No business rules live here - the daily-selection logic
@@ -99,7 +92,7 @@ export class ContentItemDao {
     if (existing === null) {
       await executor.run(
         `INSERT INTO content_items (${COLUMNS})
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         toValues(record),
       );
       return;
@@ -107,18 +100,15 @@ export class ContentItemDao {
 
     await executor.run(
       `UPDATE content_items
-       SET kind = ?, title = ?, teaser = ?, body_markdown = ?, image_path = ?, image_alt = ?,
-           image_attribution = ?, source_label = ?, source_url = ?, related_sources = ?,
-           valid_from = ?, valid_to = ?, eligible_for_daily = ?
+       SET kind = ?, title = ?, teaser = ?, body_markdown = ?, hero_image_id = ?, source_label = ?,
+           source_url = ?, related_sources = ?, valid_from = ?, valid_to = ?, eligible_for_daily = ?
        WHERE id = ?`,
       [
         record.kind,
         record.title,
         record.teaser,
         record.bodyMarkdown,
-        record.imagePath,
-        record.imageAlt,
-        record.imageAttribution,
+        record.heroImageId,
         record.sourceLabel,
         record.sourceUrl,
         serializeRelatedSources(record.relatedSources),
@@ -142,9 +132,7 @@ function toValues(record: ContentItemRecord): SqlValue[] {
     record.title,
     record.teaser,
     record.bodyMarkdown,
-    record.imagePath,
-    record.imageAlt,
-    record.imageAttribution,
+    record.heroImageId,
     record.sourceLabel,
     record.sourceUrl,
     serializeRelatedSources(record.relatedSources),
@@ -161,9 +149,7 @@ function toRecord(row: ContentItemRow): ContentItemRecord {
     title: row.title,
     teaser: row.teaser,
     bodyMarkdown: row.body_markdown,
-    imagePath: row.image_path ?? null,
-    imageAlt: row.image_alt ?? null,
-    imageAttribution: row.image_attribution ?? null,
+    heroImageId: row.hero_image_id ?? null,
     sourceLabel: row.source_label ?? null,
     sourceUrl: row.source_url ?? null,
     relatedSources: deserializeRelatedSources(row.related_sources),

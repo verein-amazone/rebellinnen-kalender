@@ -13,9 +13,7 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     title: 'Was tut dir gut?',
     teaser: 'Wir haben ein paar Ideen für dich!',
     bodyMarkdown: '- Ein Bad nehmen\n- Spazieren gehen',
-    imagePath: null,
-    imageAlt: null,
-    imageAttribution: 'Verein Amazone',
+    heroImageId: null,
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
@@ -66,9 +64,9 @@ describe('ContentItemDao', () => {
   it('round-trips an inserted item exactly', async () => {
     await database.run(`DELETE FROM content_items`);
     await database.run(
-      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, image_path,
-        image_attribution, source_label, source_url, valid_from, valid_to, eligible_for_daily)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, hero_image_id,
+        source_label, source_url, valid_from, valid_to, eligible_for_daily)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         'item-1',
         'wissensimpulse',
@@ -76,7 +74,6 @@ describe('ContentItemDao', () => {
         'Wir haben ein paar Ideen für dich!',
         '- Ein Bad nehmen\n- Spazieren gehen',
         null,
-        'Verein Amazone',
         null,
         null,
         null,
@@ -91,8 +88,12 @@ describe('ContentItemDao', () => {
   it('round-trips related sources through upsert and findById', async () => {
     await database.run(`DELETE FROM content_items`);
     const relatedSources = [
-      { title: 'Vertiefender Artikel', url: 'https://www.example.org/artikel' },
-      { title: 'Studie', url: 'https://example.com/studie' },
+      {
+        title: 'Vertiefender Artikel',
+        subtitle: 'example.org',
+        url: 'https://www.example.org/artikel',
+      },
+      { title: 'Studie', subtitle: null, url: 'https://example.com/studie' },
     ];
 
     await dao.upsert(record({ id: 'with-sources', relatedSources }));

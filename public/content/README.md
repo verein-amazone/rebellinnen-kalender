@@ -8,22 +8,20 @@ adding a new item (catalog entry, image conversion, licensing). Short version be
 the `content_items` table at runtime. Bump `version` whenever `items` changes; the sync only does
 its diff-and-write work when the stored version is stale.
 
-Every entry carries an `imageAlt`: a German description of what its picture shows, for people who
-cannot see it. It is the image's `alt` text and is not the same thing as `imageAttribution`, which
-credits the image and is only ever shown as a visible caption. An entry may also carry
-`dailyRender: "image"` to say that its picture, rather than its teaser, should lead the Today card.
+An entry names its picture by `heroImageId` only. Everything about the picture - what it shows
+(`alt`), who made it, its source and licence - is recorded once in [`images.json`](./images.json),
+the image catalog, under the image's own `id`.
 
-`wissensimpulse/<id>.webp` and `rebellinnen/<id>.webp` are the matching images, one per catalog
-entry with an `id`, converted from the original source photos/illustrations via `ffmpeg` (resize)
-and `cwebp` (encode) - this machine's `ffmpeg` build has no `libwebp` support, hence the two-step
-pipeline. The image path is never stored in `catalog.json`; it's derived from `kind` and `id`.
+`images/<image id>.webp` are the images, converted from the original source photos/illustrations
+via `ffmpeg` (resize) and `cwebp` (encode) - this machine's `ffmpeg` build has no `libwebp` support,
+hence the two-step pipeline. The file path is never written down; it follows from the image `id`.
 
 ## Licensing
 
 These images are **not** covered by the repository's MIT License (see [../../LICENSE](../../LICENSE)
 and the [README's Licensing section](../../README.md#licensing)). Every image's licence, source and
-attribution is tracked in [`../image-attributions.json`](../image-attributions.json), one entry per
-`path`, shown to users under Settings → Lizenzen & Impressum → Bildnachweise. Per
+attribution and its description are tracked in [`images.json`](./images.json), one entry per image
+`id`, shown to users under Settings → Lizenzen & Impressum → Bildnachweise. Per
 [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11), an image only belongs
 in this directory once its entry's rights are actually clarified - do not add an image here on the
 assumption that clarification will follow later.

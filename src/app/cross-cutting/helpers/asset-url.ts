@@ -11,9 +11,8 @@
  * A path rather than an absolute URL on purpose: an absolute one would carry the WebView's
  * `capacitor://` scheme on iOS, which Angular's URL sanitizer rejects in an `[src]` binding.
  *
- * The leading slash of the argument is optional, so a stored value such as the `imagePath` of a
- * content item (`/content/…`, written to SQLite long before the deployment was known) resolves the
- * same way a literal does.
+ * The leading slash of the argument is optional, so a derived path such as an image's
+ * (`/content/images/…`, built without knowing the deployment) resolves the same way a literal does.
  */
 export function assetUrl(path: string): string {
   return new URL(path.replace(/^\/+/, ''), document.baseURI).pathname;

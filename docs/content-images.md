@@ -12,8 +12,8 @@ Everything below in the form you can forward as-is:
 > - **At least 1440 × 1080 pixels.** Larger is always better; the original size is ideal.
 > - **JPEG or PNG at full quality**, straight out of the camera or the design tool. Not
 >   WebP, not a screenshot, and not a copy that has been through a messaging app.
-> - **Three notes per image:** a description of what it shows, the credit line, and one
->   line on where the right to use it comes from.
+> - **Three notes per image:** a description of what it shows, who made it (the name to
+>   credit), and one line on where the right to use it comes from.
 
 ## Where the numbers come from
 
@@ -57,11 +57,11 @@ text is unavoidable, ask for it separately as plain text so it can be rendered a
 
 Each one lands somewhere specific; none of them is optional.
 
-| Ask for                               | Lands in                                     | Notes                                                                                                          |
-| ------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| A description of what the image shows | `imageAlt` in `public/content/catalog.json`  | German, one or two sentences. Describes the picture, never the credit. Read aloud to people who cannot see it. |
-| The credit line                       | `imageAttribution` in the same entry         | Shown as a visible caption. Never used as alt text.                                                            |
-| Where the usage right comes from      | An entry in `public/image-attributions.json` | Creator, source, licence. Surfaced under Settings → Lizenzen & Impressum → Bildnachweise.                      |
+| Ask for                               | Lands in                                             | Notes                                                                                                          |
+| ------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| A description of what the image shows | `alt` in its entry in `public/content/images.json`   | German, one or two sentences. Describes the picture, never the credit. Read aloud to people who cannot see it. |
+| Who made it                           | `creator` in the same entry                          | With the licence, the visible caption `Bild: <creator>, <license>`. Never used as alt text.                    |
+| Where the usage right comes from      | `source`/`sourceUrl` and `license` in the same entry | Surfaced under Settings → Lizenzen & Impressum → Bildnachweise.                                                |
 
 The third one is the one that gets forgotten, and it is the one that blocks. Per
 [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11) an image only

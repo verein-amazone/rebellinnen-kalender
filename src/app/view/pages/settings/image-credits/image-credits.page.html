@@ -1,11 +1,13 @@
 <app-focused-screen heading="Bildnachweise" fallbackLink="/settings/about">
   @if (items().length > 0) {
     <ul class="space-y-3">
-      @for (item of items(); track item.path) {
+      @for (item of items(); track item.id) {
         <li class="rk-card flex items-start gap-3 px-4 py-4">
           <div class="min-w-0 flex-1 space-y-1">
             <p class="font-bold">{{ item.title }}</p>
-            <p class="text-muted-foreground text-sm">{{ item.creator }}</p>
+            <p class="text-muted-foreground text-sm">
+              {{ item.creator ?? 'Urheber*in unbekannt' }}
+            </p>
 
             <p class="text-muted-foreground text-sm">
               @if (item.licenseUrl; as licenseUrl) {
@@ -36,8 +38,8 @@
               <p class="text-muted-foreground text-sm">Quelle: {{ source }}</p>
             }
 
-            @if (item.changes.length > 0) {
-              <p class="text-muted-foreground text-xs">Änderungen: {{ item.changes.join(', ') }}</p>
+            @if (item.changesLabel) {
+              <p class="text-muted-foreground text-xs">Änderungen: {{ item.changesLabel }}</p>
             }
           </div>
 

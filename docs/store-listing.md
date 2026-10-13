@@ -88,7 +88,7 @@ Things to know:
   macOS. Regenerate them on a Mac, so a diff shows real changes only.
 - **Pick content whose images may be shown in a store.** The screenshots show only Rebell\*innen
   whose portraits are in the public domain and Wissensimpulse illustrated by Verein Amazone itself
-  (`public/image-attributions.json`). Other portraits carry licences - CC BY-NC-ND, CC BY-SA - that
+  (`public/content/images.json`). Other portraits carry licences - CC BY-NC-ND, CC BY-SA - that
   do not obviously allow a promotional screenshot.
 - The developer tools stay off screen: no screenshot shows the settings overview, which has the
   „Entwicklung“ section in a release candidate.
