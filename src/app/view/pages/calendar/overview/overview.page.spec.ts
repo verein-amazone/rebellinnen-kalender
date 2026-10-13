@@ -50,6 +50,7 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
 
 class FakeCalendarOccurrencesInteractor {
   items: CalendarOccurrence[] = [];
+  failure: Error | null = null;
   readonly calls: { fromDay: string; toDay: string; filter?: OccurrenceFilter }[] = [];
 
   listForDays(
@@ -58,7 +59,7 @@ class FakeCalendarOccurrencesInteractor {
     filter?: OccurrenceFilter,
   ): Promise<CalendarOccurrence[]> {
     this.calls.push({ fromDay, toDay, filter });
-    return Promise.resolve(this.items);
+    return this.failure === null ? Promise.resolve(this.items) : Promise.reject(this.failure);
   }
 }
 
@@ -123,9 +124,11 @@ async function setup(
   inputs: { view?: string; day?: string } = {},
   items: CalendarOccurrence[] = [],
   filterableCalendars: CalendarFilterOption[] = [],
+  failure: Error | null = null,
 ): Promise<Setup> {
   const interactor = new FakeCalendarOccurrencesInteractor();
   interactor.items = items;
+  interactor.failure = failure;
   const filters = new FakeCalendarFiltersInteractor();
   filters.calendars = filterableCalendars;
   const haptics = new FakeHapticsInteractor();
@@ -198,6 +201,22 @@ describe('CalendarOverviewPage', () => {
     expect(interactor.calls).toEqual([{ fromDay: '2026-08-03', toDay: '2026-08-09' }]);
     expect(element.textContent).toContain('3.\u00a0– 9. August 2026');
     expect(element.querySelectorAll('h1')).toHaveLength(1);
+  });
+
+  it('offers a retry instead of a broken screen when the appointments cannot be loaded', async () => {
+    const { element, interactor, whenStable } = await setup({}, [], [], new Error('closed'));
+
+    const retry = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Erneut versuchen'),
+    );
+    expect(element.textContent).toContain('Die Termine konnten nicht geladen werden.');
+    expect(retry).toBeDefined();
+
+    interactor.failure = null;
+    retry!.click();
+    await whenStable();
+
+    expect(element.textContent).not.toContain('Die Termine konnten nicht geladen werden.');
   });
 
   it('loads the full grid range in month view', async () => {

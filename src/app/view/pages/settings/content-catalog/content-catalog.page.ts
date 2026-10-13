@@ -17,6 +17,7 @@ import {
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { DailyImpulseInteractor } from '@app/interactors/daily-content/daily-impulse.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * Developer-only listing of every curated content item, for clicking through the full catalog
@@ -48,7 +49,7 @@ export class ContentCatalogPage {
     loader: () => this.contentItems.listAll(),
   });
 
-  protected readonly items = computed<ContentItemView[]>(() => this.data.value() ?? []);
+  protected readonly items = computed<ContentItemView[]>(() => valueOr(this.data, []));
 
   /** A load in flight is not an empty catalog, and on this page the difference matters. */
   protected readonly loading = computed(() => this.data.status() === 'loading');

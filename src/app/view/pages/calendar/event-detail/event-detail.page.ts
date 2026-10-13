@@ -20,6 +20,7 @@ import {
   LucideExternalLink,
   LucidePencil,
   LucideRepeat,
+  LucideRotateCw,
   LucideTrash2,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
@@ -51,6 +52,7 @@ import {
   type RecurrenceScope,
   type RecurrenceScopeDialogData,
 } from '@app/view/dialogs/recurrence-scope/recurrence-scope.dialog';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * The appointment detail screen: a read view built from `CalendarOccurrence`, an in-place edit
@@ -74,6 +76,7 @@ import {
     LucideExternalLink,
     LucidePencil,
     LucideRepeat,
+    LucideRotateCw,
     LucideTrash2,
   ],
   templateUrl: './event-detail.page.html',
@@ -125,7 +128,7 @@ export class EventDetailPage {
     loader: ({ params }) => this.occurrencesInteractor.findById(params),
   });
 
-  protected readonly occurrence = computed(() => this.occurrenceResource.value() ?? null);
+  protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
 
   /**
    * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a
@@ -138,21 +141,23 @@ export class EventDetailPage {
     loader: ({ params }) => this.eventEditing.findRecord(params),
   });
 
-  protected readonly note = computed(() => this.recordResource.value()?.note ?? null);
-  protected readonly rrule = computed(() => this.recordResource.value()?.rrule ?? null);
+  protected readonly note = computed(() => valueOr(this.recordResource, undefined)?.note ?? null);
+  protected readonly rrule = computed(() => valueOr(this.recordResource, undefined)?.rrule ?? null);
   /** The start the series' rule is anchored on; `null` for a standalone appointment. */
   protected readonly seriesStart = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     return record?.rrule ? record.start : null;
   });
-  protected readonly reminders = computed(() => this.recordResource.value()?.reminders ?? null);
+  protected readonly reminders = computed(
+    () => valueOr(this.recordResource, undefined)?.reminders ?? null,
+  );
 
   /**
    * „15 Minuten vorher, 1 Stunde vorher“ for an app-owned appointment while reminders are on -
    * the appointment's own list or the defaults it follows. `null` when nothing will remind.
    */
   protected readonly reminderSummary = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     const occurrence = this.occurrence();
     if (
       record === undefined ||
@@ -176,7 +181,7 @@ export class EventDetailPage {
 
   /** „Jede Woche am Montag“ for an app-owned series; `null` for anything else. */
   protected readonly recurrenceSummary = computed(() => {
-    const record = this.recordResource.value();
+    const record = valueOr(this.recordResource, undefined);
     return record?.rrule ? describeStoredRecurrence(record.rrule, record.start) : null;
   });
 

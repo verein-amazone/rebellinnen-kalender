@@ -150,6 +150,14 @@
         (save)="handleSave($event)"
       />
     }
+  } @else if (occurrenceResource.error() !== undefined) {
+    <div class="rk-card space-y-3 px-4 py-6 text-center">
+      <p>Der Termin konnte nicht geladen werden.</p>
+      <button type="button" class="rk-button rk-button-ghost" (click)="occurrenceResource.reload()">
+        <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+        <span>Erneut versuchen</span>
+      </button>
+    </div>
   } @else {
     <div class="rk-card p-4">
       <p class="text-muted-foreground">Dieser Termin konnte nicht gefunden werden.</p>

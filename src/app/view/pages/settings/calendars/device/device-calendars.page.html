@@ -1,7 +1,7 @@
 <app-focused-screen heading="Gerätekalender" fallbackLink="/settings/calendars">
   <div class="space-y-6">
     @if (isNativePlatform) {
-      @if (deviceResource.value(); as snapshot) {
+      @if (deviceResource.hasValue() && deviceResource.value(); as snapshot) {
         @if (snapshot.source === null) {
           @if (lastPermission() === 'denied') {
             <p class="text-muted-foreground text-sm">
@@ -134,6 +134,14 @@
             <span>Verbindung trennen</span>
           </button>
         }
+      } @else if (deviceResource.error() !== undefined) {
+        <div class="rk-card space-y-3 px-4 py-6 text-center">
+          <p>Die Gerätekalender konnten nicht geladen werden.</p>
+          <button type="button" class="rk-button rk-button-ghost" (click)="deviceResource.reload()">
+            <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+            <span>Erneut versuchen</span>
+          </button>
+        </div>
       } @else {
         <!-- Shaped like a device-calendar group: a heading line, two toggle rows. -->
         <div class="space-y-2" aria-hidden="true">

@@ -108,6 +108,14 @@
         </div>
       }
     </div>
+  } @else if (loadFailed()) {
+    <div class="rk-card space-y-3 px-4 py-6 text-center">
+      <p>Der Inhalt konnte nicht geladen werden.</p>
+      <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
+        <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+        <span>Erneut versuchen</span>
+      </button>
+    </div>
   } @else {
     <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
   }

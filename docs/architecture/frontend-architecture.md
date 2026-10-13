@@ -336,7 +336,13 @@ this.items.reload();
 ```
 
 `reload()` keeps the previous value while the new one loads, so a list does not blink through its
-empty state. The cache stays in the view on purpose: interactors are stateless, and `data/stores/` is
+empty state.
+
+**Never read `value()` of a resource unguarded.** In the error state it throws `ResourceValueError`,
+and `value() ?? []` does not catch that: the throw escapes the computed or the template binding, and
+the screen's own „Erneut versuchen“ branch never renders. Read it through `valueOr(resource,
+fallback)` from `cross-cutting/helpers/resource-value.ts`, or behind `hasValue()`, and give every
+screen that loads something an `error()` branch with a retry. The cache stays in the view on purpose: interactors are stateless, and `data/stores/` is
 for small scalars rather than a signal cache over a table. Promote it into the data layer when a
 second screen needs the same list - and amend
 [data-persistence.md](./data-persistence.md) when you do.

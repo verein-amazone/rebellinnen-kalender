@@ -11,6 +11,7 @@ import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { LegalContentInteractor } from '@app/interactors/settings/legal-content.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * "Datenschutz" (#79): the app's own privacy policy, bundled as `public/legal/datenschutz.md` so it
@@ -38,5 +39,5 @@ export class PrivacyPage {
 
   private readonly data = resource({ loader: () => this.legalContent.privacyPolicy() });
 
-  protected readonly markdown = computed(() => this.data.value() ?? null);
+  protected readonly markdown = computed(() => valueOr(this.data, null));
 }

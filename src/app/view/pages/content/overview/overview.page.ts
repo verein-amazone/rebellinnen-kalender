@@ -27,6 +27,7 @@ import {
 } from '@app/view/blocks/content-kind-filter/content-kind-filter.block';
 import { SupportServiceCardBlock } from '@app/view/blocks/support-service-card/support-service-card.block';
 import { SupportServiceRegionFilterBlock } from '@app/view/blocks/support-service-region-filter/support-service-region-filter.block';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 type ContentArea = 'services' | 'collection';
 
@@ -113,7 +114,7 @@ export class ContentOverviewPage {
     params: () => ({ version: this.bookmarkChanges.version() }),
     loader: () => this.bookmarks.listSavedItems(),
   });
-  protected readonly savedItems = computed(() => this.savedData.value() ?? []);
+  protected readonly savedItems = computed(() => valueOr(this.savedData, []));
   protected readonly hasSavedItems = computed(() => this.savedItems().length > 0);
   protected readonly kindLabel = contentKindLabel;
 
@@ -153,7 +154,7 @@ export class ContentOverviewPage {
   protected readonly regionsData = resource({
     loader: () => this.supportServices.listRegions(),
   });
-  protected readonly regions = computed(() => this.regionsData.value() ?? []);
+  protected readonly regions = computed(() => valueOr(this.regionsData, []));
   protected readonly servicesLoading = computed(
     () => this.regionsData.status() === 'loading' || this.servicesData.status() === 'loading',
   );
@@ -175,7 +176,7 @@ export class ContentOverviewPage {
       return [];
     }
 
-    return (this.servicesData.value() ?? []).filter((service) => service.region === region);
+    return valueOr(this.servicesData, []).filter((service) => service.region === region);
   });
 
   protected selectRegion(regionId: string): void {

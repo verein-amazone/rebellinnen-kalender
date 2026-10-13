@@ -131,7 +131,7 @@
               Änderbar in den Einstellungen.
             </p>
           </div>
-          @if (calendars.value(); as sources) {
+          @if (calendars.hasValue() && calendars.value(); as sources) {
             @if (sources.length > 0) {
               <ul class="rk-list text-left">
                 @for (source of sources; track source.id) {

@@ -16,6 +16,7 @@ import {
   type CalendarIdentityEditResult,
 } from '@app/view/dialogs/calendar-identity-edit/calendar-identity-edit.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * „Kalender verwalten“ (#20): the app calendar's identity editor, plus links into the
@@ -54,8 +55,9 @@ export class CalendarsPage {
   /** Only ever one row today - there is no "add another app calendar" flow yet. */
   protected readonly appCalendar = computed(
     () =>
-      this.appCalendarsResource.value()?.find((calendar) => calendar.sourceType !== 'device') ??
-      null,
+      valueOr(this.appCalendarsResource, undefined)?.find(
+        (calendar) => calendar.sourceType !== 'device',
+      ) ?? null,
   );
 
   protected async editAppCalendarIdentity(): Promise<void> {

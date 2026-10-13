@@ -10,6 +10,7 @@ import {
   LucideBookmark,
   LucideBookmarkCheck,
   LucideExternalLink,
+  LucideRotateCw,
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
@@ -31,6 +32,7 @@ import {
   type ConfirmationDialogData,
 } from '@app/view/dialogs/confirmation/confirmation.dialog';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /** One related-source link, with its publisher/domain derived for display (#22). */
 export interface RelatedSourceRow {
@@ -57,6 +59,7 @@ export interface RelatedSourceRow {
     LucideBookmark,
     LucideBookmarkCheck,
     LucideExternalLink,
+    LucideRotateCw,
     LucideSparkles,
     LucideUsers,
   ],
@@ -94,8 +97,14 @@ export class ContentDetailPage {
     },
   });
 
-  protected readonly item = computed<ContentItemView | null>(() => this.data.value()?.item ?? null);
-  protected readonly bookmarked = computed(() => this.data.value()?.bookmarked ?? false);
+  protected readonly item = computed<ContentItemView | null>(
+    () => valueOr(this.data, undefined)?.item ?? null,
+  );
+  protected readonly bookmarked = computed(
+    () => valueOr(this.data, undefined)?.bookmarked ?? false,
+  );
+
+  protected readonly loadFailed = computed(() => this.data.error() !== undefined);
 
   protected readonly heading = computed(() => this.item()?.title ?? 'Inhalt');
 
@@ -111,6 +120,10 @@ export class ContentDetailPage {
   protected readonly bookmarkActionLabel = computed(() =>
     this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
   );
+
+  protected reload(): void {
+    this.data.reload();
+  }
 
   protected async toggleBookmark(): Promise<void> {
     const current = this.item();

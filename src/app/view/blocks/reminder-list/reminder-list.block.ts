@@ -42,6 +42,7 @@ import {
   ReminderEditDialog,
   type ReminderEditDialogData,
 } from '@app/view/dialogs/reminder-edit/reminder-edit.dialog';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /** What a row's menu can do. The menu emits one of these; the block turns it into a use case. */
 export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
@@ -113,7 +114,7 @@ export class ReminderListBlock {
    */
   private readonly ordered = signal<readonly Reminder[] | null>(null);
 
-  protected readonly entries = computed(() => this.ordered() ?? this.items.value() ?? []);
+  protected readonly entries = computed(() => this.ordered() ?? valueOr(this.items, []));
 
   protected readonly openItems = computed(() => this.entries().filter((item) => !item.completed));
   protected readonly doneItems = computed(() => this.entries().filter((item) => item.completed));

@@ -38,6 +38,7 @@ import {
 import { CalendarSourceFilterBlock } from '@app/view/blocks/calendar-source-filter/calendar-source-filter.block';
 
 import { HorizontalSwipeDirective } from './horizontal-swipe.directive';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 type ViewMode = 'week' | 'month';
 
@@ -101,7 +102,7 @@ export class CalendarOverviewPage {
     void this.deviceCalendarSync.refresh().then((refreshed) => {
       if (refreshed) {
         this.occurrences.reload();
-        this.filterableCalendars.reload();
+        this.filterableCalendarsResource.reload();
       }
     });
   }
@@ -121,9 +122,13 @@ export class CalendarOverviewPage {
     return day !== undefined && isPlainDate(day) ? day : this.today();
   });
 
-  protected readonly filterableCalendars = resource({
+  private readonly filterableCalendarsResource = resource({
     loader: () => this.calendarFilters.listFilterable(),
   });
+
+  protected readonly filterableCalendars = computed(() =>
+    valueOr(this.filterableCalendarsResource, []),
+  );
 
   /**
    * Owned by the interactor and persisted there, so hiding a calendar survives a tab switch and an
@@ -133,7 +138,7 @@ export class CalendarOverviewPage {
 
   /** Every filterable calendar is hidden - the agenda swaps its empty state for an explanation. */
   protected readonly allSourcesHidden = computed(() => {
-    const calendars = this.filterableCalendars.value() ?? [];
+    const calendars = this.filterableCalendars();
 
     return calendars.length > 0 && calendars.every((c) => this.hiddenCalendarIds().has(c.id));
   });
@@ -164,7 +169,7 @@ export class CalendarOverviewPage {
    * height and reset the scroll position - exactly the "layout jumps to the top" bug this avoids.
    */
   protected readonly loadedOccurrences = computed<readonly CalendarOccurrence[]>(() => {
-    const all = this.occurrences.value() ?? [];
+    const all = valueOr(this.occurrences, []);
     const hidden = this.hiddenCalendarIds();
 
     return hidden.size === 0 ? all : all.filter((occurrence) => !hidden.has(occurrence.calendarId));

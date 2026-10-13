@@ -7,7 +7,7 @@
         werden von Verein Amazone und Partnerorganisationen gepflegt.
       </p>
 
-      @if (curatedResource.value(); as sources) {
+      @if (curatedResource.hasValue() && curatedResource.value(); as sources) {
         @if (sources.length > 0) {
           <ul class="rk-list">
             @for (source of sources; track source.id) {
@@ -67,6 +67,18 @@
         } @else {
           <p class="text-muted-foreground text-sm">Derzeit sind keine Kalender verfügbar.</p>
         }
+      } @else if (curatedResource.error() !== undefined) {
+        <div class="rk-card space-y-3 px-4 py-6 text-center">
+          <p>Die Kalender konnten nicht geladen werden.</p>
+          <button
+            type="button"
+            class="rk-button rk-button-ghost"
+            (click)="curatedResource.reload()"
+          >
+            <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+            <span>Erneut versuchen</span>
+          </button>
+        </div>
       }
     } @else {
       <p class="text-muted-foreground text-sm">

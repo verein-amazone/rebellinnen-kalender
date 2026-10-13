@@ -1,6 +1,6 @@
 <app-focused-screen heading="App-Symbol" fallbackLink="/settings">
   <div class="space-y-6">
-    @if (iconResource.value(); as snapshot) {
+    @if (iconResource.hasValue() && iconResource.value(); as snapshot) {
       @if (snapshot.available) {
         <fieldset class="space-y-2">
           <legend class="sr-only">App-Symbol wählen</legend>
@@ -32,6 +32,14 @@
           oder Tablet, um ein anderes Symbol zu wählen.
         </p>
       }
+    } @else if (iconResource.error() !== undefined) {
+      <div class="rk-card space-y-3 px-4 py-6 text-center">
+        <p>Das App-Symbol konnte nicht geladen werden.</p>
+        <button type="button" class="rk-button rk-button-ghost" (click)="iconResource.reload()">
+          <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+          <span>Erneut versuchen</span>
+        </button>
+      </div>
     } @else {
       <!-- Shaped like the option list: three rows with an icon preview and a label. -->
       <div class="space-y-2" aria-hidden="true">

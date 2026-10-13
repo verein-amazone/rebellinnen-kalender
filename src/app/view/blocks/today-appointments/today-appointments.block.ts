@@ -7,6 +7,7 @@ import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occu
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { selectUpcomingAppointments } from '@app/interactors/today/upcoming-appointments';
 import { OccurrenceCard } from '@app/view/components/occurrence-card/occurrence-card';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
  * The Today page's own appointments section: the next few of today's occurrences, a link to the
@@ -32,8 +33,8 @@ export class TodayAppointmentsBlock {
     loader: ({ params: day }) => this.occurrencesInteractor.listForDays(day, day),
   });
 
-  private readonly todayOccurrences = computed<readonly CalendarOccurrence[]>(
-    () => this.occurrences.value() ?? [],
+  private readonly todayOccurrences = computed<readonly CalendarOccurrence[]>(() =>
+    valueOr(this.occurrences, []),
   );
 
   /**

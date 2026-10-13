@@ -67,7 +67,11 @@ export function materializeAppItem(
   let generated: Temporal.ZonedDateTime[];
   try {
     rule = engineRule(item.start, item.rrule, context.timeZone);
-    generated = rule.between(new Date(context.windowStartUtc), new Date(context.windowEndUtc), true);
+    generated = rule.between(
+      new Date(context.windowStartUtc),
+      new Date(context.windowEndUtc),
+      true,
+    );
   } catch (error) {
     console.warn(`Could not expand the recurrence of series ${item.id}`, error);
     return { occurrences: [], truncated: true };
