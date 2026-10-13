@@ -13,6 +13,7 @@ import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calenda
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 
@@ -37,6 +38,9 @@ export class App {
   private destroyed = false;
 
   constructor() {
+    // Takes Android's back button over from the WebView history before the first press.
+    inject(HardwareBack);
+
     // Registered first thing: a tap on a reminder may be what launched the app, and the OS holds
     // that tap back only until a handler exists.
     this.reminders.onReminderTapped(

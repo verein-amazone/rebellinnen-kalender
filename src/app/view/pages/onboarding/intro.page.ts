@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   resource,
@@ -37,6 +38,7 @@ import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-av
 import { ChoiceRow } from '@app/view/components/choice-row/choice-row';
 import { ToggleField } from '@app/view/components/field/toggle-field';
 import { ThemeSwatch } from '@app/view/components/theme-swatch/theme-swatch';
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 
 type IntroStepId = 'welcome' | 'areas' | 'personal' | 'calendars' | 'privacy' | 'reminders';
 
@@ -226,6 +228,20 @@ export class IntroPage {
   );
 
   protected readonly destination = computed(() => safeInAppUrl(this.returnTo()) ?? '/today');
+
+  constructor() {
+    // Android's back button steps back through the introduction, like „Zurück“; on the first step
+    // nothing takes it, and the app goes to the background.
+    inject(DestroyRef).onDestroy(
+      inject(HardwareBack).register(() => {
+        if (this.isFirst()) {
+          return false;
+        }
+        this.back();
+        return true;
+      }),
+    );
+  }
 
   protected next(): void {
     if (this.isLast()) {

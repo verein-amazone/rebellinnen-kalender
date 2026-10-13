@@ -3,6 +3,8 @@ import { Location } from '@angular/common';
 import { Router, provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
+
 import { FocusedScreenScaffold } from './focused-screen.scaffold';
 
 @Component({ template: '<h1>Stub</h1>' })
@@ -102,6 +104,16 @@ describe('FocusedScreenScaffold', () => {
     const navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
 
     dismiss(element);
+    await fixture.whenStable();
+
+    expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });
+  });
+
+  it("dismisses on Android's back button the way the back arrow does", async () => {
+    const { fixture } = await setUp();
+    const navigateByUrlSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+
+    TestBed.inject(HardwareBack).press();
     await fixture.whenStable();
 
     expect(navigateByUrlSpy).toHaveBeenCalledWith('/today', { replaceUrl: true });

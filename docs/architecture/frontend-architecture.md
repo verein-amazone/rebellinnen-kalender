@@ -153,6 +153,24 @@ This keeps the back button, deep links and app restarts correct for free, and it
 not need a custom `RouteReuseStrategy`. Pages read such values through `withComponentInputBinding()`,
 which binds route parameters to signal inputs.
 
+#### Android's back button
+
+The WebView history is **not** what Android's back button or back gesture walks. Screens are left
+with `replaceUrl`, sheets are overlays rather than routes, and an edit view is a state of its page,
+so the history does not match what is on screen. `cross-cutting/infrastructure/hardware-back.ts`
+takes the button over instead (`App` instantiates it at startup) and asks registered handlers,
+newest first:
+
+- an open sheet closes, like Escape - and nothing behind it sees the press;
+- a focused screen dismisses exactly like its header's back arrow or cross, including
+  `beforeDismiss`, so an edit with changes asks before it is discarded;
+- the introduction steps back, like „Zurück“.
+
+When no handler takes it - a tab root, or the first introduction step - the app goes to the
+background, as Android's own first screens do. A new kind of overlay or in-page state that the back
+button should undo registers its own handler with `HardwareBack.register()` and removes it again on
+teardown.
+
 #### Focus and announcements
 
 `cross-cutting/infrastructure/page-focus.ts` handles this centrally; individual pages do not manage

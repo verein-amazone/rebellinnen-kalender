@@ -9,6 +9,7 @@ import {
 import { ComponentPortal } from '@angular/cdk/portal';
 import { filter } from 'rxjs/operators';
 
+import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 import { PageFocus } from '@app/cross-cutting/infrastructure/page-focus';
 
 import { Sheet } from './sheet';
@@ -34,6 +35,7 @@ export class SheetService {
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly pageFocus = inject(PageFocus);
+  private readonly hardwareBack = inject(HardwareBack);
 
   /** Nested sheets each hold the shell inert; only the last one out clears it. */
   private openCount = 0;
@@ -89,6 +91,15 @@ export class SheetService {
     this.openCount += 1;
     this.setShellInert(true);
 
+    // Android's back button closes the topmost sheet, the way Escape does, and never reaches the
+    // screen underneath while a sheet is open - not even for a sheet that cannot be dismissed.
+    const removeBackHandler = this.hardwareBack.register(() => {
+      if (resolved.dismissible) {
+        sheetRef.dismiss();
+      }
+      return true;
+    });
+
     if (resolved.dismissible) {
       overlayRef.backdropClick().subscribe(() => sheetRef.dismiss());
       overlayRef
@@ -103,6 +114,7 @@ export class SheetService {
 
     // Fires for `dispose()` as well as for a teardown we did not initiate, such as a navigation.
     overlayRef.detachments().subscribe(() => {
+      removeBackHandler();
       this.openCount = Math.max(0, this.openCount - 1);
       if (this.openCount === 0) {
         this.setShellInert(false);

@@ -8,6 +8,10 @@ export interface CapacitorAppPlugin {
     eventName: 'appStateChange',
     listener: (state: AppState) => void,
   ): Promise<PluginListenerHandle>;
+  /** Android's hardware back button and back gesture. Registering it replaces the default. */
+  addBackButtonListener(listener: () => void): Promise<PluginListenerHandle>;
+  /** Sends the app to the background, as Android does for a back press on its first screen. */
+  minimizeApp(): Promise<void>;
 }
 
 /**
@@ -22,5 +26,7 @@ export const CAPACITOR_APP = new InjectionToken<CapacitorAppPlugin>('CAPACITOR_A
   providedIn: 'root',
   factory: () => ({
     addListener: (eventName, listener) => App.addListener(eventName, listener),
+    addBackButtonListener: (listener) => App.addListener('backButton', () => listener()),
+    minimizeApp: () => App.minimizeApp(),
   }),
 });
