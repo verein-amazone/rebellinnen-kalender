@@ -225,10 +225,28 @@ export class IcsSubscriptionInteractor {
     }
   }
 
-  /** Refreshes every subscription whose last check is older than the auto-refresh age. */
+  /**
+   * Refreshes every enabled subscription whose last check is older than the auto-refresh age.
+   *
+   * A disabled subscription is never downloaded in the background: switching a calendar off is the
+   * user's way of saying the app should stop contacting its provider, and the privacy policy says
+   * so. Switching it back on makes it due again on the next start or foreground.
+   */
   async refreshAllDue(): Promise<void> {
     const now = Date.now();
-    for (const subscription of await this.repository.listIcsSubscriptions()) {
+    const [sources, subscriptions] = await Promise.all([
+      this.sources.listSources(),
+      this.repository.listIcsSubscriptions(),
+    ]);
+    const enabledSourceIds = new Set(
+      sources.filter((source) => source.enabled).map((source) => source.id),
+    );
+
+    for (const subscription of subscriptions) {
+      if (!enabledSourceIds.has(subscription.id)) {
+        continue;
+      }
+
       // Measured against the last *check*, not the last stored revision: a feed that answers `304`
       // is being confirmed as current, and gating on `lastSuccessAt` made such a feed count as due
       // forever - re-downloaded on every launch and every foreground. `lastSuccessAt` is the

@@ -233,6 +233,25 @@ describe('IcsSubscriptionInteractor', () => {
     expect(http.downloads).toBe(before + 1);
   });
 
+  it('never refreshes a disabled subscription in the background, however long since its last check', async () => {
+    const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
+    const longAgo = new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString();
+    await database.run(
+      `UPDATE ics_subscriptions SET last_success_at = ?, last_checked_at = ? WHERE id = ?`,
+      [longAgo, longAgo, subscriptionId],
+    );
+    await interactor.setEnabled(subscriptionId, false);
+
+    const before = http.downloads;
+    await interactor.refreshAllDue();
+    expect(http.downloads).toBe(before);
+
+    // Switched back on, it is due again on the next start or foreground.
+    await interactor.setEnabled(subscriptionId, true);
+    await interactor.refreshAllDue();
+    expect(http.downloads).toBe(before + 1);
+  });
+
   it('shares one download between concurrent refreshes of the same subscription', async () => {
     const { subscriptionId } = await interactor.add('Verein', 'https://example.org/cal.ics');
     http.result = { status: 'not-modified' };
