@@ -1,3 +1,19 @@
+## [1.0.0-rc.46](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.45...v1.0.0-rc.46) (2026-10-13)
+
+### Features
+
+* **content:** mark platform links and add the first related sources ([6e67c48](https://github.com/verein-amazone/rebellinnen-kalender/commit/6e67c48f033520dec90dbf2365b7bd1fc0789369))
+* **settings:** show the text colour in the theme preview ([3324b2b](https://github.com/verein-amazone/rebellinnen-kalender/commit/3324b2b629449c582b15c7fefe4752bacb0bcd0e))
+* **today:** always lead the daily impulse with its picture ([0615264](https://github.com/verein-amazone/rebellinnen-kalender/commit/06152640783caee1cc92794214c4d16d9d3434eb))
+
+### Bug Fixes
+
+* **ui:** stop a double tap from zooming the app in ([6532193](https://github.com/verein-amazone/rebellinnen-kalender/commit/6532193e2f8b65adcfe9da1c6bfc3d97ec78c485))
+
+### Refactoring
+
+* **content:** give images their own catalog and ids ([8456dea](https://github.com/verein-amazone/rebellinnen-kalender/commit/8456deabb61370999526b9b8543da03d47110390))
+
 ## [1.0.0-rc.45](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.44...v1.0.0-rc.45) (2026-10-13)
 
 ### Features
