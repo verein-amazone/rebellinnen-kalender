@@ -23,7 +23,8 @@ export interface PlannedNotification {
  *
  * Only the iOS and Android apps deliver them: a browser cannot wake a closed tab, so the web build
  * reports itself as unsupported and every call is a no-op there. Failures are swallowed like in
- * `DeviceHaptics` - a reminder that could not be scheduled must never break saving an appointment.
+ * `DeviceHaptics` - a reminder that could not be scheduled must never break saving an appointment -
+ * except in `replaceAll`, whose caller reports them.
  */
 @Injectable({ providedIn: 'root' })
 export class DeviceNotifications {
@@ -61,33 +62,37 @@ export class DeviceNotifications {
    * Makes `planned` the complete set of pending notifications: everything else this app had
    * scheduled is cancelled. The caller has checked the permission - `schedule()` would otherwise
    * ask for it, and this runs in the background on every start.
+   *
+   * Only the notifications `planned` no longer contains are cancelled, and before the new set is
+   * scheduled, which keeps the count under iOS's limit of 64. The rest are scheduled again under
+   * their stable ids, which replaces them in place - so a failing `schedule()` cannot leave the user
+   * without the reminders that were already pending. It rejects instead of swallowing the failure,
+   * so the scheduler can report it.
    */
   async replaceAll(planned: readonly PlannedNotification[]): Promise<void> {
     if (!this.isSupported()) {
       return;
     }
-    try {
-      await this.cancelPending();
-      if (planned.length === 0) {
-        return;
-      }
 
-      // Without the exact-alarm grant the plugin would open the system settings on every schedule
-      // call. Inexact delivery is the better fallback for a reminder made in the background.
-      const exact = await this.canScheduleExactly();
-      await this.plugin.schedule({
-        notifications: planned.map((notification) => ({
-          id: notification.id,
-          title: notification.title,
-          body: notification.body,
-          schedule: { at: new Date(notification.atUtc), allowWhileIdle: true },
-          extra: { target: notification.target },
-          isExactNotification: exact,
-        })),
-      });
-    } catch {
-      // See the class comment.
+    const plannedIds = new Set(planned.map(({ id }) => id));
+    await this.cancelPending((id) => !plannedIds.has(id));
+    if (planned.length === 0) {
+      return;
     }
+
+    // Without the exact-alarm grant the plugin would open the system settings on every schedule
+    // call. Inexact delivery is the better fallback for a reminder made in the background.
+    const exact = await this.canScheduleExactly();
+    await this.plugin.schedule({
+      notifications: planned.map((notification) => ({
+        id: notification.id,
+        title: notification.title,
+        body: notification.body,
+        schedule: { at: new Date(notification.atUtc), allowWhileIdle: true },
+        extra: { target: notification.target },
+        isExactNotification: exact,
+      })),
+    });
   }
 
   async cancelAll(): Promise<void> {
@@ -119,10 +124,11 @@ export class DeviceNotifications {
       .catch(() => undefined);
   }
 
-  private async cancelPending(): Promise<void> {
+  private async cancelPending(which: (id: number) => boolean = () => true): Promise<void> {
     const { notifications } = await this.plugin.getPending();
-    if (notifications.length > 0) {
-      await this.plugin.cancel({ notifications: notifications.map(({ id }) => ({ id })) });
+    const cancelled = notifications.filter(({ id }) => which(id));
+    if (cancelled.length > 0) {
+      await this.plugin.cancel({ notifications: cancelled.map(({ id }) => ({ id })) });
     }
   }
 

@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill';
 import { TestBed } from '@angular/core/testing';
 
 import { CalendarRepository } from '@app/data/calendar/calendar.repository';
@@ -164,6 +165,57 @@ describe('CalendarMaintenanceInteractor', () => {
     );
     expect(repaired.startLocalDay).toBe(expected.startLocalDay);
     expect(repaired.endLocalDay).toBe(expected.endLocalDay);
+  });
+
+  it('moves a cached all-day device row to the new zone’s midnights, keeping its days', async () => {
+    // Fetched on Kiritimati (UTC+14): 10 and 11 August, from its midnight to the one after the last
+    // day. Far enough from every zone a test runs in that the repair always has something to move.
+    const allDayRow = {
+      id: 'device:ios:cal-1:event-2#2026-08-09T10:00:00Z',
+      sourceId: 'device',
+      sourceType: 'device' as const,
+      calendarId: 'device-cal:cal-1',
+      seriesId: null,
+      originalStart: null,
+      provenance: 'device-cached' as const,
+      itemKind: 'event' as const,
+      itemId: null,
+      title: 'Ferienlager',
+      location: null,
+      description: null,
+      isAllDay: true,
+      start: { kind: 'date' as const, value: '2026-08-10', timeZone: null },
+      end: { kind: 'date' as const, value: '2026-08-11', timeZone: null },
+      startUtc: '2026-08-09T10:00:00Z',
+      endUtc: '2026-08-11T10:00:00Z',
+      startLocalDay: '2026-08-10',
+      endLocalDay: '2026-08-11',
+      externalId: 'event-2',
+    };
+    await occurrences.insertMany([allDayRow]);
+    localStorage.setItem(
+      'rk.calendar-maintenance',
+      JSON.stringify({ lastTimeZone: 'Pacific/Kiritimati' }),
+    );
+
+    await interactor.ensureConsistency();
+
+    const currentZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const midnight = (day: string) =>
+      Temporal.PlainDate.from(day)
+        .toZonedDateTime(currentZone)
+        .toInstant()
+        .toString({ smallestUnit: 'second' });
+    const [repaired] = await occurrences.listInRange(
+      '2026-08-01T00:00:00Z',
+      '2026-08-31T00:00:00Z',
+    );
+    expect(repaired).toMatchObject({
+      startUtc: midnight('2026-08-10'),
+      endUtc: midnight('2026-08-12'),
+      startLocalDay: '2026-08-10',
+      endLocalDay: '2026-08-11',
+    });
   });
 
   it('does not touch device rows when only the recurrence engine changed', async () => {

@@ -35,7 +35,8 @@ export type AppItemExceptionStatus = (typeof APP_ITEM_EXCEPTION_STATUSES)[number
 /**
  * The deliberate difference of one occurrence of a series, keyed by the occurrence's **original**
  * start - its identity even after being moved. For an `override`, every `null` field inherits from
- * the master; for `cancelled`, the occurrence does not happen and the other fields are meaningless.
+ * the master, and an empty `location` or `note` clears the master's value for this occurrence; for
+ * `cancelled`, the occurrence does not happen and the other fields are meaningless.
  */
 export interface AppItemExceptionRecord {
   readonly seriesId: string;

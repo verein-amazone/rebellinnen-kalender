@@ -21,6 +21,22 @@ const NATIVE_PACKAGES = [
 const NATIVE_PACKAGE_MESSAGE =
   'Import a Capacitor plugin only in src/app/cross-cutting/plugins/, behind an injection token, and inject the token instead. See src/app/cross-cutting/plugins/README.md.';
 
+/** Interactors are UI-agnostic. */
+const INTERACTORS_NOT_VIEW = {
+  group: ['@app/view', '@app/view/*'],
+  message:
+    'interactors/** must not import from view/**. Interactors are UI-agnostic. See docs/architecture/frontend-architecture.md.',
+};
+
+/** The DAOs behind `CalendarRepository`. */
+const CALENDAR_DAOS = [
+  '@app/data/daos/app-calendar-item.dao',
+  '@app/data/daos/calendar-source.dao',
+  '@app/data/daos/ics-item.dao',
+  '@app/data/daos/ics-subscription.dao',
+  '@app/data/daos/occurrence.dao',
+];
+
 module.exports = defineConfig([
   // Nothing generated is ours to lint. `pnpm lint` runs `ng lint`, which is already confined to
   // `src/` by angular.json's lintFilePatterns and never sees any of this - but an editor's ESLint
@@ -92,21 +108,31 @@ module.exports = defineConfig([
       ],
     },
   },
+  // Two disjoint file sets for one rule id, for the reason given at the native-plugin rules below:
+  // specs may reach the calendar DAOs to arrange and check rows, interactors may not.
   {
     files: ['src/app/interactors/**/*.ts'],
+    ignores: ['src/app/interactors/**/*.spec.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
+            INTERACTORS_NOT_VIEW,
             {
-              group: ['@app/view', '@app/view/*'],
+              group: CALENDAR_DAOS,
               message:
-                'interactors/** must not import from view/**. Interactors are UI-agnostic. See docs/architecture/frontend-architecture.md.',
+                'Interactors reach the calendar tables only through CalendarRepository, which owns their transactions. See docs/architecture/data-persistence.md.',
             },
           ],
         },
       ],
+    },
+  },
+  {
+    files: ['src/app/interactors/**/*.spec.ts'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [INTERACTORS_NOT_VIEW] }],
     },
   },
   {

@@ -7,7 +7,6 @@ import {
 } from '@app/data/calendar/calendar.repository';
 import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
 import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
-import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
@@ -56,7 +55,6 @@ export class IcsSubscriptionInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly http = inject(IcsHttpGateway);
   private readonly emojiPicker = inject(NativeEmojiPicker);
-  private readonly sources = inject(CalendarSourceDao);
   private readonly isWeb = inject(DevicePlatformService).platform === 'web';
 
   /** One download per subscription at a time; see `refresh`. */
@@ -283,8 +281,8 @@ export class IcsSubscriptionInteractor {
   /** Lists every ICS subscription joined with its calendar identity, for the management screen. */
   async listForManagement(): Promise<IcsSubscriptionRow[]> {
     const [sources, calendars, subscriptions] = await Promise.all([
-      this.sources.listSources(),
-      this.sources.listCalendars(),
+      this.repository.listSources(),
+      this.repository.listCalendars(),
       this.repository.listIcsSubscriptions(),
     ]);
 

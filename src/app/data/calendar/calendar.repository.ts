@@ -3,7 +3,7 @@ import { Temporal } from 'temporal-polyfill';
 
 import { AppCalendarItemDao } from '../daos/app-calendar-item.dao';
 import { CalendarSourceDao } from '../daos/calendar-source.dao';
-import { OccurrenceDao, type LocalDayAssignment } from '../daos/occurrence.dao';
+import { OccurrenceDao, type PlacementAssignment } from '../daos/occurrence.dao';
 import type { AppItemExceptionRecord, AppItemRecord } from '../entities/app-item.record';
 import type {
   CalendarRecord,
@@ -28,7 +28,12 @@ import type {
 } from '../entities/ics.record';
 import type { DeviceCalendar, DeviceEventInstance } from '../gateways/native-calendar.gateway';
 import { fingerprintOccurrences } from './device-cache-fingerprint';
-import { deviceCalendarRowId, localDaysOf, normalizeDeviceInstances } from './device-normalizer';
+import {
+  allDayInstantsOf,
+  deviceCalendarRowId,
+  localDaysOf,
+  normalizeDeviceInstances,
+} from './device-normalizer';
 import type { ParsedIcsCalendar } from './ics/ics-parser';
 import { materializeAppItem } from './recurrence/occurrence-materializer';
 import { toUtcInstantString, truncatedBefore } from './recurrence/rrule-tools';
@@ -375,6 +380,16 @@ export class CalendarRepository {
     });
   }
 
+  /** Every source, for the screens and pickers that list calendars by source. */
+  listSources(): Promise<CalendarSourceRecord[]> {
+    return this.sources.listSources();
+  }
+
+  /** Every calendar of every source, for the screens and pickers that list calendars. */
+  listCalendars(): Promise<CalendarRecord[]> {
+    return this.sources.listCalendars();
+  }
+
   /** Read access to a source, for interactors deciding whether to create or refresh one. */
   findSource(sourceId: string): Promise<CalendarSourceRecord | null> {
     return this.sources.findSource(sourceId);
@@ -501,6 +516,33 @@ export class CalendarRepository {
         await this.sources.insertCalendar(calendar, tx);
       }
     });
+  }
+
+  /**
+   * Creates the app's own source with its calendars unless an app source exists already, and
+   * reports whether it did. The check and the insert share one transaction, and transactions are
+   * serialized, so two callers racing on a fresh install cannot both create one.
+   */
+  async ensureAppSource(
+    source: CalendarSourceRecord,
+    calendars: readonly CalendarRecord[],
+  ): Promise<boolean> {
+    const created = await this.database.transaction(async (tx) => {
+      const sources = await this.sources.listSources(tx);
+      if (sources.some((existing) => existing.type === 'app')) {
+        return false;
+      }
+      await this.sources.insertSource(source, tx);
+      for (const calendar of calendars) {
+        await this.sources.insertCalendar(calendar, tx);
+      }
+      return true;
+    });
+    if (created) {
+      // See `createSource`.
+      this.coverageRevision += 1;
+    }
+    return created;
   }
 
   /** Marks a source's data quality without touching its rows - cached data stays visible. */
@@ -879,10 +921,12 @@ export class CalendarRepository {
   }
 
   /**
-   * Repairs the cached device rows' local-day columns after a device timezone change. The
-   * underlying `start_utc`/`end_utc` are still correct absolute instants; only which device-zone
-   * day they land on changes, so this recomputes locally instead of requiring a native refresh -
-   * which may not even be possible offline or with permission lost.
+   * Repairs the cached device rows after a device timezone change, locally instead of requiring a
+   * native refresh - which may not even be possible offline or with permission lost.
+   *
+   * A timed row's `start_utc`/`end_utc` are still correct absolute instants; only which device-zone
+   * day they land on changes. An all-day row is the other way round: its days stay, but its
+   * instants were the old zone's midnights and move to the new zone's, as they would on a refresh.
    */
   async recomputeDeviceLocalDays(context: CalendarContext): Promise<void> {
     const rows = await this.occurrences.listOfSourceType('device');
@@ -890,15 +934,23 @@ export class CalendarRepository {
     // Which rows actually move is decided before a transaction is opened: most zone changes shift
     // only some of them, and a run that changes nothing should not open and commit an empty unit
     // of work at all.
-    const changed: LocalDayAssignment[] = [];
+    const changed: PlacementAssignment[] = [];
     for (const row of rows) {
-      const { startLocalDay, endLocalDay } = localDaysOf(
-        row.startUtc,
-        row.endUtc,
-        context.timeZone,
-      );
-      if (startLocalDay !== row.startLocalDay || endLocalDay !== row.endLocalDay) {
-        changed.push({ id: row.id, startLocalDay, endLocalDay });
+      const placement = row.isAllDay
+        ? allDayPlacementOf(row, context.timeZone)
+        : {
+            id: row.id,
+            startUtc: row.startUtc,
+            endUtc: row.endUtc,
+            ...localDaysOf(row.startUtc, row.endUtc, context.timeZone),
+          };
+      if (
+        placement.startUtc !== row.startUtc ||
+        placement.endUtc !== row.endUtc ||
+        placement.startLocalDay !== row.startLocalDay ||
+        placement.endLocalDay !== row.endLocalDay
+      ) {
+        changed.push(placement);
       }
     }
 
@@ -907,7 +959,7 @@ export class CalendarRepository {
     }
 
     await this.database.transaction(async (tx) => {
-      await this.occurrences.updateLocalDaysMany(changed, tx);
+      await this.occurrences.updatePlacementMany(changed, tx);
     });
   }
 
@@ -1267,5 +1319,17 @@ function icsExceptionAsSeriesException(exception: IcsItemExceptionRecord): AppIt
     end: exception.end,
     createdAt: '',
     updatedAt: '',
+  };
+}
+
+/** An all-day device row's days, unchanged, at the midnights of `timeZone`. */
+function allDayPlacementOf(row: OccurrenceRecord, timeZone: string): PlacementAssignment {
+  const startLocalDay = row.start.value;
+  const endLocalDay = row.end?.value ?? startLocalDay;
+  return {
+    id: row.id,
+    ...allDayInstantsOf(startLocalDay, endLocalDay, timeZone),
+    startLocalDay,
+    endLocalDay,
   };
 }

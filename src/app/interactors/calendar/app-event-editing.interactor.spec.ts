@@ -220,6 +220,32 @@ describe('AppEventEditingInteractor', () => {
     expect(exceptions[0].end).toEqual(moved.end);
   });
 
+  it('stores an emptied location or note of one occurrence as cleared, not as inherited', async () => {
+    const id = await interactor.create(
+      draft({ location: 'Jugendzentrum', note: 'Schlüssel holen' }),
+    );
+
+    await interactor.updateOccurrence(id, '2026-09-14T18:00:00', {
+      title: 'Plenum',
+      location: null,
+      note: null,
+    });
+
+    const [exception] = await items.listExceptionsOfSeries(id);
+    expect(exception.location).toBe('');
+    expect(exception.note).toBe('');
+  });
+
+  it('keeps an earlier override of the location when it is edited again without one', async () => {
+    const id = await interactor.create(draft({ location: 'Jugendzentrum' }));
+
+    await interactor.updateOccurrence(id, '2026-09-14T18:00:00', { location: 'Jugendraum' });
+    await interactor.updateOccurrence(id, '2026-09-14T18:00:00', { title: 'Plenum (neu)' });
+
+    const [exception] = await items.listExceptionsOfSeries(id);
+    expect(exception.location).toBe('Jugendraum');
+  });
+
   it('stores a cancellation for only one occurrence', async () => {
     const id = await interactor.create(draft());
 

@@ -68,12 +68,14 @@ const COVERAGE_COLUMNS = `source_id, window_start_utc, window_end_utc, engine_ve
  */
 const INSERT_CHUNK_ROWS = 40;
 
-/** 5 bound values per row in `updateLocalDaysMany` - 150 rows stay under the same low limit. */
-const UPDATE_CHUNK_ROWS = 150;
+/** 9 bound values per row in `updatePlacementMany` - 100 rows stay under the same low limit. */
+const UPDATE_CHUNK_ROWS = 100;
 
-/** One row's new day bucketing, for `updateLocalDaysMany`. */
-export interface LocalDayAssignment {
+/** One row's new place in time, for `updatePlacementMany`. */
+export interface PlacementAssignment {
   readonly id: string;
+  readonly startUtc: string;
+  readonly endUtc: string;
   readonly startLocalDay: string;
   readonly endLocalDay: string;
 }
@@ -215,32 +217,38 @@ export class OccurrenceDao {
   }
 
   /**
-   * Rewrites only the local-day bucketing columns - used to repair cached device rows after a
-   * device timezone change, where the underlying UTC instants are still correct and only their day
-   * assignment needs to move.
+   * Rewrites only the placement columns - the UTC instants and the local-day bucketing - used to
+   * repair cached device rows after a device timezone change: a timed row keeps its instants and
+   * moves to other days, an all-day row keeps its days and moves to the new zone's midnights.
    *
    * Chunked `CASE`-per-id statements rather than an update per row, for the same reason
-   * `insertMany` batches: a zone change can touch every cached device row at once. 5 bound values
-   * per row, so the chunk is larger than the insert one and still far under the 999 limit
-   * documented at `INSERT_CHUNK_ROWS`.
+   * `insertMany` batches: a zone change can touch every cached device row at once. 9 bound values
+   * per row, so the chunk is larger than the insert one and still under the 999 limit documented
+   * at `INSERT_CHUNK_ROWS`.
    */
-  async updateLocalDaysMany(
-    assignments: readonly LocalDayAssignment[],
+  async updatePlacementMany(
+    assignments: readonly PlacementAssignment[],
     executor: SqliteExecutor = this.database,
   ): Promise<void> {
     for (let offset = 0; offset < assignments.length; offset += UPDATE_CHUNK_ROWS) {
       const chunk = assignments.slice(offset, offset + UPDATE_CHUNK_ROWS);
       const cases = chunk.map(() => `WHEN ? THEN ?`).join(' ');
       const ids = chunk.map(() => `?`).join(', ');
+      const column = (value: (entry: PlacementAssignment) => string) =>
+        chunk.flatMap((entry) => [entry.id, value(entry)]);
 
       await executor.run(
         `UPDATE occurrences
-         SET start_local_day = CASE id ${cases} END,
+         SET start_utc = CASE id ${cases} END,
+             end_utc = CASE id ${cases} END,
+             start_local_day = CASE id ${cases} END,
              end_local_day = CASE id ${cases} END
          WHERE id IN (${ids})`,
         [
-          ...chunk.flatMap((entry) => [entry.id, entry.startLocalDay]),
-          ...chunk.flatMap((entry) => [entry.id, entry.endLocalDay]),
+          ...column((entry) => entry.startUtc),
+          ...column((entry) => entry.endUtc),
+          ...column((entry) => entry.startLocalDay),
+          ...column((entry) => entry.endLocalDay),
           ...chunk.map((entry) => entry.id),
         ],
       );
