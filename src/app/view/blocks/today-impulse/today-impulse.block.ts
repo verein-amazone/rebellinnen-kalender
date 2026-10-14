@@ -143,6 +143,12 @@ export class TodayImpulseBlock {
    */
   private async watchShakes(): Promise<void> {
     const stop = await this.shake.watch(() => this.replayGreeting(), { sensitivity: 'light' });
+    // Today may already be gone by the time the sensor is listening: a cleanup registered on a
+    // destroyed view throws, and the sensor would keep running.
+    if (this.destroyRef.destroyed) {
+      stop();
+      return;
+    }
     this.destroyRef.onDestroy(stop);
   }
 

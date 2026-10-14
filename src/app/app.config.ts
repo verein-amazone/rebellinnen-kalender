@@ -26,6 +26,12 @@ import {
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 import { routes } from './app.routes';
 
+/**
+ * Whether this build emits a service worker: `true` in the `pages` configuration, the web demo, and
+ * `false` everywhere else (`define` in angular.json).
+ */
+declare const ngswEnabled: boolean;
+
 // The UI language is German regardless of the device locale; dates format through Angular's own
 // mechanism (`DatePipe` / `formatDate`), which needs the locale data registered up front.
 registerLocaleData(localeDe);
@@ -53,11 +59,13 @@ export const appConfig: ApplicationConfig = {
     // does not survive a restart.
     provideAppInitializer(() => inject(SystemTextScale).initialize()),
     // The web demo build only (see README). The worker and its manifest are emitted by the
-    // `pages` build configuration alone, so a native build has no `ngsw-worker.js` to register -
-    // and must not try: a WebView already serves the bundle from the app package, and a worker
-    // caching it on top would keep serving the previous release's assets after an app update.
+    // `pages` build configuration alone, so any other build has no `ngsw-worker.js` to register -
+    // a plain production build served on the web, such as a pull-request preview, would only log a
+    // failed registration. A native build must not try either: a WebView already serves the bundle
+    // from the app package, and a worker caching it on top would keep serving the previous
+    // release's assets after an app update.
     provideServiceWorker('ngsw-worker.js', {
-      enabled: devicePlatform() === 'web' && !isDevMode(),
+      enabled: ngswEnabled && devicePlatform() === 'web' && !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
   ],

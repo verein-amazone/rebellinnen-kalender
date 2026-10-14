@@ -22,7 +22,7 @@ let package = Package(
         .package(name: "CapawesomeCapacitorHaptics", path: "../../../node_modules/.pnpm/@capawesome+capacitor-haptics@0.1.2_@capacitor+core@8.5.3/node_modules/@capawesome/capacitor-haptics"),
         .package(name: "CapawesomeCapacitorShake", path: "../../../node_modules/.pnpm/@capawesome+capacitor-shake@0.1.2_@capacitor+core@8.5.3/node_modules/@capawesome/capacitor-shake"),
         .package(name: "EbarooniCapacitorCalendar", path: "../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.9.0_@capacitor+core@8.5.3/node_modules/@ebarooni/capacitor-calendar"),
-        .package(name: "IndependoCapacitorEmojiPicker", path: "../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.3_@capacitor+core@8.5.3/node_modules/@independo/capacitor-emoji-picker"),
+        .package(name: "IndependoCapacitorEmojiPicker", path: "../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.4_@capacitor+core@8.5.3/node_modules/@independo/capacitor-emoji-picker"),
         .package(name: "CapacitorNativeSettings", path: "../../../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.5.3/node_modules/capacitor-native-settings")
     ],
     targets: [

@@ -82,18 +82,34 @@ class FakeShakeInteractor {
   shake: (() => void) | null = null;
   stopped = 0;
   options: ShakeWatchOptions | null = null;
+  /** Holds the sensor start back until `start()`, like a device that is slow to begin. */
+  slow = false;
+  private started: (() => void) | null = null;
 
   watch(onShake: () => void, options: ShakeWatchOptions = {}): Promise<() => void> {
     this.shake = onShake;
     this.options = options;
-    return Promise.resolve(() => {
+    const stop = () => {
       this.stopped += 1;
-    });
+    };
+    if (!this.slow) {
+      return Promise.resolve(stop);
+    }
+    return new Promise((resolve) => (this.started = () => resolve(stop)));
+  }
+
+  start(): void {
+    this.started?.();
   }
 }
 
 async function setup(
-  config: { item?: ContentItemView | null; alreadyGreeted?: boolean; greetingOff?: boolean } = {},
+  config: {
+    item?: ContentItemView | null;
+    alreadyGreeted?: boolean;
+    greetingOff?: boolean;
+    slowShakeSensor?: boolean;
+  } = {},
 ) {
   const daily = new FakeDailyImpulseInteractor();
   daily.item = config.item === undefined ? item() : config.item;
@@ -101,6 +117,7 @@ async function setup(
 
   const haptics = new FakeHapticsInteractor();
   const shake = new FakeShakeInteractor();
+  shake.slow = config.slowShakeSensor === true;
   if (config.alreadyGreeted) {
     daily.greeted.set(true);
   }
@@ -298,6 +315,17 @@ describe('TodayImpulseBlock', () => {
     const { destroy, shake } = await setup();
 
     destroy();
+
+    expect(shake.stopped).toBe(1);
+  });
+
+  it('stops the sensor that only starts once the card is already gone', async () => {
+    const { destroy, shake } = await setup({ slowShakeSensor: true });
+
+    destroy();
+    shake.start();
+    await Promise.resolve();
+    await Promise.resolve();
 
     expect(shake.stopped).toBe(1);
   });

@@ -33,6 +33,9 @@
         <svg lucideTrash2 class="rk-icon-sm" aria-hidden="true"></svg>
         {{ resetting() ? 'Wird gelöscht …' : 'App-Daten löschen' }}
       </button>
+      @if (resetError(); as message) {
+        <p role="alert" class="rk-error">{{ message }}</p>
+      }
     </div>
   </div>
 </app-focused-screen>

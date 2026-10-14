@@ -58,7 +58,7 @@
     "@capawesome/capacitor-haptics": "^0.1.2",
     "@capawesome/capacitor-shake": "^0.1.2",
     "@ebarooni/capacitor-calendar": "^8.9.0",
-    "@independo/capacitor-emoji-picker": "^1.3.3",
+    "@independo/capacitor-emoji-picker": "^1.3.4",
     "@lucide/angular": "^1.55.0",
     "@sqlite.org/sqlite-wasm": "^3.53.4-build2",
     "capacitor-native-settings": "^8.2.0",

@@ -11,10 +11,11 @@ import { DevToolsPage } from './dev-tools.page';
 
 class FakeAppDataInteractor {
   calls = 0;
+  failure: Error | null = null;
 
   resetAppData(): Promise<void> {
     this.calls += 1;
-    return Promise.resolve();
+    return this.failure === null ? Promise.resolve() : Promise.reject(this.failure);
   }
 }
 
@@ -101,6 +102,26 @@ describe('DevToolsPage', () => {
     expect(intro.resumeStep()).toBe(1);
     expect(TestBed.inject(Router).url).toBe('/today');
     expect(appData.calls).toBe(0);
+  });
+
+  it('says so and lets the user try again when wiping fails, instead of hanging', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { element, reset, settle, appData, reload } = await setup([true]);
+    appData.failure = new Error('database is locked');
+
+    reset();
+    await settle();
+
+    const button = [...element.querySelectorAll<HTMLButtonElement>('button')].find((candidate) =>
+      candidate.textContent?.includes('App-Daten löschen'),
+    );
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Die App-Daten konnten nicht gelöscht werden.',
+    );
+    expect(button?.disabled).toBe(false);
+    expect(reload).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('does nothing when the confirmation is declined', async () => {

@@ -2,6 +2,22 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
+    <!--
+      Defence in depth for a WebView that renders text from remote calendar feeds: nothing but the
+      app's own files may run. Same origin is `capacitor://localhost` on iOS and
+      `https://localhost` on Android; ICS feeds are fetched natively, outside this policy.
+      - `wasm-unsafe-eval`: the browser build's SQLite is WebAssembly. It allows compiling Wasm only,
+        not `eval`.
+      - `style-src 'unsafe-inline'`: the CDK and the emoji picker insert `<style>` elements.
+      - `connect-src blob:`: the web emoji picker loads its bundled data from a blob URL (no CDN
+        since `@independo/capacitor-emoji-picker` 1.3.4). The native pickers load nothing.
+      Keep the page free of inline scripts: the production build inlines no critical CSS for that
+      reason (`inlineCritical: false` in angular.json), whose loader would be one.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
     <title>Rebell*innen Kalender</title>
     <base href="/" />
     <!--
@@ -28,30 +44,10 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <meta name="theme-color" content="#7dbdbb" />
     <!--
-      Restores a deep link that GitHub Pages could not serve. Pages has no rewrite rule, so
-      reloading `…/settings/theme` returns its 404 page, and `404.html` sends the request back here
-      with the route as a query (`/?/settings/theme`). This puts it back in the address bar before
-      the Angular bundle - a deferred module script - runs and reads the location.
-
-      Inert everywhere else: without that query shape it does nothing at all.
+      Restores a deep link GitHub Pages could not serve (see the file). A classic script without
+      `defer`, so it runs before the Angular bundle reads the location.
     -->
-    <script>
-      (function () {
-        if (window.location.search.charAt(1) !== '/') {
-          return;
-        }
-
-        var parts = window.location.search.slice(2).split('&');
-        var route = parts.shift();
-        var query = parts.join('&');
-
-        window.history.replaceState(
-          null,
-          '',
-          window.location.pathname + route + (query ? '?' + query : '') + window.location.hash,
-        );
-      })();
-    </script>
+    <script src="restore-deep-link.js"></script>
   </head>
   <body>
     <app-root></app-root>
