@@ -55,8 +55,13 @@ here, each with its issue.
   weeks while carrying many reminders a day can miss later ones. See
   [data-persistence.md](./architecture/data-persistence.md#appointment-reminders).
 - **Android: no appointments into the phone's own calendars.** The app shows them, but cannot tell
-  which of them are writable, because the calendar plugin does not report it on Android, so it
-  treats every one as read-only and offers only its own calendars in the form (#133). Writing into
-  them works on iPhone.
+  which of them are writable, because the calendar plugin does not report it on Android. The app
+  therefore treats every one as read-only on purpose and offers only its own calendars in the form
+  (#133): treating them as writable would make saves into holiday or shared calendars fail.
+  Writing into them works on iPhone. The fix belongs in the plugin
+  ([ebarooni/capacitor-calendar#305](https://github.com/ebarooni/capacitor-calendar/issues/305),
+  pull request [#306](https://github.com/ebarooni/capacitor-calendar/pull/306)). Once a release
+  with it is installed, the app needs no change of its own: `NativeCalendarGateway` already passes
+  the reported value through.
 - **The web demo** cannot deliver reminders while the page is closed and cannot reach device
   calendars.

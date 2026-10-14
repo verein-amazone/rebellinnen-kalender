@@ -173,6 +173,11 @@ Der Text muss mindestens sagen:
   - Play Store: „Kalender deines Handys anzeigen“ (ohne „und Termine dort speichern“).
   - App Store: unverändert lassen, dort stimmt der Satz.
 
+  Stand 14.10.2026: Die Store-Texte bleiben vorerst unverändert. Die Korrektur liegt beim Plugin
+  ([ebarooni/capacitor-calendar#306](https://github.com/ebarooni/capacitor-calendar/pull/306)).
+  Sobald eine Version damit erscheint, genügt ein Update des Plugins, und der Satz stimmt auch auf
+  Android.
+
   Entscheidung: …
 
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
