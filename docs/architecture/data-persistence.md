@@ -243,7 +243,8 @@ The calendar (#29) combines three source types behind one read model. The depend
 recurrence machinery. The repository is the calendar's unit-of-work boundary - the deliberate
 exception to „repositories are not introduced automatically“: it coordinates several DAOs, the
 recurrence engine, the native calendar gateway and the ICS pipeline, and every method that changes
-derived rows runs inside one transaction.
+derived rows runs inside one transaction. Interactors never import the calendar DAOs themselves,
+not even to read; ESLint enforces that (`CALENDAR_DAOS` in `eslint.config.js`).
 
 ### Authoritative, derived, disposable
 
@@ -264,7 +265,12 @@ utc`, `value`, `tz`; see `data/entities/temporal-value.ts`), so a rule like „w
 Europe/Vienna“ survives DST and a birthday stays a date. Materialized rows additionally carry
 computed `start_utc`/`end_utc` (end exclusive) and device-zone day columns; `date` and `floating`
 rows are computed in the device zone at materialization time, which is legitimate because a zone
-change triggers a rebuild (`CalendarMaintenanceInteractor`).
+change triggers a rebuild (`CalendarMaintenanceInteractor`). The device cache cannot be rebuilt
+without the native provider, so a zone change repairs it in place: a timed row keeps its instants
+and moves to other days, an all-day row keeps its days and moves to the new zone's midnights.
+
+An occurrence override's `null` field inherits the series' value. An emptied location or note is
+stored as `''`, so clearing it on one occurrence does not bring the series' value back.
 
 **A `date` end is inclusive: the last day the appointment covers.** That holds for every stored
 record - app items, ICS items, the device cache - and for the event form that writes them. Only the
@@ -394,6 +400,10 @@ its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Ta
   most 64 pending notifications per app and silently drops the rest; staying below that keeps the
   choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
   a zone change and an app update with one code path. Runs are serialized and coalesced.
+- A run cancels only the pending notifications the new set no longer contains, and before it
+  schedules the new set, which stays within iOS's limit. The others are scheduled again under their
+  stable ids and replace themselves, so a failing schedule call leaves the reminders that were
+  already pending in place. The failure is logged rather than lost.
 - A notification id is a stable 31-bit FNV-1a hash of `<occurrence id>|<minutes>`, moved to the
   next free number on a collision within one batch. The occurrence id travels in the
   notification's `extra`, and `App` opens `/calendar/event/<id>` when it is tapped.

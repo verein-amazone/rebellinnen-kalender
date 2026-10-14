@@ -34,7 +34,8 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["src/styles.css"],
+            "define": { "ngswEnabled": "false" }
           },
           "configurations": {
             "production": {
@@ -51,10 +52,16 @@
                 }
               ],
               "outputHashing": "all",
-              "extractLicenses": true
+              "extractLicenses": true,
+              "optimization": {
+                "scripts": true,
+                "styles": { "minify": true, "inlineCritical": false },
+                "fonts": true
+              }
             },
             "pages": {
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "define": { "ngswEnabled": "true" }
             },
             "development": {
               "optimization": false,

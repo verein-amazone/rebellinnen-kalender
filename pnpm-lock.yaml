@@ -80,8 +80,8 @@ importers:
         specifier: ^8.9.0
         version: 8.9.0(@capacitor/core@8.5.3)
       '@independo/capacitor-emoji-picker':
-        specifier: ^1.3.3
-        version: 1.3.3(@capacitor/core@8.5.3)
+        specifier: ^1.3.4
+        version: 1.3.4(@capacitor/core@8.5.3)
       '@lucide/angular':
         specifier: ^1.55.0
         version: 1.55.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
@@ -170,6 +170,9 @@ importers:
       eslint:
         specifier: ^10.12.0
         version: 10.12.0(jiti@2.7.0)(supports-color@8.1.1)
+      fake-indexeddb:
+        specifier: ^6.2.5
+        version: 6.2.5
       jsdom:
         specifier: ^30.1.2
         version: 30.1.2
@@ -1113,8 +1116,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@independo/capacitor-emoji-picker@1.3.3':
-    resolution: {integrity: sha512-midoZ9jTOnT+7kt34XH1Z4W4hjDvNEZX3ujHVgIZ0ZfOn2rmEyC/OrNiajL0gCSiXO3/xOodh+vOHIefJzmiOg==}
+  '@independo/capacitor-emoji-picker@1.3.4':
+    resolution: {integrity: sha512-1nkfAqG+u4PrCGbJOJTl9Gd2aINErlTLy79l3x8Zq5k1UG5dcPVfGJfnbb8b9ewIoLy6kAjp054bSnjPeFb/nA==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -3155,6 +3158,10 @@ packages:
   expect-type@1.4.0:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
+
+  fake-indexeddb@6.2.5:
+    resolution: {integrity: sha512-CGnyrvbhPlWYMngksqrSSUT1BAVP49dZocrHuK0SvtR0D5TMs5wP0o3j7jexDJW01KSadjBp1M/71o/KR3nD1w==}
+    engines: {node: '>=18'}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -6160,7 +6167,7 @@ snapshots:
   '@img/sharp-win32-x64@0.35.5':
     optional: true
 
-  '@independo/capacitor-emoji-picker@1.3.3(@capacitor/core@8.5.3)':
+  '@independo/capacitor-emoji-picker@1.3.4(@capacitor/core@8.5.3)':
     dependencies:
       '@capacitor/core': 8.5.3
       emoji-picker-element: 1.29.1
@@ -7995,6 +8002,8 @@ snapshots:
       yoctocolors: 2.2.0
 
   expect-type@1.4.0: {}
+
+  fake-indexeddb@6.2.5: {}
 
   fast-deep-equal@3.1.3: {}
 

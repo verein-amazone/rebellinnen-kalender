@@ -138,7 +138,7 @@ function collectEvent(
         location: event.location ?? null,
         note: event.description ?? null,
         start,
-        end: event.endDate ? toEndTemporal(event.endDate, start.kind === 'date') : null,
+        end: endOf(event, start),
       },
     });
     return;
@@ -153,7 +153,7 @@ function collectEvent(
     location: event.location ?? null,
     note: event.description ?? null,
     start,
-    end: event.endDate ? toEndTemporal(event.endDate, start.kind === 'date') : null,
+    end: endOf(event, start),
     rrule: readRrule(vevent),
   });
 
@@ -258,6 +258,19 @@ function toTemporal(time: ICAL.Time): TemporalValue {
   }
 
   return { kind: 'zoned', value: plainDateTime(time), timeZone: zone };
+}
+
+/**
+ * The event's end, or `null` for none. An end at or before the start - a feed's mistake, e.g. an
+ * all-day DTEND equal to its DTSTART - counts as no end, which RFC 5545 defines as one day for a
+ * date and no duration for a time. Kept, it would end the row before it starts, and the range
+ * query would never find it.
+ */
+function endOf(event: ICAL.Event, start: TemporalValue): TemporalValue | null {
+  if (!event.endDate || event.endDate.compare(event.startDate) <= 0) {
+    return null;
+  }
+  return toEndTemporal(event.endDate, start.kind === 'date');
 }
 
 /** ICS DTEND is exclusive for dates; the app's date ends are inclusive last days. */

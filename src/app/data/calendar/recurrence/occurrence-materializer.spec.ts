@@ -186,6 +186,22 @@ describe('materializeAppItem', () => {
     expect(overridden!.start.value).toBe('2026-10-19T18:00:00');
   });
 
+  it('clears the series’ location for an occurrence whose override empties it, and inherits it otherwise', () => {
+    const cleared = exception({ location: '' });
+    const renamed = exception({ originalStart: '2026-10-26T18:00:00', title: 'Plenum (neu)' });
+
+    const { occurrences } = materializeAppItem(
+      item({ location: 'Jugendzentrum' }),
+      [cleared, renamed],
+      context(),
+    );
+    const locationOn = (originalStart: string) =>
+      occurrences.find((occurrence) => occurrence.originalStart === originalStart)?.location;
+
+    expect(locationOn('2026-10-19T18:00:00')).toBeNull();
+    expect(locationOn('2026-10-26T18:00:00')).toBe('Jugendzentrum');
+  });
+
   it('counts a timed event that crosses midnight into the next local day', () => {
     const late = item({
       rrule: null,

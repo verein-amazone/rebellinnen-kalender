@@ -610,6 +610,12 @@ level-one and level-four-plus headings, for example, survive as plain text rathe
   anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
   `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
   `href` removed, leaving only the link text.
+- A Content-Security-Policy in `src/index.html` is the last layer: only the app's own scripts run,
+  and `index.html` carries no inline script - the GitHub Pages deep-link restore lives in
+  `public/restore-deep-link.js`, and the production build inlines no critical CSS, whose loader
+  would be one. The policy's comment explains each exception. A new script, style, image, font or
+  remote request outside them is blocked, so check the browser console for violations when adding
+  one.
 
 ### Rule for feature code
 

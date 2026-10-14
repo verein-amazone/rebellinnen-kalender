@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
-import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
 import { placementRank } from '@app/data/stores/calendar-chip-preferences';
 import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
@@ -28,11 +27,10 @@ export interface WritableAppCalendar {
  * capabilities follow ownership (see `source-capabilities.ts`), and enabled, writable device
  * calendars - a create writes straight into the OS calendar (see
  * `AppEventEditingInteractor.create`), never a canonical app record. This is the only interactor
- * the picker may use; views must never inject `CalendarSourceDao` directly.
+ * the picker may use; views never read calendar sources themselves.
  */
 @Injectable({ providedIn: 'root' })
 export class AppCalendarsInteractor {
-  private readonly sources = inject(CalendarSourceDao);
   private readonly repository = inject(CalendarRepository);
   private readonly chips = inject(CalendarChipsStore);
   private readonly emojiPicker = inject(NativeEmojiPicker);
@@ -48,8 +46,8 @@ export class AppCalendarsInteractor {
     await this.ensureDefault();
 
     const [sources, calendars] = await Promise.all([
-      this.sources.listSources(),
-      this.sources.listCalendars(),
+      this.repository.listSources(),
+      this.repository.listCalendars(),
     ]);
 
     const sourceTypeById = new Map(sources.map((source) => [source.id, source.type]));
@@ -99,17 +97,16 @@ export class AppCalendarsInteractor {
     await this.repository.updateCalendarIdentity(calendarId, identity, this.context());
   }
 
-  /** Creates the app's own calendar source on first run. A no-op once an app source exists. */
+  /**
+   * Creates the app's own calendar source on first run. A no-op once an app source exists - also
+   * when the form and the calendar screen ask at the same time, which is why the check happens in
+   * the repository rather than here.
+   */
   private async ensureDefault(): Promise<void> {
-    const sources = await this.sources.listSources();
-    if (sources.some((source) => source.type === 'app')) {
-      return;
-    }
-
     const sourceId = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    await this.repository.createSource(
+    await this.repository.ensureAppSource(
       {
         id: sourceId,
         type: 'app',

@@ -284,7 +284,7 @@ function buildRow(input: RowInput): OccurrenceRecord {
     // `icsItemAsSeries`) whose `id` is not a real app item - only genuine `app` rows carry identity.
     itemId: input.branding.sourceType === 'app' ? item.id : null,
     title: input.overrides?.title ?? item.title,
-    location: input.overrides ? (input.overrides.location ?? item.location) : item.location,
+    location: overriddenText(input.overrides?.location, item.location),
     // Only device-cached rows carry a description (see `device-normalizer.ts`); app-owned items
     // keep their note on the canonical `app_items` record instead, and ICS description support is
     // out of scope here.
@@ -413,4 +413,18 @@ function expansionZone(start: TemporalValue, deviceZone: string): string {
     default:
       return deviceZone;
   }
+}
+
+/**
+ * An override's text field on top of the series' value: `null` inherits it, `''` clears it (see
+ * `AppItemExceptionRecord`).
+ */
+function overriddenText(
+  override: string | null | undefined,
+  inherited: string | null,
+): string | null {
+  if (override === null || override === undefined) {
+    return inherited;
+  }
+  return override === '' ? null : override;
 }

@@ -1,11 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 
+import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import {
   CuratedCalendarSync,
   type Catalog,
 } from '@app/data/calendar/curated/curated-calendar-sync';
-import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
-import { IcsSubscriptionDao } from '@app/data/daos/ics-subscription.dao';
 import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
 
 import { IcsSubscriptionInteractor, type IcsRefreshOutcome } from './ics-subscription.interactor';
@@ -33,10 +32,9 @@ export interface CuratedCalendarRow {
  */
 @Injectable({ providedIn: 'root' })
 export class CuratedCalendarsInteractor {
+  private readonly repository = inject(CalendarRepository);
   private readonly sync = inject(CuratedCalendarSync);
   private readonly icsSubscriptions = inject(IcsSubscriptionInteractor);
-  private readonly sources = inject(CalendarSourceDao);
-  private readonly subscriptions = inject(IcsSubscriptionDao);
 
   /** Renames the subscription's calendar or changes its colour/emoji identity. */
   updateIdentity(
@@ -58,7 +56,7 @@ export class CuratedCalendarsInteractor {
       return;
     }
 
-    const subscription = await this.subscriptions.find(subscriptionId);
+    const subscription = await this.repository.findIcsSubscription(subscriptionId);
     if (subscription?.lastAttemptAt === null) {
       await this.icsSubscriptions.refresh(subscriptionId, { force: true });
     }
@@ -107,9 +105,9 @@ export class CuratedCalendarsInteractor {
     const catalogOrderById = new Map(catalogEntries.map((entry, index) => [entry.id, index]));
 
     const [sources, calendars, subscriptions] = await Promise.all([
-      this.sources.listSources(),
-      this.sources.listCalendars(),
-      this.subscriptions.list(),
+      this.repository.listSources(),
+      this.repository.listCalendars(),
+      this.repository.listIcsSubscriptions(),
     ]);
 
     const calendarBySourceId = new Map(calendars.map((calendar) => [calendar.sourceId, calendar]));

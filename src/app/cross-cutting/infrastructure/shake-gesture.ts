@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
-import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 
 import { SHAKE_PLUGIN } from '@app/cross-cutting/plugins/shake.plugin';
 
@@ -27,7 +27,7 @@ export interface ShakeWatchOptions {
 @Injectable({ providedIn: 'root' })
 export class ShakeGesture {
   private readonly plugin = inject(SHAKE_PLUGIN);
-  private readonly isWeb = devicePlatform() === 'web';
+  private readonly isWeb = inject(DevicePlatformService).platform === 'web';
 
   /**
    * Starts listening and resolves with the function that stops it again. Failing to start is
@@ -38,16 +38,24 @@ export class ShakeGesture {
       return () => undefined;
     }
 
+    let listener: { remove: () => Promise<void> };
     try {
-      const listener = await this.plugin.addListener('shake', onShake);
-      await this.plugin.startWatching(options);
-
-      return () => {
-        void listener.remove();
-        void this.plugin.stopWatching();
-      };
+      listener = await this.plugin.addListener('shake', onShake);
     } catch {
       return () => undefined;
     }
+
+    try {
+      await this.plugin.startWatching(options);
+    } catch {
+      // The listener would otherwise outlive the caller, which never gets a function to remove it.
+      void listener.remove();
+      return () => undefined;
+    }
+
+    return () => {
+      void listener.remove();
+      void this.plugin.stopWatching();
+    };
   }
 }

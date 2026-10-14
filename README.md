@@ -76,7 +76,9 @@ nature:
 The demo site is a complete installable web app - manifest, icons and the Angular service worker -
 so it can be offered as a PWA later without further work, but it is not one of the products today.
 Every deployment carries `<meta name="robots" content="noindex, nofollow">`, so search engines do
-not index it. Previews ship without the service worker (see the workflow for why).
+not index it. A visitor moves onto a new deployment on their next navigation after it has
+downloaded. Previews ship without the service worker (see the workflow for why), and a build without
+it does not try to register one.
 
 The pull-request preview is deleted when its pull request closes. See
 [.github/workflows/pages.yml](./.github/workflows/pages.yml) for how both are published, and

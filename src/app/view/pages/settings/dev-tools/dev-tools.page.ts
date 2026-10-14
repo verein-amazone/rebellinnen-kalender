@@ -36,6 +36,7 @@ export class DevToolsPage {
   private readonly router = inject(Router);
 
   protected readonly resetting = signal(false);
+  protected readonly resetError = signal<string | null>(null);
 
   /**
    * Forgets that the introduction was seen and how far it got, then goes to Heute, where it starts
@@ -64,8 +65,19 @@ export class DevToolsPage {
           return;
         }
 
+        this.resetError.set(null);
         this.resetting.set(true);
-        await this.appData.resetAppData();
+        try {
+          await this.appData.resetAppData();
+        } catch (error) {
+          // The wipe is one transaction, so a failure leaves the data as it was and a retry is safe.
+          console.warn('Die App-Daten konnten nicht gelöscht werden.', error);
+          this.resetError.set(
+            'Die App-Daten konnten nicht gelöscht werden. Versuche es noch einmal.',
+          );
+          this.resetting.set(false);
+          return;
+        }
         this.document.defaultView?.location.reload();
       });
   }

@@ -77,7 +77,8 @@ export interface DeviceEventInstance {
 /**
  * The device calendar boundary - the only importer of `@ebarooni/capacitor-calendar`.
  *
- * iOS EventKit and the Android Calendar Provider stay authoritative; this gateway only reads.
+ * iOS EventKit and the Android Calendar Provider stay authoritative. The gateway reads them and
+ * writes new standalone events into them (`createEvent`), but never mirrors app records there.
  * Instances are translated to plugin-free shapes here, including the platform difference that iOS
  * repeats one event id for every instance of a series while Android instances carry their own
  * times - which is why identity above this gateway always includes the occurrence start.
@@ -112,6 +113,9 @@ export class NativeCalendarGateway {
       // internal name, then to the account it belongs to, and only then to the raw id.
       name: calendar.title ?? calendar.internalTitle ?? calendar.accountName ?? calendar.id,
       color: calendar.color ?? null,
+      // Unknown counts as read-only: a save into a holiday or shared calendar would fail. The plugin
+      // reports `null` for every Android calendar up to 8.9.0, so Android device calendars stay
+      // read-only until it reads the provider's access level (ebarooni/capacitor-calendar#305).
       writable: calendar.allowsContentModifications ?? false,
       // `source` is iOS-only; Android has no separate id and reports `accountName` instead.
       sourceId: calendar.source?.id ?? calendar.accountName ?? null,

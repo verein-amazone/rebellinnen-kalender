@@ -29,7 +29,7 @@ describe('NativeCalendarGateway', () => {
     await expect(gateway.checkReadPermission()).resolves.toBe('prompt');
   });
 
-  it('maps native calendars to plugin-free shapes with a safe writable default', async () => {
+  it('maps native calendars to plugin-free shapes, read-only when writability is unknown as on Android', async () => {
     const gateway = setup({
       listCalendars: async () => ({
         result: [
@@ -47,6 +47,24 @@ describe('NativeCalendarGateway', () => {
         sourceId: null,
         sourceName: null,
       },
+    ]);
+  });
+
+  it('offers a calendar for writing when the plugin reports it modifiable', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          { id: 'cal-1', title: 'Familie', color: '#ff0000', allowsContentModifications: true },
+          { id: 'cal-2', title: 'Feiertage', color: '#00ff00', allowsContentModifications: false },
+        ] as never,
+      }),
+    });
+
+    const calendars = await gateway.listCalendars();
+
+    expect(calendars.map(({ id, writable }) => ({ id, writable }))).toEqual([
+      { id: 'cal-1', writable: true },
+      { id: 'cal-2', writable: false },
     ]);
   });
 

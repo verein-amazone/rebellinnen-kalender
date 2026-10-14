@@ -271,6 +271,14 @@ describe('AppCalendarsInteractor', () => {
     expect(allSources.filter((source) => source.type === 'app')).toHaveLength(1);
   });
 
+  it('creates one app calendar when the form and the calendar screen ask at the same time', async () => {
+    await Promise.all([interactor.listWritable(), interactor.listWritable()]);
+
+    const allSources = await sources.listSources();
+    expect(allSources.filter((source) => source.type === 'app')).toHaveLength(1);
+    expect(await sources.listCalendars()).toHaveLength(1);
+  });
+
   it('updates a calendar’s identity', async () => {
     await interactor.listWritable();
     const [calendar] = await sources.listCalendars();

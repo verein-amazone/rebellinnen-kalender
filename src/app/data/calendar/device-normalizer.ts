@@ -55,6 +55,24 @@ export function localDaysOf(
   return { startLocalDay, endLocalDay };
 }
 
+/**
+ * The instants of an all-day row covering `startDay` to `endDay` in `timeZone`: its first
+ * midnight and the midnight after its last day - the same convention the materializer gives app
+ * and ICS all-day rows.
+ */
+export function allDayInstantsOf(
+  startDay: string,
+  endDay: string,
+  timeZone: string,
+): { startUtc: string; endUtc: string } {
+  const midnight = (day: Temporal.PlainDate) =>
+    day.toZonedDateTime(timeZone).toInstant().toString({ smallestUnit: 'second' });
+  return {
+    startUtc: midnight(Temporal.PlainDate.from(startDay)),
+    endUtc: midnight(Temporal.PlainDate.from(endDay).add({ days: 1 })),
+  };
+}
+
 function toRow(
   id: string,
   sourceId: string,

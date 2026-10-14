@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 
-import { CalendarSourceDao } from '@app/data/daos/calendar-source.dao';
+import { CalendarRepository } from '@app/data/calendar/calendar.repository';
 import { placementRank } from '@app/data/stores/calendar-chip-preferences';
 import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
 import type { CalendarRecord, CalendarSourceType } from '@app/data/entities/calendar-source.record';
@@ -30,7 +30,7 @@ export interface CalendarFilterOption {
  */
 @Injectable({ providedIn: 'root' })
 export class CalendarFiltersInteractor {
-  private readonly sources = inject(CalendarSourceDao);
+  private readonly repository = inject(CalendarRepository);
   private readonly chips = inject(CalendarChipsStore);
 
   /**
@@ -75,8 +75,8 @@ export class CalendarFiltersInteractor {
 
   async listFilterable(): Promise<CalendarFilterOption[]> {
     const [sources, calendars] = await Promise.all([
-      this.sources.listSources(),
-      this.sources.listCalendars(),
+      this.repository.listSources(),
+      this.repository.listCalendars(),
     ]);
 
     const sourceTypeById = new Map(sources.map((source) => [source.id, source.type]));

@@ -112,6 +112,47 @@ describe('parseIcsCalendar', () => {
     expect(parsed.items[0].end).toEqual({ kind: 'date', value: '2026-11-02', timeZone: null });
   });
 
+  it('drops an all-day DTEND equal to DTSTART, leaving a one-day event', () => {
+    const text = calendar([
+      'BEGIN:VEVENT',
+      'UID:tag@verein',
+      'SUMMARY:Tag der offenen Tür',
+      'DTSTART;VALUE=DATE:20261101',
+      'DTEND;VALUE=DATE:20261101',
+      'END:VEVENT',
+    ]);
+
+    const parsed = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+    expect(parsed.items[0].start).toEqual({ kind: 'date', value: '2026-11-01', timeZone: null });
+    expect(parsed.items[0].end).toBeNull();
+  });
+
+  it('drops a timed DTEND before DTSTART, in an override too', () => {
+    const text = calendar([
+      ...VIENNA_TIMEZONE,
+      'BEGIN:VEVENT',
+      'UID:plenum@verein',
+      'SUMMARY:Plenum',
+      'DTSTART;TZID=Europe/Vienna:20261019T180000',
+      'DTEND;TZID=Europe/Vienna:20261019T170000',
+      'RRULE:FREQ=WEEKLY;COUNT=3',
+      'END:VEVENT',
+      'BEGIN:VEVENT',
+      'UID:plenum@verein',
+      'RECURRENCE-ID;TZID=Europe/Vienna:20261026T180000',
+      'SUMMARY:Plenum',
+      'DTSTART;TZID=Europe/Vienna:20261026T190000',
+      'DTEND;TZID=Europe/Vienna:20261026T183000',
+      'END:VEVENT',
+    ]);
+
+    const parsed = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+    expect(parsed.items[0].end).toBeNull();
+    expect(parsed.exceptions[0].end).toBeNull();
+  });
+
   it('normalizes a UTC DTSTART to the canonical, millisecond-free instant format', () => {
     const text = calendar([
       'BEGIN:VEVENT',

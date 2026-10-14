@@ -14,6 +14,7 @@ import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-c
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
+import { ServiceWorkerUpdates } from '@app/cross-cutting/infrastructure/service-worker-updates';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 
@@ -40,6 +41,8 @@ export class App {
   constructor() {
     // Takes Android's back button over from the WebView history before the first press.
     inject(HardwareBack);
+    // Moves a web demo visitor onto a new deployment; nothing outside that build.
+    inject(ServiceWorkerUpdates);
 
     // Registered first thing: a tap on a reminder may be what launched the app, and the OS holds
     // that tap back only until a handler exists.

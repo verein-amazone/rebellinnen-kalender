@@ -259,8 +259,10 @@ export class AppEventEditingInteractor {
       status: 'override',
       title:
         changes.title !== undefined ? validatedTitle(changes.title) : (previous?.title ?? null),
-      location: changes.location !== undefined ? changes.location : (previous?.location ?? null),
-      note: changes.note !== undefined ? changes.note : (previous?.note ?? null),
+      // `null` in an override inherits the series' value, so an emptied field is stored as `''`.
+      location:
+        changes.location !== undefined ? (changes.location ?? '') : (previous?.location ?? null),
+      note: changes.note !== undefined ? (changes.note ?? '') : (previous?.note ?? null),
       ...timing,
       createdAt: previous?.createdAt ?? context.nowUtc,
       updatedAt: context.nowUtc,
