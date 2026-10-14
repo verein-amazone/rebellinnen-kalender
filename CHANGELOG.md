@@ -1,3 +1,10 @@
+## [1.0.0-rc.51](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.50...v1.0.0-rc.51) (2026-10-14)
+
+### Bug Fixes
+
+* **calendar:** close the calendar data edge cases from the pre-release review ([b29e47c](https://github.com/verein-amazone/rebellinnen-kalender/commit/b29e47ce4508cf3edd8158fe02e9d35566ece97c)), closes [#145](https://github.com/verein-amazone/rebellinnen-kalender/issues/145)
+* close the robustness and web demo gaps from the pre-release review ([ad94d33](https://github.com/verein-amazone/rebellinnen-kalender/commit/ad94d333b4e53b7a9146b175835265d4cc52ad42)), closes [independo-gmbh/capacitor-emoji-picker#59](https://github.com/independo-gmbh/capacitor-emoji-picker/issues/59) [#147](https://github.com/verein-amazone/rebellinnen-kalender/issues/147)
+
 ## [1.0.0-rc.50](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.49...v1.0.0-rc.50) (2026-10-13)
 
 ### Bug Fixes
