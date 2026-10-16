@@ -78,21 +78,21 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      # The iOS and Android version fields are derived from package.json by the release, never edited
+      # The iOS and Android version fields are derived from the root package.json by the release, never edited
       # by hand; this catches a native project that no longer matches it.
       - name: Check the native version fields
-        run: node scripts/sync-native-version.mjs --check
+        run: node apps/app/scripts/sync-native-version.mjs --check
 
       # The store listings are uploaded only after a release from main is tagged; a field over its
       # limit or a screenshot at the wrong size would fail there. This fails the pull request.
       - name: Check the store listings
-        run: node scripts/check-store-listing.mjs
+        run: node apps/app/scripts/check-store-listing.mjs
 
       # Only into `main`: tester builds from `dev` may carry images whose rights are still being
       # reviewed, a release may not (#11).
       - name: Check that every image right is reviewed
         if: github.base_ref == 'main'
-        run: node scripts/check-image-rights.mjs
+        run: node apps/app/scripts/check-image-rights.mjs
 
       - name: Unit tests
         run: pnpm test:ci
@@ -133,7 +133,7 @@ jobs:
       - name: Cache the Angular build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: .angular/cache
+          path: apps/app/.angular/cache
           key: ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-
@@ -146,7 +146,7 @@ jobs:
           {
             echo '### Production bundle'
             echo '```'
-            du -sh dist/rebellinnen-kalender/browser
+            du -sh apps/app/dist/rebellinnen-kalender/browser
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -154,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
-          path: dist/rebellinnen-kalender/browser
+          path: apps/app/dist/rebellinnen-kalender/browser
           retention-days: 7
           if-no-files-found: error
 
@@ -187,10 +187,11 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
-          path: dist/rebellinnen-kalender/browser
+          path: apps/app/dist/rebellinnen-kalender/browser
 
       - name: Determine Playwright version
         id: playwright-version
+        working-directory: apps/app
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
@@ -202,10 +203,12 @@ jobs:
 
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: apps/app
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: apps/app
         run: pnpm exec playwright install-deps chromium
 
       - name: End-to-end tests
@@ -216,7 +219,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-report
-          path: playwright-report
+          path: apps/app/playwright-report
           retention-days: 7
           if-no-files-found: ignore
 
@@ -225,7 +228,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-traces
-          path: test-results
+          path: apps/app/test-results
           retention-days: 7
           if-no-files-found: ignore
 
@@ -251,7 +254,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
-      # Not optional: ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
+      # Not optional: apps/app/ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
       # exact node_modules/.pnpm/<name>@<version> path, so the Swift package graph cannot resolve
       # without an install that matches the lockfile.
       - name: Install dependencies
@@ -261,26 +264,27 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
-          path: dist/rebellinnen-kalender/browser
+          path: apps/app/dist/rebellinnen-kalender/browser
 
       - name: Sync the iOS project
+        working-directory: apps/app
         run: pnpm exec cap sync ios
 
       - name: Check that the committed iOS project is in sync
-        run: git diff --exit-code -- ios
+        run: git diff --exit-code -- apps/app/ios
 
       - name: Cache resolved Swift packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('apps/app/ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
       - name: Resolve Swift packages
         run: |
           xcodebuild -resolvePackageDependencies \
-            -project ios/App/App.xcodeproj \
+            -project apps/app/ios/App/App.xcodeproj \
             -scheme App \
             -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm"
 
@@ -289,7 +293,7 @@ jobs:
       - name: Build the app (unsigned, simulator)
         run: |
           xcodebuild build \
-            -project ios/App/App.xcodeproj \
+            -project apps/app/ios/App/App.xcodeproj \
             -scheme App \
             -configuration Debug \
             -destination 'generic/platform=iOS Simulator' \
@@ -338,25 +342,27 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
-          path: dist/rebellinnen-kalender/browser
+          path: apps/app/dist/rebellinnen-kalender/browser
 
       - name: Sync the Android project
+        working-directory: apps/app
         run: pnpm exec cap sync android
 
       - name: Check that the committed Android project is in sync
-        run: git diff --exit-code -- android
+        run: git diff --exit-code -- apps/app/android
 
       - name: Build the debug APK
-        working-directory: android
+        working-directory: apps/app/android
         run: ./gradlew assembleDebug --no-daemon
 
       # The licence list the app shows covers what Angular cannot see: the Android and iOS libraries,
       # copied assets and fonts. The committed file has to match what Gradle and Package.resolved
-      # resolve today, and Licensee fails on an Android library outside licenses/policy.json (#11).
+      # resolve today, and Licensee fails on an Android library outside apps/app/licenses/policy.json
+      # (#11).
       - name: Check the third-party licence list
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/build-third-party-licenses.mjs --check
+        run: node apps/app/scripts/build-third-party-licenses.mjs --check
 
   # The website at kalender.amazone.or.at (site/, scripts/build-site.mjs): static pages, so no app
   # build is needed. The built site is uploaded so a reviewer can open it locally; nothing is

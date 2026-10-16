@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes `package.json`'s version into the iOS and Android version fields.
+// Writes the repository root `package.json`'s version into the iOS and Android version fields.
 //
 // The version exists in four native places - `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in
 // the Xcode project (Debug and Release each), `versionName` and `versionCode` in the Gradle build -
@@ -85,7 +85,8 @@ export function deriveNativeVersion(version) {
  */
 function syncNativeVersion(checkOnly) {
   const root = join(import.meta.dirname, '..');
-  const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const repoRoot = join(root, '..', '..');
+  const { version } = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
   const { shortVersion, buildNumber } = deriveNativeVersion(version);
 
   // The expected counts are asserted below: Xcode carries both settings once per build
@@ -161,7 +162,7 @@ if (import.meta.main) {
     console.error(
       'The native version fields no longer match package.json:\n' +
         drifted.map((path) => `  ${path}`).join('\n') +
-        '\nRun `node scripts/sync-native-version.mjs` to fix them.',
+        '\nRun `node apps/app/scripts/sync-native-version.mjs` to fix them.',
     );
     process.exit(1);
   }

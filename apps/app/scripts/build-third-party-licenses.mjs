@@ -18,8 +18,8 @@
 // change that alters it shows up in review. scripts/copy-third-party-licenses.mjs appends it to
 // Angular's file after every production build and checks every licence against the policy.
 //
-//   node scripts/build-third-party-licenses.mjs           runs Gradle, then writes the file
-//   node scripts/build-third-party-licenses.mjs --check   fails if the committed file is stale
+//   node apps/app/scripts/build-third-party-licenses.mjs           runs Gradle, then writes the file
+//   node apps/app/scripts/build-third-party-licenses.mjs --check   fails if the committed file is stale
 //
 // Gradle needs JDK 21. The GitHub API is called without a token unless GITHUB_TOKEN is set, which
 // allows 60 requests an hour - plenty for the handful of Swift packages.
@@ -352,7 +352,7 @@ async function main() {
   if (committed !== content) {
     console.error(
       `${relative(ROOT, OUTPUT)} does not match the dependencies. Run ` +
-        '`node scripts/build-third-party-licenses.mjs` and commit the result.',
+        '`node apps/app/scripts/build-third-party-licenses.mjs` and commit the result.',
     );
     process.exit(1);
   }

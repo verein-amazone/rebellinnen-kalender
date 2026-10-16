@@ -19,9 +19,9 @@
 // stores, without the version line and without truncation: hand-written text that does not fit is
 // an error to fix in the file, never something to cut silently.
 //
-//   node scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2
-//   node scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2 --dry-run
-//   node scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2 --body-file notes.md
+//   node apps/app/scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2
+//   node apps/app/scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2 --dry-run
+//   node apps/app/scripts/build-store-release-notes.mjs --tag v1.0.0-rc.2 --body-file notes.md
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -176,7 +176,7 @@ if (import.meta.main) {
   const tag = options.tag;
   if (typeof tag !== 'string') {
     console.error(
-      'Usage: node scripts/build-store-release-notes.mjs --tag <tag> [--body-file <path>] ' +
+      'Usage: node apps/app/scripts/build-store-release-notes.mjs --tag <tag> [--body-file <path>] ' +
         '[--out-dir <dir>] [--dry-run]',
     );
     process.exit(1);

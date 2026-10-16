@@ -15,11 +15,11 @@
 // - scripts/build-store-release-notes.mjs imports `readHandWrittenReleaseNotes` and uses the text
 //   instead of the generated notes for both stores.
 //
-//   node scripts/hand-written-release-notes.mjs 1.0.0
+//   node apps/app/scripts/hand-written-release-notes.mjs 1.0.0
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const NOTES_DIR = join(import.meta.dirname, '..', 'docs', 'release-notes');
+const NOTES_DIR = join(import.meta.dirname, '..', '..', '..', 'docs', 'release-notes');
 
 /**
  * The hand-written notes for `version`, or `null` when the version has none.
@@ -40,7 +40,7 @@ export function readHandWrittenReleaseNotes(version) {
 if (import.meta.main) {
   const version = process.argv[2];
   if (version === undefined) {
-    console.error('Usage: node scripts/hand-written-release-notes.mjs <version>');
+    console.error('Usage: node apps/app/scripts/hand-written-release-notes.mjs <version>');
     process.exit(1);
   }
 

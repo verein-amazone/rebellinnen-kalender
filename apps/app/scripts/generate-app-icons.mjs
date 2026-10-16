@@ -8,7 +8,7 @@
  *
  * The output is committed, so this script only has to run when an icon source changes:
  *
- *     node scripts/generate-app-icons.mjs
+ *     node apps/app/scripts/generate-app-icons.mjs
  *
  * What it writes per icon:
  *
@@ -130,7 +130,7 @@ const FAVICON_SIZES = [16, 32, 48];
 const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
-const appleTouchIconPath = join(root, 'site/apple-touch-icon.png');
+const appleTouchIconPath = join(root, '../../site/apple-touch-icon.png');
 const faviconPath = join(root, 'public/favicon.ico');
 const playListingImageDir = join(root, 'fastlane/metadata/android/de-DE/images');
 

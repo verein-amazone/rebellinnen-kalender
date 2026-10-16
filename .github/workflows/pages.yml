@@ -23,11 +23,11 @@ on:
     branches: [dev]
     paths:
       - site/**
-      - public/legal/**
-      - public/favicon.ico
-      - src/styles/fonts/**
-      - fastlane/metadata/de-DE/**
-      - fastlane/metadata/android/de-DE/images/featureGraphic.png
+      - apps/app/public/legal/**
+      - apps/app/public/favicon.ico
+      - apps/app/src/styles/fonts/**
+      - apps/app/fastlane/metadata/de-DE/**
+      - apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png
       - scripts/build-site.mjs
       - .github/workflows/pages.yml
   workflow_dispatch:

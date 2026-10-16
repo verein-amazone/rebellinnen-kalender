@@ -6,7 +6,7 @@
 // with an alpha channel would fail there, when the version has already been released on GitHub.
 // This script fails on the pull request instead; CI runs it next to the native-version check.
 //
-//   node scripts/check-store-listing.mjs
+//   node apps/app/scripts/check-store-listing.mjs
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
@@ -15,11 +15,13 @@ import sharp from 'sharp';
 import { toPlainText } from './build-store-release-notes.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
+// The release notes live in the repository's docs/, next to the other release documentation.
+const REPO_ROOT = join(ROOT, '..', '..');
 const METADATA = join(ROOT, 'fastlane', 'metadata');
 const APP_STORE_LOCALE = join(METADATA, 'de-DE');
 const PLAY_LOCALE = join(METADATA, 'android', 'de-DE');
 const APP_STORE_SCREENSHOTS = join(ROOT, 'fastlane', 'screenshots', 'de-DE');
-const RELEASE_NOTES = join(ROOT, 'docs', 'release-notes');
+const RELEASE_NOTES = join(REPO_ROOT, 'docs', 'release-notes');
 
 /** Field limits in characters, as both consoles count them: Unicode code points. */
 const APP_STORE_FIELDS = {
@@ -67,7 +69,7 @@ const problems = [];
  * @returns {string}
  */
 function display(path) {
-  return relative(ROOT, path);
+  return relative(REPO_ROOT, path);
 }
 
 /**

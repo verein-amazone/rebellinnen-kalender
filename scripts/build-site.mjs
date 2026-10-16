@@ -22,8 +22,10 @@ import { Marked } from 'marked';
 
 const ROOT = join(import.meta.dirname, '..');
 const SITE = join(ROOT, 'site');
+// Until the website moves into the workspace it still reads the app's copy, fonts and legal texts.
+const APP = join(ROOT, 'apps', 'app');
 const OUT = resolve(ROOT, process.env.SITE_OUT ?? join('dist', 'site'));
-const METADATA = join(ROOT, 'fastlane', 'metadata', 'de-DE');
+const METADATA = join(APP, 'fastlane', 'metadata', 'de-DE');
 
 const config = JSON.parse(
   readFileSync(resolve(ROOT, process.env.SITE_CONFIG ?? join(SITE, 'site.config.json')), 'utf8'),
@@ -85,15 +87,15 @@ mkdirSync(OUT, { recursive: true });
 copy(join(SITE, 'site.css'), 'site.css');
 copy(join(SITE, 'download.js'), 'download/download.js');
 copy(join(SITE, 'assets'), 'assets');
-copy(join(ROOT, 'src', 'styles', 'fonts'), 'fonts');
+copy(join(APP, 'src', 'styles', 'fonts'), 'fonts');
 // The fonts are OFL-licensed, which asks for the licence to travel with them.
-copy(join(ROOT, 'licenses', 'texts', 'Fredoka-OFL-1.1.txt'), 'fonts/Fredoka-OFL-1.1.txt');
-copy(join(ROOT, 'licenses', 'texts', 'Inter-OFL-1.1.txt'), 'fonts/Inter-OFL-1.1.txt');
-copy(join(ROOT, 'public', 'favicon.ico'), 'favicon.ico');
+copy(join(APP, 'licenses', 'texts', 'Fredoka-OFL-1.1.txt'), 'fonts/Fredoka-OFL-1.1.txt');
+copy(join(APP, 'licenses', 'texts', 'Inter-OFL-1.1.txt'), 'fonts/Inter-OFL-1.1.txt');
+copy(join(APP, 'public', 'favicon.ico'), 'favicon.ico');
 copy(join(ROOT, 'site', 'apple-touch-icon.png'), 'apple-touch-icon.png');
 // The Play feature graphic doubles as the preview image when the link is shared.
 copy(
-  join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'images', 'featureGraphic.png'),
+  join(APP, 'fastlane', 'metadata', 'android', 'de-DE', 'images', 'featureGraphic.png'),
   'assets/share.png',
 );
 
@@ -216,7 +218,7 @@ function downloadPage() {
 
 function legalPage({ file, title, directory }) {
   // The Markdown is this repository's own file, not user input, so it is rendered as is.
-  const html = marked.parse(readText(join(ROOT, 'public', 'legal', file)), { async: false });
+  const html = marked.parse(readText(join(APP, 'public', 'legal', file)), { async: false });
 
   return layout({
     title: `${title} – ${APP_NAME}`,

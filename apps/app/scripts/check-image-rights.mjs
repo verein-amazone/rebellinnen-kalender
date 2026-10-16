@@ -7,7 +7,7 @@
 // (src/app/data/content/images.content.spec.ts) already check that every entry is
 // well-formed.
 //
-//   node scripts/check-image-rights.mjs
+//   node apps/app/scripts/check-image-rights.mjs
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 

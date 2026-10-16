@@ -23,8 +23,8 @@ on:
   push:
     branches: [main]
     paths:
-      - fastlane/metadata/**
-      - fastlane/screenshots/**
+      - apps/app/fastlane/metadata/**
+      - apps/app/fastlane/screenshots/**
   workflow_dispatch:
 
 # Least privilege: no default token permissions; each job opts in to what it needs.
@@ -70,7 +70,7 @@ jobs:
       # CI already ran this check on the pull request that brought the listing in. Repeating it is
       # cheap, and a listing the stores reject is better caught before either of them is touched.
       - name: Check the store listings
-        run: node scripts/check-store-listing.mjs
+        run: node apps/app/scripts/check-store-listing.mjs
 
   app-store:
     name: App Store
@@ -97,12 +97,14 @@ jobs:
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true
+          working-directory: apps/app
 
       - name: Write the App Store listing
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_P8_BASE64 }}
+        working-directory: apps/app
         run: bundle exec fastlane ios listing
 
   play:
@@ -129,8 +131,10 @@ jobs:
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true
+          working-directory: apps/app
 
       - name: Write the Play listing and the Data safety answers
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        working-directory: apps/app
         run: bundle exec fastlane android listing

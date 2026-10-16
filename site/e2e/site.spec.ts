@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { expectNoBlockingViolations } from '../../e2e/support/a11y';
+import { expectNoBlockingViolations } from '../../apps/app/e2e/support/a11y';
 import { SITE, SITE_WITH_STORES } from '../../playwright.site.config';
 
 const APP_STORE = 'https://apps.apple.com/at/app/rebell-innen/id0000000000';
