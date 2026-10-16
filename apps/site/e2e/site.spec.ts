@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { expectNoBlockingViolations } from '../../apps/app/e2e/support/a11y';
-import { SITE, SITE_WITH_STORES } from '../../playwright.site.config';
+import { expectNoBlockingViolations } from './support/a11y';
+import { SITE, SITE_WITH_STORES } from '../playwright.config';
 
 const APP_STORE = 'https://apps.apple.com/at/app/rebell-innen/id0000000000';
 const PLAY_STORE =
@@ -13,6 +13,25 @@ const ANDROID =
   'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36';
 
 const PAGES = ['/', '/download/', '/datenschutz/', '/nutzungsbedingungen/', '/impressum/'];
+
+/**
+ * Records every Content-Security-Policy violation. The policy allows this origin only, so an inlined
+ * style, script or `data:` asset the build slipped in shows up here, not just as a console warning.
+ */
+async function watchPolicyViolations(page: Page): Promise<string[]> {
+  const violations: string[] = [];
+  await page.exposeFunction('reportPolicyViolation', (violation: string) =>
+    violations.push(violation),
+  );
+  await page.addInitScript(() => {
+    document.addEventListener('securitypolicyviolation', (event) => {
+      (window as unknown as { reportPolicyViolation(v: string): void }).reportPolicyViolation(
+        `${event.violatedDirective}: ${event.blockedURI}`,
+      );
+    });
+  });
+  return violations;
+}
 
 /** Records every request that leaves the site's own origin. */
 function watchForeignRequests(page: Page, origin: string): string[] {
@@ -29,11 +48,13 @@ test.describe('website', () => {
   for (const path of PAGES) {
     test(`${path} loads nothing from elsewhere and passes axe`, async ({ page }) => {
       const foreign = watchForeignRequests(page, SITE);
+      const violations = await watchPolicyViolations(page);
 
       await page.goto(path, { waitUntil: 'networkidle' });
 
       await expect(page.locator('h1')).toBeVisible();
       expect(foreign).toEqual([]);
+      expect(violations).toEqual([]);
       await expectNoBlockingViolations(page);
     });
 
@@ -45,6 +66,17 @@ test.describe('website', () => {
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
       expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
+
+  // Verein Amazone asked for the website to make no claim about advertising, although the store
+  // description does (see src/pages/index.astro). The privacy policy is the exception: saying what
+  // the app does not do is its job.
+  for (const path of ['/', '/download/']) {
+    test(`${path} makes no claim about advertising`, async ({ page }) => {
+      await page.goto(path);
+
+      await expect(page.locator('body')).not.toContainText('Werbung');
     });
   }
 

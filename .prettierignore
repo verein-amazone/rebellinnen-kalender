@@ -1,9 +1,11 @@
 # Dependencies
 node_modules/
 
-# Angular build output & cache
+# Build output & caches (Angular, Astro)
 dist/
+dist-stores/
 .angular/
+.astro/
 out-tsc/
 
 # Test / tooling output

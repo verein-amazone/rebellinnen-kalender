@@ -675,6 +675,10 @@ replay_pid*
 # Angular build & cache
 .angular/
 out-tsc/
+
+# Astro: generated types; the website's second build with test store addresses (pnpm test:site)
+.astro/
+dist-stores/
 /bazel-out
 dist/
 

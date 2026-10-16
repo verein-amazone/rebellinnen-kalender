@@ -29,10 +29,10 @@
  *
  * And, once, from the default icon only:
  *
- * - `site/apple-touch-icon.png` - the 180px icon Safari on iOS shows when the website (`site/`,
- *   see docs/store-listing.md) is added to a home screen or shared.
- * - `public/favicon.ico` - the browser tab icon, 16, 32 and 48px in one file, for the website and
- *   `ng serve`.
+ * - `apps/site/public/apple-touch-icon.png` - the 180px icon Safari on iOS shows when the website
+ *   (`apps/site`, see docs/store-listing.md) is added to a home screen or shared.
+ * - `public/favicon.ico` and `apps/site/public/favicon.ico` - the browser tab icon, 16, 32 and 48px
+ *   in one file, for `ng serve` and for the website.
  * - `fastlane/metadata/android/de-DE/images/icon.png` - the 512px hi-res icon of the Play listing,
  *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
  *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
@@ -130,8 +130,9 @@ const FAVICON_SIZES = [16, 32, 48];
 const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
-const appleTouchIconPath = join(root, '../../site/apple-touch-icon.png');
-const faviconPath = join(root, 'public/favicon.ico');
+const sitePublic = join(root, '../site/public');
+const appleTouchIconPath = join(sitePublic, 'apple-touch-icon.png');
+const faviconPaths = [join(root, 'public/favicon.ico'), join(sitePublic, 'favicon.ico')];
 const playListingImageDir = join(root, 'fastlane/metadata/android/de-DE/images');
 
 /** The Play listing's hi-res icon must be exactly this size. */
@@ -383,7 +384,8 @@ async function writeFavicon(source) {
     offset += image.length;
   });
 
-  await writeFile(faviconPath, Buffer.concat([header, directory, ...images]));
+  const favicon = Buffer.concat([header, directory, ...images]);
+  await Promise.all(faviconPaths.map((path) => writeFile(path, favicon)));
 }
 
 /** The Play listing's hi-res icon, full-bleed like the iOS one. */

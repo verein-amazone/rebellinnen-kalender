@@ -364,8 +364,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: node apps/app/scripts/build-third-party-licenses.mjs --check
 
-  # The website at kalender.amazone.or.at (site/, scripts/build-site.mjs): static pages, so no app
-  # build is needed. The built site is uploaded so a reviewer can open it locally; nothing is
+  # The website at kalender.amazone.or.at (apps/site, Astro): static pages, so no app build is
+  # needed. The built site is uploaded so a reviewer can open it locally; nothing is
   # published from a pull request.
   site:
     name: Website
@@ -393,6 +393,7 @@ jobs:
 
       - name: Determine Playwright version
         id: playwright-version
+        working-directory: apps/site
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
@@ -404,10 +405,12 @@ jobs:
 
       - name: Install Playwright browser
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: apps/site
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: apps/site
         run: pnpm exec playwright install-deps chromium
 
       - name: Build and test the website
@@ -417,7 +420,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: website
-          path: dist/site
+          path: apps/site/dist
           retention-days: 7
           if-no-files-found: error
 

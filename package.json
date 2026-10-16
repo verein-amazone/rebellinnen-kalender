@@ -23,8 +23,8 @@
     "cap:sync": "pnpm --filter @amazone/app cap:sync",
     "cap:open:ios": "pnpm --filter @amazone/app cap:open:ios",
     "cap:open:android": "pnpm --filter @amazone/app cap:open:android",
-    "build:site": "node scripts/build-site.mjs",
-    "test:site": "node scripts/build-site.mjs && SITE_CONFIG=site/e2e/site.config.stores.json SITE_OUT=dist/site-stores node scripts/build-site.mjs && playwright test -c playwright.site.config.ts"
+    "build:site": "pnpm --filter @amazone/site build",
+    "test:site": "pnpm --filter @amazone/site test:e2e"
   },
   "packageManager": "pnpm@11.19.0",
   "engines": {
@@ -32,19 +32,16 @@
     "pnpm": ">=11"
   },
   "devDependencies": {
-    "@axe-core/playwright": "catalog:",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
-    "@playwright/test": "catalog:",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^11.0.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
-    "marked": "^18.1.0",
     "prettier": "catalog:",
+    "prettier-plugin-astro": "^1.1.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "semantic-release": "^25.0.9",
-    "serve": "catalog:",
     "tailwindcss": "catalog:"
   }
 }

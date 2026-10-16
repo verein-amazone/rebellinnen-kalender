@@ -2,7 +2,7 @@
 // has to work as a plain page too: without this script, on a computer, or before a store listing
 // is public, the page simply shows the store buttons it has.
 //
-// The store addresses come from `site/site.config.json` via the `data-*` attributes on <html>; an
+// The store addresses come from `apps/site/site.config.json` via the `data-*` attributes on <html>; an
 // empty one means "not public yet" and never redirects. Nothing is stored or sent anywhere - the
 // device type is only read here, in the browser.
 (function () {
