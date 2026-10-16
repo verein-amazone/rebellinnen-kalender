@@ -330,6 +330,9 @@ platform :ios do
     upload_to_testflight(
       api_key: api_key,
       distribute_only: true,
+      # Without an .ipa to read it from, pilot asks for the platform, and in CI there is no one to
+      # answer.
+      app_platform: 'ios',
       app_version: FastlaneCore::IpaFileAnalyser.fetch_app_version(ipa),
       build_number: FastlaneCore::IpaFileAnalyser.fetch_app_build(ipa),
       changelog: options[:changelog],
