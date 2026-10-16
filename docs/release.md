@@ -116,6 +116,12 @@ that `main` is about to be merged from:
    `needsReview` removed, and no `unclear` licence left - or the image removed. CI fails the pull
    request into `main` until then (`apps/app/scripts/check-image-rights.mjs`, #11).
 
+The pull request from `dev` into `main` needs a head commit without `[skip ci]`. GitHub skips every
+workflow for a pull request whose head commit message contains it, so when the newest commit on
+`dev` is a release commit (`chore(release): <version> [skip ci]`), CI never reports `CI success` and
+the ruleset blocks the merge. Land any pull request on `dev` first - a `docs:` change cuts no
+release - so the head becomes its merge commit.
+
 ## After a release from `main`
 
 `main` has to be merged back into `dev` straight away, before any other pull request lands on
@@ -355,6 +361,16 @@ with the German changelog. Open it and roll it out.
 categories, age rating - filled in, sitting in "Prepare for Submission". Select the build, check the
 listing, then "Add for Review" and submit. It is not set to release automatically on approval, so an approved
 version still waits for a human to release it.
+
+1.0.0 goes out as a **pre-order** (Pricing and Availability → App Availability → Pre-Orders, Austria,
+release date 9 November 2026). A pre-order needs the version release left on "Manually release this
+version": once App Review approves it, "Release as pre-order" puts the product page up with a
+pre-order button, and the App Store releases the app on the pre-order date by itself. A pre-order
+exists only for an app's first version; once the app is out in a country, it cannot be offered as a
+pre-order there again.
+
+The header and search results assets in `apps/app/fastlane/app-store-assets/` are uploaded by hand
+under Product Page Information → Header and Search Results; deliver has no support for them.
 
 **Play production** (`main`). The bundle appears as a **draft** release on the production track with
 the German changelog, and the listing from the repository is updated alongside it. Open it, set the
