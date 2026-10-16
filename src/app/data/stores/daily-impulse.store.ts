@@ -1,8 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
-const STORAGE_KEY = scopedStorageName('rk.dailyImpulse');
+const STORAGE_KEY = 'rk.dailyImpulse';
 
 /**
  * How many recently featured items are excluded from the next pick - the highlight cooldown.

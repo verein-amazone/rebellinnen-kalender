@@ -26,7 +26,7 @@ const WASM_PATH = '/assets/sqlite3.wasm';
  * build, on the main thread.
  *
  * The app ships to iOS and Android, where `SqliteGateway` runs the Capacitor plugin. The browser is
- * used for `ng serve`, the Playwright suite and the web demo, and gets real SQLite here so the
+ * used for `ng serve` and the Playwright suite, and gets real SQLite here so the
  * handwritten SQL and the migrations a developer clicks through are the ones a phone runs. It is the
  * same engine generation as on a device - including FTS5, which the plugin's own web layer
  * (`jeep-sqlite` over an old `sql.js`) lacks; see docs/architecture/data-persistence.md.
@@ -136,7 +136,7 @@ function engineFor(database: Database): SynchronousSqliteEngine {
 
 /**
  * The seam `e2e/support/calendar-seed.ts` seeds rows through, for flows that have no screen to
- * create their data. Only under automation (`navigator.webdriver`), so the demo build does not carry
+ * create their data. Only under automation (`navigator.webdriver`), so no other browser session carries
  * a global write handle. It shares the app's serialization lock and saves like any other write.
  */
 function exposeForEndToEndTests(database: SqliteExecutor): void {

@@ -28,13 +28,10 @@
  *
  * And, once, from the default icon only:
  *
- * - `public/icons/icon-<size>.png` and `icon-512-maskable.png` - the web app manifest's icons, used
- *   when the web demo build (see README) is installed to a home screen. The maskable one carries
- *   the same adaptive safe-zone padding as the Android foreground, because a browser applies a mask
- *   of its own.
- * - `public/icons/apple-touch-icon.png` - the 180px home-screen icon Safari on iOS uses when the web
- *   build is added to a home screen; it prefers this link over the manifest's icons.
- * - `public/favicon.ico` - the browser tab icon, 16, 32 and 48px in one file.
+ * - `site/apple-touch-icon.png` - the 180px icon Safari on iOS shows when the website (`site/`,
+ *   see docs/store-listing.md) is added to a home screen or shared.
+ * - `public/favicon.ico` - the browser tab icon, 16, 32 and 48px in one file, for the website and
+ *   `ng serve`.
  * - `fastlane/metadata/android/de-DE/images/icon.png` - the 512px hi-res icon of the Play listing,
  *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
  *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
@@ -81,9 +78,6 @@ const SAFE_ZONE_RATIO = 72 / 108;
 const IOS_ICON_SIZE = 1024;
 const PREVIEW_SIZE = 192;
 
-/** Web app manifest icons, from the default icon. 192 and 512 are what every browser asks for. */
-const MANIFEST_ICON_SIZES = [192, 512];
-
 /** The size of `apple-touch-icon` that current iPhones ask for; iOS scales it for everything else. */
 const APPLE_TOUCH_ICON_SIZE = 180;
 
@@ -93,7 +87,7 @@ const FAVICON_SIZES = [16, 32, 48];
 const iosAssets = join(root, 'ios/App/App/Assets.xcassets');
 const androidRes = join(root, 'android/app/src/main/res');
 const previewDir = join(root, 'public/app-icons');
-const manifestIconDir = join(root, 'public/icons');
+const appleTouchIconPath = join(root, 'site/apple-touch-icon.png');
 const faviconPath = join(root, 'public/favicon.ico');
 const playListingImageDir = join(root, 'fastlane/metadata/android/de-DE/images');
 
@@ -104,7 +98,6 @@ await main();
 
 async function main() {
   await mkdir(previewDir, { recursive: true });
-  await mkdir(manifestIconDir, { recursive: true });
   await mkdir(playListingImageDir, { recursive: true });
 
   const backgrounds = [];
@@ -120,7 +113,6 @@ async function main() {
     await writePreview(icon, source);
 
     if (icon.catalog === 'AppIcon') {
-      await writeManifestIcons(source, background);
       await writeAppleTouchIcon(source);
       await writeFavicon(source);
       await writePlayListingIcon(source);
@@ -292,42 +284,6 @@ async function writePreview(icon, source) {
 }
 
 /**
- * The web app manifest's icons. `any` icons are drawn as they are, so they stay full-bleed like the
- * iOS icon; the extra `maskable` one is padded into the same safe zone the Android adaptive
- * foreground uses, because an installing browser is free to crop it to its own shape.
- */
-async function writeManifestIcons(source, background) {
-  for (const size of MANIFEST_ICON_SIZES) {
-    await sharp(source)
-      .resize(size, size, { fit: 'cover' })
-      .png({ compressionLevel: 9 })
-      .toFile(join(manifestIconDir, `icon-${size}.png`));
-  }
-
-  const maskableSize = MANIFEST_ICON_SIZES.at(-1);
-  const artwork = Math.round(maskableSize * SAFE_ZONE_RATIO);
-  const inset = Math.round((maskableSize - artwork) / 2);
-
-  await sharp({
-    create: {
-      width: maskableSize,
-      height: maskableSize,
-      channels: 4,
-      background,
-    },
-  })
-    .composite([
-      {
-        input: await sharp(source).resize(artwork, artwork, { fit: 'cover' }).png().toBuffer(),
-        left: inset,
-        top: inset,
-      },
-    ])
-    .png({ compressionLevel: 9 })
-    .toFile(join(manifestIconDir, `icon-${maskableSize}-maskable.png`));
-}
-
-/**
  * Full-bleed and flattened, like the iOS app icon: iOS rounds the corners itself and would render
  * transparency black.
  */
@@ -336,7 +292,7 @@ async function writeAppleTouchIcon(source) {
     .resize(APPLE_TOUCH_ICON_SIZE, APPLE_TOUCH_ICON_SIZE, { fit: 'cover' })
     .flatten()
     .png({ compressionLevel: 9 })
-    .toFile(join(manifestIconDir, 'apple-touch-icon.png'));
+    .toFile(appleTouchIconPath);
 }
 
 /**

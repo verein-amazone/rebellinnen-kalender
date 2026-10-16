@@ -26,28 +26,7 @@
       it the `.safe-*` utilities in src/styles/base.css silently do nothing.
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <!--
-      The web demo build is a tool for looking at the app, not something to be found through a
-      search engine, so no deployment may be indexed. This tag is the only way to say so: GitHub
-      Pages cannot send an `X-Robots-Tag` header, and a crawler reads `robots.txt` only at the root
-      of the host, which this project site does not own. Native builds ignore it.
-    -->
-    <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <!--
-      The web demo build only (see README). The manifest, the icons it names and the touch icon are
-      resolved relative to this document, so one file serves the demo site and every pull-request
-      preview, whichever subdirectory it is deployed to. Native builds ignore all of it. Safari on
-      iOS takes its home-screen icon from `apple-touch-icon` rather than from the manifest.
-    -->
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <meta name="theme-color" content="#7dbdbb" />
-    <!--
-      Restores a deep link GitHub Pages could not serve (see the file). A classic script without
-      `defer`, so it runs before the Angular bundle reads the location.
-    -->
-    <script src="restore-deep-link.js"></script>
   </head>
   <body>
     <app-root></app-root>

@@ -28,7 +28,7 @@ have to be reported again.
   bleiben bei dir“).
 
 Platforms: iPhone (iOS 16.4 and later, portrait) and Android phones (Android 8.0, API 26, and
-later). The web build is a demo for development and review, not a product.
+later). The browser build exists only for local development and the e2e suite; it is not published.
 
 ## What V1 deliberately does not do
 

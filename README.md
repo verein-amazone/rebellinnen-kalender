@@ -66,8 +66,8 @@ pnpm build:site  # Build the website to dist/site
 pnpm test:site   # Build it, plus a copy with test store links, and run its Playwright suite
 ```
 
-The browser build of the app itself is no longer published: there is no web demo and there are no
-pull-request previews. The web build still exists for local development and the e2e suite.
+The browser build of the app itself is not published. It exists for local development and the e2e
+suite.
 
 ## Architecture
 
@@ -139,12 +139,10 @@ pnpm store:screenshots # Store screenshots and Play feature graphic (docs/store-
 
 ```bash
 pnpm build        # Production build to dist/rebellinnen-kalender/browser
-pnpm build:pages  # The same, plus the service worker of the web demo build
 pnpm cap:sync     # Build + sync both native projects
 ```
 
-`pnpm build` is what `cap sync` and the e2e suite consume. `pnpm build:pages` built the web demo,
-which is no longer published; it goes away with the rest of the demo setup.
+`pnpm build` is what `cap sync` and the e2e suite consume.
 
 ### Open the native projects
 

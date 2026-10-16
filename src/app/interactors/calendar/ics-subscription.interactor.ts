@@ -148,9 +148,10 @@ export class IcsSubscriptionInteractor {
   refresh(subscriptionId: string, options: { force?: boolean } = {}): Promise<IcsRefreshOutcome> {
     // A browser cannot download a calendar feed: `IcsHttpGateway` only escapes CORS through
     // `CapacitorHttp` on a device, and calendar servers send no `Access-Control-Allow-Origin`.
-    // Skipping here rather than letting every attempt fail keeps the web demo build from flagging
-    // perfectly healthy subscriptions as broken - the screens that would show that flag are hidden
-    // there anyway. Nothing was downloaded, and nothing was marked failed.
+    // Skipping here rather than letting every attempt fail keeps the browser build (`ng serve`, the
+    // Playwright suite) from flagging perfectly healthy subscriptions as broken - the screens that
+    // would show that flag are hidden there anyway. Nothing was downloaded, and nothing was marked
+    // failed.
     if (this.isWeb) {
       return Promise.resolve('unchanged');
     }

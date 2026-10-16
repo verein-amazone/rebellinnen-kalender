@@ -121,7 +121,7 @@ and when an entry is not the picture of any item.
 `Alle Rechte vorbehalten` (no link) is for an image used without an open licence by a decision of
 Verein Amazone, crediting the rightsholder; so far only `johanna-dohnal` (Parlamentsdirektion, #11)
 is.
-The app's own icons (`public/icons/`, `public/app-icons/`) are the only exception.
+The app's own icons (`public/app-icons/`) are the only exception.
 
 Notes from doing this for the first 41 items:
 

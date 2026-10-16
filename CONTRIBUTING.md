@@ -38,7 +38,7 @@ Merging into `dev` also builds and uploads the prerelease to TestFlight and Play
 [docs/release.md](./docs/release.md) describes the whole path, the credentials it needs and what to
 do when an upload fails.
 
-Pull requests get no browser preview of the app any more. A change to the website (`site/`, the
+Pull requests get no browser preview of the app. A change to the website (`site/`, the
 legal texts or the store copy) is built and tested by the `Website` CI job, which uploads the built
 site as an artifact to look at; it goes live when the pull request is merged into `dev`.
 

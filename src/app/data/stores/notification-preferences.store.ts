@@ -1,14 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   normalizedReminders,
   type NotificationPreferences,
 } from './notification-preferences';
 
-const STORAGE_KEY = scopedStorageName('rk.notifications');
+const STORAGE_KEY = 'rk.notifications';
 
 /**
  * Persists the reminder preferences in `localStorage`, like the other small preferences, validating
