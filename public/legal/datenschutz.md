@@ -29,7 +29,7 @@ Die App wird von der **Independo GmbH** im Auftrag des Vereins Amazone entwickel
 
 Wenn du Fragen zum Datenschutz hast oder deine Datenschutzrechte wahrnehmen möchtest, kannst du dich jederzeit an office@amazone.or.at wenden.
 
-Diese Datenschutzerklärung gilt für die mobile App „Rebell\*innen“ auf iOS und Android. Ergänzende Informationen zur öffentlich erreichbaren Web-Demo findest du in Abschnitt 9.
+Diese Datenschutzerklärung gilt für die mobile App „Rebell\*innen“ auf iOS und Android. Informationen zur Website der App findest du in Abschnitt 9.
 
 Für die allgemeine Website des Vereins Amazone gilt zusätzlich die dort veröffentlichte Datenschutzerklärung: https://www.amazone.or.at/impressum-datenschutz
 
@@ -210,27 +210,19 @@ Für den Abruf von Online-Kalendern werden grundsätzlich verschlüsselte HTTPS-
 
 Der Schutz lokal gespeicherter Informationen hängt darüber hinaus auch von den Sicherheitsfunktionen deines Geräts ab. Wir empfehlen, dein Betriebssystem aktuell zu halten und eine sichere Gerätesperre zu verwenden.
 
-## 9. Browserbasierte Web-Demo
+## 9. Website der App
 
-Neben der mobilen App existiert eine öffentlich erreichbare technische Vorschau:
+Unter https://kalender.amazone.or.at/ gibt es eine Website zur App. Dort findest du Informationen über die App, die Links in die App-Stores sowie diese Datenschutzerklärung, die Nutzungsbedingungen und das Impressum.
 
-https://kalender.amazone.or.at/
-
-Diese Web-Demo dient der Entwicklung, Präsentation und Erprobung der App. Sie ist kein eigenständiges mobiles Produkt.
-
-In der Web-Demo werden von dir eingegebene Termine und Einstellungen grundsätzlich lokal in deinem Browser gespeichert, insbesondere über IndexedDB und Local Storage. Diese Daten werden nicht mit der mobilen App synchronisiert.
-
-Die Web-Demo kann nicht auf die Kalender deines Smartphones zugreifen. Online-Kalenderabonnements stehen dort nicht zur Verfügung.
-
-Die Web-Demo wird über **GitHub Pages** bereitgestellt. Beim Aufruf werden technisch notwendige Verbindungsdaten, beispielsweise deine IP-Adresse, an die Infrastruktur von GitHub übermittelt.
+Die Website wird über **GitHub Pages** bereitgestellt. Beim Aufruf werden technisch notwendige Verbindungsdaten, beispielsweise deine IP-Adresse, an die Infrastruktur von GitHub übermittelt.
 
 Informationen zur Datenverarbeitung durch GitHub findest du unter:
 
 https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement
 
-Die Speicherung von Daten im Browser hängt von deinen Browsereinstellungen ab. Du kannst die lokal gespeicherten Daten durch das Löschen der entsprechenden Website-Daten entfernen.
+Die Website setzt keine Cookies, verwendet keine Analyse- oder Trackingdienste und lädt keine Inhalte von anderen Anbietern. Sie speichert nichts in deinem Browser.
 
-Für besonders persönliche oder sensible Termine empfehlen wir, die mobile App und nicht die öffentlich erreichbare Web-Demo zu verwenden.
+Die Seite https://kalender.amazone.or.at/download leitet dich direkt in den passenden App-Store weiter. Dafür erkennt sie in deinem Browser, ob du ein iPhone, ein iPad oder ein Android-Gerät verwendest. Diese Information wird weder gespeichert noch an uns übermittelt. Im App Store und bei Google Play gelten die Datenschutzbestimmungen von Apple beziehungsweise Google.
 
 ## 10. Wenn du uns kontaktierst
 

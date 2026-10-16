@@ -245,10 +245,27 @@ Adresse der Web-Demo auf https://kalender.amazone.or.at/ gesetzt.
   Verein …“ (App Store Connect). Für die Play Console gilt dieselbe Frage.
 - ☑ **Eigene Adresse für die Rechtstexte.** `kalender.amazone.or.at` ist eingerichtet
   (Ansprechperson für die Domain: Karin) und zeigt per `CNAME` auf `verein-amazone.github.io`.
-  Datenschutzerklärung, Nutzungsbedingungen, Impressum und die Web-Demo liegen dort; die alten
-  Adressen unter verein-amazone.github.io/rebellinnen-kalender leiten weiter. Noch zu tun:
+  Datenschutzerklärung, Nutzungsbedingungen, Impressum und die Website der App liegen dort; die
+  alten Adressen unter verein-amazone.github.io/rebellinnen-kalender leiten weiter. Die Web-Demo
+  wird nicht mehr veröffentlicht. Noch zu tun:
   Datenschutz-URL in App Store Connect und Play Console auf
   https://kalender.amazone.or.at/datenschutz/ ändern.
+- ☐ **Website prüfen.** https://kalender.amazone.or.at/ ist jetzt die Website der App statt der
+  Web-Demo: eine Startseite mit den Links in die Stores, `/download` als Ziel für QR-Codes (leitet
+  ein iPhone in den App Store und ein Android-Handy zu Google Play) und die drei Rechtstexte. Die
+  Texte stammen aus den freigegebenen Store-Texten. Bitte prüfen: Startseite, die Überschrift
+  „Gemeinsam mit Jugendlichen erarbeitet“ und den Abschnitt 9 der Datenschutzerklärung, der jetzt
+  die Website statt der Web-Demo beschreibt.
+- ☐ **Förderhinweis und Logos.** Im Fuß der Website stehen der Satz zur Förderung aus der
+  Store-Beschreibung, das Emblem „Kofinanziert von der Europäischen Union“ und das Logo von
+  ProEuropean Values (CERV), beide von proeuropeanvalues.at/finanzierung. Bitte bei PEVA
+  (peva@icnm.net) bestätigen, ob das so passt und ob ein zusätzlicher Haftungsausschluss der EU
+  nötig ist. Ein Logo von Verein Amazone gibt es auf der Website noch nicht, nur den Namen als Link:
+  Wenn es eines geben soll, bitte die Datei schicken.
+- ☐ **Store-Adressen nach der Freischaltung.** Sobald die App öffentlich ist, tragen wir die
+  Adressen aus App Store und Google Play ein; bis dahin steht dort „Bald verfügbar im App Store und
+  bei Google Play“. QR-Codes immer auf https://kalender.amazone.or.at/download zeigen lassen, nie
+  direkt auf einen Store.
 - ☐ **Google-Kalender umbenennen.** Der Kalender von Verein Amazone heißt in der App jetzt
   „Rebell\*innen Termine“. In Google Kalender heißt er noch „Rebell\*innen Kalender“, und diesen
   Namen sehen alle, die ihn in einer anderen App abonnieren. Bitte dort umbenennen.

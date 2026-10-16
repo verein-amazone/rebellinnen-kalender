@@ -101,13 +101,12 @@ website texts do not describe the app. Each has one source in `public/legal/` - 
 
 - **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`,
   `ImprintPage`), read from the bundled file so it works offline.
-- **On the web**: `scripts/build-legal-pages.mjs` renders the same files to static pages after
-  every build, and the Pages deployment of `dev` publishes them on Verein Amazone's domain at
+- **On the web**, as part of the website (below):
   <https://kalender.amazone.or.at/datenschutz/>,
-  <https://kalender.amazone.or.at/nutzungsbedingungen/> and <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
+  <https://kalender.amazone.or.at/nutzungsbedingungen/> and
+  <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
   `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
-  Console (App content → Privacy policy). The domain is a DNS `CNAME` to `verein-amazone.github.io`
-  that Verein Amazone maintains; `.github/workflows/pages.yml` publishes the matching `CNAME` file.
+  Console (App content → Privacy policy).
 
 The texts are Verein Amazone's: change them with their review, like the store copy, and update the
 „Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
@@ -118,6 +117,37 @@ true for the version in the stores.
 The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
 in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's
 minimum terms for one.
+
+## Website
+
+`https://kalender.amazone.or.at/` is the app's website: an introduction with the store links,
+`/download`, the three legal texts and a 404 page. The domain is a DNS `CNAME` to
+`verein-amazone.github.io` that Verein Amazone maintains.
+
+- **Built by** `scripts/build-site.mjs` (`pnpm build:site`) into `dist/site/`, from `site/` (CSS,
+  the `/download` script, images), `public/legal/*.md` and the store copy in
+  `fastlane/metadata/de-DE/` (name, subtitle, promotional text, description). Change the copy in the
+  store files, not in the site: both say the same thing by construction.
+- **Store links** come from `site/site.config.json`. While a listing is not public its URL stays
+  `null`, and the site says „Bald verfügbar im App Store …“ instead of showing that badge. Fill in
+  the App Store URL (`https://apps.apple.com/at/app/…/id<number>`) and the Play URL
+  (`https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender`) when each
+  store goes live.
+- **`/download`** is the address for QR codes. On an iPhone or iPad it forwards to the App Store, on
+  Android to Google Play; anywhere else, without JavaScript or before release, it shows the store
+  buttons it has. Print `https://kalender.amazone.or.at/download` - never a store URL - so the code
+  keeps working whatever the stores change.
+- **Nothing third-party**: fonts, images and the one script are served from the site itself, there
+  are no cookies and no tracking, and a Content-Security-Policy says so. The privacy policy
+  (section 9) describes exactly this; keep the two in step.
+- **Assets** in `site/assets/`: the official German store badges (Apple's badge tool, Google's badge
+  page), the EU co-funding emblem and the ProEuropean Values (CERV) logo from
+  proeuropeanvalues.at/finanzierung, the Klassisch icon and the store screenshots as WebP
+  (`cwebp -q 82 -resize 600 0`). Regenerate the screenshots after `pnpm store:screenshots` changes
+  them.
+- **Published** by `.github/workflows/pages.yml` on every push to `dev` that touches its sources,
+  and **tested** by `pnpm test:site` (axe, no foreign requests, no sideways scroll at 320 px, the
+  `/download` redirect) in the `Website` CI job.
 
 ## Availability
 

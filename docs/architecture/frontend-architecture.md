@@ -437,7 +437,9 @@ Only create cross-cutting code when it is actually shared.
 
 `pnpm build` is the build everything else consumes: `cap sync` copies it into the native projects,
 and the e2e suite runs against it. `pnpm build:pages` (`--configuration production,pages`) adds one
-thing to it, the Angular service worker, and is used only by the GitHub Pages workflow.
+thing to it, the Angular service worker. It built the web demo, which is no longer published (the
+GitHub Pages workflow now publishes the website, `scripts/build-site.mjs`); the target and the
+worker go away with the rest of the demo setup.
 
 The worker is kept out of the default build on purpose. A WebView already serves the bundle from the
 app package, so a worker caching it on top would keep serving the previous release's assets after an

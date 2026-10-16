@@ -46,43 +46,28 @@ synchronization.
 | Property           | Value                                                                                                         |
 | ------------------ | ------------------------------------------------------------------------------------------------------------- |
 | App ID (bundle ID) | `at.or.amazone.rebellinnenkalender`                                                                           |
-| Display name       | `Rebell*innen Kalender`                                                                                       |
+| Display name       | `Rebell*innen`                                                                                                |
 | Minimum iOS        | 16.4                                                                                                          |
 | Minimum Android    | API 26 (Android 8.0)                                                                                          |
 | Minimum WebView    | Safari 16.4, Chrome 108 ([why](./docs/architecture/frontend-architecture.md#supported-browsers-and-webviews)) |
 
-### Web demo build
+### Website
 
-Alongside them, the current state of `dev` is published as a browser build so the Verein and
-testers can look at it without an App Store or Play Store release:
+The app has a small website on Verein Amazone's domain, `https://kalender.amazone.or.at/`: an
+introduction with the store links, `/download` (the target of the printed QR codes, which sends a
+phone straight to its store) and the privacy policy, terms of use and imprint. It is plain static
+HTML built by `scripts/build-site.mjs` from `site/`, the legal texts the app bundles and the
+approved store copy, and published from `dev` by
+[.github/workflows/pages.yml](./.github/workflows/pages.yml). See
+[docs/store-listing.md](./docs/store-listing.md#website) for how it is put together.
 
-| What          | Where                                    |
-| ------------- | ---------------------------------------- |
-| Demo site     | `https://kalender.amazone.or.at/`        |
-| Pull requests | `https://kalender.amazone.or.at/pr-<n>/` |
+```bash
+pnpm build:site  # Build the website to dist/site
+pnpm test:site   # Build it, plus a copy with test store links, and run its Playwright suite
+```
 
-It is a tool for looking at the app, not a third release target, and part of it is missing by
-nature:
-
-- **No device calendars.** They are an operating-system feature with no browser equivalent.
-- **No calendar subscriptions**, curated ones included. A feed is downloaded through
-  `CapacitorHttp` on a device precisely because that escapes the WebView's CORS rules; calendar
-  servers send no `Access-Control-Allow-Origin`, so a browser cannot read them at all. The screens
-  are hidden there rather than offering controls that only ever fail.
-- **Data lives in the browser.** Appointments, reminders and settings are stored in that browser
-  profile, not on a device and not on a server, and a browser may evict them. The demo site and
-  every preview keep their own database, so nothing one of them does reaches another.
-
-The demo site is a complete installable web app - manifest, icons and the Angular service worker -
-so it can be offered as a PWA later without further work, but it is not one of the products today.
-Every deployment carries `<meta name="robots" content="noindex, nofollow">`, so search engines do
-not index it. A visitor moves onto a new deployment on their next navigation after it has
-downloaded. Previews ship without the service worker (see the workflow for why), and a build without
-it does not try to register one.
-
-The pull-request preview is deleted when its pull request closes. See
-[.github/workflows/pages.yml](./.github/workflows/pages.yml) for how both are published, and
-[Data & persistence](./docs/architecture/data-persistence.md) for the storage details.
+The browser build of the app itself is no longer published: there is no web demo and there are no
+pull-request previews. The web build still exists for local development and the e2e suite.
 
 ## Architecture
 
@@ -158,9 +143,8 @@ pnpm build:pages  # The same, plus the service worker of the web demo build
 pnpm cap:sync     # Build + sync both native projects
 ```
 
-`pnpm build` is what `cap sync` and the e2e suite consume. `pnpm build:pages` is only used by the
-GitHub Pages workflow, together with the `--base-href` of the deployment it publishes to, for
-example `pnpm build:pages --base-href /rebellinnen-kalender/`.
+`pnpm build` is what `cap sync` and the e2e suite consume. `pnpm build:pages` built the web demo,
+which is no longer published; it goes away with the rest of the demo setup.
 
 ### Open the native projects
 

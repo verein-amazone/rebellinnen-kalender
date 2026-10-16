@@ -63,5 +63,5 @@ here, each with its issue.
   pull request [#306](https://github.com/ebarooni/capacitor-calendar/pull/306)). Once a release
   with it is installed, the app needs no change of its own: `NativeCalendarGateway` already passes
   the reported value through.
-- **The web demo** cannot deliver reminders while the page is closed and cannot reach device
-  calendars.
+- **No web version.** The browser build of the app is not published; the website at
+  kalender.amazone.or.at only introduces the app and links the stores.
