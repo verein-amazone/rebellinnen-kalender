@@ -282,8 +282,8 @@ a {
 .hero-icon {
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 22%;
-  box-shadow: 0 0.75rem 1.5rem -0.75rem rgb(14 17 69 / 0.6);
+  /* The artwork brings its own rounded corners, so the shadow follows its shape, not the box. */
+  filter: drop-shadow(0 0.5rem 0.6rem rgb(14 17 69 / 0.4));
 }
 
 .brand {
@@ -469,7 +469,7 @@ a {
   margin: 2.25rem 0;
   padding: 0;
   display: grid;
-  gap: 0.25rem 2.5rem;
+  gap: 0.25rem;
   font-family: var(--display);
   font-weight: 600;
   font-size: clamp(2rem, 9vw, 3.75rem);
@@ -478,12 +478,6 @@ a {
 
 .without span {
   color: var(--orange);
-}
-
-@media (min-width: 48rem) {
-  .without {
-    grid-template-columns: repeat(2, max-content);
-  }
 }
 
 .privacy p {
@@ -644,7 +638,6 @@ a {
 .home-link img {
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 22%;
 }
 
 .page {

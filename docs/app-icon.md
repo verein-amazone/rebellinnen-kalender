@@ -22,7 +22,7 @@ Verein Amazone supplied the six icons in October 2026. They replace „Klassisch
   teal („Sam Türkis“), and red on white („Sam Hell“).
 
 `docs/images/app-icon.png` is the rounded version of the default icon from the same delivery, for the
-README. The earlier icons were based on a sketch workshop participants built from sticky notes
+README; the website's `site/assets/icon.webp` is the same rounded artwork at 256 px. The earlier icons were based on a sketch workshop participants built from sticky notes
 (`docs/images/workshop-logo-sketch.png`), kept as a record.
 
 ## Sources and generated assets
@@ -69,8 +69,8 @@ And, from the default icon (`cool-cat-nacht`) only:
 | `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md). |
 
 `favicon.ico` and `apple-touch-icon.png` belong to the website (`scripts/build-site.mjs`), whose
-`site/assets/icon.webp` is the default icon at 256 px; `ng serve` uses the same tab icon. The
-website shows only the default icon, so the alternates need none.
+page icon is the rounded artwork above, with its own corners and transparency. `ng serve` uses the
+same tab icon. The website shows only the default icon, so the alternates need none.
 
 Two details are worth knowing before editing an icon:
 
