@@ -1,4 +1,20 @@
-# pnpm settings for the Rebell*innen Kalender workspace.
+# pnpm settings for the Rebell*innen Kalender workspace: the app, the website and the packages they
+# share. See README.md for the layout.
+packages:
+  - 'apps/*'
+  - 'packages/*'
+# Versions that more than one workspace package depends on, pinned once. A package asks for one with
+# `"<name>": "catalog:"`, so the app and the website can never drift onto different majors.
+catalog:
+  '@axe-core/playwright': ^4.13.0
+  '@playwright/test': ^1.64.0
+  '@tailwindcss/postcss': ^4.3.3
+  '@tailwindcss/vite': ^4.3.3
+  '@types/node': ^26.6.5
+  prettier: ^3.9.10
+  serve: ^14.2.6
+  tailwindcss: ^4.3.3
+  typescript: ~6.0.3
 # Build scripts are opt-in since pnpm 10; these are the trusted native
 # dependencies pulled in by the Angular build toolchain.
 allowBuilds:
