@@ -46,7 +46,7 @@ the items marked **(all devices)** on every device in the matrix.
 - [ ] Current iOS on a real iPhone
 - [ ] A small iPhone (SE size) and a large one (Pro Max size)
 - [ ] Android API 26, the declared minimum (`minSdkVersion`) - an emulator is fine here. Its stock
-      System WebView is below the floor of 108: the app must show „Der Rebell\*innen Kalender kann
+      System WebView is below the floor of 108: the app must show „Die Rebell\*innen App kann
       nicht starten“, not a white screen. Then update the WebView (or use an image with the Play
       Store) and check that the app runs.
 - [ ] Current Android on a real phone

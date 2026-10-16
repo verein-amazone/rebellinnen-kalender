@@ -63,7 +63,7 @@ function page(title, body, directory) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${title} – Rebell*innen Kalender</title>
+    <title>${title} – Rebell*innen App</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -113,7 +113,7 @@ function page(title, body, directory) {
   </head>
   <body>
     <main>
-      <h1>${title} – Rebell*innen Kalender</h1>
+      <h1>${title} – Rebell*innen App</h1>
 ${body}
       <footer>
         <nav aria-label="Rechtliches">${links}</nav>
