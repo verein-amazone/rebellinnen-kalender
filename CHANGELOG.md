@@ -1,3 +1,23 @@
+## [1.0.0-rc.58](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.57...v1.0.0-rc.58) (2026-10-16)
+
+### Features
+
+* **site:** design and accessibility pass ([21bc3dc](https://github.com/verein-amazone/rebellinnen-kalender/commit/21bc3dc0afa24538dd7daf754ee1ee3b3aa82859))
+
+### Bug Fixes
+
+* **icons:** round the favicon's corners ([6f7d6c4](https://github.com/verein-amazone/rebellinnen-kalender/commit/6f7d6c4d568674fc32377b9ba2f6f2c4cc9cbea4))
+* **site:** bring back the scroll animation of the app screens ([4dc5ed8](https://github.com/verein-amazone/rebellinnen-kalender/commit/4dc5ed8dccb3008ed0380f20f8e41e36484907c7))
+* **site:** show the app screens whole, inside a bezel ([e12c38d](https://github.com/verein-amazone/rebellinnen-kalender/commit/e12c38d23736ac25f48b3e854229d8d642c314d4))
+
+### Chores
+
+* **deps:** weekly app dependency update ([28a1b46](https://github.com/verein-amazone/rebellinnen-kalender/commit/28a1b461be30a0bbafcfdaa4e0cc691fbfb22b5c))
+
+### Delivery
+
+* **deps:** bump the github-actions group with 4 updates ([f872690](https://github.com/verein-amazone/rebellinnen-kalender/commit/f8726909055b46ca49f69ea687997bc79e806589))
+
 ## [1.0.0-rc.57](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.56...v1.0.0-rc.57) (2026-10-16)
 
 ### Features
