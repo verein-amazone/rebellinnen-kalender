@@ -26,7 +26,7 @@ Gleich in beiden Stores, sofern nicht anders angegeben. Zeichenlimits in Klammer
 | Kategorien, App Store                          | Produktivität, zweite Kategorie Lifestyle                                                                                         | ☑             |
 | Copyright                                      | 2026 Verein Amazone                                                                                                               | ☑             |
 | Support-URL                                    | https://www.amazone.or.at/kontakt                                                                                                 | ☑             |
-| Marketing-URL                                  | https://www.amazone.or.at/projekte/rebell-innen-kalender (die Projektseite von Verein Amazone; www.rebellinnen.at gibt es nicht)  | ☑             |
+| Marketing-URL                                  | https://kalender.amazone.or.at (die Website der App; www.rebellinnen.at gibt es nicht)                                            | ☐             |
 
 ### Beschreibung (4000)
 
