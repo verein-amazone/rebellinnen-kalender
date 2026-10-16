@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { expect, test, type Page } from '@playwright/test';
 
 import { expectNoBlockingViolations } from './support/a11y';
@@ -6,6 +8,15 @@ import { SITE, SITE_WITH_STORES } from '../playwright.config';
 const APP_STORE = 'https://apps.apple.com/at/app/rebell-innen/id0000000000';
 const PLAY_STORE =
   'https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender';
+
+/**
+ * The real configuration (site.config.json), which the `dist` build on SITE uses. Each store's
+ * address is filled in when its listing goes public, so the tests on SITE follow it instead of
+ * assuming one release state; the `dist-stores` build on SITE_WITH_STORES always has both.
+ */
+const LIVE: { appStoreUrl: string | null; playStoreUrl: string | null } = JSON.parse(
+  readFileSync(new URL('../site.config.json', import.meta.url), 'utf8'),
+);
 
 const IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
@@ -80,15 +91,33 @@ test.describe('website', () => {
     });
   }
 
-  test('says the app is coming while no store listing is public', async ({ page }) => {
+  test('links each public store and says „Bald verfügbar“ for the others', async ({ page }) => {
     await page.goto('/');
 
-    await expect(
-      page.getByText('Bald verfügbar im App Store und bei Google Play').first(),
-    ).toBeVisible();
-    await expect(
-      page.getByRole('link', { name: /im App Store laden|bei Google Play laden/ }),
-    ).toHaveCount(0);
+    const stores = [
+      { url: LIVE.appStoreUrl, link: 'Rebell*innen im App Store laden', soon: 'im App Store' },
+      {
+        url: LIVE.playStoreUrl,
+        link: 'Rebell*innen bei Google Play laden',
+        soon: 'bei Google Play',
+      },
+    ];
+    for (const store of stores) {
+      const link = page.getByRole('link', { name: store.link });
+      if (store.url) {
+        await expect(link.first()).toHaveAttribute('href', store.url);
+      } else {
+        await expect(link).toHaveCount(0);
+      }
+    }
+    const missing = stores.filter((store) => !store.url).map((store) => store.soon);
+    const notice = page.getByText(/Bald verfügbar/).first();
+    if (missing.length > 0) {
+      await expect(notice).toBeVisible();
+      await expect(page.locator('main')).toContainText(`Bald verfügbar ${missing.join(' und ')}`);
+    } else {
+      await expect(notice).toHaveCount(0);
+    }
   });
 
   test('links both stores once they are public', async ({ page }) => {
@@ -189,10 +218,11 @@ test.describe('/download', () => {
     });
 
     test('stays on the page while the App Store listing is not public', async ({ page }) => {
+      test.skip(LIVE.appStoreUrl !== null, 'the App Store listing is public');
       await page.goto('/download/');
 
       await expect(page).toHaveURL(`${SITE}/download/`);
-      await expect(page.getByText('Bald verfügbar im App Store und bei Google Play')).toBeVisible();
+      await expect(page.locator('main')).toContainText('Bald verfügbar im App Store');
     });
   });
 
