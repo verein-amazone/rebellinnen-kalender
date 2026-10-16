@@ -52,8 +52,8 @@ serializes statements and transactions on the single shared connection. Two rule
 
 ### SQLite in the browser
 
-The app ships to iOS and Android. The browser is used for `ng serve`, the Playwright suite and the
-web demo build (see the README), and it gets **real** SQLite there - but not through the plugin.
+The app ships to iOS and Android. The browser is used for `ng serve` and the Playwright suite (the
+web demo is no longer published), and it gets **real** SQLite there - but not through the plugin.
 The `SQLITE_DATABASE` token resolves to `data/gateways/wasm-sqlite.gateway.ts` on the web, which
 runs [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm), SQLite's own WebAssembly
 build, on the main thread. That way the handwritten SQL and the migrations that run on a phone are
@@ -510,8 +510,12 @@ writes are guarded, and a lost preference is preferable to a broken app.
 
 ### One database per deployment
 
+> The web demo and its previews are no longer published, so this applies to nothing live today; it
+> is removed together with the rest of the demo setup.
+
 A browser scopes IndexedDB and `localStorage` to the **origin**, never to the path. The web demo
-build and its pull-request previews are all served from `verein-amazone.github.io`, so without a
+build and its pull-request previews are all served from `kalender.amazone.or.at` - the demo at the
+root, each preview under `/pr-<n>/` - so without a
 discriminator a preview would open, migrate and write the very database the demo site uses: a pull
 request carrying a new migration would silently upgrade a tester's data, and the demo build would
 then meet a schema from the future.

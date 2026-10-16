@@ -64,9 +64,10 @@ And, from the default icon (`klassisch`) only:
 | `public/favicon.ico`                              | The browser tab icon: 16, 32 and 48 px PNGs in one ICO file.                                                                                    |
 | `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md).                      |
 
-The `public/` ones belong to the web demo build (see the README): the tab icon, and what a browser
-uses when the app is installed to a home screen. The demo build has no icon switcher, so the
-alternates need none.
+The `public/` ones belong to the browser build: the tab icon, and what a browser uses when the app
+is installed to a home screen. The website (`scripts/build-site.mjs`) reuses `favicon.ico` and
+`apple-touch-icon.png`, and its own `site/assets/icon.webp` is the Klassisch icon at 256 px. The
+browser build has no icon switcher, so the alternates need none.
 
 Two details are worth knowing before editing an icon:
 

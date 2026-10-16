@@ -65,11 +65,11 @@ describe('LegalContentGateway', () => {
     const urls: string[] = [];
     stubFetch((url) => {
       urls.push(url);
-      return Promise.resolve(textResponse('## 1. Über den Rebell*innen Kalender'));
+      return Promise.resolve(textResponse('## 1. Über die Rebell*innen App'));
     });
     const gateway = setup();
 
-    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über den Rebell*innen Kalender');
+    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über die Rebell*innen App');
     expect(urls[0]).toContain('legal/nutzungsbedingungen.md');
   });
 
@@ -79,5 +79,25 @@ describe('LegalContentGateway', () => {
 
     stubFetch(() => Promise.reject(new Error('network down')));
     expect(await setup().fetchTermsOfUse()).toBeNull();
+  });
+
+  it('returns the bundled imprint', async () => {
+    const urls: string[] = [];
+    stubFetch((url) => {
+      urls.push(url);
+      return Promise.resolve(textResponse('## Herausgeberin'));
+    });
+    const gateway = setup();
+
+    expect(await gateway.fetchImprint()).toBe('## Herausgeberin');
+    expect(urls[0]).toContain('legal/impressum.md');
+  });
+
+  it('returns null when the imprint is missing or fetching it throws', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    expect(await setup().fetchImprint()).toBeNull();
+
+    stubFetch(() => Promise.reject(new Error('network down')));
+    expect(await setup().fetchImprint()).toBeNull();
   });
 });

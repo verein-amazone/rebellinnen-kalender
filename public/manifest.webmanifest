@@ -1,8 +1,8 @@
 {
-  "name": "Rebell*innen Kalender",
+  "name": "Rebell*innen",
   "id": "./",
   "short_name": "Rebell*innen",
-  "description": "Der Kalender des Vereins Amazone - Termine, Impulse und Anlaufstellen.",
+  "description": "Dein feministischer Kalender von Verein Amazone - Termine, To-dos und Infos.",
   "lang": "de",
   "dir": "ltr",
   "display": "standalone",

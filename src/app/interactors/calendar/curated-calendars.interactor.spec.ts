@@ -123,8 +123,8 @@ describe('CuratedCalendarsInteractor', () => {
       sources: [
         {
           id: 'amazone-rebellinnen-kalender',
-          name: 'Rebell*innen Kalender',
-          description: 'Veranstaltungen und Aktionen vom Verein Amazone.',
+          name: 'Rebell*innen Termine',
+          description: 'Aktionstage und Veranstaltungen vom Verein Amazone.',
           url: 'https://example.org/amazone.ics',
           color: '#7B3FA8',
           emoji: '✊',
@@ -135,7 +135,7 @@ describe('CuratedCalendarsInteractor', () => {
 
     const rows = await interactor.listForManagement();
 
-    expect(rows.map((row) => row.name)).toEqual(['Rebell*innen Kalender', 'Feiertage Österreich']);
+    expect(rows.map((row) => row.name)).toEqual(['Rebell*innen Termine', 'Feiertage Österreich']);
   });
 
   it('lists the curated sources for the introduction without downloading any', async () => {

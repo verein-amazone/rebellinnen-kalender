@@ -1,12 +1,12 @@
-**Stand: 13. Oktober 2026**
+**Stand: 16. Oktober 2026**
 
 ## 1. Deine Privatsphäre ist uns wichtig
 
-Der Rebell\*innen Kalender soll dich im Alltag begleiten, dir interessante Inhalte zeigen und dir dabei helfen, deine Termine und Aufgaben zu organisieren. Dabei ist uns wichtig, dass deine persönlichen Daten möglichst privat bleiben.
+Die Rebell\*innen App soll dich im Alltag begleiten, dir interessante Inhalte zeigen und dir dabei helfen, deine Termine und Aufgaben zu organisieren. Dabei ist uns wichtig, dass deine persönlichen Daten möglichst privat bleiben.
 
-Deshalb funktioniert unsere App ohne Benutzerkonto, ohne eigene Server zur Speicherung deiner Kalenderdaten und ohne Cloud-Synchronisierung durch uns.
+Deshalb funktioniert die App ohne Benutzerkonto, ohne eigene Server zur Speicherung deiner Daten und ohne Cloud-Synchronisierung durch uns.
 
-Deine Termine, Erinnerungen, Einstellungen und gespeicherten Inhalte bleiben grundsätzlich auf deinem Gerät. Wir verwenden keine Analyse- oder Trackingdienste und zeigen keine Werbung.
+Deine Termine, To-dos, Einstellungen und gespeicherten Inhalte bleiben auf deinem Gerät. Wir verwenden keine Analyse- oder Trackingdienste und zeigen keine Werbung.
 
 Für einige freiwillige Funktionen, insbesondere die Einbindung von Online-Kalendern oder das Öffnen externer Links, ist eine Verbindung zu anderen Anbietern notwendig. Was dabei passiert, erklären wir dir in dieser Datenschutzerklärung.
 
@@ -29,7 +29,7 @@ Die App wird von der **Independo GmbH** im Auftrag des Vereins Amazone entwickel
 
 Wenn du Fragen zum Datenschutz hast oder deine Datenschutzrechte wahrnehmen möchtest, kannst du dich jederzeit an office@amazone.or.at wenden.
 
-Diese Datenschutzerklärung gilt für die mobile App „Rebell\*innen Kalender“ auf iOS und Android. Ergänzende Informationen zur öffentlich erreichbaren Web-Demo findest du in Abschnitt 9.
+Diese Datenschutzerklärung gilt für die mobile App „Rebell\*innen“ auf iOS und Android. Informationen zur Website der App findest du in Abschnitt 9.
 
 Für die allgemeine Website des Vereins Amazone gilt zusätzlich die dort veröffentlichte Datenschutzerklärung: https://www.amazone.or.at/impressum-datenschutz
 
@@ -40,14 +40,14 @@ Für die allgemeine Website des Vereins Amazone gilt zusätzlich die dort veröf
 Wenn du die App verwendest, kannst du unterschiedliche Informationen eingeben oder speichern. Dazu gehören insbesondere:
 
 - **Kalenderdaten:** Termine, Titel, Beschreibungen, Orte, Uhrzeiten, Wiederholungen und Erinnerungen.
-- **Aufgaben:** Einträge und Erledigungsstatus in der Liste „Nicht vergessen“.
-- **Persönliche Einstellungen:** beispielsweise dein Anzeigename, ein Emoji, das gewählte Farbthema, die Textgröße und Einstellungen für Benachrichtigungen.
-- **Gespeicherte Inhalte:** Wissensimpulse und Rebell\*innen-Porträts, die du deiner persönlichen Sammlung hinzufügst.
+- **To-dos:** Einträge und Erledigungsstatus in der Liste „Nicht vergessen“.
+- **Persönliche Einstellungen:** beispielsweise dein Anzeigename, das gewählte Farbthema, die Textgröße und Einstellungen für Benachrichtigungen.
+- **Gespeicherte Inhalte:** Wissen und Rebell\*innen, die du deiner persönlichen Sammlung hinzufügst.
 - **Kalenderverbindungen:** Informationen über eingebundene Gerätekalender sowie Namen und Adressen abonnierter Online-Kalender.
 
 Diese Informationen werden in der App lokal auf deinem Gerät gespeichert. Dafür verwenden wir insbesondere eine lokale SQLite-Datenbank und den lokalen Anwendungsspeicher.
 
-Wir betreiben keinen eigenen Server, auf den deine persönlichen Termine oder Aufgaben hochgeladen werden. Weder der Verein Amazone noch Independo können über die App auf diese lokal gespeicherten Inhalte zugreifen.
+Wir betreiben keinen eigenen Server, auf den deine persönlichen Termine oder To-dos hochgeladen werden. Weder der Verein Amazone noch Independo können über die App auf diese lokal gespeicherten Inhalte zugreifen.
 
 ### 3.2 Besonders persönliche oder sensible Informationen
 
@@ -59,17 +59,17 @@ Bitte beachte, dass die App keinen zusätzlichen Passwortschutz und keine eigene
 
 ### 3.3 Inhalte des Vereins Amazone
 
-Die App enthält unter anderem Informationen über Rebell\*innen, Wissensimpulse und Hinweise auf Beratungs- und Unterstützungsangebote.
+Die App enthält unter anderem Informationen über Rebell\*innen, Wissen und Hinweise auf Beratungs- und Unterstützungsangebote.
 
 Diese Inhalte sind Bestandteil der App und werden lokal bereitgestellt. Wenn du sie liest oder in deiner Sammlung speicherst, wird diese Nutzung nicht an uns übermittelt.
 
-Wir erfassen insbesondere nicht, welche Beiträge du liest, welche Themen dich interessieren oder welche Inhalte du speicherst.
+Wir erfassen nicht, welche Beiträge du liest, welche Themen dich interessieren oder welche Inhalte du speicherst.
 
 ## 4. Zugriff auf Funktionen deines Geräts
 
 ### 4.1 Gerätekalender
 
-Wenn du möchtest, kannst du die Kalender deines Smartphones mit dem Rebell\*innen Kalender verbinden.
+Wenn du möchtest, kannst du den Kalender deines Smartphones mit dem Kalender der Rebell\*innen App verbinden.
 
 Dazu benötigt die App die entsprechende Kalenderberechtigung deines Betriebssystems. Du wirst um diese Berechtigung gebeten, wenn du die Funktion verwendest.
 
@@ -78,13 +78,13 @@ Mit deiner Freigabe kann die App:
 - die verfügbaren Gerätekalender anzeigen;
 - darin gespeicherte Termine lesen und innerhalb der App darstellen;
 - Kalenderdaten für die Anzeige lokal zwischenspeichern;
-- auf deinen ausdrücklichen Wunsch Termine in einem beschreibbaren Gerätekalender anlegen oder bearbeiten.
+- auf deinen Wunsch Termine in einem beschreibbaren Gerätekalender anlegen oder bearbeiten.
 
 Die App übermittelt diese Kalenderdaten nicht an Server des Vereins Amazone oder von Independo.
 
 **Wichtig:** Wenn du einen Kalender verwendest, der mit einem externen Dienst verbunden ist, beispielsweise iCloud, Google Kalender, Microsoft Outlook oder einem anderen Kalenderanbieter, kann dein Betriebssystem die Termine mit diesem Dienst synchronisieren.
 
-Das betrifft auch Termine, die du über den Rebell\*innen Kalender in einem solchen Gerätekalender speicherst. Diese Synchronisierung erfolgt über dein Kalenderkonto beziehungsweise dein Betriebssystem und nicht über einen eigenen Server des Rebell\*innen Kalenders.
+Das betrifft auch Termine, die du über die Rebell\*innen App in einem solchen Gerätekalender speicherst. Diese Synchronisierung erfolgt über dein Kalenderkonto beziehungsweise dein Betriebssystem und nicht über einen eigenen Server der Rebell\*innen App.
 
 Welche Daten dabei verarbeitet werden, hängt vom jeweiligen Kalenderanbieter und deinen Kontoeinstellungen ab.
 
@@ -127,13 +127,13 @@ Einzelne Kalenderadressen können persönliche Kennungen oder geheime Zugriffssc
 
 Die Kalenderinhalte werden anschließend auf deinem Gerät verarbeitet und lokal gespeichert, damit du sie in der App ansehen kannst. Ein eigener Server des Vereins Amazone oder von Independo wird dafür nicht zwischengeschaltet.
 
-Bereits eingerichtete Kalender können bei geöffnetem oder erneut aktivierter App automatisch aktualisiert werden. Neue Abrufe benötigen eine Internetverbindung.
+Bereits eingerichtete Kalender können bei geöffneter oder erneut aktivierter App automatisch aktualisiert werden. Neue Abrufe benötigen eine Internetverbindung.
 
 ### 5.2 Welche Anbieter sind eingebunden?
 
 In der aktuellen Version sind folgende Online-Kalender vorgesehen:
 
-- **Rebell\*innen Kalender:** Veranstaltungen und Aktionen des Vereins Amazone, technisch über Google Calendar bereitgestellt.
+- **Rebell\*innen Termine:** Aktionstage und Veranstaltungen des Vereins Amazone, technisch über Google Calendar bereitgestellt.
 - **Feiertage Österreich:** Kalenderdaten der Stadt Wien über wien.gv.at.
 
 Diese Kalender sind im Katalog der App hinterlegt und können beim erstmaligen Verwenden der Kalenderfunktionen abgerufen werden. Du kannst ihre Anzeige über die Kalenderverwaltung anpassen.
@@ -157,7 +157,7 @@ Die App verwendet für neue Kalenderabonnements grundsätzlich HTTPS-Verbindunge
 
 ## 6. Externe Links und Unterstützungsangebote
 
-Der Rebell\*innen Kalender enthält Verweise auf externe Websites, Beratungsstellen, Hilfsangebote und andere Organisationen.
+Die Rebell\*innen App enthält Verweise auf externe Websites, Beratungsstellen, Hilfsangebote und andere Organisationen.
 
 Wenn du einen externen Link öffnest, verlässt du die App beziehungsweise wechselst in deinen Browser oder eine andere Anwendung.
 
@@ -165,7 +165,7 @@ Dabei können die jeweiligen Anbieter personenbezogene Daten verarbeiten, beispi
 
 Wenn du über die App eine Telefonnummer anrufst oder eine Nachrichtenfunktion öffnest, erfolgt die weitere Kommunikation über die entsprechende Anwendung beziehungsweise den von dir verwendeten Kommunikationsdienst.
 
-Der Verein Amazone erhält durch das bloße Öffnen eines solchen Links oder einer Telefonnummer keine Mitteilung darüber, welches Angebot du ausgewählt hast.
+Der Verein Amazone erhält durch das Öffnen eines solchen Links oder einer Telefonnummer keine Mitteilung darüber, welches Angebot du ausgewählt hast.
 
 Für die Datenverarbeitung durch externe Websites, Telefonanbieter und Kommunikationsdienste gelten deren jeweilige Datenschutzbestimmungen.
 
@@ -188,17 +188,17 @@ Unabhängig davon können Apple, Google und andere Anbieter deines Betriebssyste
 
 Deine persönlichen App-Daten bleiben grundsätzlich so lange auf deinem Gerät gespeichert, bis du sie innerhalb der App löschst oder die App deinstallierst.
 
-Du kannst einzelne Termine, Aufgaben, Kalenderabonnements und gespeicherte Inhalte über die jeweiligen Funktionen der App verwalten und entfernen.
+Du kannst einzelne Termine, To-dos, Kalenderabonnements und gespeicherte Inhalte über die jeweiligen Funktionen der App verwalten und entfernen.
 
-Wenn du die App deinstallierst, werden die lokal gespeicherten Anwendungsdaten grundsätzlich vom Gerät entfernt.
+Wenn du die App deinstallierst, werden die lokal gespeicherten Anwendungsdaten vom Gerät entfernt.
 
 Dabei gibt es zwei wichtige Ausnahmen:
 
-**Daten in externen Gerätekalendern:** Termine, die in einem mit deinem Smartphone verbundenen Kalenderkonto gespeichert sind, werden durch das Deinstallieren des Rebell\*innen Kalenders nicht automatisch aus diesem Kalenderkonto gelöscht.
+**Daten in externen Gerätekalendern:** Termine, die in einem mit deinem Smartphone verbundenen Kalenderkonto gespeichert sind, werden durch das Deinstallieren der Rebell\*innen App nicht automatisch aus diesem Kalenderkonto gelöscht.
 
 **Gerätesicherungen:** Abhängig von deinem Betriebssystem und deinen Einstellungen können App-Daten Bestandteil eines Gerätebackups sein, beispielsweise über iCloud oder die Backup-Funktionen von Android. Solche Sicherungen werden vom jeweiligen Anbieter beziehungsweise durch deine Geräteeinstellungen verwaltet.
 
-Der Rebell\*innen Kalender bietet selbst keine zusätzliche Cloud-Synchronisierung und keinen eigenen Online-Backupdienst an.
+Die Rebell\*innen App bietet selbst keine zusätzliche Cloud-Synchronisierung und keinen eigenen Online-Backupdienst an.
 
 ### 8.2 Wie schützen wir deine Daten?
 
@@ -210,27 +210,19 @@ Für den Abruf von Online-Kalendern werden grundsätzlich verschlüsselte HTTPS-
 
 Der Schutz lokal gespeicherter Informationen hängt darüber hinaus auch von den Sicherheitsfunktionen deines Geräts ab. Wir empfehlen, dein Betriebssystem aktuell zu halten und eine sichere Gerätesperre zu verwenden.
 
-## 9. Browserbasierte Web-Demo
+## 9. Website der App
 
-Neben der mobilen App existiert eine öffentlich erreichbare technische Vorschau:
+Unter https://kalender.amazone.or.at/ gibt es eine Website zur App. Dort findest du Informationen über die App, die Links in die App-Stores sowie diese Datenschutzerklärung, die Nutzungsbedingungen und das Impressum.
 
-https://verein-amazone.github.io/rebellinnen-kalender/
-
-Diese Web-Demo dient der Entwicklung, Präsentation und Erprobung der App. Sie ist kein eigenständiges mobiles Produkt.
-
-In der Web-Demo werden von dir eingegebene Termine und Einstellungen grundsätzlich lokal in deinem Browser gespeichert, insbesondere über IndexedDB und Local Storage. Diese Daten werden nicht mit der mobilen App synchronisiert.
-
-Die Web-Demo kann nicht auf die nativen Kalender deines Smartphones zugreifen. Online-Kalenderabonnements stehen dort nicht zur Verfügung.
-
-Die Web-Demo wird über **GitHub Pages** bereitgestellt. Beim Aufruf werden technisch notwendige Verbindungsdaten, beispielsweise deine IP-Adresse, an die Infrastruktur von GitHub übermittelt.
+Die Website wird über **GitHub Pages** bereitgestellt. Beim Aufruf werden technisch notwendige Verbindungsdaten, beispielsweise deine IP-Adresse, an die Infrastruktur von GitHub übermittelt.
 
 Informationen zur Datenverarbeitung durch GitHub findest du unter:
 
 https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement
 
-Die Speicherung von Daten im Browser hängt von deinen Browsereinstellungen ab. Du kannst die lokal gespeicherten Daten durch das Löschen der entsprechenden Website-Daten entfernen.
+Die Website setzt keine Cookies, verwendet keine Analyse- oder Trackingdienste und lädt keine Inhalte von anderen Anbietern. Sie speichert nichts in deinem Browser.
 
-Für besonders persönliche oder sensible Termine empfehlen wir, die mobile App und nicht die öffentlich erreichbare Web-Demo zu verwenden.
+Die Seite https://kalender.amazone.or.at/download leitet dich direkt in den passenden App-Store weiter. Dafür erkennt sie in deinem Browser, ob du ein iPhone, ein iPad oder ein Android-Gerät verwendest. Diese Information wird weder gespeichert noch an uns übermittelt. Im App Store und bei Google Play gelten die Datenschutzbestimmungen von Apple beziehungsweise Google.
 
 ## 10. Wenn du uns kontaktierst
 
@@ -255,7 +247,7 @@ Bitte sende uns möglichst keine sensiblen persönlichen Kalenderdaten oder vert
 
 Die App ist so gestaltet, dass möglichst wenig personenbezogene Daten beim Verein Amazone anfallen.
 
-Die rein lokale Verarbeitung deiner Kalenderdaten, Aufgaben und Einstellungen führt grundsätzlich nicht dazu, dass wir diese Informationen erhalten oder auf eigenen Servern speichern.
+Die rein lokale Verarbeitung deiner Kalenderdaten, To-dos und Einstellungen führt nicht dazu, dass wir diese Informationen erhalten oder auf eigenen Servern speichern.
 
 Soweit personenbezogene Daten im Zusammenhang mit dem Betrieb der App durch uns verarbeitet werden und die DSGVO darauf Anwendung findet, kommen insbesondere folgende Rechtsgrundlagen in Betracht:
 
@@ -291,7 +283,7 @@ Soweit wir personenbezogene Daten über dich verarbeiten, stehen dir nach Maßga
 - **Widerspruch:** Du kannst einer Verarbeitung widersprechen, soweit die gesetzlichen Voraussetzungen dafür erfüllt sind.
 - **Widerruf:** Falls eine Verarbeitung auf deiner datenschutzrechtlichen Einwilligung beruht, kannst du diese jederzeit mit Wirkung für die Zukunft widerrufen.
 
-Bitte beachte: Da deine persönlichen Kalenderdaten grundsätzlich ausschließlich auf deinem Gerät gespeichert werden, können wir diese Daten nicht von einem Server abrufen, für dich exportieren oder dort löschen.
+Bitte beachte: Da deine persönlichen Kalenderdaten ausschließlich auf deinem Gerät gespeichert werden, können wir diese Daten nicht von einem Server abrufen, für dich exportieren oder dort löschen.
 
 Du kannst lokal gespeicherte Informationen innerhalb der App verwalten oder durch Deinstallieren der App vom Gerät entfernen. Informationen in externen Kalenderkonten oder Gerätesicherungen musst du gegebenenfalls beim jeweiligen Anbieter verwalten.
 
@@ -321,7 +313,7 @@ Für die Nutzung der grundlegenden App-Funktionen musst du kein Benutzerkonto er
 
 Einzelne Funktionen benötigen bestimmte Eingaben oder Freigaben. Ohne Kalenderberechtigung kannst du beispielsweise deine Gerätekalender nicht innerhalb der App anzeigen. Ohne Internetverbindung können Online-Kalender nicht neu abgerufen werden.
 
-Die Bereitstellung dieser Informationen und Berechtigungen ist grundsätzlich freiwillig.
+Die Bereitstellung dieser Informationen und Berechtigungen ist freiwillig.
 
 ## 16. Änderungen dieser Datenschutzerklärung
 

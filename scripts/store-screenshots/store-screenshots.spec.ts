@@ -87,7 +87,7 @@ async function seedDemoData(page: Page): Promise<void> {
     sourceType: 'ics',
     title: 'Internationaler Frauentag',
     day: TODAY,
-    calendarName: 'Rebell*innen Kalender',
+    calendarName: 'Rebell*innen Termine',
     color: '#7B3FA8',
   });
 
@@ -265,8 +265,8 @@ function featureGraphicHtml(): string {
 <main>
   <img src="data:image/png;base64,${icon}" alt="">
   <div>
-    <h1>Rebell*innen<br>Kalender</h1>
-    <p>Dein Kalender von Verein Amazone.<br>Ohne Konto. Alles bleibt bei dir.</p>
+    <h1>Rebell*innen</h1>
+    <p>Dein feministischer Kalender.<br>Ohne Konto. Alles bleibt bei dir.</p>
   </div>
 </main>
 </body>

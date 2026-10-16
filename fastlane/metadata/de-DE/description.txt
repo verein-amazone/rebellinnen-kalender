@@ -1,30 +1,30 @@
-Der Rebell*innen Kalender ist die digitale Version des gedruckten Rebell*innen Kalenders von Verein Amazone: ein Kalender für jeden Tag, mit Geschichten von Frauen* und Menschen, die die Welt verändert haben – und Wissen, das stark macht.
+Die Rebell*innen App ist mehr als nur ein Kalender. Sie begleitet dich durch den Alltag und hilft, auch in stressigen Zeiten den Überblick zu bewahren. Neben Terminen und To-dos findest du viele Funktionen, wie du die App nach deinen Wünschen und Bedürfnissen gestalten kannst – so wie’s dir gefällt! Außerdem erwarten dich jede Menge spannende Infos und Inspo zu verschiedensten Themen, Anlaufstellen und Unterstützungsangebote in Österreich und alles, was dein feministisches Herz begehrt!
 
-HEUTE AUF EINEN BLICK
-Deine nächsten Termine, dein Tagesimpuls und deine Nicht-vergessen-Liste auf einem Bildschirm.
+Die App wurde von Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen aus verschiedenen Regionen Österreichs gemeinsam mit dem Verein Amazone erarbeitet.
+
+HEUTE
+Deine nächsten Termine, die Info des Tages und deine To-do-Liste auf einen Blick.
 
 DEIN KALENDER
-• Termine anlegen, mit Wiederholungen und Erinnerungen
-• Wochen- und Monatsansicht
-• Kalender deines Handys anzeigen und Termine dort speichern
-• Kalender-Links abonnieren, zum Beispiel von deinem Verein oder deiner Schule
-• Die Termine von Verein Amazone und die österreichischen Feiertage mit einem Tipp einschalten
+Du kannst Termine anlegen mit Wiederholungen und Erinnerungen in praktischer Wochen- oder Monatsansicht. Du kannst die App mit dem Kalender deines Handys verbinden und auch andere Kalender abonnieren, zum Beispiel von deinem Verein oder deiner Schule. Wenn du magst, kannst du dir andere Termine anzeigen lassen, zum Beispiel Feier- und Aktionstage oder Veranstaltungen.
 
 REBELL*INNEN UND WISSEN
-• Porträts von Rebell*innen – von Ada Lovelace bis Malala Yousafzai
-• Wissensimpulse zu Feminismus, Gesundheit, Vielfalt und Alltag
-• Speichere, was dir wichtig ist, in „Meine Sammlung“
+Deine tägliche Dosis Feminismus mit inspirierenden Rebell*innen wie Ada Lovelace oder Malala Yousafzai. Dazu gibt’s Infos zu verschiedenen Themen, von Feminismus, Gesundheit und Vielfalt bis hin zu Rezepten und Buchtipps. Speicher, was dir wichtig ist oder du später noch lesen möchtest, in „Meine Sammlung“.
 
 NICHT VERGESSEN
-Eine einfache Liste für alles, was kein Termin ist.
+Mach dir eine To-do-Liste für alles, was du nicht vergessen darfst.
 
 ANLAUFSTELLEN
-Beratungsstellen und Notrufnummern, direkt zum Anrufen oder Schreiben.
+Hier findest du verschiedene Angebote für Mädchen*, zum Beispiel Beratungsstellen oder Mädchentreffs in ganz Österreich.
 
-SO, WIE ES FÜR DICH PASST
-Vier Farbthemen, verschiedene Textgrößen, drei App-Symbole, weniger Animationen und Vibration nach Wunsch. Die App funktioniert mit VoiceOver und großer Schrift.
+MACH DIR DIE APP, WIE SIE DIR GEFÄLLT
+Gestalte die App mit Farben, Schriftgrößen, App-Symbolen und Animationen. Die App funktioniert mit VoiceOver.
 
 DEINE DATEN BLEIBEN BEI DIR
-Kein Konto, kein eigener Server, keine Werbung, kein Tracking. Deine Termine, Listen und gespeicherten Inhalte sind nur auf deinem Gerät – und die App funktioniert auch ohne Internet.
+Die App funktioniert ohne Konto, ohne Werbung und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät. Die App funktioniert auch ohne Internet.
 
-Entwickelt von Independo GmbH im Auftrag von Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender
+Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazone in Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und österreichweit als Print herausgegeben wird: www.rebellinnen.at
+
+Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender
+
+Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.

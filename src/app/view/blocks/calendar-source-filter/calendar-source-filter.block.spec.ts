@@ -49,14 +49,14 @@ describe('CalendarSourceFilterBlock', () => {
   it('renders one toggle button per calendar, naming it and showing its emoji', async () => {
     const { element } = await setup([
       calendar({ id: 'a', name: 'Mein Kalender', emoji: '📅' }),
-      calendar({ id: 'b', name: 'Rebell*innen Kalender', emoji: '✊' }),
+      calendar({ id: 'b', name: 'Rebell*innen Termine', emoji: '✊' }),
     ]);
 
     const buttons = Array.from(element.querySelectorAll('button'));
     expect(buttons).toHaveLength(2);
     expect(buttons[0].textContent).toContain('Mein Kalender');
     expect(buttons[0].textContent).toContain('📅');
-    expect(buttons[1].textContent).toContain('Rebell*innen Kalender');
+    expect(buttons[1].textContent).toContain('Rebell*innen Termine');
   });
 
   it('marks a visible calendar as pressed and a hidden one as not pressed', async () => {

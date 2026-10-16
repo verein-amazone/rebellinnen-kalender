@@ -6,7 +6,7 @@ import { LegalContentInteractor } from '@app/interactors/settings/legal-content.
 import { TermsPage } from './terms.page';
 
 class FakeLegalContentInteractor {
-  markdown: string | null = '## 1. Über den Rebell*innen Kalender\n\nVerein Amazone';
+  markdown: string | null = '## 1. Über die Rebell*innen App\n\nVerein Amazone';
 
   termsOfUse(): Promise<string | null> {
     return Promise.resolve(this.markdown);
@@ -31,10 +31,10 @@ async function setup(config: { markdown?: string | null } = {}) {
 describe('TermsPage', () => {
   it('renders the bundled terms of use as Markdown', async () => {
     const { element } = await setup({
-      markdown: '## 1. Über den Rebell*innen Kalender\n\nVerein Amazone',
+      markdown: '## 1. Über die Rebell*innen App\n\nVerein Amazone',
     });
 
-    expect(element.querySelector('h2')?.textContent).toBe('1. Über den Rebell*innen Kalender');
+    expect(element.querySelector('h2')?.textContent).toBe('1. Über die Rebell*innen App');
     expect(element.textContent).toContain('Verein Amazone');
   });
 

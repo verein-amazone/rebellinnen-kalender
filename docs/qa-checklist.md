@@ -46,7 +46,7 @@ the items marked **(all devices)** on every device in the matrix.
 - [ ] Current iOS on a real iPhone
 - [ ] A small iPhone (SE size) and a large one (Pro Max size)
 - [ ] Android API 26, the declared minimum (`minSdkVersion`) - an emulator is fine here. Its stock
-      System WebView is below the floor of 108: the app must show „Der Rebell\*innen Kalender kann
+      System WebView is below the floor of 108: the app must show „Die Rebell\*innen App kann
       nicht starten“, not a white screen. Then update the WebView (or use an image with the Play
       Store) and check that the app runs.
 - [ ] Current Android on a real phone
@@ -134,8 +134,9 @@ The workflow:
       move, all-day appointments stay on their day.
 - [ ] **All-day device events on Android** are written and read on the right day (#98).
 - [ ] **App icon:** Klassisch, Pixel and Nacht can each be selected and show on the home screen.
-- [ ] **External links** (Anlaufstellen, licences, image credits, Datenschutz, Impressum) open in the
-      browser or the phone app, and the back path into the app works.
+- [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
+      Impressum) open in the browser or the phone app, and the back path into the app works.
+- [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.
 - [ ] **Shake** on Heute replays the Tagesimpuls greeting on a real device, and the same replay is
       reachable by tapping.
 

@@ -2,10 +2,9 @@
  * Resolves a bundled asset against the document's `<base href>`.
  *
  * On a device the base href is the WebView's root, so the result is the same root-relative path
- * that used to be written out by hand. On the web the app is also served from a subdirectory - the
- * GitHub Pages demo build lives under `/rebellinnen-kalender/`, a pull-request preview under
- * `/rebellinnen-kalender/pr-<n>/` - where a path starting at the server root would miss the
- * deployment entirely. `--base-href` rewrites `index.html` and the bundles, but never a string in
+ * that used to be written out by hand. On the web the app can also be served from a subdirectory - a
+ * pull-request preview of the GitHub Pages demo lives under `/pr-<n>/` - where a path starting at
+ * the server root would miss the deployment entirely. `--base-href` rewrites `index.html` and the bundles, but never a string in
  * TypeScript, so every asset path the app builds itself goes through here.
  *
  * A path rather than an absolute URL on purpose: an absolute one would carry the WebView's

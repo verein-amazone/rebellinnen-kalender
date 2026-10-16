@@ -1,0 +1,743 @@
+/*
+ * The website at kalender.amazone.or.at, rendered by scripts/build-site.mjs. It wears the app's
+ * own Amazone theme (src/styles/theme.css) at page scale: teal ground with the dotted notebook
+ * grid of the printed calendar, navy type and bands, cream for reading surfaces, orange as the one
+ * highlight. Fredoka and Inter are the app's faces, served from here.
+ */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('/fonts/fredoka-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('/fonts/fredoka-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+:root {
+  --teal: #7dbdbb;
+  --navy: #15195f;
+  --navy-deep: #0e1145;
+  --cream: #fffdf6;
+  --sand: #f7f0e2;
+  --orange: #f28a2e;
+  --mist: #a8d4d3;
+  --dot: rgb(21 25 95 / 0.12);
+  --radius: 0.625rem;
+  --display: 'Fredoka', 'Inter', system-ui, sans-serif;
+  --text: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: light;
+  scrollbar-color: var(--navy) var(--teal);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--teal);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--navy);
+  background-color: var(--teal);
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+  font: 400 1.0625rem/1.6 var(--text);
+  overflow-wrap: break-word;
+}
+
+main {
+  flex: 1;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 1.1;
+  text-wrap: balance;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 0.09em;
+  text-underline-offset: 0.22em;
+}
+
+::selection {
+  background: var(--orange);
+  color: var(--navy);
+}
+
+:focus-visible {
+  outline: 3px solid var(--navy);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+.on-navy :focus-visible {
+  outline-color: var(--orange);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -10rem;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--navy);
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.wrap {
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
+}
+
+/* ---------- Store buttons ---------- */
+
+.stores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.store {
+  display: inline-flex;
+  border-radius: 0.6rem;
+  transition: transform 160ms var(--ease-out);
+}
+
+.store:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .store:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Apple's badge has no clear space of its own; Google's PNG carries 11.6 % above and below. Both
+   end up the same visible height (3.25rem), as the badge guidelines ask. */
+.store-apple img {
+  height: 3.25rem;
+  width: auto;
+}
+
+.store-google img {
+  height: 4.23rem;
+  width: auto;
+  margin-block: -0.49rem;
+}
+
+.soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.25rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--cream);
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.soon svg {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+/* ---------- Phone ---------- */
+
+.phone {
+  position: relative;
+  width: var(--phone-width, min(74vw, 19rem));
+  aspect-ratio: 600 / 1304;
+  border: 0.6rem solid var(--navy);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  background: var(--navy);
+  box-shadow:
+    0 2rem 3rem -1.5rem rgb(14 17 69 / 0.55),
+    0 0.5rem 1rem -0.5rem rgb(14 17 69 / 0.35);
+}
+
+.phone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* The one moment of motion: each screen settles into place as it scrolls in, from a resting tilt
+   that is already fully visible. Nothing moves for visitors who asked for less motion, and
+   browsers without scroll-driven animations simply show the screens upright. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .settle {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: translateY(2.5rem) rotate(var(--tilt, -5deg));
+    animation-timing-function: var(--ease-out);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+/* ---------- Landing: hero ---------- */
+
+.hero {
+  display: grid;
+  gap: 2.5rem;
+  padding-block: clamp(1.75rem, 6vw, 4.5rem) 0;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+
+.hero-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 22%;
+  box-shadow: 0 0.75rem 1.5rem -0.75rem rgb(14 17 69 / 0.6);
+}
+
+.brand {
+  font-size: clamp(3.25rem, 15vw, 6rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin-top: -0.4rem;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 5.5vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.promise {
+  max-width: 32ch;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+}
+
+.hero .stores {
+  margin-top: 0.5rem;
+}
+
+.hero-phone {
+  justify-self: center;
+  --phone-width: min(78vw, 20rem);
+  /* Cropped by the fold on a phone: the screen reads as "there is more below". */
+  margin-bottom: -6rem;
+}
+
+@media (min-width: 60rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    column-gap: 3rem;
+    min-height: min(100svh, 52rem);
+    padding-block: 3rem;
+  }
+
+  .hero-phone {
+    --phone-width: 21rem;
+    margin-bottom: 0;
+    transform: rotate(3deg);
+  }
+}
+
+/* ---------- Landing: what the app does ---------- */
+
+.intro {
+  position: relative;
+  padding-block: 9rem 2rem;
+}
+
+@media (min-width: 60rem) {
+  .intro {
+    padding-top: 6rem;
+  }
+}
+
+.intro h2 {
+  font-size: clamp(2.25rem, 8vw, 4rem);
+  max-width: 14ch;
+}
+
+.intro p {
+  margin-top: 1.25rem;
+  max-width: 38rem;
+  font-size: 1.1875rem;
+}
+
+@media (min-width: 60rem) {
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 4rem;
+    align-items: end;
+  }
+
+  .intro p {
+    margin-top: 0;
+  }
+}
+
+.features {
+  display: grid;
+  gap: clamp(4rem, 12vw, 7rem);
+  padding-block: 3rem clamp(4rem, 12vw, 7rem);
+}
+
+.feature {
+  display: grid;
+  gap: 2rem;
+  justify-items: center;
+}
+
+.feature-copy {
+  justify-self: stretch;
+  display: grid;
+  gap: 1rem;
+}
+
+.feature h3 {
+  font-size: clamp(1.875rem, 6.5vw, 3rem);
+}
+
+.feature p {
+  max-width: 34rem;
+  font-size: 1.125rem;
+}
+
+.feature .phone {
+  --phone-width: min(68vw, 17rem);
+}
+
+.feature:nth-child(even) .phone {
+  --tilt: 5deg;
+}
+
+@media (min-width: 60rem) {
+  .feature {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 4rem;
+  }
+
+  .feature:nth-child(even) .feature-copy {
+    order: 2;
+  }
+
+  .feature .phone {
+    --phone-width: 22rem;
+    justify-self: start;
+  }
+
+  .feature:nth-child(even) .phone {
+    justify-self: end;
+  }
+}
+
+.extras {
+  display: grid;
+  gap: 2.5rem;
+  padding-bottom: clamp(4rem, 12vw, 7rem);
+}
+
+.extras h3 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  margin-bottom: 0.75rem;
+}
+
+.extras p {
+  max-width: 34rem;
+}
+
+@media (min-width: 48rem) {
+  .extras {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 4rem;
+  }
+}
+
+/* ---------- Landing: privacy band ---------- */
+
+.on-navy {
+  background: var(--navy);
+  color: var(--cream);
+}
+
+.privacy {
+  padding-block: clamp(4rem, 12vw, 7rem);
+}
+
+.privacy h2 {
+  font-size: clamp(2.25rem, 8vw, 4rem);
+  max-width: 14ch;
+}
+
+.without {
+  list-style: none;
+  margin: 2.25rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem 2.5rem;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(2rem, 9vw, 3.75rem);
+  line-height: 1.1;
+}
+
+.without span {
+  color: var(--orange);
+}
+
+@media (min-width: 48rem) {
+  .without {
+    grid-template-columns: repeat(2, max-content);
+  }
+}
+
+.privacy p {
+  max-width: 36rem;
+  font-size: 1.125rem;
+  color: var(--mist);
+}
+
+.privacy .links {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  font-weight: 600;
+}
+
+.privacy .links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+}
+
+/* ---------- Landing: who made it, and the second call to action ---------- */
+
+.origin {
+  padding-block: clamp(4rem, 12vw, 7rem);
+  display: grid;
+  gap: 1.25rem;
+}
+
+.origin h2 {
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  max-width: 16ch;
+}
+
+.origin p {
+  max-width: 38rem;
+}
+
+@media (min-width: 60rem) {
+  .origin {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    column-gap: 4rem;
+    align-items: start;
+  }
+
+  .origin > :not(.get) {
+    grid-column: 1;
+  }
+
+  .origin .get {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    margin-top: 0;
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+.get {
+  margin-top: 2.5rem;
+  padding: clamp(1.75rem, 6vw, 3rem);
+  border-radius: var(--radius);
+  background: var(--cream);
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+
+.get h2 {
+  font-size: clamp(1.875rem, 6vw, 2.75rem);
+}
+
+.get .soon {
+  background: var(--sand);
+}
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  padding-block: 3rem calc(3rem + env(safe-area-inset-bottom));
+  font-size: 0.9375rem;
+}
+
+.footer-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.footer-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+
+.footer-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  font-weight: 600;
+}
+
+.footer-nav a[aria-current='page'] {
+  text-decoration: none;
+  color: var(--mist);
+}
+
+.funding {
+  display: grid;
+  gap: 1rem;
+  color: var(--mist);
+  max-width: 40rem;
+}
+
+.funding-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2rem;
+}
+
+.funding-logos img {
+  height: 2.75rem;
+  width: auto;
+}
+
+.footer-meta {
+  color: var(--mist);
+}
+
+@media (min-width: 60rem) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    column-gap: 4rem;
+  }
+}
+
+/* ---------- Text pages: legal texts, 404 ---------- */
+
+.site-header {
+  padding-block: 1rem;
+}
+
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  text-decoration: none;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.home-link img {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 22%;
+}
+
+.page {
+  padding-block: 1.5rem clamp(3rem, 10vw, 5rem);
+}
+
+.page > h1 {
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  margin-bottom: 1.5rem;
+}
+
+.sheet {
+  max-width: 46rem;
+  padding: clamp(1.25rem, 5vw, 3rem);
+  border-radius: var(--radius);
+  background: var(--cream);
+  font-size: 1.0625rem;
+}
+
+.sheet h2 {
+  font-size: 1.5rem;
+  margin: 2.25rem 0 0.75rem;
+}
+
+.sheet h3 {
+  font-size: 1.1875rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.sheet > :first-child {
+  margin-top: 0;
+}
+
+.sheet p,
+.sheet ul,
+.sheet ol {
+  margin: 0 0 1rem;
+}
+
+.sheet ul,
+.sheet ol {
+  padding-left: 1.25rem;
+}
+
+.sheet li + li {
+  margin-top: 0.35rem;
+}
+
+.sheet a {
+  color: inherit;
+}
+
+.sheet strong {
+  font-weight: 650;
+}
+
+.page-lead {
+  max-width: 34rem;
+  font-size: 1.1875rem;
+  margin-bottom: 2rem;
+}
+
+/* ---------- /download ---------- */
+
+.download {
+  padding-block: clamp(2.5rem, 10vw, 6rem);
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 1.25rem;
+}
+
+.download .hero-icon {
+  width: 6rem;
+  height: 6rem;
+}
+
+.download .stores {
+  justify-content: center;
+}
+
+.download .status:empty {
+  display: none;
+}
+
+.download .status {
+  max-width: 28ch;
+  font-size: 1.1875rem;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  font-weight: 600;
+}

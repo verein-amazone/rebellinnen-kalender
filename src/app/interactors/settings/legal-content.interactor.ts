@@ -8,7 +8,7 @@ import type { ImageCreditView } from './image-credit.vm';
 
 /**
  * Backs the legal settings pages: licences and image credits (#11), the privacy policy and the terms
- * of use (#79).
+ * of use (#79), and the imprint.
  */
 @Injectable({ providedIn: 'root' })
 export class LegalContentInteractor {
@@ -25,6 +25,10 @@ export class LegalContentInteractor {
 
   termsOfUse(): Promise<string | null> {
     return this.gateway.fetchTermsOfUse();
+  }
+
+  imprint(): Promise<string | null> {
+    return this.gateway.fetchImprint();
   }
 
   async imageAttributions(): Promise<readonly ImageCreditView[]> {

@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'at.or.amazone.rebellinnenkalender',
-  appName: 'Rebell*innen Kalender',
+  appName: 'Rebell*innen',
   webDir: 'dist/rebellinnen-kalender/browser',
   // An Android System WebView older than the `.browserslistrc` floor cannot run the app - it shows a
   // white screen. Below this version Capacitor loads `server.errorPath` instead - a static page that

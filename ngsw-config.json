@@ -11,7 +11,9 @@
     "!/datenschutz",
     "!/datenschutz/**",
     "!/nutzungsbedingungen",
-    "!/nutzungsbedingungen/**"
+    "!/nutzungsbedingungen/**",
+    "!/impressum",
+    "!/impressum/**"
   ],
   "assetGroups": [
     {
