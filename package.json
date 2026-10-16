@@ -1,6 +1,6 @@
 {
   "name": "rebellinnen-kalender",
-  "version": "1.0.0-rc.59",
+  "version": "1.0.0-rc.60",
   "description": "Workspace root: the app (apps/app), the website (apps/site) and the packages they share. Holds the release version and the repository-wide tooling.",
   "repository": {
     "type": "git",

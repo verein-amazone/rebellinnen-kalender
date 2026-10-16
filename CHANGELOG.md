@@ -1,3 +1,9 @@
+## [1.0.0-rc.60](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.59...v1.0.0-rc.60) (2026-10-16)
+
+### Features
+
+* **store:** add iPhone Duo screenshots and the App Store header assets ([577f9a4](https://github.com/verein-amazone/rebellinnen-kalender/commit/577f9a479373aa7a1f359168c519a11772a86164))
+
 ## [1.0.0-rc.59](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.58...v1.0.0-rc.59) (2026-10-16)
 
 ### Features
