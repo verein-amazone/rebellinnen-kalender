@@ -13,9 +13,8 @@ technischen Hintergründe stehen in [store-listing.md](./store-listing.md) und
   Zeit hat. Im App Store als Vorbestellung mit Erscheinungsdatum 9. November: Eine Vorbestellung
   verlangt „Diese Version manuell freigeben“, nach der Prüfung wird sie mit „Als Vorbestellung
   freigeben“ freigegeben, und der App Store veröffentlicht die App am 9. November von selbst.
-  Google Play kennt kein Datum: Mit
-  „Verwaltete Veröffentlichung“ wartet die geprüfte Version, bis sie am 9. November **von Hand**
-  veröffentlicht wird.
+  Google Play kennt kein Datum: Mit „Verwaltete Veröffentlichung“ wartet die geprüfte Version, bis
+  sie am 9. November **von Hand** veröffentlicht wird.
 
 ## 1. Texte im Store
 
