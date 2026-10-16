@@ -58,13 +58,13 @@ const FEATURES = [
     section: 'REBELL*INNEN UND WISSEN',
     title: 'Rebell*innen und Wissen',
     screen: 'rebellin',
-    alt: 'Das Porträt von Ada Lovelace in der App, mit einem Zitat und ihrer Geschichte.',
+    alt: 'Das Porträt der Astronautin Christina Koch in der App, mit einem Zitat und ihrer Geschichte.',
   },
   {
     section: 'ANLAUFSTELLEN',
     title: 'Anlaufstellen',
     screen: 'anlaufstellen',
-    alt: 'Die Anlaufstellen in der App: Rat auf Draht, Telefonseelsorge und Kindernotruf, jeweils mit Knopf zum Anrufen oder Chatten.',
+    alt: 'Die Anlaufstellen in Vorarlberg in der App: Verein Amazone und der Mädchen*treff Dornbirn, jeweils mit Knopf zum Anrufen und Link zur Webseite.',
   },
 ];
 
@@ -131,7 +131,7 @@ function landingPage() {
       ${storeButtons()}
     </div>
     <div class="phone hero-phone">
-      <img src="/assets/screens/heute.webp" width="600" height="1304" alt="Der Heute-Bildschirm der App: ein Gruß, ein Porträt von Clara Zetkin und die Termine des Tages.">
+      <img src="/assets/screens/heute.webp" width="600" height="1304" alt="Der Heute-Bildschirm der App: ein Gruß, der Wissensimpuls „Heute ist Feministischer Kampftag!“ mit einer gezeichneten Katze und die Termine des Tages.">
     </div>
   </section>
 

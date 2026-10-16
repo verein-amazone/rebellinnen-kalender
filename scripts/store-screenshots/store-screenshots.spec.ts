@@ -34,13 +34,21 @@ const NOW = new Date('2026-03-08T09:30:00+01:00');
 const TODAY = '2026-03-08';
 
 /**
- * The content the screenshots show. Rebell*innen whose portraits are in the public domain and
- * Wissensimpulse illustrated by Verein Amazone itself, so no screenshot carries third-party licence
- * terms into the store (see `public/content/images.json`).
+ * The content the screenshots show, as Verein Amazone chose it: a Rebell*in of today whose portrait
+ * is in the public domain (Christina Koch) and Wissensimpulse illustrated by Verein Amazone itself,
+ * so no screenshot carries third-party licence terms into the store (see
+ * `public/content/images.json`).
  */
-const REBELLIN_ID = 'reb-09';
-const WISSEN_ID = 'wi-10';
-const BOOKMARKED_IDS = [REBELLIN_ID, WISSEN_ID, 'reb-33', 'wi-08'];
+const REBELLIN_ID = 'reb-02';
+const WISSEN_ID = 'wi-06';
+const BOOKMARKED_IDS = [REBELLIN_ID, WISSEN_ID, 'wi-18', 'wi-07'];
+
+/**
+ * Heute's impulse: „Heute ist Feministischer Kampftag!“, which fits the pinned date. The daily pick
+ * is weighted random over the catalog, so it is written into the store instead of left to chance -
+ * the stored pick for today is what Heute shows (see `DailyImpulseInteractor`).
+ */
+const IMPULSE_ID = 'wi-08';
 
 /** Stores read the colour values only; an alpha channel makes Play reject the feature graphic. */
 async function writeOpaquePng(png: Buffer, path: string): Promise<void> {
@@ -158,11 +166,25 @@ test.describe('store screenshots', () => {
       path: string;
       ready: (page: Page) => Promise<unknown>;
       before?: (page: Page) => Promise<unknown>;
+      /** Runs after the navigation, for state the route cannot express. */
+      prepare?: (page: Page) => Promise<unknown>;
     }[] = [
       {
         name: 'heute',
         path: '/today',
-        ready: (p) => expect(p.getByText('Kaffee mit Mira')).toBeVisible(),
+        ready: async (p) => {
+          await expect(p.getByText('Kaffee mit Mira')).toBeVisible();
+          await expect(p.getByText('Heute ist Feministischer Kampftag!')).toBeVisible();
+        },
+        before: (p) =>
+          p.evaluate(
+            ({ day, itemId }) =>
+              localStorage.setItem(
+                'rk.dailyImpulse',
+                JSON.stringify({ day, itemId, recentIds: [itemId], seenDay: day }),
+              ),
+            { day: TODAY, itemId: IMPULSE_ID },
+          ),
       },
       {
         name: 'kalender',
@@ -172,7 +194,7 @@ test.describe('store screenshots', () => {
       {
         name: 'rebellin',
         path: `/content/${REBELLIN_ID}`,
-        ready: (p) => expect(p.getByRole('heading', { name: 'Ada Lovelace' })).toBeVisible(),
+        ready: (p) => expect(p.getByRole('heading', { name: 'Christina Koch' })).toBeVisible(),
       },
       {
         name: 'wissen',
@@ -182,12 +204,14 @@ test.describe('store screenshots', () => {
       {
         name: 'sammlung',
         path: '/content?area=collection',
-        ready: (p) => expect(p.getByText('Marie Curie')).toBeVisible(),
+        ready: (p) => expect(p.getByText('Christina Koch')).toBeVisible(),
       },
       {
         name: 'anlaufstellen',
         path: '/content?area=services',
-        ready: (p) => expect(p.getByText('Rat auf Draht')).toBeVisible(),
+        // Verein Amazone's own region, so the list opens with Verein Amazone.
+        prepare: (p) => p.getByRole('radio', { name: 'Vorarlberg' }).click(),
+        ready: (p) => expect(p.getByText('Verein Amazone').first()).toBeVisible(),
       },
       {
         name: 'monat',
@@ -207,6 +231,7 @@ test.describe('store screenshots', () => {
     for (const [index, shot] of shots.entries()) {
       await shot.before?.(page);
       await page.goto(shot.path);
+      await shot.prepare?.(page);
       await shot.ready(page);
       await settle(page);
       const file = `${String(index + 1).padStart(2, '0')}-${shot.name}.png`;

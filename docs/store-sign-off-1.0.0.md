@@ -110,7 +110,10 @@ Meine Sammlung, Anlaufstellen, Kalender (Monat). Gezeigt werden nur Porträts, d
 und Wissensbilder von Verein Amazone selbst. Dazu für Google Play eine Titelgrafik (App-Symbol und
 Name „Rebell\*innen“, darunter „Dein feministischer Kalender. Ohne Konto. Alles bleibt bei dir.“)
 und das App-Symbol „Cool Cat Nacht“. Neu erzeugt mit dem neuen Namen, dem Kalender „Rebell\*innen
-Termine“ und den neuen App-Symbolen.
+Termine“ und den neuen App-Symbolen. Inhalte wie per Mail gewünscht: Heute zeigt den Wissensimpuls
+„Heute ist Feministischer Kampftag!“, die Rebell\*in ist Christina Koch, der Wissensimpuls
+#mikrofeminismus, Meine Sammlung enthält außerdem „Ally“ und „Tipps gegen Hass im Netz“, und die
+Anlaufstellen zeigen Vorarlberg mit Verein Amazone an erster Stelle.
 
 ☐ Screenshots und Titelgrafik freigegeben – Änderungen: …
 
