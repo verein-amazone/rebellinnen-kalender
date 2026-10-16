@@ -1,3 +1,10 @@
+## [1.0.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0...v1.0.1-rc.1) (2026-10-16)
+
+### Bug Fixes
+
+* **fastlane:** leave the App Store release type to the person who submits ([5c746ba](https://github.com/verein-amazone/rebellinnen-kalender/commit/5c746ba23111513c383f77daef900fed42f30a93))
+* **fastlane:** pass the platform to the TestFlight hand-off of an earlier upload ([46e4601](https://github.com/verein-amazone/rebellinnen-kalender/commit/46e46019701aa856bdad4db3c237f0565f26d731))
+
 ## 1.0.0 (2026-10-16)
 
 ### Features
