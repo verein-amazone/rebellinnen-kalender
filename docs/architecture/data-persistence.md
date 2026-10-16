@@ -81,9 +81,9 @@ How it works:
   migration above it runs in its own transaction together with the new stamp. Foreign keys are on,
   as the plugin turns them on on a device.
 - Under automation (`navigator.webdriver`) the gateway exposes its connection as
-  `window.rkWebSqlite`, which `e2e/support/calendar-seed.ts` seeds rows through.
+  `window.rkWebSqlite`, which `apps/app/e2e/support/calendar-seed.ts` seeds rows through.
 - The engine module is loaded with a dynamic import, so a native build never fetches it.
-  `sqlite3.wasm` is still copied by **every** build (see `angular.json`): CI runs the e2e suite
+  `sqlite3.wasm` is still copied by **every** build (see `apps/app/angular.json`): CI runs the e2e suite
   against the production bundle served statically, so the production web build must be able to
   open a database too. The asset also ships in the native bundles, which is accepted for now.
 - Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`) and handed to the
@@ -107,14 +107,14 @@ We deliberately do not install an ORM or query builder:
 On iOS the plugin's own `Package.swift` declares its Capacitor dependency as
 `.package(url: "…/capacitor-swift-pm.git", branch: "8.0.0")`. An unversioned Swift Package Manager
 requirement wins over a versioned one for the **entire** dependency graph, so that branch overrides
-the `exact: "8.5.0"` that `ios/App/CapApp-SPM/Package.swift` asks for. Three things follow:
+the `exact: "8.5.0"` that `apps/app/ios/App/CapApp-SPM/Package.swift` asks for. Three things follow:
 
 - **`package.json` does not tell you which Capacitor the app links against.**
-  `ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` does, and it
+  `apps/app/ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` does, and it
   currently reads `branch: "8.0.0"`, revision `5962590`. Check that file, not the npm version.
 - **Native APIs added after Capacitor iOS 8.0 are unavailable at compile time.** The concrete case is
   `SceneDelegateProxy` from [Capacitor 8.5](https://capacitorjs.com/docs/updating/8-5), which is why
-  `ios/App/App/SceneDelegate.swift` is hand-written and forwards through `ApplicationDelegateProxy`
+  `apps/app/ios/App/App/SceneDelegate.swift` is hand-written and forwards through `ApplicationDelegateProxy`
   instead. The legacy `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications it posts are
   the ones plugins observe, so behaviour is equivalent.
 - **Do not delete `Package.resolved` to force a re-resolve.** `refs/heads/8.0.0` no longer exists on
@@ -243,7 +243,7 @@ recurrence machinery. The repository is the calendar's unit-of-work boundary - t
 exception to „repositories are not introduced automatically“: it coordinates several DAOs, the
 recurrence engine, the native calendar gateway and the ICS pipeline, and every method that changes
 derived rows runs inside one transaction. Interactors never import the calendar DAOs themselves,
-not even to read; ESLint enforces that (`CALENDAR_DAOS` in `eslint.config.js`).
+not even to read; ESLint enforces that (`CALENDAR_DAOS` in `apps/app/eslint.config.js`).
 
 ### Authoritative, derived, disposable
 
@@ -367,7 +367,7 @@ call rejects with `"<Plugin>.<method>() is not implemented on web"`, and a direc
 object leaves a spec no seam to replace it - not even a component spec that only happens to construct
 the wrapper transitively. The folder also makes the native surface countable: those files are the
 complete list of native capabilities the app depends on.
-`src/app/cross-cutting/plugins/README.md` carries the detail, including why several tokens hold a
+`apps/app/src/app/cross-cutting/plugins/README.md` carries the detail, including why several tokens hold a
 plain forwarding object rather than the plugin itself.
 
 ## Native calendar gateway boundary
@@ -512,7 +512,7 @@ writes are guarded, and a lost preference is preferable to a broken app.
 The SQLite database name (`data/gateways/database-name.ts`) and every store's `localStorage` key are
 what an installed app finds its data by. Renaming one starts that part of every existing install
 empty, so a new name needs a migration that reads the old one first, the way
-`ImpulsePreferencesStore` still reads its legacy key. `e2e/support/calendar-seed.ts` relies on the
+`ImpulsePreferencesStore` still reads its legacy key. `apps/app/e2e/support/calendar-seed.ts` relies on the
 database name as well.
 
 A store is **not** where a table-backed list belongs. The screen that shows one holds it in a

@@ -57,15 +57,15 @@ text is unavoidable, ask for it separately as plain text so it can be rendered a
 
 Each one lands somewhere specific; none of them is optional.
 
-| Ask for                               | Lands in                                             | Notes                                                                                                          |
-| ------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| A description of what the image shows | `alt` in its entry in `public/content/images.json`   | German, one or two sentences. Describes the picture, never the credit. Read aloud to people who cannot see it. |
-| Who made it                           | `creator` in the same entry                          | With the licence, the visible caption `Bild: <creator>, <license>`. Never used as alt text.                    |
-| Where the usage right comes from      | `source`/`sourceUrl` and `license` in the same entry | Surfaced under Settings → Lizenzen & Impressum → Bildnachweise.                                                |
+| Ask for                               | Lands in                                                    | Notes                                                                                                          |
+| ------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| A description of what the image shows | `alt` in its entry in `apps/app/public/content/images.json` | German, one or two sentences. Describes the picture, never the credit. Read aloud to people who cannot see it. |
+| Who made it                           | `creator` in the same entry                                 | With the licence, the visible caption `Bild: <creator>, <license>`. Never used as alt text.                    |
+| Where the usage right comes from      | `source`/`sourceUrl` and `license` in the same entry        | Surfaced under Settings → Lizenzen & Impressum → Bildnachweise.                                                |
 
 The third one is the one that gets forgotten, and it is the one that blocks. Per
 [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11) an image only
-belongs in `public/content/` once its rights are actually clarified - not on the
+belongs in `apps/app/public/content/` once its rights are actually clarified - not on the
 expectation that clarification will follow. "Own photograph", "commissioned work, agreement
 on file", "photographer agreed by email" and a named public licence all qualify; a credit
 line on its own does not. Where a written grant exists, archive it and reference it.

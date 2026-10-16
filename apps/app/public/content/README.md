@@ -1,6 +1,6 @@
 # Curated content assets
 
-See [docs/content-authoring.md](../../docs/content-authoring.md) for the full step-by-step guide to
+See [docs/content-authoring.md](../../../../docs/content-authoring.md) for the full step-by-step guide to
 adding a new item (catalog entry, image conversion, licensing). Short version below.
 
 `catalog.json` is the single source of truth for the app's curated "Wissen & Impulse" and
@@ -18,8 +18,8 @@ hence the two-step pipeline. The file path is never written down; it follows fro
 
 ## Licensing
 
-These images are **not** covered by the repository's MIT License (see [../../LICENSE](../../LICENSE)
-and the [README's Licensing section](../../README.md#licensing)). Every image's licence, source and
+These images are **not** covered by the repository's MIT License (see [../../LICENSE](../../../../LICENSE)
+and the [README's Licensing section](../../../../README.md#licensing)). Every image's licence, source and
 attribution and its description are tracked in [`images.json`](./images.json), one entry per image
 `id`, shown to users under Settings → Lizenzen & Impressum → Bildnachweise. Per
 [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11), an image only belongs

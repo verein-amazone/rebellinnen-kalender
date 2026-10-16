@@ -12,10 +12,10 @@ below are the two chapters of it that live here.
 
 There is one decision to make whenever a new pattern appears:
 
-| The pattern is…         | It becomes…                  | Lives in                   |
-| ----------------------- | ---------------------------- | -------------------------- |
-| purely visual           | an `rk-*` CSS class          | `src/styles/components/`   |
-| behaviour or ARIA state | an `app-*` Angular component | `src/app/view/components/` |
+| The pattern is…         | It becomes…                  | Lives in                            |
+| ----------------------- | ---------------------------- | ----------------------------------- |
+| purely visual           | an `rk-*` CSS class          | `apps/app/src/styles/components/`   |
+| behaviour or ARIA state | an `app-*` Angular component | `apps/app/src/app/view/components/` |
 
 The prefix is the visible marker of which kind you are looking at. `app-` is required by
 `@angular-eslint/component-selector`; `rk-` matches the existing `--rk-*` token prefix, so a reader
@@ -31,22 +31,26 @@ Grow the system only when a second call site appears. A primitive with one user 
 ## File layout
 
 ```
-src/styles.css                       barrel: tailwind, CDK stylesheets, then the four below
-src/styles/fonts.css                 self-hosted @font-face
-src/styles/theme.css                 tokens, themes, custom variants
-src/styles/base.css                  element defaults and shared utilities
-src/styles/components.css            barrel - imports only
-src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
-src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
-src/styles/components/choice.css     .rk-choice*
-src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
-src/styles/components/menu.css       .rk-menu, .rk-menu-item*
-src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
-src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
-src/styles/components/screen.css     .rk-shell, .rk-scroll-region, .rk-screen-*
-src/styles/components/sheet.css      .rk-sheet-*
-src/styles/components/toggletip.css  .rk-toggletip
+packages/design-system/src/fonts.css          self-hosted @font-face (shared with the website)
+packages/design-system/src/theme.css          tokens, themes, custom variants (shared with the website)
+apps/app/src/styles.css                       barrel: tailwind, CDK stylesheets, the two above, then the two below
+apps/app/src/styles/base.css                  element defaults and shared utilities
+apps/app/src/styles/components.css            barrel - imports only
+apps/app/src/styles/components/button.css     .rk-button*, .rk-icon-button, rk-icon
+apps/app/src/styles/components/card.css       .rk-card, .rk-list, .rk-row*
+apps/app/src/styles/components/choice.css     .rk-choice*
+apps/app/src/styles/components/field.css      .rk-field, .rk-input, .rk-label, .rk-hint, .rk-error
+apps/app/src/styles/components/menu.css       .rk-menu, .rk-menu-item*
+apps/app/src/styles/components/navigation.css .rk-tab-bar, .rk-tab*
+apps/app/src/styles/components/reorder.css    .rk-drag-handle, .rk-reorder-list, the CDK drag classes
+apps/app/src/styles/components/screen.css     .rk-shell, .rk-scroll-region, .rk-screen-*
+apps/app/src/styles/components/sheet.css      .rk-sheet-*
+apps/app/src/styles/components/toggletip.css  .rk-toggletip
 ```
+
+The tokens, the themes, the custom variants and the fonts live in the workspace package
+`@amazone/design-system` (`packages/design-system`), because the website (`apps/site`) wears the same
+Amazone theme: one colour changed there changes both. Everything else here belongs to the app.
 
 One file per primitive, because each carries a comment header explaining its constraints and those
 do not survive being merged into one long file. Do not create a file before its primitive exists.
@@ -54,8 +58,8 @@ do not survive being merged into one long file. Do not create a file before its 
 No underscore prefixes: Tailwind v4's `@import` is real CSS `@import` with no partial concept, so
 the Sass convention would mean nothing here.
 
-No `styleUrl` on any component. Every visual rule lives in `src/styles/`, which keeps one searchable
-location and stays clear of the `anyComponentStyle` budget in `angular.json`.
+No `styleUrl` on any component. Every visual rule lives in `apps/app/src/styles/`, which keeps one searchable
+location and stays clear of the `anyComponentStyle` budget in `apps/app/angular.json`.
 
 ### Layer order decides the cascade, not import order
 
@@ -84,7 +88,7 @@ files are imported. Overriding a primitive at the call site is always safe.
 
 ## Tokens
 
-Three groups, all in `src/styles/theme.css`:
+Three groups, all in `packages/design-system/src/theme.css`:
 
 1. **`--rk-*` raw values** - one static block per colour theme, selected by `data-theme` on `<html>`.
    The theme blocks all have equal specificity, so **source order alone decides the winner**: keep
@@ -204,7 +208,7 @@ These rules are what keep the layout usable there:
    is rem-based and therefore already scaling-safe.
 6. **Intrinsic sizing over breakpoints.** `grid-cols-[repeat(auto-fit,minmax(18rem,1fr))]` reflows on
    its own; a breakpoint never will.
-7. **Long words must be breakable.** `src/styles/base.css` sets `hyphens: auto` and
+7. **Long words must be breakable.** `apps/app/src/styles/base.css` sets `hyphens: auto` and
    `overflow-wrap: anywhere` on `body`. German compounds are wider than a phone column once scaled -
    "Systemeinstellung" overflowed a 320px screen by 226px at 300% - and one unbreakable word makes
    the whole screen scroll sideways. `anywhere` rather than `break-word`: only `anywhere` shrinks the
@@ -621,7 +625,7 @@ It is built on the CDK overlay rather than `CdkDialog`, so everything a modal ow
 explicitly in `sheet.service.ts`: the dialog role and accessible name, the focus trap, `inert` on the
 app shell, blocked page scrolling, Escape, the backdrop, and focus restoration with a fallback to the
 page heading for when the opener has been destroyed by a navigation. `@angular/cdk/overlay-prebuilt.css`
-is imported in `src/styles.css` and is not optional - without it the sheet renders as ordinary
+is imported in `apps/app/src/styles.css` and is not optional - without it the sheet renders as ordinary
 content at the end of `<body>`.
 
 The animation is plain CSS `@keyframes` on purpose. `base.css` neutralises motion by forcing

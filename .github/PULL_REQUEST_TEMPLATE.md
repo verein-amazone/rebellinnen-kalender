@@ -20,7 +20,7 @@ genuinely does not.
       VoiceOver or TalkBack.
 - [ ] Documentation and code comments are in English, and the architecture docs are updated if a
       boundary or a layer concept changed.
-- [ ] Dependencies changed? `pnpm cap:sync` was run and the resulting `ios/` and `android/` changes
+- [ ] Dependencies changed? `pnpm cap:sync` was run and the resulting `apps/app/ios/` and `apps/app/android/` changes
       are committed.
 
 ## How this was tested

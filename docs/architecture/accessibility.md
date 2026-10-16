@@ -212,7 +212,7 @@ Tooltips, disclosures, non-modal drawers and menus are **not** modal. Do not tra
 Automated and manual, in that order of cost, not of authority.
 
 **Automated (CI).** `angular-eslint`'s `templateAccessibility` config is active in
-`eslint.config.js`; treat a finding as a defect, not as a rule to disable. Playwright runs axe for
+`apps/app/eslint.config.js`; treat a finding as a defect, not as a rule to disable. Playwright runs axe for
 colour contrast per theme and a horizontal-overflow canary at 200% text on every route - add new
 routes to both loops, and add a separate case for any state that has no URL, such as an open menu or
 an open sheet. Unit specs assert landmarks, roles, focus and announcements, never appearance; see

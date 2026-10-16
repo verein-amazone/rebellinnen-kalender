@@ -2,7 +2,7 @@
 
 What version 1.0.0 of the Rebell\*innen Kalender does, what it deliberately does not do, and what is
 known not to work yet. This is the one place for that text: the store descriptions
-(`fastlane/metadata/`), the 1.0.0 release notes ([release-notes/1.0.0.md](./release-notes/1.0.0.md))
+(`apps/app/fastlane/metadata/`), the 1.0.0 release notes ([release-notes/1.0.0.md](./release-notes/1.0.0.md))
 and the README are written from it.
 
 Being explicit about what V1 leaves out is what keeps feedback from testers useful: a missing

@@ -43,7 +43,7 @@ Before the first release from `main`, two things outside this repository still n
    and `revert` also produce a patch, so every merge gets a distinct version to hand to testers.
    `docs`, `style` and `test` release nothing.
 3. It writes the version into `package.json`, `CHANGELOG.md`,
-   `src/app/cross-cutting/infrastructure/app-version.ts` (the „Über die App" screen) and both native
+   `apps/app/src/app/cross-cutting/infrastructure/app-version.ts` (the „Über die App" screen) and both native
    projects, commits that as `chore(release): <version> [skip ci]`, tags it and publishes a GitHub
    prerelease.
 4. `.github/workflows/store-upload.yml` then builds **that tag** and uploads the result to both
@@ -57,9 +57,9 @@ which is green.
 
 ### Version and build numbers
 
-Nothing is version-bumped by hand. `scripts/sync-native-version.mjs` derives the store version and
+Nothing is version-bumped by hand. `apps/app/scripts/sync-native-version.mjs` derives the store version and
 the build number from `package.json`; its header comment documents the encoding, and
-`node scripts/sync-native-version.mjs --check` runs in CI so the native fields can never drift.
+`node apps/app/scripts/sync-native-version.mjs --check` runs in CI so the native fields can never drift.
 
     1.0.0-rc.4 -> version 1.0.0, build 10000004
     1.0.0      -> version 1.0.0, build 10000999
@@ -69,13 +69,13 @@ Connect and the Play console when publishing a real release.
 
 The version also decides whether the build shows the developer tools (Settings → „Entwicklung“):
 every `-rc.N` prerelease does, a release from `main` does not. See `DEVELOPER_TOOLS_ENABLED` in
-`src/app/cross-cutting/infrastructure/developer-tools.ts`.
+`apps/app/src/app/cross-cutting/infrastructure/developer-tools.ts`.
 
 ### Release notes
 
-`scripts/build-store-release-notes.mjs` reads the body of the GitHub release the tag carries and
+`apps/app/scripts/build-store-release-notes.mjs` reads the body of the GitHub release the tag carries and
 writes it in both store formats: a plain-text "What to Test" for TestFlight and
-`fastlane/metadata/android/de-DE/changelogs/<versionCode>.txt` for Play. The Play limit is 500
+`apps/app/fastlane/metadata/android/de-DE/changelogs/<versionCode>.txt` for Play. The Play limit is 500
 characters, so a long changelog is cut at a line boundary.
 
 For a prerelease, the text is the generated English commit-subject changelog with a German line
@@ -108,13 +108,13 @@ that `main` is about to be merged from:
    into "Known limitations" in [v1-scope.md](./v1-scope.md).
 2. Write the German release notes as `docs/release-notes/<version>.md` and land them on `dev`
    (see [Release notes](#release-notes)). Preview them with
-   `node scripts/build-store-release-notes.mjs --tag v<version> --body-file /dev/null --dry-run`.
-3. Bring the store listing up to date on `dev`: the text in `fastlane/metadata/` still describes
+   `node apps/app/scripts/build-store-release-notes.mjs --tag v<version> --body-file /dev/null --dry-run`.
+3. Bring the store listing up to date on `dev`: the text in `apps/app/fastlane/metadata/` still describes
    the app, and the screenshots still show it - `pnpm store:screenshots` after any visible change
    (see [store-listing.md](./store-listing.md)). The release writes both to the stores.
-4. Finish the image rights review: every entry in `public/content/images.json` confirmed, its
+4. Finish the image rights review: every entry in `apps/app/public/content/images.json` confirmed, its
    `needsReview` removed, and no `unclear` licence left - or the image removed. CI fails the pull
-   request into `main` until then (`scripts/check-image-rights.mjs`, #11).
+   request into `main` until then (`apps/app/scripts/check-image-rights.mjs`, #11).
 
 ## After a release from `main`
 
@@ -180,7 +180,7 @@ In this order. Steps 1-4 are Apple, 5-8 are Google, 9-11 are GitHub.
    MATCH_PASSWORD='…' bundle exec fastlane match appstore --readonly false
    ```
 
-   `fastlane/Matchfile` sets `readonly(true)` on purpose, so a CI run can never create, renew or
+   `apps/app/fastlane/Matchfile` sets `readonly(true)` on purpose, so a CI run can never create, renew or
    revoke a certificate. Apple caps distribution certificates per team, and ephemeral runners keep no
    keychain, so a runner allowed to create them would burn through the limit in a few releases.
 
@@ -320,7 +320,7 @@ real risk in this list, larger than any single credential: **a second maintainer
 should hold the password-manager entries**, so a release does not depend on one laptop. The keystore
 backup in particular must exist somewhere that is neither this repository nor that laptop.
 
-No key material is ever committed. `.gitignore` and `android/.gitignore` reject `*.p8`, `*.p12`,
+No key material is ever committed. `.gitignore` and `apps/app/android/.gitignore` reject `*.p8`, `*.p12`,
 `*.jks`, `*.keystore`, `*.mobileprovision` and `play-service-account*.json` outright.
 
 ## Publishing to testers
@@ -435,7 +435,7 @@ These exist only in the GitHub UI, which is why they are listed here (see #75):
 ## iOS privacy manifest
 
 Apple rejects an upload whose bundle uses a "required-reason" API without declaring why. The app's
-own manifest is `ios/App/App/PrivacyInfo.xcprivacy`, a resource of the `App` target (#77). It
+own manifest is `apps/app/ios/App/App/PrivacyInfo.xcprivacy`, a resource of the `App` target (#77). It
 declares no tracking and no collected data, because the app has no account, no server and no
 analytics. It also lists the reasons for the APIs that end up in the app binary itself:
 
@@ -459,7 +459,7 @@ them. The emoji picker's code lands in the app binary the same way, so the app k
 **When a native dependency changes**, check again before the next upload:
 
 ```bash
-xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+xcodebuild -project apps/app/ios/App/App.xcodeproj -scheme App -configuration Release \
   -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath "$TMPDIR/rk-privacy" CODE_SIGNING_ALLOWED=NO build
 app="$TMPDIR/rk-privacy"/Build/Products/Release-iphonesimulator/App.app

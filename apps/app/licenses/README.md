@@ -4,10 +4,10 @@ The app shows the licences of everything it ships under Einstellungen → Lizenz
 Open-Source-Lizenzen (#11). That screen reads `3rdpartylicenses.txt` from the bundled app, which is
 put together after every production build from two sources:
 
-| Source                                     | Covers                                                                                                               | Made by                                                  |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Angular's `extractLicenses` (angular.json) | The npm packages whose JavaScript is bundled, including every Capacitor plugin and its native code                   | `ng build`, on every production build                    |
-| `additional-third-party-licenses.txt`      | The Android and iOS libraries, the Capacitor Android runtime, npm files copied as assets, the fonts and NOTICE files | `node scripts/build-third-party-licenses.mjs`, committed |
+| Source                                     | Covers                                                                                                               | Made by                                                           |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Angular's `extractLicenses` (angular.json) | The npm packages whose JavaScript is bundled, including every Capacitor plugin and its native code                   | `ng build`, on every production build                             |
+| `additional-third-party-licenses.txt`      | The Android and iOS libraries, the Capacitor Android runtime, npm files copied as assets, the fonts and NOTICE files | `node apps/app/scripts/build-third-party-licenses.mjs`, committed |
 
 `scripts/copy-third-party-licenses.mjs`, the `postbuild` step, appends the second file to the first
 and checks every licence in the result against [`policy.json`](./policy.json). A licence the policy
@@ -30,8 +30,9 @@ Licensee Gradle plugin (`android/app/build.gradle`) fails on an Android library 
 - **`components`** - things no manifest describes: the fonts, and code compiled into another
   library's binary.
 
-The texts that `overrides` and `components` point to live in [`texts/`](./texts). Each entry says
-where its text comes from.
+The texts that `overrides` and `components` point to live in [`texts/`](./texts), except the fonts'
+OFL texts, which travel with the fonts in `@amazone/design-system`
+(`packages/design-system/src/fonts/`). Each entry says where its text comes from.
 
 ## When CI fails
 
@@ -41,7 +42,7 @@ where its text comes from.
   Regenerate it and commit the result:
 
   ```bash
-  JAVA_HOME=$(/usr/libexec/java_home -v 21) node scripts/build-third-party-licenses.mjs
+  JAVA_HOME=$(/usr/libexec/java_home -v 21) node apps/app/scripts/build-third-party-licenses.mjs
   ```
 
   The script runs Gradle (JDK 21) and reads the Swift packages' licences from the GitHub API. The

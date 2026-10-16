@@ -11,7 +11,7 @@
  *      `data-theme` at runtime recolour everything.
  *
  * No colour value may live in TypeScript. Adding a theme means adding one block here plus its id
- * in `PALETTE_IDS` (`data/stores/appearance-preferences.ts`) and
+ * in `PALETTE_IDS` (the app's `data/stores/appearance-preferences.ts`) and
  * `interactors/settings/appearance.interactor.ts`. The `system` theme has no block: it resolves to
  * `amazone` or `nacht` before it reaches `data-theme`.
  *
@@ -40,7 +40,7 @@
 }
 
 /*
- * Mirrors how base.css resolves motion: the in-app override wins, and the device preference only
+ * Mirrors how the app's styles/base.css resolves motion: the in-app override wins, and the device preference only
  * applies when the user has not explicitly chosen `standard`.
  */
 @custom-variant motion-reduced {
@@ -119,7 +119,7 @@
 
   /* The only breakpoint. Phone is the unprefixed default; this is the tablet tier. Note that a
      media query never reacts to the root font size, so breakpoints cannot respond to text
-     scaling - that is what the container queries in ./components/*.css are for. */
+     scaling - that is what the container queries in the app's styles/components/*.css are for. */
   --breakpoint-tablet: 40rem;
 
   /*
@@ -128,9 +128,9 @@
    * at normal text size, not even on a 375px device. Once the root font size grows past roughly
    * 1.25x it exceeds the available width and the row stacks, which is the point.
    *
-   * CSS cannot interpolate a custom property into a container query condition, so ./components
-   * repeats the literal. Changing it here means changing it there too - the value lives here
-   * because it is what makes the `@max-row:` variant available at call sites.
+   * CSS cannot interpolate a custom property into a container query condition, so the app's
+   * styles/components repeats the literal. Changing it here means changing it there too - the value
+   * lives here because it is what makes the `@max-row:` variant available at call sites.
    */
   --container-row: 18rem;
 
@@ -142,7 +142,7 @@
    * 13rem is 208px at the default root size, so it is far below any phone width and only ever
    * matches because `rem` grows with the root font size. It starts matching at 2x - the top of the
    * ladder - on both a 375px and a 412px screen, and never below it. Like `--container-row`, the
-   * literal is repeated in ./components - keep them in sync.
+   * literal is repeated in the app's styles/components - keep them in sync.
    */
   --container-compact: 13rem;
 }

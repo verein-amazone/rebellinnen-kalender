@@ -61,7 +61,7 @@ while the app is killed. Those items need a real device.
 - [ ] **Fresh install (all devices):** the introduction appears once, the app starts on Heute, no
       error, no empty screen that never fills.
 - [ ] **Calendar choice in the introduction:** the „Welche Kalender willst du sehen?“ step lists
-      every calendar in `public/curated-calendars/catalog.json`, all on. Switch one off and finish:
+      every calendar in `apps/app/public/curated-calendars/catalog.json`, all on. Switch one off and finish:
       Heute and the calendar show only the other one, and the one switched off stays off in Settings.
       Switching it on there shows its events without a restart.
 - [ ] **Upgrade over the tester build.** Before installing the candidate, on the baseline build:

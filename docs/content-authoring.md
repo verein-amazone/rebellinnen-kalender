@@ -5,14 +5,14 @@ shows for them (`CONTENT_KIND_LABELS`) - the content shown on the Today page and
 Covers the full pipeline: catalog entry, image conversion, and the image's entry in the image catalog
 (description, creator, source and licence).
 
-Related code: `src/app/data/content/content-catalog-sync.ts` (reconciles the catalog into the
-`content_items` table at runtime), `public/content/README.md` (asset directory notes),
+Related code: `apps/app/src/app/data/content/content-catalog-sync.ts` (reconciles the catalog into the
+`content_items` table at runtime), `apps/app/public/content/README.md` (asset directory notes),
 [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11) (licensing rules this
 guide implements).
 
 ## 1. Add the catalog entry
 
-`public/content/catalog.json` is the single source of truth for content. It is **not** seeded by a
+`apps/app/public/content/catalog.json` is the single source of truth for content. It is **not** seeded by a
 database migration - `ContentCatalogSync` reconciles it into `content_items` lazily, on first read,
 by diffing against the stored `version`. So:
 
@@ -30,7 +30,7 @@ Fields per entry:
 | `id`                       | `wi-NN` or `reb-NN`, next free number in that series.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `kind`                     | `'wissensimpulse'` or `'rebellin'`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `title`, `teaser`          | Plain text.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `heroImageId`              | The `id` of the item's picture in `public/content/images.json` (§4). Every item ships one: the Today page leads with it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `heroImageId`              | The `id` of the item's picture in `apps/app/public/content/images.json` (§4). Every item ships one: the Today page leads with it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `relatedSources`           | Optional array of `{ title, subtitle?, url }` "Mehr zum Thema" links, shown together in one card below the body, each opening outside the app. `title` and `url` (https) are required, `subtitle` is an optional second line such as the publisher or platform. A link to Instagram, YouTube, TikTok, Spotify, LinkedIn or Snapchat gets a matching symbol instead of the external-link icon (`link-platform.ts` next to the detail page) - omit the field entirely when there are none. **Only ever link what Amazone supplied with the entry**; never research a link (a Wikipedia article, say) and add it yourself - the app then vouches for a page nobody in the editorial team chose. |
@@ -38,7 +38,7 @@ Fields per entry:
 | `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 An entry names its picture by `heroImageId` and nothing else. The file, its description and its
-attribution belong to the image, and are recorded with it in `public/content/images.json` (§4), so
+attribution belong to the image, and are recorded with it in `apps/app/public/content/images.json` (§4), so
 one image could serve several items without anything being written twice.
 
 ## 2. Convert and place the image
@@ -58,10 +58,10 @@ resize with `ffmpeg` into a temporary PNG, then encode to WebP with the separate
 ffmpeg -i source-photo.jpg -vf "scale='min(1280,iw)':-2" /tmp/resized.png
 
 # 2. Encode to WebP
-cwebp -q 75 /tmp/resized.png -o public/content/images/rosa-parks.webp
+cwebp -q 75 /tmp/resized.png -o apps/app/public/content/images/rosa-parks.webp
 ```
 
-Every image lives in `public/content/images/`, named `<image id>.webp`: the image's id (§4) is the
+Every image lives in `apps/app/public/content/images/`, named `<image id>.webp`: the image's id (§4) is the
 file name, which is how the app finds the file (`imagePathFor()` in `image-catalog.gateway.ts`). Pick
 a short slug - lower case, words joined by hyphens, umlauts written out (`ae`, `oe`, `ue`, `ss`) -
 that names what the picture shows, usually the person or the topic.
@@ -69,7 +69,7 @@ that names what the picture shows, usually the person or the topic.
 ## 3. Markdown conventions
 
 `bodyMarkdown` renders through `MarkdownContentComponent` (`cross-cutting/markdown/`), which allows
-paragraphs, lists, headings, links and blockquotes - see `src/styles/components/markdown-content.css`
+paragraphs, lists, headings, links and blockquotes - see `apps/app/src/styles/components/markdown-content.css`
 for how each renders.
 
 - **A Rebell\*in's own quoted words**, transcribed as their own standalone paragraph, should be a
@@ -87,7 +87,7 @@ Per [issue #11](https://github.com/verein-amazone/rebellinnen-kalender/issues/11
 belongs in the repo once its rights are actually clarified.** Don't add an image on the assumption
 that licensing will be sorted out later - resolve it first, or don't commit the image yet.
 
-Add one entry to `public/content/images.json`, the image catalog. It is everything the app says
+Add one entry to `apps/app/public/content/images.json`, the image catalog. It is everything the app says
 about an image: the content screens take the picture's file, description and credit line from it,
 and Settings → Lizenzen & Impressum → Bildnachweise lists it with its full attribution.
 
@@ -115,13 +115,13 @@ writing "Unknown".
 
 Write the licence as Creative Commons writes it - `CC BY-SA 4.0`, `CC BY-SA 3.0 DE`, `CC0 1.0` - or
 `Public Domain`, and link its canonical deed without a language suffix. The accepted names and their
-links are the `LICENSES` table in `src/app/data/content/images.content.spec.ts`; a new
-licence goes there first. That spec also fails when an image under `public/` has no entry, or two,
+links are the `LICENSES` table in `apps/app/src/app/data/content/images.content.spec.ts`; a new
+licence goes there first. That spec also fails when an image under `apps/app/public/` has no entry, or two,
 and when an entry is not the picture of any item.
 `Alle Rechte vorbehalten` (no link) is for an image used without an open licence by a decision of
 Verein Amazone, crediting the rightsholder; so far only `johanna-dohnal` (Parlamentsdirektion, #11)
 is.
-The app's own icons (`public/app-icons/`) are the only exception.
+The app's own icons (`apps/app/public/app-icons/`) are the only exception.
 
 Notes from doing this for the first 41 items:
 
@@ -142,7 +142,7 @@ Notes from doing this for the first 41 items:
   off once fully confirmed. If the licence genuinely can't be established, set `license: "unclear"`
   and do **not** commit the image (see the rule above) - don't ship it flagged as unclear.
 - A pull request into `main` fails while any entry has `needsReview` or an `unclear` licence
-  (`scripts/check-image-rights.mjs`), so an unreviewed image can reach tester builds but not a
+  (`apps/app/scripts/check-image-rights.mjs`), so an unreviewed image can reach tester builds but not a
   release.
 
 ## 5. Verify
@@ -156,7 +156,7 @@ Notes from doing this for the first 41 items:
 
 ## Adding an Anlaufstelle (support service)
 
-Anlaufstellen (`public/support-services/catalog.json`, shown under Content → Anlaufstellen, #24)
+Anlaufstellen (`apps/app/public/support-services/catalog.json`, shown under Content → Anlaufstellen, #24)
 are a **separate, simpler catalog** from the one above - don't confuse the two:
 
 - **Bump the top-level `version` with every edit.** Like the Wissensimpulse catalog, the file is
@@ -222,7 +222,7 @@ them deliberately, never to silence a failure.
 
 ## Adding a curated calendar (Amazone & Partnerkalender)
 
-`public/curated-calendars/catalog.json` is the one place a curated online calendar is listed (#2).
+`apps/app/public/curated-calendars/catalog.json` is the one place a curated online calendar is listed (#2).
 Everything in the app follows from it: the introduction's „Welche Kalender willst du sehen?“ step,
 Settings → Kalender verwalten → Amazone & Partnerkalender, and the seeded calendar itself. No
 screen names a calendar in code.
@@ -231,11 +231,11 @@ screen names a calendar in code.
    shown under the toggle), `url` (`https:` or `webcal:`; plain `http:` is refused), `color`
    (`#RRGGBB`) and `emoji`. The array order is the order on both screens.
 2. Bump the top-level `version`. Without it an existing install never seeds the new entry.
-3. Name the calendar and its provider in the privacy policy, `public/legal/datenschutz.md`
-   section 5.2, with a link to the provider's own privacy policy. `node scripts/check-store-listing.mjs`
+3. Name the calendar and its provider in the privacy policy, `packages/legal/src/datenschutz.md`
+   section 5.2, with a link to the provider's own privacy policy. `node apps/app/scripts/check-store-listing.mjs`
    fails while the policy does not name a catalog entry.
-4. Re-read the store descriptions (`fastlane/metadata/de-DE/description.txt`,
-   `fastlane/metadata/android/de-DE/full_description.txt`) and `docs/store-compliance.md`, which
+4. Re-read the store descriptions (`apps/app/fastlane/metadata/de-DE/description.txt`,
+   `apps/app/fastlane/metadata/android/de-DE/full_description.txt`) and `docs/store-compliance.md`, which
    describe which calendars ship, and update them to match.
 
 The colour, emoji and name are only applied the first time an entry is seeded; changing them later

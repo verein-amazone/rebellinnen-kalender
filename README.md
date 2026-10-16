@@ -55,19 +55,40 @@ synchronization.
 
 The app has a small website on Verein Amazone's domain, `https://kalender.amazone.or.at/`: an
 introduction with the store links, `/download` (the target of the printed QR codes, which sends a
-phone straight to its store) and the privacy policy, terms of use and imprint. It is plain static
-HTML built by `scripts/build-site.mjs` from `site/`, the legal texts the app bundles and the
-approved store copy, and published from `dev` by
+phone straight to its store) and the privacy policy, terms of use and imprint. It is a static
+[Astro](https://astro.build/) site in [`apps/site`](./apps/site/), styled with Tailwind on the app's
+own design tokens and rendering the same legal texts the app bundles, and published from `dev` by
 [.github/workflows/pages.yml](./.github/workflows/pages.yml). See
 [docs/store-listing.md](./docs/store-listing.md#website) for how it is put together.
 
 ```bash
-pnpm build:site  # Build the website to dist/site
+pnpm build:site  # Build the website to apps/site/dist
 pnpm test:site   # Build it, plus a copy with test store links, and run its Playwright suite
+pnpm --filter @amazone/site dev  # Serve it locally with live reload
 ```
 
 The browser build of the app itself is not published. It exists for local development and the e2e
 suite.
+
+## Repository layout
+
+A [pnpm workspace](https://pnpm.io/workspaces): two apps and the packages they share. Run every
+command from the repository root; the root scripts (`pnpm build`, `pnpm e2e`, `pnpm build:site`, …)
+delegate to the right package.
+
+| Path                                                  | What it is                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [`apps/app`](./apps/app/)                             | `@amazone/app` - the Angular + Capacitor app with its native projects, fastlane and store assets, and scripts |
+| [`apps/site`](./apps/site/)                           | `@amazone/site` - the website (Astro + Tailwind)                                                              |
+| [`packages/design-system`](./packages/design-system/) | `@amazone/design-system` - design tokens, colour themes, custom variants and the webfonts                     |
+| [`packages/legal`](./packages/legal/)                 | `@amazone/legal` - privacy policy, terms of use and imprint as Markdown                                       |
+| [`docs`](./docs/)                                     | Architecture, release, store and content documentation for the whole repository                               |
+
+The root `package.json` holds the release version (semantic-release bumps it, and the app's version
+scripts read it) and the repository-wide tooling: Prettier, commitlint and semantic-release. Versions
+that several packages share are pinned once in the `catalog:` of
+[`pnpm-workspace.yaml`](./pnpm-workspace.yaml), and every TypeScript project extends
+[`tsconfig.base.json`](./tsconfig.base.json).
 
 ## Architecture
 
@@ -211,7 +232,7 @@ Images, photographs, editorial content and other media assets are not
 covered by the MIT License. Each asset is subject to its own licence or
 permission terms. Image licence and attribution information is documented
 in the image attribution data included in this repository
-([public/content/images.json](./public/content/images.json)).
+([apps/app/public/content/images.json](./apps/app/public/content/images.json)).
 
 No permission to reuse an asset should be assumed beyond the licence or
 permission explicitly documented for that asset.
@@ -219,8 +240,8 @@ permission explicitly documented for that asset.
 Third-party software licences - the npm packages and the native iOS and
 Android libraries - ship with every production build and are readable offline
 in the app under **Einstellungen → Lizenzen & Impressum**. Which licences may
-ship is decided in [licenses/policy.json](./licenses/policy.json); see
-[licenses/README.md](./licenses/README.md).
+ship is decided in [apps/app/licenses/policy.json](./apps/app/licenses/policy.json); see
+[apps/app/licenses/README.md](./apps/app/licenses/README.md).
 
 ## Note on design
 
@@ -228,6 +249,6 @@ The visual design (colors, typography, components) will be derived later from th
 mockup.
 
 The app has a small in-app design system in the meantime: design tokens and visual patterns as CSS
-in `src/styles/`, and the few UI primitives that carry real behaviour as Angular components in
-`src/app/view/components/`. It is deliberately minimal and grows only when a second call site
+in `apps/app/src/styles/`, and the few UI primitives that carry real behaviour as Angular components in
+`apps/app/src/app/view/components/`. It is deliberately minimal and grows only when a second call site
 appears. See [docs/architecture/design-system.md](./docs/architecture/design-system.md).

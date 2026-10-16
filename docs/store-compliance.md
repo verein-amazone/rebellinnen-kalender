@@ -21,22 +21,22 @@ it. Deleting the app deletes them.
 
 Evidence:
 
-- `ios/App/App/PrivacyInfo.xcprivacy:5-10` - no tracking, no tracking domains, no collected data
+- `apps/app/ios/App/App/PrivacyInfo.xcprivacy:5-10` - no tracking, no tracking domains, no collected data
   types.
-- `src/app/view/pages/settings/about/about.page.html:8-19` - what the app tells its users.
+- `apps/app/src/app/view/pages/settings/about/about.page.html:8-19` - what the app tells its users.
 - The content catalog, the support-service list, the curated-calendar list, the images and the
   licence texts are bundled with the app and read from it (`assetUrl(…)` in
-  `src/app/data/content/content-catalog-sync.ts`,
-  `src/app/data/gateways/support-service-catalog.gateway.ts`,
-  `src/app/data/calendar/curated/curated-calendar-sync.ts`,
-  `src/app/data/gateways/legal-content.gateway.ts`).
+  `apps/app/src/app/data/content/content-catalog-sync.ts`,
+  `apps/app/src/app/data/gateways/support-service-catalog.gateway.ts`,
+  `apps/app/src/app/data/calendar/curated/curated-calendar-sync.ts`,
+  `apps/app/src/app/data/gateways/legal-content.gateway.ts`).
 
 The only network requests the app makes are calendar downloads:
 
 - **Subscribed calendar links** (ICS/webcal), which the user adds, are fetched directly from the
-  address the user entered (`src/app/data/gateways/ics-http.gateway.ts`).
+  address the user entered (`apps/app/src/app/data/gateways/ics-http.gateway.ts`).
 - **Curated calendars** that the user switches on are fetched directly from their provider
-  (`public/curated-calendars/catalog.json` - currently Google Calendar for the Amazone calendar and
+  (`apps/app/public/curated-calendars/catalog.json` - currently Google Calendar for the Amazone calendar and
   wien.gv.at for the Austrian public holidays).
 
 That provider sees the device's IP address, as with any download. This is not collection by the
@@ -59,13 +59,13 @@ App Store Connect → App → App Privacy.
 The result is the "Data Not Collected" label.
 
 The calendar permission is not part of this questionnaire. Its purpose string is in
-`ios/App/App/Info.plist:48-55` („Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine
+`apps/app/ios/App/App/Info.plist:48-55` („Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine
 zusätzlich anzuzeigen.“), and App Review reads it there.
 
 ## Google Play: Data safety
 
 Play Console → App content → Data safety. Applied from
-`fastlane/metadata/android/data_safety.csv` by `fastlane android listing`
+`apps/app/fastlane/metadata/android/data_safety.csv` by `fastlane android listing`
 ([store-listing.md](./store-listing.md#writing-the-listing-without-a-release)), through the Play
 Developer API. The file uses the console's CSV import format: an app that collects nothing answers
 the top question `PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA` with `FALSE`, and no other question is
@@ -105,20 +105,20 @@ Play asks for a justification only for permissions on its restricted list. Of th
 only the exact alarm is one (above). The rest are recorded here so the answer is ready if a
 reviewer asks:
 
-| Permission                                           | Declared in                                    | Why                                                                                                                                                                                         |
-| ---------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `INTERNET`                                           | `android/app/src/main/AndroidManifest.xml:98`  | Downloading subscribed and curated calendars.                                                                                                                                               |
-| `READ_CALENDAR`, `WRITE_CALENDAR`                    | `AndroidManifest.xml:99-101`                   | Showing the phone's own calendars next to the app's, and saving an appointment into one of them when the user picks it. Requested only from the explicit „Gerätekalender verbinden“ action. |
-| `USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` (≤ API 32) | `AndroidManifest.xml:102-111`                  | Appointment reminders on time.                                                                                                                                                              |
-| `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`       | `@capacitor/local-notifications`' own manifest | Showing reminders, and re-scheduling them after a restart. Requested only from a tap on the reminders switch.                                                                               |
-| `WAKE_LOCK`                                          | `@capacitor/local-notifications`' own manifest | Delivering a reminder while the phone sleeps. Granted at install, never asked for.                                                                                                          |
-| `VIBRATE`                                            | `@capawesome/capacitor-haptics`' own manifest  | Haptic feedback on taps, which the user can switch off under Einstellungen → Vibration. Granted at install, never asked for.                                                                |
+| Permission                                           | Declared in                                            | Why                                                                                                                                                                                         |
+| ---------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `INTERNET`                                           | `apps/app/android/app/src/main/AndroidManifest.xml:98` | Downloading subscribed and curated calendars.                                                                                                                                               |
+| `READ_CALENDAR`, `WRITE_CALENDAR`                    | `AndroidManifest.xml:99-101`                           | Showing the phone's own calendars next to the app's, and saving an appointment into one of them when the user picks it. Requested only from the explicit „Gerätekalender verbinden“ action. |
+| `USE_EXACT_ALARM`, `SCHEDULE_EXACT_ALARM` (≤ API 32) | `AndroidManifest.xml:102-111`                          | Appointment reminders on time.                                                                                                                                                              |
+| `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`       | `@capacitor/local-notifications`' own manifest         | Showing reminders, and re-scheduling them after a restart. Requested only from a tap on the reminders switch.                                                                               |
+| `WAKE_LOCK`                                          | `@capacitor/local-notifications`' own manifest         | Delivering a reminder while the phone sleeps. Granted at install, never asked for.                                                                                                          |
+| `VIBRATE`                                            | `@capawesome/capacitor-haptics`' own manifest          | Haptic feedback on taps, which the user can switch off under Einstellungen → Vibration. Granted at install, never asked for.                                                                |
 
 `USE_BIOMETRIC` and `USE_FINGERPRINT` would arrive through `@capacitor-community/sqlite`, which
 depends on `androidx.biometric` for an optional biometric database lock the app does not use.
 `AndroidManifest.xml:112-116` removes both from the merged manifest, so they are not on the Play
 listing. Check the merged manifest
-(`android/app/build/intermediates/merged_manifest/*/process*MainManifest/AndroidManifest.xml`) after a
+(`apps/app/android/app/build/intermediates/merged_manifest/*/process*MainManifest/AndroidManifest.xml`) after a
 plugin update for permissions that arrive the same way.
 
 **If Play rejects the exact alarm declaration**, the fallback is to drop `USE_EXACT_ALARM` and keep
@@ -129,7 +129,7 @@ reminders arrive up to a few minutes late instead of not at all.
 ## Age rating
 
 The app shows editorial content - 52 Rebell\*innen portraits and 22 Wissensimpulse in
-`public/content/catalog.json` - and a list of counselling services. All of it is informational
+`apps/app/public/content/catalog.json` - and a list of counselling services. All of it is informational
 text and portrait photos. Nothing is depicted, nothing is user-generated, and there is no chat.
 
 What in that content can matter for a rating:
@@ -148,7 +148,7 @@ What in that content can matter for a rating:
 
 ### Apple
 
-The answers live in [`fastlane/metadata/app_store_rating_config.json`](../fastlane/metadata/app_store_rating_config.json)
+The answers live in [`apps/app/fastlane/metadata/app_store_rating_config.json`](../apps/app/fastlane/metadata/app_store_rating_config.json)
 and are applied by `deliver` together with the store listing - so the console always shows what this
 repository says. **All proposed**, to be agreed with Verein Amazone:
 
@@ -184,10 +184,10 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 ## Export compliance
 
-- **iOS:** `ITSAppUsesNonExemptEncryption` is `false` (`ios/App/App/Info.plist:39-45`), so App
+- **iOS:** `ITSAppUsesNonExemptEncryption` is `false` (`apps/app/ios/App/App/Info.plist:39-45`), so App
   Store Connect does not ask on every upload. That is still correct for the shipped dependencies:
   `@capacitor-community/sqlite` links SQLCipher, but the database is opened with `'no-encryption'`
-  (`src/app/data/gateways/sqlite.gateway.ts:155`), and the only encryption in use is the OS's
+  (`apps/app/src/app/data/gateways/sqlite.gateway.ts:155`), and the only encryption in use is the OS's
   HTTPS, which is exempt. **If the database is ever encrypted, this answer changes.**
 - **Google Play:** there is no equivalent questionnaire. Play leaves export compliance with the
   developer; the same reasoning applies.
@@ -196,7 +196,7 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 - **Apple, Content Rights:** "Does your app contain, show, or access third-party content?" -
   **Yes**: portrait photos and texts about real people, under the licences documented in
-  `public/content/images.json`. Answering "and you have the necessary rights" depends on the
+  `apps/app/public/content/images.json`. Answering "and you have the necessary rights" depends on the
   image review in #11.
 - **Apple, EU Digital Services Act trader status:** depends on which legal entity holds the Apple
   developer account (Verein Amazone or Independo GmbH). A trader has to publish an address, phone
@@ -207,8 +207,8 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 | Answer                        | Where it is applied                                                                                       |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Apple age rating              | `deliver`, from `fastlane/metadata/app_store_rating_config.json`, with the store listing                  |
+| Apple age rating              | `deliver`, from `apps/app/fastlane/metadata/app_store_rating_config.json`, with the store listing         |
 | Apple App Privacy             | Typed into App Store Connect from this file - only an Apple ID login can set it, not the API key CI holds |
-| Play Data safety              | `fastlane android listing`, from `fastlane/metadata/android/data_safety.csv`                              |
+| Play Data safety              | `fastlane android listing`, from `apps/app/fastlane/metadata/android/data_safety.csv`                     |
 | Play App content, IARC rating | Typed into the Play Console from this file - the Play Developer API cannot set them                       |
 | Export compliance (iOS)       | `Info.plist`, with every build                                                                            |

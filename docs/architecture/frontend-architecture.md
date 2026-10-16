@@ -1,7 +1,7 @@
 # Frontend architecture
 
 This document describes how the Angular application is structured and the rules that keep it
-maintainable. It applies to all application code under `src/app/`.
+maintainable. It applies to all application code under `apps/app/src/app/`.
 
 For the visual primitives see [Design system](./design-system.md); for the WCAG 2.2 AA rules every
 view has to satisfy see [Accessibility](./accessibility.md).
@@ -36,7 +36,7 @@ flowchart TB
 ```
 
 Cross-cutting dependencies (dotted) are permitted only when they do not violate the primary layer
-boundaries. The rules below are enforced in `eslint.config.js` via `no-restricted-imports` on the
+boundaries. The rules below are enforced in `apps/app/eslint.config.js` via `no-restricted-imports` on the
 `@app/*` alias:
 
 - `view/**` must not import from `data/**`.
@@ -75,7 +75,7 @@ view/pages/calendar/
 
 Add a `.page.css` file only when a page actually needs styles that Tailwind utilities cannot
 express; do not create empty ones. A visual pattern that more than one screen uses is not a page
-style - it belongs in `src/styles/components/` as an `rk-*` class. See
+style - it belongs in `apps/app/src/styles/components/` as an `rk-*` class. See
 [Design system](./design-system.md).
 
 Because several groups have an `overview` page, class names and selectors are qualified by their
@@ -193,7 +193,7 @@ The app draws edge to edge: `index.html` sets `viewport-fit=cover`, which is als
 `env(safe-area-inset-*)` return real values on iOS - without it they are all `0px` and every inset
 silently does nothing.
 
-Use the `.safe-top` / `.safe-bottom` / `.safe-x` utilities from `src/styles/base.css`. Put them on
+Use the `.safe-top` / `.safe-bottom` / `.safe-x` utilities from `apps/app/src/styles/base.css`. Put them on
 the element that carries the background, not on the one that carries the layout padding, for two
 reasons: the background then extends into the inset while the content stays clear of it, and the
 utility does not compete with a `p*-` utility for the same property (both live in Tailwind's
@@ -209,7 +209,7 @@ Who applies what:
 #### Page transitions
 
 Provided by the router's `withViewTransitions()`. The animation is a short cross-fade defined in
-`src/styles/base.css` - the screens are unrelated, so a directional slide would imply a spatial
+`apps/app/src/styles/base.css` - the screens are unrelated, so a directional slide would imply a spatial
 relationship that does not exist. View transition pseudo-elements sit outside the document tree, so
 the reduced-motion rules have to disable them explicitly; see the same file.
 
@@ -222,7 +222,7 @@ which shows up as a brief dim or flicker instead of an animation. Skipping only 
 ### Angular CDK stylesheets
 
 CDK behaviour that needs CSS does not bring it along. `@angular/cdk/a11y-prebuilt.css` is imported
-in `src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
+in `apps/app/src/styles.css` because it defines `.cdk-visually-hidden`, which the `LiveAnnouncer` puts on its
 element - without it the announcements are rendered as visible page content.
 `@angular/cdk/overlay-prebuilt.css` is imported for the same reason: it positions and stacks the
 overlay container that sheets render into, and without it a sheet renders as ordinary content at the
@@ -310,7 +310,7 @@ interactor or DAO injection, accessible native HTML semantics by default. Use An
 Aria where they add accessible behavior, and Lucide for icons.
 
 Not every primitive is a component. A purely visual pattern is an `rk-*` CSS class in
-`src/styles/components/` instead; only patterns with real behaviour or ARIA state become components
+`apps/app/src/styles/components/` instead; only patterns with real behaviour or ARIA state become components
 here. The `rk-` / `app-` prefixes are the visible marker of which is which.
 [Design system](./design-system.md) has the decision rule, the token layers and the rules every
 primitive is built to.
@@ -421,7 +421,7 @@ Only create cross-cutting code when it is actually shared.
 - `plugins/` - the app's entire native surface: one file per Capacitor plugin package, exporting one
   `InjectionToken`. Only `data/gateways/**` and `cross-cutting/infrastructure/**` may inject one, and
   nothing outside this folder may import a plugin package at all. ESLint enforces both. See
-  [`src/app/cross-cutting/plugins/README.md`](../../src/app/cross-cutting/plugins/README.md).
+  [`apps/app/src/app/cross-cutting/plugins/README.md`](../../apps/app/src/app/cross-cutting/plugins/README.md).
 - `helpers/` - reusable technical utilities. They must not conceal data-layer access or upward
   dependencies. `asset-url.ts` is the one every layer touches: an asset the app requests by hand
   (`fetch`, an `[src]`, the SQLite wasm path) is resolved through `assetUrl()` against the
@@ -437,14 +437,14 @@ Only create cross-cutting code when it is actually shared.
 and the e2e suite runs against it. There is no service worker: a WebView already serves the bundle
 from the app package, and a worker caching it on top would keep serving the previous release's
 assets after an app update. The browser build is not published; the GitHub Pages workflow publishes
-the website instead (`scripts/build-site.mjs`).
+the website instead (`apps/site`).
 
 ### Supported browsers and WebViews
 
 The app runs in WKWebView on iOS and in the Android System WebView, so its "browsers" are those two
 engines. Angular's default target is "baseline widely available", currently Chrome 119+ and Safari
 17+. That is above what the app's own minimums promise: iOS 16.4 ships Safari 16.4, the last iOS of the
-iPhone 8 and X. Older phones are a real part of the audience, so `.browserslistrc` sets a lower
+iPhone 8 and X. Older phones are a real part of the audience, so `apps/app/.browserslistrc` sets a lower
 floor. Android is less of a constraint: the System WebView updates through the Play Store
 independently of the OS, and the native minimum, Android 8 (API 26), still gets versions well above
 the floor - the app only fails on a phone whose WebView was never updated.
@@ -466,10 +466,10 @@ relative colours). So:
   fallback, and check [caniuse.com](https://caniuse.com) against the table above. Raising the floor is
   a product decision, not a side effect of a dependency update.
 - **An Android WebView below the floor** cannot run the app. `android.minWebViewVersion` in
-  `capacitor.config.ts` (equal to the Chrome floor) makes Capacitor load `public/startup-error.html`
+  `apps/app/capacitor.config.ts` (equal to the Chrome floor) makes Capacitor load `apps/app/public/startup-error.html`
   instead of a white screen; it asks for the WebView update through the Play Store. The same page is
   `server.errorPath`, which both platforms also show when the app's own page fails to load.
-- **Change the floor in all places at once:** `.browserslistrc`, `minWebViewVersion`, this table and
+- **Change the floor in all places at once:** `apps/app/.browserslistrc`, `minWebViewVersion`, this table and
   the README.
 
 ## Theming and appearance
@@ -478,7 +478,7 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 
 ### Token layer
 
-`src/styles/theme.css` defines the tokens in three groups:
+`packages/design-system/src/theme.css` defines the tokens in three groups:
 
 1. `--rk-*` holds the raw values. Each colour theme is one static block selected by the `data-theme`
    attribute on `<html>`; the default theme is additionally bound to `:root`. The theme blocks all
@@ -603,7 +603,7 @@ level-one and level-four-plus headings, for example, survive as plain text rathe
   anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
   `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
   `href` removed, leaving only the link text.
-- A Content-Security-Policy in `src/index.html` is the last layer: only the app's own scripts run,
+- A Content-Security-Policy in `apps/app/src/index.html` is the last layer: only the app's own scripts run,
   and `index.html` carries no inline script - the production build inlines no critical CSS, whose
   loader would be one. The policy's comment explains each exception. A new script, style, image, font or
   remote request outside them is blocked, so check the browser console for violations when adding
