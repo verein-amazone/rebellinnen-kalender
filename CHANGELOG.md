@@ -1,3 +1,17 @@
+## [1.0.0-rc.54](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.53...v1.0.0-rc.54) (2026-10-16)
+
+### Features
+
+* **settings:** replace the app icons with Verein Amazone's cat icons ([1551135](https://github.com/verein-amazone/rebellinnen-kalender/commit/1551135ab2aca90caf57999b1f8dca91199dc1a3))
+* **store:** credit the Hil-Foundation next to the EU funding ([cd57503](https://github.com/verein-amazone/rebellinnen-kalender/commit/cd575030b414096292a5d02b8e6f7803b826b450))
+* **store:** refresh the store screenshots with Verein Amazone's picks ([a5e70e1](https://github.com/verein-amazone/rebellinnen-kalender/commit/a5e70e1975b792e5a07650ec60657adcc91e49c5)), closes [#mikrofeminismus](https://github.com/verein-amazone/rebellinnen-kalender/issues/mikrofeminismus) [#mikrofeminismus](https://github.com/verein-amazone/rebellinnen-kalender/issues/mikrofeminismus)
+
+### Bug Fixes
+
+* **site:** drop the advertising claim from the website ([d95c5fd](https://github.com/verein-amazone/rebellinnen-kalender/commit/d95c5fd4f8fee810398a2dd20feb9686e9fb4ea2))
+* **store:** link the Rebell*innen Kalender's real project page ([4477f09](https://github.com/verein-amazone/rebellinnen-kalender/commit/4477f09a4311b633f16c69960df566a729cb2958))
+* **store:** use the app's website as the App Store marketing URL ([dedd082](https://github.com/verein-amazone/rebellinnen-kalender/commit/dedd08244ed537c22400fbbbafdf962838e7b8f0))
+
 ## [1.0.0-rc.53](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.52...v1.0.0-rc.53) (2026-10-16)
 
 ### Chores
