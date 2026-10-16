@@ -4,7 +4,7 @@
 // Rechtliches - to static, self-contained pages in the build output. Both stores need a privacy
 // policy at a public web address, and the GitHub Pages deployment of `dev`
 // (.github/workflows/pages.yml) publishes them at
-// https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/ - the URL in
+// https://kalender.amazone.or.at/datenschutz/ - the URL in
 // `fastlane/metadata/de-DE/privacy_url.txt` and the consoles - and /nutzungsbedingungen/ (#79). One
 // Markdown file per text feeds the app and the web, so the two can never say different things.
 //

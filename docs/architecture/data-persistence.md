@@ -511,7 +511,8 @@ writes are guarded, and a lost preference is preferable to a broken app.
 ### One database per deployment
 
 A browser scopes IndexedDB and `localStorage` to the **origin**, never to the path. The web demo
-build and its pull-request previews are all served from `verein-amazone.github.io`, so without a
+build and its pull-request previews are all served from `kalender.amazone.or.at` - the demo at the
+root, each preview under `/pr-<n>/` - so without a
 discriminator a preview would open, migrate and write the very database the demo site uses: a pull
 request carrying a new migration would silently upgrade a tester's data, and the demo build would
 then meet a schema from the future.

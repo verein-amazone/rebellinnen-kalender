@@ -102,11 +102,12 @@ does not describe the app. Each has one source in `public/legal/` - `datenschutz
 - **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`), read from
   the bundled file so it works offline.
 - **On the web**: `scripts/build-legal-pages.mjs` renders the same files to static pages after
-  every build, and the Pages deployment of `dev` publishes them at
-  <https://verein-amazone.github.io/rebellinnen-kalender/datenschutz/> and
-  <https://verein-amazone.github.io/rebellinnen-kalender/nutzungsbedingungen/>. The privacy URL is
-  in `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
-  Console (App content → Privacy policy).
+  every build, and the Pages deployment of `dev` publishes them on Verein Amazone's domain at
+  <https://kalender.amazone.or.at/datenschutz/> and
+  <https://kalender.amazone.or.at/nutzungsbedingungen/>. The privacy URL is in
+  `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
+  Console (App content → Privacy policy). The domain is a DNS `CNAME` to `verein-amazone.github.io`
+  that Verein Amazone maintains; `.github/workflows/pages.yml` publishes the matching `CNAME` file.
 
 The texts are Verein Amazone's: change them with their review, like the store copy, and update the
 „Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in

@@ -2,8 +2,13 @@
 #
 # Layout of the published site (see README, "Web demo build"):
 #
-#   https://verein-amazone.github.io/rebellinnen-kalender/           <- the `dev` branch
-#   https://verein-amazone.github.io/rebellinnen-kalender/pr-<n>/    <- one open pull request
+#   https://kalender.amazone.or.at/           <- the `dev` branch, plus the static legal pages
+#   https://kalender.amazone.or.at/pr-<n>/    <- one open pull request
+#
+# The site is served from Verein Amazone's own domain: `kalender.amazone.or.at` is a DNS `CNAME`
+# to `verein-amazone.github.io`, and the `CNAME` file this workflow writes into the branch root is
+# what tells Pages to answer for it. GitHub redirects the old
+# `verein-amazone.github.io/rebellinnen-kalender/` addresses there.
 #
 # GitHub Pages allows a single publishing source per repository, and only the branch-based source
 # can hold a directory per pull request, so this workflow maintains the `gh-pages` branch itself:
@@ -30,6 +35,11 @@ on:
 # Least privilege: no default token permissions; each job opts in to what it needs.
 permissions: {}
 
+env:
+  # The custom domain. Changing it needs the DNS record moved first, and the store privacy URLs and
+  # `fastlane/metadata/de-DE/privacy_url.txt` changed with it.
+  PAGES_DOMAIN: kalender.amazone.or.at
+
 jobs:
   build:
     name: Build the site
@@ -47,7 +57,7 @@ jobs:
       base: ${{ steps.target.outputs.base }}
       url: ${{ steps.target.outputs.url }}
     steps:
-      # A project site lives under the repository's own name, and a preview one level below that.
+      # On the custom domain the demo is the root of the site, and a preview one level below it.
       - name: Work out where this build is published
         id: target
         env:
@@ -55,20 +65,19 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         run: |
           set -euo pipefail
-          site="/${GITHUB_REPOSITORY#*/}"
 
           if [ "$EVENT_NAME" = "push" ]; then
             directory=""
-            base="${site}/"
+            base="/"
           else
             directory="pr-${PR_NUMBER}"
-            base="${site}/${directory}/"
+            base="/${directory}/"
           fi
 
           {
             echo "directory=${directory}"
             echo "base=${base}"
-            echo "url=https://${GITHUB_REPOSITORY_OWNER}.github.io${base}"
+            echo "url=https://${PAGES_DOMAIN}${base}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Checkout
@@ -177,6 +186,10 @@ jobs:
 
           # Without it, Pages runs the output through Jekyll, which drops files starting with `_`.
           touch .nojekyll
+
+          # With a branch as the publishing source, the custom domain is this file. The root is
+          # wiped above and the branch is rewritten below, so it is written again on every publish.
+          echo "$PAGES_DOMAIN" > CNAME
 
           # A fresh orphan commit each time, so the branch never accumulates 6 MB per push.
           git checkout -q --orphan published 2>/dev/null || git checkout -q -b published

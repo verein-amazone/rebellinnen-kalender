@@ -13,10 +13,10 @@
       loaded first by `src/index.html`, puts it back into the address bar before Angular starts.
       Both halves have to stay in step.
 
-      Which prefix is the deployment differs: the demo site is served from
-      `/rebellinnen-kalender/`, a pull-request preview from `/rebellinnen-kalender/pr-<n>/`. Only
-      the root deployment's copy of this file is ever used - a 404 inside a subdirectory is not
-      documented to resolve to that subdirectory's own 404 page - so it has to recognise both.
+      Which prefix is the deployment differs: the demo site is the root of kalender.amazone.or.at,
+      a pull-request preview is served from `/pr-<n>/`. Only the root deployment's copy of this file
+      is ever used - a 404 inside a subdirectory is not documented to resolve to that
+      subdirectory's own 404 page - so it has to recognise both.
 
       This file ships in `public/`, which means every build carries it, native ones included, where
       nothing ever requests it.
@@ -31,8 +31,12 @@
         }
 
         var segments = window.location.pathname.split('/').filter(Boolean);
-        var deploymentDepth = /^pr-\d+$/.test(segments[1] || '') ? 2 : 1;
-        var base = '/' + segments.slice(0, deploymentDepth).join('/') + '/';
+        var deploymentDepth = /^pr-\d+$/.test(segments[0] || '') ? 1 : 0;
+        // Each prefix segment carries its own trailing slash, so the root deployment gets `/` and
+        // not `//`, which a browser would read as a host-relative URL.
+        var base = '/' + segments.slice(0, deploymentDepth).map(function (segment) {
+          return segment + '/';
+        }).join('');
         var route = segments.slice(deploymentDepth).join('/');
         var query = window.location.search.slice(1);
 

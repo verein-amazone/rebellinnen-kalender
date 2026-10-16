@@ -56,10 +56,10 @@ synchronization.
 Alongside them, the current state of `dev` is published as a browser build so the Verein and
 testers can look at it without an App Store or Play Store release:
 
-| What          | Where                                                           |
-| ------------- | --------------------------------------------------------------- |
-| Demo site     | `https://verein-amazone.github.io/rebellinnen-kalender/`        |
-| Pull requests | `https://verein-amazone.github.io/rebellinnen-kalender/pr-<n>/` |
+| What          | Where                                    |
+| ------------- | ---------------------------------------- |
+| Demo site     | `https://kalender.amazone.or.at/`        |
+| Pull requests | `https://kalender.amazone.or.at/pr-<n>/` |
 
 It is a tool for looking at the app, not a third release target, and part of it is missing by
 nature:
