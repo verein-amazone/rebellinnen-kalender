@@ -22,7 +22,7 @@ how the text travels.
 ## Preview
 
 ```bash
-node scripts/build-store-release-notes.mjs --tag v1.0.0 --body-file /dev/null --dry-run
+node apps/app/scripts/build-store-release-notes.mjs --tag v1.0.0 --body-file /dev/null --dry-run
 ```
 
 prints the store text with its length, or fails when it is too long.

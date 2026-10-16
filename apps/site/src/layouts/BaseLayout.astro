@@ -1,0 +1,81 @@
+---
+/**
+ * The frame of every page: the head with its Content-Security-Policy and share metadata, the skip
+ * link, the header (on every page but the landing page, which opens with the app's name itself)
+ * and the footer.
+ */
+import fredokaLatin from '@amazone/design-system/fonts/fredoka-latin.woff2?url';
+import shareImage from '../../../app/fastlane/metadata/android/de-DE/images/featureGraphic.png?url';
+
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { APP_NAME, STORES } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** The page's own address, or `null` for the 404 page, which answers for any missing one. */
+  path: string | null;
+  /** Off for pages that open with the app's name themselves. */
+  header?: boolean;
+  /** A script from public/, loaded as a file so the policy below can stay `script-src 'self'`. */
+  script?: string;
+}
+
+const { title, description, path, header = path !== '/', script } = Astro.props;
+
+const site = Astro.site ?? new URL('https://kalender.amazone.or.at');
+const canonical = path === null ? null : new URL(path, site).href;
+// The Play feature graphic doubles as the preview image when the link is shared.
+const ogImage = new URL(shareImage, site).href;
+
+// Nothing on the site comes from anywhere else, and the policy says so. Only in the built site:
+// the dev server injects its own inline scripts and styles.
+const policy = [
+  "default-src 'self'",
+  "img-src 'self'",
+  "style-src 'self'",
+  "script-src 'self'",
+  "font-src 'self'",
+  "connect-src 'none'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+].join('; ');
+---
+
+<!doctype html>
+<html lang="de" data-app-store={STORES.appStore ?? ''} data-play-store={STORES.playStore ?? ''}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={policy} />}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#7dbdbb" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_AT" />
+    <meta property="og:site_name" content={APP_NAME} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href={fredokaLatin} as="font" type="font/woff2" crossorigin />
+    {script && <script is:inline src={script} defer />}
+  </head>
+  <body>
+    <a
+      class="absolute -top-40 left-4 z-10 rounded-lg bg-foreground px-4 py-3 font-semibold text-card no-underline focus:top-4"
+      href="#inhalt"
+    >
+      Zum Inhalt
+    </a>
+    {header && <SiteHeader />}
+    <slot />
+    <SiteFooter currentPath={path} />
+  </body>
+</html>

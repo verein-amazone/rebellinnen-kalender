@@ -2,8 +2,9 @@
 #
 # A push to `dev` cuts a prerelease (1.0.0-rc.1, …) for TestFlight and Play internal testing; a push
 # to `main` cuts a release (1.0.0, 1.0.1, …). The run tags the commit, writes CHANGELOG.md, bumps
-# package.json, regenerates src/app/cross-cutting/infrastructure/app-version.ts and the native
-# version fields, commits all of that back to the branch and publishes a GitHub release.
+# the root package.json, regenerates apps/app/src/app/cross-cutting/infrastructure/app-version.ts
+# and the native version fields, commits all of that back to the branch and publishes a GitHub
+# release.
 #
 # The release commit carries `[skip ci]` and is pushed with GITHUB_TOKEN, which by design does not
 # trigger workflows - so it neither loops back into this workflow nor spends a CI run on a commit

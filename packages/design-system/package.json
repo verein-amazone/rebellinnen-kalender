@@ -1,0 +1,14 @@
+{
+  "name": "@amazone/design-system",
+  "description": "Design tokens, colour themes, custom Tailwind variants and the self-hosted webfonts shared by the app and the website.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./theme.css": "./src/theme.css",
+    "./fonts.css": "./src/fonts.css",
+    "./fonts/*": "./src/fonts/*"
+  },
+  "peerDependencies": {
+    "tailwindcss": "catalog:"
+  }
+}

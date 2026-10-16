@@ -38,8 +38,8 @@ Merging into `dev` also builds and uploads the prerelease to TestFlight and Play
 [docs/release.md](./docs/release.md) describes the whole path, the credentials it needs and what to
 do when an upload fails.
 
-Pull requests get no browser preview of the app. A change to the website (`site/`, the
-legal texts or the store copy) is built and tested by the `Website` CI job, which uploads the built
+Pull requests get no browser preview of the app. A change to the website (`apps/site`, the
+design system or the legal texts in `packages/`) is built and tested by the `Website` CI job, which uploads the built
 site as an artifact to look at; it goes live when the pull request is merged into `dev`.
 
 ### Commit messages
@@ -61,11 +61,11 @@ commits are the record.
 
 Nothing in the repository is version-bumped by hand. semantic-release owns the version and, on every
 release, writes it into `package.json`, `CHANGELOG.md`,
-`src/app/cross-cutting/infrastructure/app-version.ts` (shown on the „Über die App" screen), and the
+`apps/app/src/app/cross-cutting/infrastructure/app-version.ts` (shown on the „Über die App" screen), and the
 iOS and Android version fields, then tags the commit and publishes a GitHub release.
 
-The native build number is derived from the version by `scripts/sync-native-version.mjs`; see its
-header comment for the encoding. `node scripts/sync-native-version.mjs --check` runs in CI and fails
+The native build number is derived from the version by `apps/app/scripts/sync-native-version.mjs`; see its
+header comment for the encoding. `node apps/app/scripts/sync-native-version.mjs --check` runs in CI and fails
 when the native fields no longer match `package.json`.
 
 If a store upload fails after the release already happened, do not re-upload the same build number -
@@ -106,7 +106,7 @@ than disabling the rule.
 
 CI additionally builds both native projects on every pull request: an unsigned iOS simulator build
 and an Android debug build, each preceded by `cap sync`. If a change touches dependencies, run
-`pnpm cap:sync` and commit the resulting changes to `ios/` and `android/` - otherwise the sync check
+`pnpm cap:sync` and commit the resulting changes to `apps/app/ios/` and `apps/app/android/` - otherwise the sync check
 in CI fails because the committed native projects no longer match the lockfile.
 
 ### Language

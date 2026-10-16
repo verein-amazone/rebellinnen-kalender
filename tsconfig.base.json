@@ -1,0 +1,18 @@
+/*
+ * Compiler strictness shared by every TypeScript project in the workspace (apps/*, packages/*).
+ * Each project's own tsconfig.json extends this file and adds only what its toolchain needs:
+ * decorators and path aliases for the Angular app, Astro's types for the website.
+ */
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "target": "ES2022"
+  }
+}

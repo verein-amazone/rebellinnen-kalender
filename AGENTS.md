@@ -9,6 +9,22 @@ before changing application code:
 - [Data & persistence](./docs/architecture/data-persistence.md)
 - [Contributing guide](./CONTRIBUTING.md)
 
+## Repository layout
+
+A pnpm workspace. Run commands from the root; its scripts delegate to the right package.
+
+- `apps/app` - the Angular + Capacitor app (`@amazone/app`), with `ios/`, `android/`, `fastlane/`
+  and its scripts. Everything below about Angular and the architecture is about this app.
+- `apps/site` - the website (`@amazone/site`, Astro + Tailwind). Read
+  [apps/site/AGENTS.md](./apps/site/AGENTS.md) before changing it.
+- `packages/design-system` - tokens, themes, custom variants and fonts, shared by both apps.
+- `packages/legal` - the legal texts as Markdown, shared by both apps.
+- The root holds the release version, Prettier, commitlint, semantic-release, the `catalog:` in
+  `pnpm-workspace.yaml` and `tsconfig.base.json`.
+
+A file used by more than one app belongs in a package, not copied into each. Docs link the source
+file instead of repeating its contents, so the two cannot drift.
+
 ## Tooling
 
 - Use **pnpm exclusively**. Never use `npm` or `yarn`; never commit `package-lock.json` or
@@ -25,7 +41,7 @@ before changing application code:
 
 - Standalone components, strict TypeScript, strict templates, zoneless change detection.
 - Signals are the default for view-facing state. No NgModules for application architecture.
-- The `@app/*` path alias maps to `src/app/*`.
+- The `@app/*` path alias maps to `apps/app/src/app/*`.
 - Use `private` by default. Use `#private` only where hard runtime privacy is intentional and the
   member will never need template access, subclass access, overriding, spying, or direct test
   access. Members used from a template are `protected`.
@@ -41,10 +57,10 @@ before changing application code:
   gateways). Never inject DAOs or the SQLite plugin into views.
 - **Keep plugin-specific types behind a wrapper** so Capacitor types never leak into interactors or
   views. A Capacitor plugin package is imported in exactly one place - its token in
-  `src/app/cross-cutting/plugins/` - and only `data/gateways/**` (data sources) and
+  `apps/app/src/app/cross-cutting/plugins/` - and only `data/gateways/**` (data sources) and
   `cross-cutting/infrastructure/**` (device capabilities) may inject that token; ESLint enforces
   both. See
-  [src/app/cross-cutting/plugins/README.md](./src/app/cross-cutting/plugins/README.md).
+  [apps/app/src/app/cross-cutting/plugins/README.md](./apps/app/src/app/cross-cutting/plugins/README.md).
 - The ESLint config enforces these boundaries via `no-restricted-imports`. Fix violations; do not
   disable the rule.
 
@@ -100,4 +116,5 @@ that bite most often:
 - Write all technical documentation and code comments in **English**.
 - Update the architecture docs when you change a boundary or introduce a new layer concept.
 - Before finishing, run: `pnpm format:check`, `pnpm lint`, `pnpm test:ci`, `pnpm build`
-  (and `pnpm cap:sync` when native registration is affected).
+  (and `pnpm test:site` when the website or a package changed, `pnpm cap:sync` when native
+  registration is affected).

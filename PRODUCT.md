@@ -54,7 +54,7 @@ that content-driven community apps usually make.
 ## Brand Commitments
 
 - Name: `Rebell*innen Kalender`. Bundle ID: `at.or.amazone.rebellinnenkalender`.
-- The app icon is a fixed brand asset. Three variants ship (`resources/app-icons/`), all drawn
+- The app icon is a fixed brand asset. Three variants ship (`apps/app/resources/app-icons/`), all drawn
   from the same workshop sketch; the user picks between them in the settings.
 - Built with/for Verein Amazone (https://www.amazone.or.at/), developed by Independo GmbH on their
   behalf.

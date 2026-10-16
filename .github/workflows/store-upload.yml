@@ -9,7 +9,7 @@
 # deliberate action in each console - which is also what makes a failed upload harmless to retry.
 #
 # `channel: release` also writes both store listings - text, screenshots, the Play graphics and the
-# Apple age rating - from the tag's fastlane/metadata/ and fastlane/screenshots/, which are
+# Apple age rating - from the tag's apps/app/fastlane/metadata/ and fastlane/screenshots/, which are
 # committed, so no browser is needed here (docs/store-listing.md). A prerelease never touches them.
 # .github/workflows/store-listing.yml writes the same listing without a build.
 #
@@ -122,8 +122,9 @@ jobs:
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true
+          working-directory: apps/app
 
-      # Not optional: ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
+      # Not optional: apps/app/ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
       # exact node_modules/.pnpm/<name>@<version> path.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -134,7 +135,7 @@ jobs:
       - name: Cache the Angular build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: .angular/cache
+          path: apps/app/.angular/cache
           key: ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-
@@ -143,6 +144,7 @@ jobs:
         run: pnpm build
 
       - name: Sync the iOS project
+        working-directory: apps/app
         run: pnpm exec cap sync ios
 
       # gym resolves the Swift packages itself before it archives, so without this every release
@@ -155,7 +157,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/spm
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('apps/app/ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
@@ -163,7 +165,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
-        run: node scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
+        run: node apps/app/scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
 
       # match reads the certificates repository over SSH. The app repository itself was checked out
       # over HTTPS, so forcing this identity for github.com affects nothing else in the run.
@@ -194,6 +196,7 @@ jobs:
           # The TestFlight groups a `dev` build goes to, comma-separated. Only `ios beta`
           # reads it; empty means upload only. See docs/release.md.
           TESTFLIGHT_GROUPS: ${{ vars.TESTFLIGHT_GROUPS }}
+        working-directory: apps/app
         run: |
           notes="$(cat "$RUNNER_TEMP/notes/testflight.txt")"
           if [ "$CHANNEL" = 'release' ]; then
@@ -211,7 +214,7 @@ jobs:
           name: fastlane-ios-logs
           path: |
             ~/Library/Logs/gym
-            fastlane/report.xml
+            apps/app/fastlane/report.xml
           retention-days: 7
           if-no-files-found: ignore
 
@@ -250,6 +253,7 @@ jobs:
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true
+          working-directory: apps/app
 
       - name: Set up JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -267,7 +271,7 @@ jobs:
       - name: Cache the Angular build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: .angular/cache
+          path: apps/app/.angular/cache
           key: ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-angular-store-${{ hashFiles('pnpm-lock.yaml') }}-
@@ -276,13 +280,14 @@ jobs:
         run: pnpm build
 
       - name: Sync the Android project
+        working-directory: apps/app
         run: pnpm exec cap sync android
 
       - name: Build the store release notes
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
-        run: node scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
+        run: node apps/app/scripts/build-store-release-notes.mjs --tag "$TAG" --out-dir "$RUNNER_TEMP/notes"
 
       - name: Decode the upload keystore
         env:
@@ -290,7 +295,7 @@ jobs:
         run: printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
 
       - name: Build the release bundle
-        working-directory: android
+        working-directory: apps/app/android
         env:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -302,7 +307,7 @@ jobs:
       # Play rejects only after the upload. Catch it here, where the message is readable.
       - name: Check that the bundle is signed
         run: |
-          if ! jarsigner -verify android/app/build/outputs/bundle/release/app-release.aab \
+          if ! jarsigner -verify apps/app/android/app/build/outputs/bundle/release/app-release.aab \
             | grep -q 'jar verified'; then
             echo 'The release bundle is not signed - check the ANDROID_KEYSTORE_* secrets.' >&2
             exit 1
@@ -312,6 +317,7 @@ jobs:
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           CHANNEL: ${{ inputs.channel }}
+        working-directory: apps/app
         run: |
           if [ "$CHANNEL" = 'release' ]; then
             bundle exec fastlane android production

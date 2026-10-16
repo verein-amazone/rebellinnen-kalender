@@ -1,0 +1,38 @@
+{
+  "name": "@amazone/site",
+  "description": "The website at kalender.amazone.or.at: landing page, /download (the QR-code target) and the legal pages. Astro, static output.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "build:stores": "SITE_CONFIG=e2e/site.config.stores.json SITE_OUT=dist-stores astro build",
+    "preview": "astro preview",
+    "lint": "eslint .",
+    "test:e2e": "pnpm build && pnpm build:stores && playwright test",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@amazone/design-system": "workspace:*",
+    "@amazone/legal": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "astro": "^7.4.0",
+    "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "catalog:",
+    "@eslint/js": "catalog:",
+    "@playwright/test": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "globals": "^17.13.0",
+    "serve": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

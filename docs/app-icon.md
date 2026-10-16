@@ -22,21 +22,21 @@ Verein Amazone supplied the six icons in October 2026. They replace „Klassisch
   teal („Sam Türkis“), and red on white („Sam Hell“).
 
 `docs/images/app-icon.png` is the rounded version of the default icon from the same delivery, for the
-README; the website's `site/assets/icon.webp` is the same rounded artwork at 256 px. The earlier icons were based on a sketch workshop participants built from sticky notes
+README; the website's `apps/site/public/assets/icon.webp` is the same rounded artwork at 256 px. The earlier icons were based on a sketch workshop participants built from sticky notes
 (`docs/images/workshop-logo-sketch.png`), kept as a record.
 
 ## Sources and generated assets
 
-The square sources live in `resources/app-icons/`, one PNG per icon (at least 1024 × 1024, opaque,
+The square sources live in `apps/app/resources/app-icons/`, one PNG per icon (at least 1024 × 1024, opaque,
 no rounded corners - every platform applies its own mask):
 
 ```
-resources/app-icons/cool-cat-nacht.png
-resources/app-icons/cool-cat-lila.png
-resources/app-icons/cool-cat-hell.png
-resources/app-icons/sam-orange.png
-resources/app-icons/sam-tuerkis.png
-resources/app-icons/sam-hell.png
+apps/app/resources/app-icons/cool-cat-nacht.png
+apps/app/resources/app-icons/cool-cat-lila.png
+apps/app/resources/app-icons/cool-cat-hell.png
+apps/app/resources/app-icons/sam-orange.png
+apps/app/resources/app-icons/sam-tuerkis.png
+apps/app/resources/app-icons/sam-hell.png
 ```
 
 They are the delivered 4267 px files, scaled to 2048 px and stored without the alpha channel they
@@ -45,30 +45,30 @@ carried (fully opaque anyway).
 Everything else is generated and committed:
 
 ```bash
-node scripts/generate-app-icons.mjs
+node apps/app/scripts/generate-app-icons.mjs
 ```
 
 Per icon that writes:
 
-| Output                                             | What it is                                                            |
-| -------------------------------------------------- | --------------------------------------------------------------------- |
-| `ios/App/App/Assets.xcassets/<Catalog>.appiconset` | One flat 1024 px PNG, full-bleed. iOS applies the corner mask.        |
-| `android/…/mipmap-<density>/<name>.png`            | Legacy (pre-API-26) square launcher icon, full-bleed, five densities. |
-| `android/…/mipmap-<density>/<name>_round.png`      | Legacy round icon: artwork inside the safe zone on a disc.            |
-| `android/…/mipmap-<density>/<name>_foreground.png` | Adaptive foreground: artwork scaled into the 72dp-of-108dp safe zone. |
-| `android/…/mipmap-anydpi-v26/<name>.xml`           | Adaptive icon pairing that foreground with a solid background colour. |
-| `android/…/values/ic_launcher_background.xml`      | The background colours, averaged from each source's own corners.      |
-| `public/app-icons/<id>.webp`                       | The 192 px preview shown on the settings screen.                      |
+| Output                                                      | What it is                                                            |
+| ----------------------------------------------------------- | --------------------------------------------------------------------- |
+| `apps/app/ios/App/App/Assets.xcassets/<Catalog>.appiconset` | One flat 1024 px PNG, full-bleed. iOS applies the corner mask.        |
+| `apps/app/android/…/mipmap-<density>/<name>.png`            | Legacy (pre-API-26) square launcher icon, full-bleed, five densities. |
+| `apps/app/android/…/mipmap-<density>/<name>_round.png`      | Legacy round icon: artwork inside the safe zone on a disc.            |
+| `apps/app/android/…/mipmap-<density>/<name>_foreground.png` | Adaptive foreground: artwork scaled into the 72dp-of-108dp safe zone. |
+| `apps/app/android/…/mipmap-anydpi-v26/<name>.xml`           | Adaptive icon pairing that foreground with a solid background colour. |
+| `apps/app/android/…/values/ic_launcher_background.xml`      | The background colours, averaged from each source's own corners.      |
+| `apps/app/public/app-icons/<id>.webp`                       | The 192 px preview shown on the settings screen.                      |
 
 And, from the default icon (`cool-cat-nacht`) only:
 
-| Output                                            | What it is                                                                                                                 |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `site/apple-touch-icon.png`                       | The 180 px icon Safari on iOS uses when the website is added to a home screen, full-bleed.                                 |
-| `public/favicon.ico`                              | The browser tab icon: 16, 32 and 48 px PNGs in one ICO file.                                                               |
-| `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md). |
+| Output                                                        | What it is                                                                                                                 |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `apps/site/public/apple-touch-icon.png`                       | The 180 px icon Safari on iOS uses when the website is added to a home screen, full-bleed.                                 |
+| `apps/app/public/favicon.ico`, `apps/site/public/favicon.ico` | The browser tab icon: 16, 32 and 48 px PNGs in one ICO file, the same for the app and the website.                         |
+| `apps/app/fastlane/metadata/android/de-DE/images/icon.png`    | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md). |
 
-`favicon.ico` and `apple-touch-icon.png` belong to the website (`scripts/build-site.mjs`), whose
+`favicon.ico` and `apple-touch-icon.png` belong to the website (`apps/site`), whose
 page icon is the rounded artwork above, with its own corners and transparency. `ng serve` uses the
 same tab icon. The website shows only the default icon, so the alternates need none.
 
@@ -86,7 +86,7 @@ Runtime switching uses [`@capawesome/capacitor-app-icon`](https://capawesome.io/
 Both platforms need each icon registered at build time; neither can be given a new icon at runtime.
 
 - **Android** - the launcher `<intent-filter>` sits on one `<activity-alias>` per icon in
-  `android/app/src/main/AndroidManifest.xml`, not on `MainActivity`. Switching means enabling one
+  `apps/app/android/app/src/main/AndroidManifest.xml`, not on `MainActivity`. Switching means enabling one
   alias and disabling the others. Exactly one alias may be `android:enabled="true"`: the plugin
   treats the first enabled launcher component as the default, and that is what „Cool Cat Nacht“
   returns to. Never bring back a removed alias name: Android keeps the enabled state the plugin set
@@ -106,11 +106,11 @@ without telling the app, so there is nothing to keep in sync.
 
 ## Adding another icon
 
-1. Drop a square PNG into `resources/app-icons/`.
-2. Add an entry to `ICONS` in `scripts/generate-app-icons.mjs` and run the script.
+1. Drop a square PNG into `apps/app/resources/app-icons/`.
+2. Add an entry to `ICONS` in `apps/app/scripts/generate-app-icons.mjs` and run the script.
 3. Add an `<activity-alias>` for it in `AndroidManifest.xml`, `android:enabled="false"`.
 4. Add its catalog name to `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES` in
-   `ios/App/App.xcodeproj/project.pbxproj` (both Debug and Release).
+   `apps/app/ios/App/App.xcodeproj/project.pbxproj` (both Debug and Release).
 5. Add the option, its German label and its native name to `AppIconInteractor`.
 6. Run `pnpm cap:sync` and check the icon on a real Android launcher and a physical iPhone - the iOS
    simulator does not render alternate icons.

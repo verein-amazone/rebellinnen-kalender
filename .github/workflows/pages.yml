@@ -1,6 +1,6 @@
 # Publishes the website at https://kalender.amazone.or.at to GitHub Pages: the introduction with
 # the store links, /download (the QR-code target), and the privacy policy, terms of use and imprint
-# (`site/`, built by `scripts/build-site.mjs`, see docs/store-listing.md).
+# (`apps/site`, an Astro site, see docs/store-listing.md).
 #
 # The site follows `dev` for now, so the privacy URL is public before 1.0.0 reaches `main`. Once
 # `main` is the release branch, switch the trigger below to `main`: the legal texts should then
@@ -22,13 +22,11 @@ on:
   push:
     branches: [dev]
     paths:
-      - site/**
-      - public/legal/**
-      - public/favicon.ico
-      - src/styles/fonts/**
-      - fastlane/metadata/de-DE/**
-      - fastlane/metadata/android/de-DE/images/featureGraphic.png
-      - scripts/build-site.mjs
+      - apps/site/**
+      - packages/**
+      # The share image is the Play feature graphic.
+      - apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png
+      - pnpm-lock.yaml
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -74,7 +72,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          test -s dist/site/CNAME
+          test -s apps/site/dist/CNAME
 
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -82,9 +80,10 @@ jobs:
           mkdir gh-pages && cd gh-pages
           git init -q
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          cp -R ../dist/site/. .
+          cp -R ../apps/site/dist/. .
 
-          # Without it, Pages runs the output through Jekyll, which drops files starting with `_`.
+          # Without it, Pages runs the output through Jekyll, which drops files starting with `_` -
+          # among them Astro's `_astro/` folder with the stylesheet, the fonts and the share image.
           touch .nojekyll
 
           # A fresh orphan commit each time, so the branch never accumulates history.

@@ -19,7 +19,7 @@ changes with it.
 ## Where everything is
 
 ```text
-fastlane/
+apps/app/fastlane/
 ├── metadata/                                  deliver (App Store)
 │   ├── de-DE/
 │   │   ├── name.txt                           30
@@ -35,20 +35,20 @@ fastlane/
 │   ├── secondary_category.txt
 │   ├── review_information/notes.txt           notes for App Review
 │   ├── app_store_rating_config.json           age rating, see store-compliance.md
-│   └── android/
+│   └── apps/app/android/
 │       ├── data_safety.csv                    Play Data safety answers, see store-compliance.md
 │       └── de-DE/                             supply (Play)
 │           ├── title.txt                      30
 │           ├── short_description.txt          80
 │           ├── full_description.txt           4000
 │           └── images/
-│               ├── icon.png                   512×512, scripts/generate-app-icons.mjs
+│               ├── icon.png                   512×512, apps/app/scripts/generate-app-icons.mjs
 │               ├── featureGraphic.png         1024×500, no alpha, pnpm store:screenshots
 │               └── phoneScreenshots/*.png     2-8, pnpm store:screenshots
 └── screenshots/de-DE/*.png                    deliver, 1-10 at 1320×2868, pnpm store:screenshots
 ```
 
-The numbers are each field's limit in characters. `node scripts/check-store-listing.mjs` checks all
+The numbers are each field's limit in characters. `node apps/app/scripts/check-store-listing.mjs` checks all
 of them, the image sizes and the hand-written release notes, and CI runs it on every pull request -
 so a listing the stores would reject fails the pull request, not the release.
 
@@ -65,15 +65,15 @@ pnpm store:screenshots
 ```
 
 builds the app and renders every screenshot for both stores and the Play feature graphic, with
-Playwright, from the production web build (`playwright.store.config.ts`,
-`scripts/store-screenshots/store-screenshots.spec.ts`). It fills the app with German demo data
+Playwright, from the production web build (`apps/app/playwright.store.config.ts`,
+`apps/app/scripts/store-screenshots/store-screenshots.spec.ts`). It fills the app with German demo data
 through the real forms, pins the clock to Sunday 8 March 2026 so the daily impulse and the calendar
 are always the same, and writes:
 
-- `fastlane/screenshots/de-DE/` - 1320×2868, the 6.9" iPhone size; App Store Connect scales it down
+- `apps/app/fastlane/screenshots/de-DE/` - 1320×2868, the 6.9" iPhone size; App Store Connect scales it down
   for every smaller iPhone. The app is iPhone only, so there are no iPad screenshots.
-- `fastlane/metadata/android/de-DE/images/phoneScreenshots/` - 1080×2160.
-- `fastlane/metadata/android/de-DE/images/featureGraphic.png` - 1024×500, the app icon and name in
+- `apps/app/fastlane/metadata/android/de-DE/images/phoneScreenshots/` - 1080×2160.
+- `apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png` - 1024×500, the app icon and name in
   the bundled fonts.
 
 The PNGs are committed. They are reviewed like any other change, and the release job uploads them
@@ -88,7 +88,7 @@ Things to know:
   macOS. Regenerate them on a Mac, so a diff shows real changes only.
 - **Pick content whose images may be shown in a store.** The screenshots show only Rebell\*innen
   whose portraits are in the public domain and Wissensimpulse illustrated by Verein Amazone itself
-  (`public/content/images.json`). Other portraits carry licences - CC BY-NC-ND, CC BY-SA - that
+  (`apps/app/public/content/images.json`). Other portraits carry licences - CC BY-NC-ND, CC BY-SA - that
   do not obviously allow a promotional screenshot.
 - The developer tools stay off screen: no screenshot shows the settings overview, which has the
   „Entwicklung“ section in a release candidate.
@@ -96,7 +96,7 @@ Things to know:
 ## Privacy policy and terms of use
 
 The app has its own privacy policy, terms of use (#79) and imprint, because Verein Amazone's
-website texts do not describe the app. Each has one source in `public/legal/` - `datenschutz.md`,
+website texts do not describe the app. Each has one source in `packages/legal/src/` - `datenschutz.md`,
 `nutzungsbedingungen.md` and `impressum.md` - and reaches readers in two ways:
 
 - **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`,
@@ -105,7 +105,7 @@ website texts do not describe the app. Each has one source in `public/legal/` - 
   <https://kalender.amazone.or.at/datenschutz/>,
   <https://kalender.amazone.or.at/nutzungsbedingungen/> and
   <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
-  `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
+  `apps/app/fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
   Console (App content → Privacy policy).
 
 The texts are Verein Amazone's: change them with their review, like the store copy, and update the
@@ -124,11 +124,15 @@ minimum terms for one.
 `/download`, the three legal texts and a 404 page. The domain is a DNS `CNAME` to
 `verein-amazone.github.io` that Verein Amazone maintains.
 
-- **Built by** `scripts/build-site.mjs` (`pnpm build:site`) into `dist/site/`, from `site/` (CSS,
-  the `/download` script, images), `public/legal/*.md` and the store copy in
-  `fastlane/metadata/de-DE/` (name, subtitle, promotional text, description). Change the copy in the
-  store files, not in the site: both say the same thing by construction.
-- **Store links** come from `site/site.config.json`. While a listing is not public its URL stays
+- **Built by** [Astro](https://astro.build/) from `apps/site` (`pnpm build:site`) into
+  `apps/site/dist/`. The pages are in `apps/site/src/pages/`, styled with Tailwind on the tokens of
+  `@amazone/design-system`; the legal pages render `packages/legal/src/*.md`.
+- **The copy** is written in the pages (`apps/site/src/pages/index.astro`, `apps/site/src/lib/site.ts`)
+  and follows the store copy in `apps/app/fastlane/metadata/de-DE/` (name, subtitle, promotional
+  text, description). A change to one is a reason to look at the other - but on purpose the website
+  makes no claim about advertising, which the store description does („ohne Werbung“): Verein Amazone
+  asked for it to be left out there, and the e2e suite checks it.
+- **Store links** come from `apps/site/site.config.json`. While a listing is not public its URL stays
   `null`, and the site says „Bald verfügbar im App Store …“ instead of showing that badge. Fill in
   the App Store URL (`https://apps.apple.com/at/app/…/id<number>`) and the Play URL
   (`https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender`) when each
@@ -140,14 +144,14 @@ minimum terms for one.
 - **Nothing third-party**: fonts, images and the one script are served from the site itself, there
   are no cookies and no tracking, and a Content-Security-Policy says so. The privacy policy
   (section 9) describes exactly this; keep the two in step.
-- **Assets** in `site/assets/`: the official German store badges (Apple's badge tool, Google's badge
+- **Assets** in `apps/site/public/assets/`, with their provenance in `apps/site/ASSETS.md`: the official German store badges (Apple's badge tool, Google's badge
   page), the EU co-funding emblem and the ProEuropean Values (CERV) logo from
   proeuropeanvalues.at/finanzierung, the default app icon and the store screenshots as WebP
   (`cwebp -q 82 -resize 600 0`). Regenerate the screenshots after `pnpm store:screenshots` changes
   them.
 - **Published** by `.github/workflows/pages.yml` on every push to `dev` that touches its sources,
-  and **tested** by `pnpm test:site` (axe, no foreign requests, no sideways scroll at 320 px, the
-  `/download` redirect) in the `Website` CI job.
+  and **tested** by `pnpm test:site` (axe, no foreign requests, no Content-Security-Policy
+  violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job.
 
 ## Availability
 
@@ -157,11 +161,11 @@ track (Countries / regions); neither comes from this repository.
 ## Changing the listing
 
 1. Change the files, and regenerate the screenshots if the change is visible.
-2. Run `node scripts/check-store-listing.mjs`.
+2. Run `node apps/app/scripts/check-store-listing.mjs`.
 3. Open a pull request into `dev` and ask Verein Amazone to review the text.
 4. The change reaches the stores when it reaches `main`: with the release, or - for a commit that
    does not cut one, such as `docs(store): …` - through the Store listing workflow, which a push to
-   `main` that touches `fastlane/metadata/` or `fastlane/screenshots/` starts by itself.
+   `main` that touches `apps/app/fastlane/metadata/` or `apps/app/fastlane/screenshots/` starts by itself.
 
 ## Writing the listing without a release
 

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { APP_NAME, PROMOTIONAL } from '../lib/site';
+---
+
+<BaseLayout title={`Seite nicht gefunden – ${APP_NAME}`} description={PROMOTIONAL} path={null}>
+  <main id="inhalt" class="wrap flex-1 pt-6 pb-[clamp(3rem,10vw,5rem)]">
+    <h1 class="mb-6 text-[clamp(2.5rem,10vw,4rem)]">Diese Seite gibt es nicht</h1>
+    <p class="mb-8 max-w-136 text-[1.1875rem]">
+      Vielleicht hat sich die Adresse geändert. Auf der Startseite findest du die App und alle
+      Rechtstexte.
+    </p>
+    <p>
+      <a class="inline-flex min-h-touch items-center font-semibold" href="/">
+        Zur Startseite
+      </a>
+    </p>
+  </main>
+</BaseLayout>
