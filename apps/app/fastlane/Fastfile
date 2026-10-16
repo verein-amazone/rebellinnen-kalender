@@ -349,16 +349,17 @@ platform :ios do
     archive_signed_ipa(api_key)
     version = options.fetch(:version)
 
-    # Everything that makes this "staged rather than published" is in these three flags, on both
+    # Everything that makes this "staged rather than published" is in these two flags, on both
     # deliver runs below: `submit_for_review: false` leaves the version in "Prepare for Submission",
-    # `automatic_release` false means an approved version still waits for a human, and
-    # `run_precheck_before_submit` false keeps precheck from running for a submission that is not
-    # happening.
+    # and `run_precheck_before_submit` false keeps precheck from running for a submission that is
+    # not happening. The release type ("manually" or "automatically after approval") is left to the
+    # person who submits the version, in App Store Connect: deliver sets it only when
+    # `automatic_release` is given, and App Store Connect refuses any change to it once the version
+    # is a pre-order ("The attribute 'releaseType' can not be modified"), as 1.0.0 is.
     staged = {
       api_key: api_key,
       app_version: version,
       submit_for_review: false,
-      automatic_release: false,
       run_precheck_before_submit: false,
       precheck_include_in_app_purchases: false,
       # No HTML preview to confirm: there is no terminal to confirm it in.
@@ -397,7 +398,7 @@ platform :ios do
       overwrite_screenshots: true,
       app_rating_config_path: APP_RATING_CONFIG_PATH,
       submit_for_review: false,
-      automatic_release: false,
+      # No `automatic_release`, for the reason in the release lane.
       run_precheck_before_submit: false,
       precheck_include_in_app_purchases: false,
       force: true
