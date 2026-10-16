@@ -359,8 +359,9 @@ with the German changelog. Open it and roll it out.
 **App Store** (`main`). The version exists in App Store Connect with the build uploaded, its
 "What's New" text and the listing from the repository - description, keywords, screenshots,
 categories, age rating - filled in, sitting in "Prepare for Submission". Select the build, check the
-listing, then "Add for Review" and submit. It is not set to release automatically on approval, so an approved
-version still waits for a human to release it.
+listing, check "Version Release", then "Add for Review" and submit. The pipeline never sets the
+release type: App Store Connect refuses to change it on a pre-order, so it is chosen here, by the
+person who submits.
 
 1.0.0 goes out as a **pre-order** (Pricing and Availability → App Availability → Pre-Orders, Austria,
 release date 9 November 2026). A pre-order needs the version release left on "Manually release this
