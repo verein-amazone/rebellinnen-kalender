@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kalender.amazone.or.at/sitemap.xml
