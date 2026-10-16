@@ -1,9 +1,9 @@
 ---
-import { Content } from '@amazone/legal/datenschutz.md';
+import { Content, getHeadings } from '@amazone/legal/datenschutz.md';
 
 import LegalLayout from '../layouts/LegalLayout.astro';
 ---
 
-<LegalLayout title="Datenschutz" path="/datenschutz/">
+<LegalLayout title="Datenschutz" path="/datenschutz/" headings={getHeadings()}>
   <Content />
 </LegalLayout>

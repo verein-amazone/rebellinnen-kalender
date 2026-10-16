@@ -350,6 +350,29 @@ the system redraws a native control's chrome (`appearance: none`) rather than re
 completed checklist entry is never marked by the check alone: its row text strikes through and the
 control's accessible name flips to the opposite action.
 
+## Website (`apps/site`)
+
+The website at kalender.amazone.or.at wears the same Amazone theme at page scale, from the same
+tokens (`@amazone/design-system`); it adds no colour of its own. What differs is scale and layout,
+because a page is read at arm's length and on screens of every width:
+
+- **Type scale.** Three body steps as theme tokens in `apps/site/src/styles/global.css`:
+  `text-fine` (0.9375rem, footer), `text-body` (1.0625rem, running text) and `text-lead`
+  (1.1875rem, the paragraph that introduces a section). Headings are Fredoka 600 and fluid
+  (`clamp()` per heading), never above 6rem, and break with hyphens rather than overflow.
+- **Two layout tiers.** Phone first; `split` (48rem) puts copy beside its screen from a portrait
+  tablet up; `desktop` (64rem) lets the hero fill the first viewport and gives the legal pages a
+  section column.
+- **Phone stage.** Real app screenshots in a flat navy frame with a 0.6rem bezel and their own
+  rounded corners - the frame sizes itself to the screenshot, so nothing is cropped. The one motion
+  is the screens settling into place as they scroll in (scroll-driven, off under reduced motion).
+- **Status, not control.** A pre-release notice („Bald verfügbar“) is an icon in a ring plus two
+  lines of display type - nothing on the page looks tappable that is not.
+- **Reading pages.** Legal texts sit on a cream sheet at about 70 characters; a text with six or
+  more sections gets a section list (a collapsed „Inhalt“ on the phone, a sticky column on desktop).
+- **Surfaces the page owns.** Selection is orange with navy text, the scrollbar navy on teal, and
+  the focus ring 3px navy (orange on navy bands) with the `sm` radius.
+
 ## Do's and Don'ts
 
 ### Do:

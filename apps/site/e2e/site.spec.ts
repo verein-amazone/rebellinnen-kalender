@@ -146,6 +146,26 @@ test.describe('website', () => {
     await expect(page.locator('.settle').first()).toHaveCSS('animation-name', 'none');
   });
 
+  test('lists the sections of a long legal text and links to each', async ({ page }) => {
+    await page.goto('/datenschutz/');
+    // On a phone the list is collapsed under „Inhalt“.
+    await page.setViewportSize({ width: 390, height: 844 });
+    const list = page.getByRole('navigation', { name: 'Inhalt: Datenschutz' });
+    await page.getByText('Inhalt', { exact: true }).first().click();
+
+    const links = list.getByRole('link');
+    expect(await links.count()).toBeGreaterThanOrEqual(6);
+    for (const href of await links.evaluateAll((all) => all.map((a) => a.getAttribute('href')))) {
+      await expect(page.locator(`[id="${decodeURIComponent(href!.slice(1))}"]`)).toHaveCount(1);
+    }
+  });
+
+  test('leaves the short imprint without a section list', async ({ page }) => {
+    await page.goto('/impressum/');
+
+    await expect(page.getByRole('navigation', { name: /^Inhalt/ })).toHaveCount(0);
+  });
+
   test('answers a missing page with the 404 page', async ({ page }) => {
     const response = await page.goto('/gibt-es-nicht');
 
