@@ -168,11 +168,10 @@ ${EXTRAS.map(
       <h2 id="daten">Deine Daten bleiben bei dir</h2>
       <ul class="without">
         <li><span>Ohne</span> Konto</li>
-        <li><span>Ohne</span> Werbung</li>
         <li><span>Ohne</span> Tracking</li>
         <li><span>Auch ohne</span> Internet</li>
       </ul>
-      ${paragraphs(DESCRIPTION.sections.get('DEINE DATEN BLEIBEN BEI DIR'))}
+      ${paragraphs(withoutAdvertisingClaim(DESCRIPTION.sections.get('DEINE DATEN BLEIBEN BEI DIR')))}
       <p class="links">
         <a href="/datenschutz/">Datenschutzerklärung lesen</a>
         <a href="https://github.com/verein-amazone/rebellinnen-kalender">Offener Quellcode auf GitHub</a>
@@ -395,6 +394,19 @@ function parseDescription(text) {
   }
 
   return { intro, sections, closing };
+}
+
+/**
+ * The website makes no claim about advertising, although the store description does: Verein Amazone
+ * asked for it to be left out here. Fails the build when the store wording changes, so the two are
+ * reconciled by hand rather than the claim slipping back in.
+ */
+function withoutAdvertisingClaim(texts) {
+  const claim = 'ohne Konto, ohne Werbung und ohne Tracking';
+  if (texts === undefined || !texts.some((text) => text.includes(claim))) {
+    throw new Error(`build-site: the description no longer says "${claim}"; check the privacy band`);
+  }
+  return texts.map((text) => text.replace(claim, 'ohne Konto und ohne Tracking'));
 }
 
 function paragraphs(texts, { link = false } = {}) {
