@@ -45,14 +45,14 @@
     {
       "name": "Inter (font)",
       "license": "OFL-1.1",
-      "text": "texts/Inter-OFL-1.1.txt",
-      "reason": "Bundled from src/styles/fonts/. Taken from github.com/google/fonts, ofl/inter/OFL.txt."
+      "text": "../node_modules/@amazone/design-system/src/fonts/Inter-OFL-1.1.txt",
+      "reason": "Bundled from packages/design-system/src/fonts/. Taken from github.com/google/fonts, ofl/inter/OFL.txt."
     },
     {
       "name": "Fredoka (font)",
       "license": "OFL-1.1",
-      "text": "texts/Fredoka-OFL-1.1.txt",
-      "reason": "Bundled from src/styles/fonts/. Taken from github.com/google/fonts, ofl/fredoka/OFL.txt."
+      "text": "../node_modules/@amazone/design-system/src/fonts/Fredoka-OFL-1.1.txt",
+      "reason": "Bundled from packages/design-system/src/fonts/. Taken from github.com/google/fonts, ofl/fredoka/OFL.txt."
     },
     {
       "name": "Apache Cordova (iOS, inside Capacitor's Cordova framework)",

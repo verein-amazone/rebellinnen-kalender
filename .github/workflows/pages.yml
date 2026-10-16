@@ -25,7 +25,7 @@ on:
       - site/**
       - apps/app/public/legal/**
       - apps/app/public/favicon.ico
-      - apps/app/src/styles/fonts/**
+      - packages/design-system/**
       - apps/app/fastlane/metadata/de-DE/**
       - apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png
       - scripts/build-site.mjs

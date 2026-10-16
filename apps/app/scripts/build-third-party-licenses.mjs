@@ -117,9 +117,17 @@ function copiedAssets() {
   const assets = Object.values(angular.projects).flatMap(
     (project) => project.architect?.build?.options?.assets ?? [],
   );
-  return assets
-    .filter((asset) => typeof asset === 'object' && asset.input.startsWith('node_modules/'))
-    .map((asset) => npmPackage(packageRoot(join(ROOT, asset.input))));
+  return (
+    assets
+      // The workspace's own packages (@amazone/*) are this repository's code, not third-party.
+      .filter(
+        (asset) =>
+          typeof asset === 'object' &&
+          asset.input.startsWith('node_modules/') &&
+          !asset.input.startsWith('node_modules/@amazone/'),
+      )
+      .map((asset) => npmPackage(packageRoot(join(ROOT, asset.input))))
+  );
 }
 
 /** @returns {Entry[]} */

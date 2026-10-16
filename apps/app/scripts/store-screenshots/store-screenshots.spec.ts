@@ -255,7 +255,9 @@ test.describe('store screenshots', () => {
 
 /** Inlines a bundled font, so `setContent` - which has no base URL - can use it. */
 function fontFace(family: string, file: string, weight: string): string {
-  const data = readFileSync(join(ROOT, 'src', 'styles', 'fonts', file)).toString('base64');
+  const data = readFileSync(
+    join(ROOT, 'node_modules', '@amazone', 'design-system', 'src', 'fonts', file),
+  ).toString('base64');
   return `@font-face { font-family: '${family}'; font-weight: ${weight}; src: url(data:font/woff2;base64,${data}) format('woff2'); }`;
 }
 

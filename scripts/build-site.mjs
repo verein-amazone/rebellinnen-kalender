@@ -87,10 +87,9 @@ mkdirSync(OUT, { recursive: true });
 copy(join(SITE, 'site.css'), 'site.css');
 copy(join(SITE, 'download.js'), 'download/download.js');
 copy(join(SITE, 'assets'), 'assets');
-copy(join(APP, 'src', 'styles', 'fonts'), 'fonts');
-// The fonts are OFL-licensed, which asks for the licence to travel with them.
-copy(join(APP, 'licenses', 'texts', 'Fredoka-OFL-1.1.txt'), 'fonts/Fredoka-OFL-1.1.txt');
-copy(join(APP, 'licenses', 'texts', 'Inter-OFL-1.1.txt'), 'fonts/Inter-OFL-1.1.txt');
+// The fonts are OFL-licensed, which asks for the licence to travel with them: the package keeps the
+// licence texts next to the font files, so they are copied along.
+copy(join(ROOT, 'packages', 'design-system', 'src', 'fonts'), 'fonts');
 copy(join(APP, 'public', 'favicon.ico'), 'favicon.ico');
 copy(join(ROOT, 'site', 'apple-touch-icon.png'), 'apple-touch-icon.png');
 // The Play feature graphic doubles as the preview image when the link is shared.

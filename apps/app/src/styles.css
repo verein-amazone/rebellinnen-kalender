@@ -7,7 +7,7 @@
 /* Positions and stacks the overlay container the sheets render into. Without it a sheet renders as
    ordinary content at the end of <body>. */
 @import '@angular/cdk/overlay-prebuilt.css';
-@import './styles/fonts.css';
-@import './styles/theme.css';
+@import '@amazone/design-system/fonts.css';
+@import '@amazone/design-system/theme.css';
 @import './styles/base.css';
 @import './styles/components.css';

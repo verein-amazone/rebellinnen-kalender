@@ -29,6 +29,11 @@
                 "input": "public"
               },
               {
+                "glob": "NOTICE.md",
+                "input": "node_modules/@amazone/design-system/src/fonts",
+                "output": "fonts"
+              },
+              {
                 "glob": "sqlite3.wasm",
                 "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
                 "output": "assets"

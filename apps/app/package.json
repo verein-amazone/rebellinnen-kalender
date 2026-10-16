@@ -25,6 +25,7 @@
     "pnpm": ">=11"
   },
   "dependencies": {
+    "@amazone/design-system": "workspace:*",
     "@angular/aria": "^22.2.2",
     "@angular/cdk": "^22.2.2",
     "@angular/common": "^22.2.2",

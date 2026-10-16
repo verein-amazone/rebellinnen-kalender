@@ -6,8 +6,9 @@
  * Inter    - UI and body text.
  * Fredoka  - display face for headings (the "chunky rounded display font" of the visual language).
  *
- * Both are licensed under the SIL Open Font License 1.1, see public/fonts/NOTICE.md (which stays
- * a served asset, so the licence ships with the app).
+ * Both are licensed under the SIL Open Font License 1.1, see fonts/NOTICE.md and the licence texts
+ * next to the font files. The app serves NOTICE.md as an asset (angular.json), so the licence ships
+ * with it; the website publishes the licence texts next to the fonts.
  *
  * The files live next to this stylesheet rather than in `public/`, and are referenced relatively,
  * so the build emits them as hashed `media/*` output and rewrites these URLs itself. A path from
