@@ -282,8 +282,8 @@ a {
 .hero-icon {
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 22%;
-  box-shadow: 0 0.75rem 1.5rem -0.75rem rgb(14 17 69 / 0.6);
+  /* The artwork brings its own rounded corners, so the shadow follows its shape, not the box. */
+  filter: drop-shadow(0 0.5rem 0.6rem rgb(14 17 69 / 0.4));
 }
 
 .brand {
@@ -644,7 +644,6 @@ a {
 .home-link img {
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 22%;
 }
 
 .page {
