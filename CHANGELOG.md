@@ -1,3 +1,9 @@
+## [1.0.0-rc.53](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.52...v1.0.0-rc.53) (2026-10-16)
+
+### Chores
+
+* remove the web demo setup ([7bfa197](https://github.com/verein-amazone/rebellinnen-kalender/commit/7bfa197f2af894faa73758917674eb2e8eee0c43)), closes [#162](https://github.com/verein-amazone/rebellinnen-kalender/issues/162)
+
 ## [1.0.0-rc.52](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.51...v1.0.0-rc.52) (2026-10-16)
 
 ### Features
