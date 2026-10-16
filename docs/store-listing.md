@@ -95,16 +95,16 @@ Things to know:
 
 ## Privacy policy and terms of use
 
-The app has its own privacy policy and terms of use (#79), because Verein Amazone's website policy
-does not describe the app. Each has one source in `public/legal/` - `datenschutz.md` and
-`nutzungsbedingungen.md` - and reaches readers in two ways:
+The app has its own privacy policy, terms of use (#79) and imprint, because Verein Amazone's
+website texts do not describe the app. Each has one source in `public/legal/` - `datenschutz.md`,
+`nutzungsbedingungen.md` and `impressum.md` - and reaches readers in two ways:
 
-- **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`), read from
-  the bundled file so it works offline.
+- **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`,
+  `ImprintPage`), read from the bundled file so it works offline.
 - **On the web**: `scripts/build-legal-pages.mjs` renders the same files to static pages after
   every build, and the Pages deployment of `dev` publishes them on Verein Amazone's domain at
-  <https://kalender.amazone.or.at/datenschutz/> and
-  <https://kalender.amazone.or.at/nutzungsbedingungen/>. The privacy URL is in
+  <https://kalender.amazone.or.at/datenschutz/>,
+  <https://kalender.amazone.or.at/nutzungsbedingungen/> and <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
   `fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
   Console (App content → Privacy policy). The domain is a DNS `CNAME` to `verein-amazone.github.io`
   that Verein Amazone maintains; `.github/workflows/pages.yml` publishes the matching `CNAME` file.
@@ -113,8 +113,7 @@ The texts are Verein Amazone's: change them with their review, like the store co
 „Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
 one paragraph as emphasis; the renderer drops `mailto:` and `tel:` links, so addresses stay text.
 Because the web pages follow `dev`, a change is public as soon as it is merged - land it when it is
-true for the version in the stores. The Impressum stays on the Amazone website and is linked from
-the app.
+true for the version in the stores.
 
 The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
 in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's

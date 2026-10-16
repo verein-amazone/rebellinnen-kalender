@@ -134,8 +134,9 @@ The workflow:
       move, all-day appointments stay on their day.
 - [ ] **All-day device events on Android** are written and read on the right day (#98).
 - [ ] **App icon:** Klassisch, Pixel and Nacht can each be selected and show on the home screen.
-- [ ] **External links** (Anlaufstellen, licences, image credits, Datenschutz, Impressum) open in the
-      browser or the phone app, and the back path into the app works.
+- [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
+      Impressum) open in the browser or the phone app, and the back path into the app works.
+- [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.
 - [ ] **Shake** on Heute replays the Tagesimpuls greeting on a real device, and the same replay is
       reachable by tapping.
 

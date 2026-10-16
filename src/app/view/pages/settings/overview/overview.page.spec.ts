@@ -34,6 +34,15 @@ describe('SettingsOverviewPage', () => {
     );
   });
 
+  it('opens the legal texts inside the app', async () => {
+    const element = await setup(false);
+
+    expect(linkTargets(element)).toEqual(
+      expect.arrayContaining(['/settings/privacy', '/settings/terms', '/settings/imprint']),
+    );
+    expect(element.querySelector('a[target="_blank"]')).toBeNull();
+  });
+
   it('hides the developer tools in a store build', async () => {
     const element = await setup(false);
 

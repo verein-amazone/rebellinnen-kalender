@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// Renders the bundled legal texts - the privacy policy (`public/legal/datenschutz.md`) and the terms
-// of use (`public/legal/nutzungsbedingungen.md`), shown in the app under Einstellungen → App &
-// Rechtliches - to static, self-contained pages in the build output. Both stores need a privacy
-// policy at a public web address, and the GitHub Pages deployment of `dev`
-// (.github/workflows/pages.yml) publishes them at
-// https://kalender.amazone.or.at/datenschutz/ - the URL in
-// `fastlane/metadata/de-DE/privacy_url.txt` and the consoles - and /nutzungsbedingungen/ (#79). One
-// Markdown file per text feeds the app and the web, so the two can never say different things.
+// Renders the bundled legal texts - the privacy policy (`public/legal/datenschutz.md`), the terms of
+// use (`public/legal/nutzungsbedingungen.md`) and the imprint (`public/legal/impressum.md`), shown in
+// the app under Einstellungen → App & Rechtliches - to static, self-contained pages in the build
+// output. Both stores need a privacy policy at a public web address, and the GitHub Pages
+// deployment of `dev` (.github/workflows/pages.yml) publishes them at
+// https://kalender.amazone.or.at/datenschutz/ - the URL in `fastlane/metadata/de-DE/privacy_url.txt`
+// and the consoles - /nutzungsbedingungen/ (#79) and /impressum/. Each page links the other two, so
+// a store reviewer finds the imprint. One Markdown file per text feeds the app and the web, so the
+// two can never say different things.
 //
 // The pages load no script, no font and no stylesheet from anywhere: a store reviewer or a reader
 // on a slow connection gets the text, and nobody's IP address goes to a third party for it. Run as
@@ -27,6 +28,7 @@ const PAGES = [
     title: 'Nutzungsbedingungen',
     directory: 'nutzungsbedingungen',
   },
+  { file: 'impressum.md', title: 'Impressum', directory: 'impressum' },
 ];
 
 if (!existsSync(outputRoot)) {
@@ -44,11 +46,18 @@ for (const { file, title, directory } of PAGES) {
   const destination = join(outputRoot, directory, 'index.html');
 
   mkdirSync(join(outputRoot, directory), { recursive: true });
-  writeFileSync(destination, page(title, body));
+  writeFileSync(destination, page(title, body, directory));
   console.log(`build-legal-pages: wrote ${destination}`);
 }
 
-function page(title, body) {
+function page(title, body, directory) {
+  // Sibling pages, relative so a pull-request preview links its own copies.
+  const links = PAGES.map((other) =>
+    other.directory === directory
+      ? `<a href="../${other.directory}/" aria-current="page">${other.title}</a>`
+      : `<a href="../${other.directory}/">${other.title}</a>`,
+  ).join(' · ');
+
   return `<!doctype html>
 <html lang="de">
   <head>
@@ -91,12 +100,24 @@ function page(title, body) {
       a {
         color: var(--link);
       }
+      footer {
+        margin-top: 3rem;
+        padding-top: 1rem;
+        border-top: 1px solid currentColor;
+      }
+      a[aria-current='page'] {
+        color: inherit;
+        text-decoration: none;
+      }
     </style>
   </head>
   <body>
     <main>
       <h1>${title} – Rebell*innen Kalender</h1>
 ${body}
+      <footer>
+        <nav aria-label="Rechtliches">${links}</nav>
+      </footer>
     </main>
   </body>
 </html>

@@ -10,9 +10,14 @@ import { LegalContentInteractor } from './legal-content.interactor';
 
 class FakeLegalContentGateway {
   thirdPartyLicenses: string | null = 'MIT License...';
+  imprint: string | null = '## Herausgeberin';
 
   fetchThirdPartyLicenses(): Promise<string | null> {
     return Promise.resolve(this.thirdPartyLicenses);
+  }
+
+  fetchImprint(): Promise<string | null> {
+    return Promise.resolve(this.imprint);
   }
 }
 
@@ -49,6 +54,13 @@ describe('LegalContentInteractor', () => {
     gateway.thirdPartyLicenses = 'Some licence text';
 
     expect(await interactor.thirdPartyLicenses()).toBe('Some licence text');
+  });
+
+  it('returns the imprint from the gateway', async () => {
+    const { interactor, gateway } = setup();
+    gateway.imprint = '## Herausgeberin\n\nVerein Amazone';
+
+    expect(await interactor.imprint()).toBe('## Herausgeberin\n\nVerein Amazone');
   });
 
   it('returns the image credits from the image catalog', async () => {

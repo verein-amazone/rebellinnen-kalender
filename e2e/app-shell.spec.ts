@@ -102,6 +102,20 @@ test.describe('application shell', () => {
     await expect(page).toHaveURL(/\/settings$/);
   });
 
+  test('opens the bundled imprint from the settings and returns to them', async ({ page }) => {
+    await page.goto('/settings');
+    await page.getByRole('link', { name: 'Impressum' }).click();
+
+    await expect(page).toHaveURL(/\/settings\/imprint$/);
+    await expect(page.getByRole('heading', { name: 'Impressum', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Herausgeberin', level: 2 })).toBeVisible();
+    await expectNoBlockingViolations(page);
+
+    await page.getByRole('button', { name: 'Zurück' }).click();
+
+    await expect(page).toHaveURL(/\/settings$/);
+  });
+
   test('pages the calendar by dragging the grid sideways, and still selects a tapped day', async ({
     page,
   }) => {

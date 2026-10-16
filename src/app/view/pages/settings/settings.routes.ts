@@ -12,6 +12,7 @@ import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
 import { ContentCatalogPage } from './content-catalog/content-catalog.page';
 import { DevToolsPage } from './dev-tools/dev-tools.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
+import { ImprintPage } from './imprint/imprint.page';
 import { ImpulsePage } from './impulse/impulse.page';
 import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
@@ -52,6 +53,7 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'about', component: AboutPage, title: 'Über die App' },
   { path: 'privacy', component: PrivacyPage, title: 'Datenschutz' },
   { path: 'terms', component: TermsPage, title: 'Nutzungsbedingungen' },
+  { path: 'imprint', component: ImprintPage, title: 'Impressum' },
   {
     path: 'content-catalog',
     component: ContentCatalogPage,
