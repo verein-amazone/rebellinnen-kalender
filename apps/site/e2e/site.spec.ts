@@ -120,6 +120,32 @@ test.describe('website', () => {
     await expect(page.getByText('ZVR-Zahl: 070887169')).toBeVisible();
   });
 
+  test('settles the app screens into place as they scroll in', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+    const screen = page.locator('.settle').first();
+    const style = () =>
+      screen.evaluate((element) => {
+        const { animationName, animationTimeline, transform } = getComputedStyle(element);
+        return { animationName, animationTimeline, transform };
+      });
+
+    // Tilted while it scrolls in, upright once it is in view. A minifier that folds the timeline
+    // into the `animation` shorthand silently drops the whole declaration, which this catches.
+    expect(await style()).toMatchObject({ animationName: 'settle', animationTimeline: 'view()' });
+    expect((await style()).transform).not.toBe('none');
+    await screen.scrollIntoViewIfNeeded();
+    await page.mouse.wheel(0, 400);
+    await expect.poll(async () => (await style()).transform).toBe('matrix(1, 0, 0, 1, 0, 0)');
+  });
+
+  test('keeps the app screens still for visitors who asked for less motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+
+    await expect(page.locator('.settle').first()).toHaveCSS('animation-name', 'none');
+  });
+
   test('answers a missing page with the 404 page', async ({ page }) => {
     const response = await page.goto('/gibt-es-nicht');
 

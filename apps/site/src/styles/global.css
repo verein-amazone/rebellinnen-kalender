@@ -96,7 +96,10 @@
 @utility settle {
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-      animation: settle linear both;
+      /* Longhands on purpose: the minifier folds a complete set into the `animation` shorthand,
+         which cannot carry `animation-timeline`, and browsers then drop the whole declaration. */
+      animation-name: settle;
+      animation-fill-mode: both;
       animation-timeline: view();
       animation-range: entry 0% cover 40%;
     }
