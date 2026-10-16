@@ -82,7 +82,7 @@ Rückmeldung nur Satzzeichen korrigiert („Voiceover“ → „VoiceOver“, zw
 > github.com/verein-amazone/rebellinnen-kalender
 >
 > Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen\* gestalten Gesellschaft entstanden.
-> Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.
+> Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union. Ebenfalls gefördert von der Hil-Foundation.
 
 ☑ Beschreibung freigegeben (Fassung von Verein Amazone)
 
@@ -260,7 +260,11 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   Store-Beschreibung, das Emblem „Kofinanziert von der Europäischen Union“ und das Logo von
   ProEuropean Values (CERV), beide von proeuropeanvalues.at/finanzierung. Bitte bei PEVA
   (peva@icnm.net) bestätigen, ob das so passt und ob ein zusätzlicher Haftungsausschluss der EU
-  nötig ist. Ein Logo von Verein Amazone gibt es auf der Website noch nicht, nur den Namen als Link:
+  nötig ist. Daneben steht jetzt auch die Hil-Foundation, die das Projekt mitfinanziert hat: in der
+  Store-Beschreibung der Satz „Ebenfalls gefördert von der Hil-Foundation.“ und auf der Website ihr
+  weißes Logo von hil-foundation.org. Bitte den Wortlaut bestätigen und bei der Hil-Foundation nach
+  einer größeren oder Vektor-Datei des Logos fragen. Ein Logo von Verein Amazone gibt es auf der
+  Website noch nicht, nur den Namen als Link:
   Wenn es eines geben soll, bitte die Datei schicken.
 - ☐ **Store-Adressen nach der Freischaltung.** Sobald die App öffentlich ist, tragen wir die
   Adressen aus App Store und Google Play ein; bis dahin steht dort „Bald verfügbar im App Store und

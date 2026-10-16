@@ -327,6 +327,7 @@ ${links
       <div class="funding-logos">
         <img src="/assets/logos/eu-kofinanziert-neg.svg" width="1003" height="220" alt="Kofinanziert von der Europäischen Union">
         <img src="/assets/logos/peva-cerv-neg.webp" width="1024" height="274" alt="ProEuropean Values AT – CERV">
+        <img src="/assets/logos/hil-foundation-weiss.webp" width="203" height="88" alt="Hil-Foundation">
       </div>
     </div>
   </div>
