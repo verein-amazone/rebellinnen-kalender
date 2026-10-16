@@ -16,8 +16,9 @@
  *   applies its own corner mask, so the artwork stays edge to edge.
  * - `android/.../mipmap-<density>/<name>.png` - the legacy (pre-API-26) square launcher icon,
  *   also full-bleed.
- * - `android/.../mipmap-<density>/<name>_round.png` - the legacy round icon: the artwork inside the
- *   adaptive safe zone on a solid disc, so nothing is clipped.
+ * - `android/.../mipmap-<density>/<name>_round.png` - the legacy round icon: a disc with the
+ *   artwork's bottom edge on the disc's bottom and the cat's head in its centre, so the cut-off body
+ *   runs out of the circle instead of ending in a visible edge.
  * - `android/.../mipmap-<density>/<name>_foreground.png` - the adaptive foreground: transparent
  *   canvas with the artwork scaled into the 72dp-of-108dp safe zone. Everything outside that zone
  *   can be cropped by the launcher mask, which would otherwise cut the spikes off the artwork.
@@ -56,6 +57,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
  * `AppIcon` in the Xcode target and `@mipmap/ic_launcher` in `AndroidManifest.xml`.
  *
  * iOS alternate catalogs must not start with `AppIcon` - the system fails to resolve them on device.
+ *
+ * `headCentre` is how far down the source the middle of the cat's head sits, as a fraction of its
+ * height; the round icon centres the head there (see `roundLayer`).
  */
 const ICONS = [
   {
@@ -63,32 +67,43 @@ const ICONS = [
     source: 'cool-cat-nacht.png',
     catalog: 'AppIcon',
     resource: 'ic_launcher',
+    headCentre: 0.4,
   },
   {
     id: 'cool-cat-lila',
     source: 'cool-cat-lila.png',
     catalog: 'CoolCatLila',
     resource: 'ic_launcher_cool_cat_lila',
+    headCentre: 0.4,
   },
   {
     id: 'cool-cat-hell',
     source: 'cool-cat-hell.png',
     catalog: 'CoolCatHell',
     resource: 'ic_launcher_cool_cat_hell',
+    headCentre: 0.4,
   },
   {
     id: 'sam-orange',
     source: 'sam-orange.png',
     catalog: 'SamOrange',
     resource: 'ic_launcher_sam_orange',
+    headCentre: 0.48,
   },
   {
     id: 'sam-tuerkis',
     source: 'sam-tuerkis.png',
     catalog: 'SamTuerkis',
     resource: 'ic_launcher_sam_tuerkis',
+    headCentre: 0.48,
   },
-  { id: 'sam-hell', source: 'sam-hell.png', catalog: 'SamHell', resource: 'ic_launcher_sam_hell' },
+  {
+    id: 'sam-hell',
+    source: 'sam-hell.png',
+    catalog: 'SamHell',
+    resource: 'ic_launcher_sam_hell',
+    headCentre: 0.48,
+  },
 ];
 
 /** Legacy launcher icon size in px per density bucket (48dp). */
@@ -224,7 +239,7 @@ async function writeAndroidBitmaps(icon, source, background) {
       .png()
       .toFile(join(dir, `${icon.resource}.png`));
 
-    await sharp(await safeZoneLayer(source, size, background))
+    await sharp(await roundLayer(source, size, background, icon.headCentre))
       .composite([{ input: discMask(size), blend: 'dest-in' }])
       .png()
       .toFile(join(dir, `${icon.resource}_round.png`));
@@ -258,6 +273,22 @@ async function safeZoneLayer(source, size, background) {
     },
   })
     .composite([{ input: scaled, left: offset, top: offset }])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * The legacy round icon's layer before the disc mask. The artwork is scaled so that, with its bottom
+ * edge on the canvas's bottom edge, the head lands in the centre: the body then leaves the circle at
+ * the bottom like a portrait cut by its frame, rather than ending in a straight edge inside it. The
+ * source's flat background fills whatever the artwork does not cover.
+ */
+async function roundLayer(source, size, background, headCentre) {
+  const artwork = Math.min(size, Math.round(size / 2 / (1 - headCentre)));
+  const scaled = await sharp(source).resize(artwork, artwork, { fit: 'cover' }).png().toBuffer();
+
+  return sharp({ create: { width: size, height: size, channels: 4, background } })
+    .composite([{ input: scaled, left: Math.round((size - artwork) / 2), top: size - artwork }])
     .png()
     .toBuffer();
 }
