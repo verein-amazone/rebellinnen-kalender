@@ -15,7 +15,7 @@ export function isPrereleaseVersion(version: string): boolean {
  * full content catalog and the data reset (#119).
  *
  * A store build is cut from a release tag on `main`, so it carries a plain version and hides them.
- * Every prerelease from `dev` - TestFlight, Play internal testing, the web demo - and `ng serve`
+ * Every prerelease from `dev` - TestFlight and Play internal testing - and `ng serve`
  * keep them, because that is where they are used. A token rather than a constant, so a spec can
  * render either kind of build.
  */

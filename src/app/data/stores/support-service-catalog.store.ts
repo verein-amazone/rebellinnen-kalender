@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 import { CatalogVersionStore } from './catalog-version.store';
 
-const STORAGE_KEY = scopedStorageName('rk.supportServiceCatalog');
+const STORAGE_KEY = 'rk.supportServiceCatalog';
 
 /**
  * The version of `public/support-services/catalog.json` last reconciled into `support_services` by

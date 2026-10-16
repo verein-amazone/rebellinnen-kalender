@@ -1,7 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 import {
   DEFAULT_APPEARANCE_PREFERENCES,
   MOTION_IDS,
@@ -12,7 +10,7 @@ import {
   type VibrationId,
 } from './appearance-preferences';
 
-const STORAGE_KEY = scopedStorageName('rk.appearance');
+const STORAGE_KEY = 'rk.appearance';
 
 /**
  * Persists the appearance preferences.

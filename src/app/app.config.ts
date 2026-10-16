@@ -3,7 +3,6 @@ import localeDe from '@angular/common/locales/de';
 import {
   ApplicationConfig,
   inject,
-  isDevMode,
   LOCALE_ID,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -17,20 +16,10 @@ import {
   withPreloading,
   PreloadAllModules,
 } from '@angular/router';
-import { provideServiceWorker } from '@angular/service-worker';
 
-import {
-  devicePlatform,
-  supportsViewTransitions,
-} from '@app/cross-cutting/infrastructure/device-platform';
+import { supportsViewTransitions } from '@app/cross-cutting/infrastructure/device-platform';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 import { routes } from './app.routes';
-
-/**
- * Whether this build emits a service worker: `true` in the `pages` configuration, the web demo, and
- * `false` everywhere else (`define` in angular.json).
- */
-declare const ngswEnabled: boolean;
 
 // The UI language is German regardless of the device locale; dates format through Angular's own
 // mechanism (`DatePipe` / `formatDate`), which needs the locale data registered up front.
@@ -58,15 +47,5 @@ export const appConfig: ApplicationConfig = {
     // renders at the wrong size for a frame. It also re-applies Android's `textZoom` reset, which
     // does not survive a restart.
     provideAppInitializer(() => inject(SystemTextScale).initialize()),
-    // The web demo build only (see README). The worker and its manifest are emitted by the
-    // `pages` build configuration alone, so any other build has no `ngsw-worker.js` to register -
-    // a plain production build served on the web, such as a pull-request preview, would only log a
-    // failed registration. A native build must not try either: a WebView already serves the bundle
-    // from the app package, and a worker caching it on top would keep serving the previous
-    // release's assets after an app update.
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: ngswEnabled && devicePlatform() === 'web' && !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
   ],
 };

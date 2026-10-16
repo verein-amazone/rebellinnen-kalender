@@ -55,19 +55,15 @@ Per icon that writes:
 
 And, from the default icon (`klassisch`) only:
 
-| Output                                            | What it is                                                                                                                                      |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/icons/icon-192.png`                       | Web app manifest icon, full-bleed.                                                                                                              |
-| `public/icons/icon-512.png`                       | The same at 512 px.                                                                                                                             |
-| `public/icons/icon-512-maskable.png`              | The `maskable` variant: artwork in the adaptive safe zone on the source's own background, because an installing browser crops to its own shape. |
-| `public/icons/apple-touch-icon.png`               | The 180 px home-screen icon Safari on iOS uses instead of the manifest's, full-bleed.                                                           |
-| `public/favicon.ico`                              | The browser tab icon: 16, 32 and 48 px PNGs in one ICO file.                                                                                    |
-| `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md).                      |
+| Output                                            | What it is                                                                                                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `site/apple-touch-icon.png`                       | The 180 px icon Safari on iOS uses when the website is added to a home screen, full-bleed.                                 |
+| `public/favicon.ico`                              | The browser tab icon: 16, 32 and 48 px PNGs in one ICO file.                                                               |
+| `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md). |
 
-The `public/` ones belong to the browser build: the tab icon, and what a browser uses when the app
-is installed to a home screen. The website (`scripts/build-site.mjs`) reuses `favicon.ico` and
-`apple-touch-icon.png`, and its own `site/assets/icon.webp` is the Klassisch icon at 256 px. The
-browser build has no icon switcher, so the alternates need none.
+`favicon.ico` and `apple-touch-icon.png` belong to the website (`scripts/build-site.mjs`), whose
+`site/assets/icon.webp` is the Klassisch icon at 256 px; `ng serve` uses the same tab icon. The
+website shows only the default icon, so the alternates need none.
 
 Two details are worth knowing before editing an icon:
 

@@ -1,8 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
-const STORAGE_KEY = scopedStorageName('rk.intro');
+const STORAGE_KEY = 'rk.intro';
 
 interface IntroState {
   /** When the introduction was finished or skipped (ISO instant); `null` until then. */

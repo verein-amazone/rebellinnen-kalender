@@ -163,8 +163,8 @@ Der Text muss mindestens sagen:
 9. Stand-Datum und der Hinweis, dass sich der Text mit App-Updates ändern kann.
 
 ☐ Datenschutzerklärung und Nutzungsbedingungen (neue Fassung, Stand 16. Oktober 2026) freigegeben.
-Gegenüber der Fassung von Verein Amazone geändert: das Stand-Datum ergänzt und in Abschnitt 9 die
-Adresse der Web-Demo auf https://kalender.amazone.or.at/ gesetzt.
+Gegenüber der Fassung von Verein Amazone geändert: das Stand-Datum ergänzt und Abschnitt 9 auf die
+Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
 
 ## 5. Offene Punkte aus der Prüfung der Rechtstexte
 

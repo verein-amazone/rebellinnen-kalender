@@ -90,7 +90,7 @@ copy(join(ROOT, 'src', 'styles', 'fonts'), 'fonts');
 copy(join(ROOT, 'licenses', 'texts', 'Fredoka-OFL-1.1.txt'), 'fonts/Fredoka-OFL-1.1.txt');
 copy(join(ROOT, 'licenses', 'texts', 'Inter-OFL-1.1.txt'), 'fonts/Inter-OFL-1.1.txt');
 copy(join(ROOT, 'public', 'favicon.ico'), 'favicon.ico');
-copy(join(ROOT, 'public', 'icons', 'apple-touch-icon.png'), 'apple-touch-icon.png');
+copy(join(ROOT, 'site', 'apple-touch-icon.png'), 'apple-touch-icon.png');
 // The Play feature graphic doubles as the preview image when the link is shared.
 copy(
   join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'images', 'featureGraphic.png'),

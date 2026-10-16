@@ -1,14 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 import {
   DEFAULT_REMINDER_PREFERENCES,
   REMINDER_PLACEMENT_IDS,
   type ReminderPreferences,
 } from './reminder-preferences';
 
-const STORAGE_KEY = scopedStorageName('rk.reminders');
+const STORAGE_KEY = 'rk.reminders';
 
 /**
  * Persists the preferences of the „Nicht vergessen“ list.

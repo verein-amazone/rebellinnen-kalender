@@ -1,7 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 import {
   DEFAULT_IMPULSE_PREFERENCES,
   IMPULSE_GREETING_IDS,
@@ -9,10 +7,10 @@ import {
   type ImpulsePreferences,
 } from './impulse-preferences';
 
-const STORAGE_KEY = scopedStorageName('rk.impulsePreferences');
+const STORAGE_KEY = 'rk.impulsePreferences';
 
 /** Where the greeting preference lived before it got its own store. Read once, never written. */
-const LEGACY_APPEARANCE_KEY = scopedStorageName('rk.appearance');
+const LEGACY_APPEARANCE_KEY = 'rk.appearance';
 
 /**
  * Persists the Tagesimpuls preferences.

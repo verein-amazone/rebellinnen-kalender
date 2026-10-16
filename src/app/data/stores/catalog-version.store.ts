@@ -16,7 +16,7 @@ const EMPTY_STATE: StoredState = { version: null };
 export abstract class CatalogVersionStore {
   private readonly state = signal<StoredState>(this.read());
 
-  /** `scopedStorageName(…)` of the subclass's key - evaluated before the first read. */
+  /** The subclass's `localStorage` key - evaluated before the first read. */
   protected abstract get storageKey(): string;
 
   readonly syncedVersion = () => this.state().version;

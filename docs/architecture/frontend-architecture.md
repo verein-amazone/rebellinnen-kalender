@@ -425,10 +425,8 @@ Only create cross-cutting code when it is actually shared.
 - `helpers/` - reusable technical utilities. They must not conceal data-layer access or upward
   dependencies. `asset-url.ts` is the one every layer touches: an asset the app requests by hand
   (`fetch`, an `[src]`, the SQLite wasm path) is resolved through `assetUrl()` against the
-  document's `<base href>`, because the web demo build is served from a subdirectory and
-  `--base-href` cannot rewrite a string in TypeScript. `deployment-scope.ts` in `infrastructure/`
-  reads the same base href to keep each deployment's storage apart; see
-  [Data & persistence](./data-persistence.md). `pipes/`, `directives/` and `validators/` are the obvious neighbours to add when one
+  document's `<base href>`, because a build served from a subdirectory (`--base-href`) cannot
+  rewrite a string in TypeScript. `pipes/`, `directives/` and `validators/` are the obvious neighbours to add when one
   is actually needed; they do not exist while they would be empty.
 - `markdown/` - the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
@@ -436,17 +434,10 @@ Only create cross-cutting code when it is actually shared.
 ## Build targets
 
 `pnpm build` is the build everything else consumes: `cap sync` copies it into the native projects,
-and the e2e suite runs against it. `pnpm build:pages` (`--configuration production,pages`) adds one
-thing to it, the Angular service worker. It built the web demo, which is no longer published (the
-GitHub Pages workflow now publishes the website, `scripts/build-site.mjs`); the target and the
-worker go away with the rest of the demo setup.
-
-The worker is kept out of the default build on purpose. A WebView already serves the bundle from the
-app package, so a worker caching it on top would keep serving the previous release's assets after an
-app update - `app.config.ts` therefore also registers it only when `devicePlatform()` is `'web'`.
-Pull-request previews are built without it as well, so that a preview cannot outlive the directory
-it was deleted from. `ngsw-config.json` excludes `/pr-*` from `navigationUrls` for the same reason:
-the demo site's worker is scoped to the whole project site, previews included.
+and the e2e suite runs against it. There is no service worker: a WebView already serves the bundle
+from the app package, and a worker caching it on top would keep serving the previous release's
+assets after an app update. The browser build is not published; the GitHub Pages workflow publishes
+the website instead (`scripts/build-site.mjs`).
 
 ### Supported browsers and WebViews
 
@@ -613,9 +604,8 @@ level-one and level-four-plus headings, for example, survive as plain text rathe
   `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
   `href` removed, leaving only the link text.
 - A Content-Security-Policy in `src/index.html` is the last layer: only the app's own scripts run,
-  and `index.html` carries no inline script - the GitHub Pages deep-link restore lives in
-  `public/restore-deep-link.js`, and the production build inlines no critical CSS, whose loader
-  would be one. The policy's comment explains each exception. A new script, style, image, font or
+  and `index.html` carries no inline script - the production build inlines no critical CSS, whose
+  loader would be one. The policy's comment explains each exception. A new script, style, image, font or
   remote request outside them is blocked, so check the browser console for violations when adding
   one.
 

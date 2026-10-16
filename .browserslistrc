@@ -22,6 +22,6 @@ ChromeAndroid >= 108
 Android >= 108
 Edge >= 108
 
-# The web demo on GitHub Pages only.
+# Desktop browsers for local development (`ng serve`).
 Firefox ESR
 last 2 Firefox versions

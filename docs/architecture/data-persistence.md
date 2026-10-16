@@ -52,8 +52,7 @@ serializes statements and transactions on the single shared connection. Two rule
 
 ### SQLite in the browser
 
-The app ships to iOS and Android. The browser is used for `ng serve` and the Playwright suite (the
-web demo is no longer published), and it gets **real** SQLite there - but not through the plugin.
+The app ships to iOS and Android. The browser is used for `ng serve` and the Playwright suite, and it gets **real** SQLite there - but not through the plugin.
 The `SQLITE_DATABASE` token resolves to `data/gateways/wasm-sqlite.gateway.ts` on the web, which
 runs [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm), SQLite's own WebAssembly
 build, on the main thread. That way the handwritten SQL and the migrations that run on a phone are
@@ -89,8 +88,8 @@ How it works:
   open a database too. The asset also ships in the native bundles, which is accepted for now.
 - Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`) and handed to the
   engine as `locateFile`, like every other asset the app requests by hand. The bundler does not
-  rewrite the module's own `import.meta.url` lookup, and the demo build is served from a
-  subdirectory that `--base-href` cannot write into a string in TypeScript.
+  rewrite the module's own `import.meta.url` lookup, and a build served from a subdirectory
+  (`--base-href`) cannot write its prefix into a string in TypeScript.
 
 ### No ORM
 
@@ -508,23 +507,13 @@ every return from the background.
 `localStorage` access throws in some privacy modes, so it is never touched directly - reads and
 writes are guarded, and a lost preference is preferable to a broken app.
 
-### One database per deployment
+### Storage names never change
 
-> The web demo and its previews are no longer published, so this applies to nothing live today; it
-> is removed together with the rest of the demo setup.
-
-A browser scopes IndexedDB and `localStorage` to the **origin**, never to the path. The web demo
-build and its pull-request previews are all served from `kalender.amazone.or.at` - the demo at the
-root, each preview under `/pr-<n>/` - so without a
-discriminator a preview would open, migrate and write the very database the demo site uses: a pull
-request carrying a new migration would silently upgrade a tester's data, and the demo build would
-then meet a schema from the future.
-
-`scopedStorageName()` (`cross-cutting/infrastructure/deployment-scope.ts`) therefore appends the
-deployment - derived from the document's `<base href>` - to the SQLite database name
-(`sqlite.gateway.ts`) and to every store's `localStorage` key. At the server root the slug is empty
-and every name stays exactly what it was, which is what keeps a device, `ng serve`, `pnpm
-serve:dist` and `e2e/support/calendar-seed.ts` on the names they already use.
+The SQLite database name (`data/gateways/database-name.ts`) and every store's `localStorage` key are
+what an installed app finds its data by. Renaming one starts that part of every existing install
+empty, so a new name needs a migration that reads the old one first, the way
+`ImpulsePreferencesStore` still reads its legacy key. `e2e/support/calendar-seed.ts` relies on the
+database name as well.
 
 A store is **not** where a table-backed list belongs. The screen that shows one holds it in a
 `resource()` and reloads after each write (see

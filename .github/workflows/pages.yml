@@ -13,9 +13,9 @@
 # `gh-pages` / root.
 #
 # The branch is rewritten as a single orphan commit holding only the site. Its content is
-# disposable - the build is reproducible from `dev` - and nothing else lives there: the web demo
-# and its pull-request previews are no longer published. Pull requests build and test the site in
-# the CI workflow instead (`Website` job), which uploads it as an artifact.
+# disposable - the build is reproducible from `dev` - and nothing else lives there. Pull requests
+# build and test the site in the CI workflow instead (`Website` job), which uploads it as an
+# artifact.
 name: Pages
 
 on:
@@ -25,7 +25,6 @@ on:
       - site/**
       - public/legal/**
       - public/favicon.ico
-      - public/icons/**
       - src/styles/fonts/**
       - fastlane/metadata/de-DE/**
       - fastlane/metadata/android/de-DE/images/featureGraphic.png

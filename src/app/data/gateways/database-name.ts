@@ -1,10 +1,7 @@
-import { scopedStorageName } from '@app/cross-cutting/infrastructure/deployment-scope';
-
 /**
- * The application database's name. One database per deployment: unchanged on a device and at the
- * server root, while the web demo build and every pull-request preview share an origin and
- * therefore need their own, see `scopedStorageName`.
+ * The application database's name.
  *
- * `e2e/support/calendar-seed.ts` relies on the unscoped value at the server root.
+ * Never rename it: the database on a device is found by this name, so a new one would start an
+ * existing install empty. `e2e/support/calendar-seed.ts` relies on the same value.
  */
-export const DATABASE_NAME = scopedStorageName('rebellinnen-kalender');
+export const DATABASE_NAME = 'rebellinnen-kalender';

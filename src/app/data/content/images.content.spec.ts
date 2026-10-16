@@ -44,7 +44,7 @@ const LICENSES: Readonly<Record<string, string | null>> = {
 };
 
 /** The app's own icons, made for this project rather than taken from a third party. */
-const OWN_ARTWORK = ['app-icons', 'icons'];
+const OWN_ARTWORK = ['app-icons'];
 
 const IMAGE = /\.(webp|png|jpe?g|gif|svg|avif)$/i;
 

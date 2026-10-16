@@ -3,7 +3,7 @@
  * whole SQLite file, written after every committed write (see `WasmSqliteGateway`).
  *
  * The same durability model `jeep-sqlite` gave the web build before, and enough for what the web
- * build is for - `ng serve`, the Playwright suite and the demo. The app itself ships to iOS and
+ * build is for - `ng serve` and the Playwright suite. The app itself ships to iOS and
  * Android, where the plugin writes a real file.
  *
  * Plain IndexedDB rather than `localStorage`: the file is binary, and a database with a few months of
