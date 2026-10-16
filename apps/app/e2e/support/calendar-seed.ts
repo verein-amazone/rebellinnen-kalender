@@ -1,0 +1,353 @@
+import type { Page } from '@playwright/test';
+
+export interface SeededCalendar {
+  readonly sourceId: string;
+  readonly calendarId: string;
+}
+
+/**
+ * The write handle `WasmSqliteGateway` exposes as `window.rkWebSqlite` under automation - see
+ * `exposeForEndToEndTests` there. It goes through the app's own connection and serialization lock,
+ * and saves the database after the write like any other.
+ */
+interface WebSqliteLike {
+  run(statement: string, values?: readonly unknown[]): Promise<void>;
+}
+
+/** Starts the text of every „Nicht vergessen“ entry {@link ensureDatabaseReady} adds. */
+const WARM_UP_PREFIX = 'e2e-db-warmup-';
+
+/**
+ * Seeds one writable app calendar straight into the SQLite database, bypassing the UI.
+ *
+ * `Kalender verwalten` (issue #20) has no screen yet to add an app calendar - it is still a stub
+ * - so the appointment create/edit form's calendar picker has nothing to offer without this, and
+ * every save is blocked by its `required` validator. This writes through `window.rkWebSqlite`,
+ * the app's own open connection (`src/app/data/gateways/wasm-sqlite.gateway.ts`), rather than a
+ * second one.
+ *
+ * Ends on `/today`, having proven the database round-trips before writing to it - see
+ * {@link ensureDatabaseReady}. Callers navigate on from there.
+ */
+export async function seedAppCalendar(page: Page, name = 'Testkalender'): Promise<SeededCalendar> {
+  await ensureDatabaseReady(page);
+
+  return page.evaluate(
+    async ({ calendarName }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
+      const now = new Date().toISOString();
+      const sourceId = `e2e-source-${crypto.randomUUID()}`;
+      const calendarId = `e2e-calendar-${crypto.randomUUID()}`;
+
+      await database.run(
+        'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [sourceId, 'app', calendarName, 1, 'ok', now, now],
+      );
+      await database.run(
+        'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [calendarId, sourceId, calendarName, '#5b8c5a', null, 1, 1, null, now, now],
+      );
+
+      return { sourceId, calendarId };
+    },
+    { calendarName: name },
+  );
+}
+
+/**
+ * Seeds a connected device source with one calendar, straight into SQLite - the same way
+ * `seedAppCalendar` stands in for the (still screen-less on iOS/Android-free CI) native connection
+ * flow. Used to render `CalendarsPage`'s "connected" state without a real OS calendar, which the
+ * web build has no access to at all.
+ */
+export async function seedDeviceCalendar(page: Page, name = 'Familie'): Promise<SeededCalendar> {
+  await ensureDatabaseReady(page);
+
+  return page.evaluate(
+    async ({ calendarName }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
+      const now = new Date().toISOString();
+      const sourceId = 'device';
+      const calendarId = `device-cal:e2e-${crypto.randomUUID()}`;
+
+      const run = (statement: string, values: readonly unknown[]) =>
+        database.run(statement, values);
+
+      await run(
+        'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [sourceId, 'device', 'Gerätekalender', 1, 'ok', now, now],
+      );
+      await run(
+        'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          calendarId,
+          sourceId,
+          calendarName,
+          '#2f6f8f',
+          null,
+          1,
+          1,
+          `native-${calendarId}`,
+          now,
+          now,
+        ],
+      );
+
+      return { sourceId, calendarId };
+    },
+    { calendarName: name },
+  );
+}
+
+export interface SeedOccurrenceOptions {
+  /**
+   * For a real, editable app appointment prefer the actual create flow (`seedAppCalendar` plus the
+   * "Neuer Termin" form) - this is for rendering a read-only or native-editable detail view where
+   * the underlying data never needs to be genuinely editable, only shaped like each source type.
+   */
+  readonly sourceType: 'app' | 'device' | 'ics';
+  /** Only meaningful for `device`: a writable device calendar offers "edit via native calendar". */
+  readonly calendarWritable?: boolean;
+  readonly title?: string;
+  /** Device-local day (`YYYY-MM-DD`) the occurrence should be bucketed under. */
+  readonly day?: string;
+  /**
+   * `app` only: makes the occurrence the first one of a real weekly series (`FREQ=WEEKLY`), with
+   * the `seriesId`/`originalStart` that `EventDetailPage.confirmDelete()`/`handleSave()` check
+   * to decide whether to ask `RecurrenceScopeDialog` first. Only this one row is seeded; the
+   * repository materializes the rest on the next write to the series. Series created through the
+   * form are covered in `recurrence.spec.ts`.
+   */
+  readonly recurring?: boolean;
+  /**
+   * Bucket the occurrence under an already-seeded source/calendar (e.g. `seedDeviceCalendar`)
+   * instead of creating a fresh throwaway pair - needed to test enabling/disabling a specific
+   * calendar in `CalendarsPage` and seeing its occurrences appear or disappear.
+   */
+  readonly existingCalendar?: SeededCalendar;
+  /**
+   * Name and colour of the fresh source/calendar pair; ignored with `existingCalendar`. Default to
+   * a generic name per source type and a muted blue - the store screenshots use these to make a
+   * seeded ICS row look like the Amazone calendar.
+   */
+  readonly calendarName?: string;
+  readonly color?: string;
+}
+
+export interface SeededOccurrence {
+  readonly occurrenceId: string;
+  readonly sourceId: string;
+  readonly calendarId: string;
+}
+
+/**
+ * Seeds one read-only occurrence - a device or an ICS one - straight into the `occurrences` table.
+ *
+ * There is no way to reach either through the UI at all: device sync needs a real OS calendar
+ * (unavailable on web/CI) and ICS subscriptions are issue #21. `occurrences` is documented as a
+ * disposable, derived cache with no foreign keys (`019-create-schema.ts`), which is exactly
+ * what makes writing a row directly safe - nothing here needs to look like real recurrence-engine
+ * output, only like a row `capabilitiesFor()` (`src/app/data/calendar/source-capabilities.ts`)
+ * reads the same way a real one would.
+ */
+export async function seedOccurrence(
+  page: Page,
+  options: SeedOccurrenceOptions,
+): Promise<SeededOccurrence> {
+  await ensureDatabaseReady(page);
+
+  const title = options.title ?? 'Gelesener Termin';
+  const day = options.day ?? '2026-09-01';
+  const writable = options.calendarWritable ?? false;
+  const recurring = options.recurring ?? false;
+  const existing = options.existingCalendar ?? null;
+  const calendarName = options.calendarName ?? null;
+  const color = options.color ?? '#2f6f8f';
+
+  return page.evaluate(
+    async ({
+      sourceType,
+      calendarWritable,
+      title: occurrenceTitle,
+      day: localDay,
+      recurring: isRecurring,
+      existingCalendar,
+      calendarName: customName,
+      color: calendarColor,
+    }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
+      const now = new Date().toISOString();
+      const sourceId = existingCalendar?.sourceId ?? `e2e-source-${crypto.randomUUID()}`;
+      const calendarId = existingCalendar?.calendarId ?? `e2e-calendar-${crypto.randomUUID()}`;
+      const startUtc = new Date(`${localDay}T00:00:00.000Z`).toISOString();
+      const endUtc = new Date(`${localDay}T00:00:00.000Z`);
+      endUtc.setUTCDate(endUtc.getUTCDate() + 1);
+
+      const run = (statement: string, values: readonly unknown[]) =>
+        database.run(statement, values);
+
+      const sourceName =
+        customName ??
+        (sourceType === 'app'
+          ? 'App'
+          : sourceType === 'device'
+            ? 'Gerätekalender'
+            : 'ICS-Kalender');
+      const provenance =
+        sourceType !== 'app' ? 'device-cached' : isRecurring ? 'generated' : 'standalone';
+      // `end_utc` is exclusive (the midnight after), while a `date` end names the last day the
+      // appointment covers - a one-day all-day row therefore ends on the day it starts.
+      const endDay = localDay;
+      // Only an `app` occurrence has a canonical `app_items` row behind it; a `null` `item_id`
+      // makes the detail page's edit/delete handlers no-op (`occurrence.itemId === null` is their
+      // guard against exactly a missing item), so a real id is needed to exercise those flows.
+      const itemId = sourceType === 'app' ? `e2e-item-${crypto.randomUUID()}` : null;
+      // A standalone app occurrence's id must be exactly `app:${itemId}` - that is the convention
+      // `standaloneRow()` (`occurrence-materializer.ts`) uses, and edit/delete rewrite the row by
+      // deleting exactly that id (`CalendarRepository.deleteItem`/`updateItem`) before reinserting
+      // it; a mismatched id would leave a stale row an edit or delete cannot ever touch.
+      // A series occurrence is `app:${itemId}#${originalStart}`, the same convention the
+      // materializer uses for generated rows; for a `date` start the original start is the day.
+      const occurrenceId =
+        itemId === null
+          ? `e2e-occ-${crypto.randomUUID()}`
+          : isRecurring
+            ? `app:${itemId}#${localDay}`
+            : `app:${itemId}`;
+      // A real weekly rule behind a recurring row, so the detail page describes it and every
+      // recurrence scope operates on an actual series.
+      const rrule = isRecurring && itemId !== null ? 'FREQ=WEEKLY' : null;
+
+      if (existingCalendar === null) {
+        await run(
+          'INSERT INTO calendar_sources (id, type, name, enabled, state, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [sourceId, sourceType, sourceName, 1, 'ok', now, now],
+        );
+        await run(
+          'INSERT INTO calendars (id, source_id, name, color, emoji, enabled, writable, external_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            calendarId,
+            sourceId,
+            sourceName,
+            calendarColor,
+            null,
+            1,
+            calendarWritable ? 1 : 0,
+            sourceType === 'device' ? `device-cal-${calendarId}` : null,
+            now,
+            now,
+          ],
+        );
+      }
+      if (itemId !== null) {
+        await run(
+          `INSERT INTO app_items (
+             id, calendar_id, kind, title, location, note, start_kind, start_value, start_tz,
+             end_kind, end_value, end_tz, rrule, predecessor_series_id, rule_revision, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            itemId,
+            calendarId,
+            'event',
+            occurrenceTitle,
+            null,
+            null,
+            'date',
+            localDay,
+            null,
+            'date',
+            endDay,
+            null,
+            rrule,
+            null,
+            0,
+            now,
+            now,
+          ],
+        );
+      }
+      await run(
+        `INSERT INTO occurrences (
+           id, source_id, source_type, calendar_id, series_id, original_start, provenance,
+           item_kind, item_id, title, location, is_all_day, start_kind, start_value, start_tz,
+           end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          occurrenceId,
+          sourceId,
+          sourceType,
+          calendarId,
+          isRecurring && itemId !== null ? itemId : null,
+          isRecurring ? localDay : null,
+          provenance,
+          'event',
+          itemId,
+          occurrenceTitle,
+          null,
+          1,
+          'date',
+          localDay,
+          null,
+          'date',
+          endDay,
+          null,
+          startUtc,
+          endUtc.toISOString(),
+          localDay,
+          localDay,
+          sourceType === 'device' ? `device-event-${occurrenceId}` : null,
+        ],
+      );
+
+      return { occurrenceId, sourceId, calendarId };
+    },
+    {
+      sourceType: options.sourceType,
+      calendarWritable: writable,
+      title,
+      day,
+      recurring,
+      existingCalendar: existing,
+      calendarName,
+      color,
+    },
+  );
+}
+
+/**
+ * Deletes the „Nicht vergessen“ entries that {@link ensureDatabaseReady} leaves behind, for a spec
+ * whose screen must show only the entries it created itself - the store screenshots. Ends on
+ * `/today`, reloaded, so the list shows the database as it now is.
+ */
+export async function removeDatabaseWarmUpEntries(page: Page): Promise<void> {
+  await page.evaluate(
+    async ({ prefix }) => {
+      const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
+      await database.run('DELETE FROM reminders WHERE text LIKE ?', [`${prefix}%`]);
+    },
+    { prefix: WARM_UP_PREFIX },
+  );
+  await page.goto('/today');
+}
+
+/**
+ * Proves the app's database is open and migrated before anything writes to it straight through
+ * `window.rkWebSqlite` - which only exists once the connection has been opened.
+ *
+ * Nothing on `/calendar` says this reliably: its empty-state text ("Keine Termine an diesem Tag.")
+ * is the occurrences resource's *initial* value, rendered before the query resolves, not after -
+ * so waiting for it proves nothing about the database. A round trip through the „Nicht vergessen“
+ * list does: adding an entry and seeing it rendered can only happen once a write has gone through
+ * the same connection and come back out again, and reminders.spec.ts already leans on that flow
+ * being reliable.
+ */
+async function ensureDatabaseReady(page: Page): Promise<void> {
+  await page.goto('/today');
+  const marker = `${WARM_UP_PREFIX}${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  await page.getByRole('button', { name: 'Punkt hinzufügen' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Neue Erinnerung' });
+  await dialog.getByLabel('Text der Erinnerung').fill(marker);
+  await dialog.getByRole('button', { name: 'Speichern' }).click();
+  await page.locator('ul.rk-list > li').filter({ hasText: marker }).waitFor({ state: 'visible' });
+}

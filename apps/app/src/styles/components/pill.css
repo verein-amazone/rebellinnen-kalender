@@ -1,0 +1,38 @@
+/*
+ * A calendar's colour identity as a rounded chip: a coloured border over a tinted background.
+ *
+ * Consumers set `--pill-color` inline (an arbitrary per-instance hex, not a design token, so this
+ * can't be a Tailwind colour utility). Text stays the normal foreground colour rather than the
+ * calendar's own colour - with a 30-swatch curated palette and two themes, per-swatch text-colour
+ * contrast can't be guaranteed, so the identity lives in the border and the tint only, never in
+ * text contrast. The tint blends toward `--color-card` rather than white, the same `color-mix()`
+ * technique `theme.css` uses for the `-subtle` status backgrounds, so it lands correctly in dark
+ * mode too. Omitting `--pill-color` falls back to the neutral card/border look.
+ */
+
+@layer components {
+  .rk-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-semibold;
+    border-color: var(--pill-color, var(--color-border));
+    background-color: color-mix(
+      in srgb,
+      var(--pill-color, var(--color-border)) 15%,
+      var(--color-card)
+    );
+  }
+
+  /*
+   * The Tagesimpuls marker: the same rounded chip, but filled with the brand colour rather than
+   * tinted by an arbitrary per-instance one. It says „this is today's“ on a card that is otherwise
+   * an ordinary content card, which is exactly the job a solid fill does and a tinted border does
+   * not. The `primary` / `primary-foreground` pair is the one the solid buttons already use, so
+   * its contrast is settled in all four themes.
+   *
+   * Upper case with wide tracking, matching the click dummy - it reads as a label rather than as a
+   * sentence, and „Tagesimpuls“ is one word, so the shouting stays short.
+   */
+  .rk-pill-solid {
+    @apply bg-primary text-primary-foreground inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold uppercase;
+    letter-spacing: 0.1em;
+  }
+}

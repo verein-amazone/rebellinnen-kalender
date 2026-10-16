@@ -1,0 +1,36 @@
+/** How a support-service action is reached - decides the icon and the URI scheme's handling. */
+export type SupportServiceActionType = 'phone' | 'sms' | 'website' | 'chat';
+
+/**
+ * One way to contact a support service, exactly as authored: `uri` is the literal `tel:`/`sms:`/
+ * `https:` value to hand to the OS/browser, and `label` is the exact button text. Neither is
+ * derived at render time - a short number like `147` and a normal number like `+43800222555`
+ * both arrive pre-formatted from the catalog, so the view never has to guess which is which.
+ */
+export interface SupportServiceActionView {
+  readonly type: SupportServiceActionType;
+  readonly label: string;
+  readonly uri: string;
+  readonly displayValue: string | null;
+}
+
+/**
+ * A curated support-service entry as a view needs it - kept as its own type so `view/**` never
+ * imports the gateway's raw catalog-item shape directly (enforced by the `view/**` → `data/**`
+ * ESLint boundary).
+ */
+export interface SupportServiceView {
+  readonly id: string;
+  readonly region: string;
+  readonly name: string;
+  readonly teaser: string;
+  /** One emoji, drawn plain as the card's lead visual. */
+  readonly icon: string;
+  readonly actions: readonly SupportServiceActionView[];
+}
+
+/** One region the Anlaufstellen filter chips may offer. */
+export interface SupportServiceRegion {
+  readonly id: string;
+  readonly label: string;
+}

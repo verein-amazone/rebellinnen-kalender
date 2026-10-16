@@ -1,0 +1,103 @@
+import { TestBed } from '@angular/core/testing';
+
+import { LegalContentGateway } from './legal-content.gateway';
+
+function stubFetch(implementation: (url: string) => Promise<Response>): void {
+  vi.stubGlobal('fetch', vi.fn(implementation));
+}
+
+function textResponse(body: string, ok = true): Response {
+  return { ok, text: () => Promise.resolve(body) } as Response;
+}
+
+describe('LegalContentGateway', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function setup(): LegalContentGateway {
+    TestBed.resetTestingModule();
+    return TestBed.inject(LegalContentGateway);
+  }
+
+  it('returns the bundled third-party licence text', async () => {
+    stubFetch(() => Promise.resolve(textResponse('MIT License...')));
+    const gateway = setup();
+
+    expect(await gateway.fetchThirdPartyLicenses()).toBe('MIT License...');
+  });
+
+  it('returns null when the third-party licence file is missing', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    const gateway = setup();
+
+    expect(await gateway.fetchThirdPartyLicenses()).toBeNull();
+  });
+
+  it('returns null when fetching the third-party licence file throws', async () => {
+    stubFetch(() => Promise.reject(new Error('network down')));
+    const gateway = setup();
+
+    expect(await gateway.fetchThirdPartyLicenses()).toBeNull();
+  });
+
+  it('returns the bundled privacy policy', async () => {
+    const urls: string[] = [];
+    stubFetch((url) => {
+      urls.push(url);
+      return Promise.resolve(textResponse('## Verantwortliche Stelle'));
+    });
+    const gateway = setup();
+
+    expect(await gateway.fetchPrivacyPolicy()).toBe('## Verantwortliche Stelle');
+    expect(urls[0]).toContain('legal/datenschutz.md');
+  });
+
+  it('returns null when the privacy policy is missing or fetching it throws', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    expect(await setup().fetchPrivacyPolicy()).toBeNull();
+
+    stubFetch(() => Promise.reject(new Error('network down')));
+    expect(await setup().fetchPrivacyPolicy()).toBeNull();
+  });
+
+  it('returns the bundled terms of use', async () => {
+    const urls: string[] = [];
+    stubFetch((url) => {
+      urls.push(url);
+      return Promise.resolve(textResponse('## 1. Über die Rebell*innen App'));
+    });
+    const gateway = setup();
+
+    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über die Rebell*innen App');
+    expect(urls[0]).toContain('legal/nutzungsbedingungen.md');
+  });
+
+  it('returns null when the terms of use are missing or fetching them throws', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    expect(await setup().fetchTermsOfUse()).toBeNull();
+
+    stubFetch(() => Promise.reject(new Error('network down')));
+    expect(await setup().fetchTermsOfUse()).toBeNull();
+  });
+
+  it('returns the bundled imprint', async () => {
+    const urls: string[] = [];
+    stubFetch((url) => {
+      urls.push(url);
+      return Promise.resolve(textResponse('## Herausgeberin'));
+    });
+    const gateway = setup();
+
+    expect(await gateway.fetchImprint()).toBe('## Herausgeberin');
+    expect(urls[0]).toContain('legal/impressum.md');
+  });
+
+  it('returns null when the imprint is missing or fetching it throws', async () => {
+    stubFetch(() => Promise.resolve(textResponse('', false)));
+    expect(await setup().fetchImprint()).toBeNull();
+
+    stubFetch(() => Promise.reject(new Error('network down')));
+    expect(await setup().fetchImprint()).toBeNull();
+  });
+});

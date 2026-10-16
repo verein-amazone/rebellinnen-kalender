@@ -1,0 +1,16 @@
+<app-focused-screen heading="Textgröße" fallbackLink="/settings">
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Textgröße wählen</legend>
+
+    @for (option of appearance.textSizeOptions; track option.id) {
+      <app-choice-row
+        name="text-size"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.textSize() === option.id"
+        (selected)="select($event)"
+      />
+    }
+  </fieldset>
+</app-focused-screen>

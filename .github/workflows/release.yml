@@ -1,0 +1,151 @@
+# semantic-release: the only thing in this repository that decides what the version is.
+#
+# A push to `dev` cuts a prerelease (1.0.0-rc.1, …) for TestFlight and Play internal testing; a push
+# to `main` cuts a release (1.0.0, 1.0.1, …). The run tags the commit, writes CHANGELOG.md, bumps
+# the root package.json, regenerates apps/app/src/app/cross-cutting/infrastructure/app-version.ts
+# and the native version fields, commits all of that back to the branch and publishes a GitHub
+# release.
+#
+# The release commit carries `[skip ci]` and is pushed with GITHUB_TOKEN, which by design does not
+# trigger workflows - so it neither loops back into this workflow nor spends a CI run on a commit
+# that only moves version numbers.
+#
+# Either release continues straight into .github/workflows/store-upload.yml, which builds the tag
+# and stages the result: a prerelease from `dev` into TestFlight and Play internal testing, a
+# release from `main` into the App Store version and the Play production track. Neither is
+# published; both wait for a human in the respective console. Each of the two uploads is gated on
+# its own repository variable, so this workflow stays green before the store credentials exist and
+# while only one of the two stores is ready.
+#
+# The release commit and the tag are pushed over SSH with the `release-bot` deploy key, not with
+# GITHUB_TOKEN. Both rulesets require a pull request and the `CI success` check, which a release
+# commit straight to the branch can never satisfy, and deploy keys are their only bypass actor
+# (#75). The key lives in the `release` environment, which only `dev` and `main` may use, so a
+# workflow on any other branch cannot reach it. GITHUB_TOKEN still does everything that goes through
+# the API: the GitHub release and the comments on the issues and pull requests it closes.
+name: Release
+
+on:
+  push:
+    branches: [main, dev]
+
+# Least privilege: no default token permissions; the job opts in to what it needs.
+permissions: {}
+
+# One group for both branches: a release from `main` and a prerelease from `dev` must never run at
+# the same time, or they race on tags. Never cancel a run mid-release - a cancelled run can leave a
+# tag without its GitHub release.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: semantic-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Holds RELEASE_DEPLOY_KEY; restricted to `dev` and `main` (docs/release.md).
+    environment: release
+    # Set by the exec plugin's `successCmd` (.releaserc.json) once the tag, the release commit and
+    # the GitHub release all exist. Absent when the commits produced no release at all.
+    outputs:
+      released: ${{ steps.semantic-release.outputs.released }}
+      version: ${{ steps.semantic-release.outputs.version }}
+      tag: ${{ steps.semantic-release.outputs.tag }}
+    permissions:
+      # Push the release commit and the tag.
+      contents: write
+      # @semantic-release/github comments on the issues and pull requests a release closes.
+      issues: write
+      pull-requests: write
+    steps:
+      # The one place in this repository that keeps the checkout credentials: @semantic-release/git
+      # pushes the release commit, and the full history is required to find the last tag. With
+      # `ssh-key`, the checkout configures git to use the deploy key for the SSH remote below.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+          persist-credentials: true
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run semantic-release
+        id: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The SSH URL makes semantic-release push with the deploy key. Given the HTTPS URL from
+        # package.json, it would push with GITHUB_TOKEN, which the rulesets reject.
+        run: pnpm exec semantic-release --repository-url "git@github.com:${GITHUB_REPOSITORY}.git"
+
+  # Store uploads happen in the same run, from the tag that was just created. Which platforms
+  # actually upload is decided per job inside the called workflow, by one repository variable each,
+  # so one store can go live while the other is still waiting for its credentials.
+  #
+  # The branch decides the channel and nothing else: `dev` stages into TestFlight and the Play
+  # internal track, `main` stages into the App Store version and the Play production track. Neither
+  # publishes - a release from `main` still ends one deliberate click short of live in both
+  # consoles, so merging into `main` can never put a build in front of a user by itself.
+  store-upload:
+    name: Store upload
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/store-upload.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+      channel: ${{ github.ref_name == 'main' && 'release' || 'prerelease' }}
+    secrets: inherit
+
+  # A release from `main` exists only on `main`: its tag and release commit are not reachable from
+  # `dev`, so the next prerelease on `dev` would keep counting rc builds of a version that has
+  # already shipped (1.0.0-rc.42, build 10000042 < 10000999) and both stores would reject it. This
+  # job merges the tag back into `dev` right after the release, with the deploy key that also pushes
+  # the release commit.
+  #
+  # When nothing landed on `dev` since the release pull request, the merge is a fast-forward to the
+  # release commit, whose `[skip ci]` keeps the push from starting any workflow. Otherwise git writes
+  # its own "Merge tag 'v…' into dev" commit, which commitlint and semantic-release both skip; the
+  # push then runs CI and cuts the next prerelease from the commits that were waiting on `dev`. A
+  # conflict fails the job, and the merge is done by hand (docs/release.md).
+  back-merge:
+    name: Back-merge into dev
+    needs: release
+    if: github.ref_name == 'main' && needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+          fetch-depth: 0
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+          persist-credentials: true
+
+      - name: Merge the release tag into dev
+        env:
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
+          if ! git merge --no-edit "$TAG"; then
+            echo "::error::$TAG does not merge cleanly into dev; merge it by hand as described in docs/release.md, 'After a release from main'."
+            exit 1
+          fi
+          git push "git@github.com:${GITHUB_REPOSITORY}.git" HEAD:refs/heads/dev

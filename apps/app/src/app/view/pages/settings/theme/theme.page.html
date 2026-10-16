@@ -1,0 +1,18 @@
+<app-focused-screen heading="Farbthema" fallbackLink="/settings">
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Farbthema wählen</legend>
+
+    @for (option of appearance.themeOptions; track option.id) {
+      <app-choice-row
+        name="theme"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.theme() === option.id"
+        (selected)="select($event)"
+      >
+        <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
+      </app-choice-row>
+    }
+  </fieldset>
+</app-focused-screen>

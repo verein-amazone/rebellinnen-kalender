@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
+	<!-- The app is German-only: every string in the UI is German and index.html declares
+	     lang="de". iOS resolves an app's language from the localizations its bundle declares, and a
+	     bundle that declares none falls back to the development region - which left UIKit rendering
+	     its own chrome in English, most visibly the weekday headers of the native
+	     <input type="date"> picker inside the WebView. Declaring German here (and in
+	     CFBundleLocalizations below) makes iOS resolve the app language to German, so UIKit's own
+	     localizations apply. See https://developer.apple.com/library/archive/qa/qa1828/_index.html.
+
+	     Xcode rewrites this file key-alphabetically and strips comments whenever it saves it, so
+	     if a comment goes missing after opening the project, it was Xcode - put it back. -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>de</string>
+	<key>CFBundleDisplayName</key>
+	<string>Rebell*innen</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>de</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<!-- Export compliance (https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations):
+	     the app implements no encryption of its own - the SQLite database is opened with
+	     'no-encryption' and the only encryption used is HTTPS provided by iOS, which is
+	     exempt. Declaring this here answers App Store Connect's "App Encryption
+	     Documentation" prompt on every TestFlight upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<!-- @ebarooni/capacitor-calendar (#20 device-calendar connection): requestFullCalendarAccess()
+	     is the only permission call the app makes, so only the full-access key is needed - write-only
+	     and Reminders access are never requested. NSCalendarsUsageDescription below is the
+	     pre-iOS-17 fallback key; both are required together per the plugin's setup instructions. -->
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine zusätzlich anzuzeigen.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine zusätzlich anzuzeigen.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+</dict>
+</plist>

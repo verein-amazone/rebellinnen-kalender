@@ -1,0 +1,93 @@
+# Publishes the website at https://kalender.amazone.or.at to GitHub Pages: the introduction with
+# the store links, /download (the QR-code target), and the privacy policy, terms of use and imprint
+# (`apps/site`, an Astro site, see docs/store-listing.md).
+#
+# The site follows `dev` for now, so the privacy URL is public before 1.0.0 reaches `main`. Once
+# `main` is the release branch, switch the trigger below to `main`: the legal texts should then
+# describe the app in the stores, not the next one.
+#
+# `kalender.amazone.or.at` is a DNS `CNAME` to `verein-amazone.github.io` that Verein Amazone
+# maintains. With a branch as the publishing source, the `CNAME` file in the branch root - written
+# by the build - is what keeps Pages answering for the domain; every github.io address of this
+# repository redirects there. The repository's Pages source has to be "Deploy from a branch" ->
+# `gh-pages` / root.
+#
+# The branch is rewritten as a single orphan commit holding only the site. Its content is
+# disposable - the build is reproducible from `dev` - and nothing else lives there. Pull requests
+# build and test the site in the CI workflow instead (`Website` job), which uploads it as an
+# artifact.
+name: Pages
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - apps/site/**
+      - packages/**
+      # The share image is the Play feature graphic.
+      - apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png
+      - pnpm-lock.yaml
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+# Least privilege: no default token permissions; each job opts in to what it needs.
+permissions: {}
+
+# Two publishes must never interleave; the later one waits and then writes the newer state. Never
+# cancelled mid-run: a cancelled publish would leave the branch half-written.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish the website
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the website
+        run: pnpm build:site
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -s apps/site/dist/CNAME
+
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          mkdir gh-pages && cd gh-pages
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          cp -R ../apps/site/dist/. .
+
+          # Without it, Pages runs the output through Jekyll, which drops files starting with `_` -
+          # among them Astro's `_astro/` folder with the stylesheet, the fonts and the share image.
+          touch .nojekyll
+
+          # A fresh orphan commit each time, so the branch never accumulates history.
+          git checkout -q --orphan published
+          git add -A
+          git commit -q -m "chore(pages): publish the website from ${GITHUB_SHA}"
+          git push -q --force origin published:gh-pages

@@ -1,0 +1,49 @@
+# pnpm settings for the Rebell*innen Kalender workspace: the app, the website and the packages they
+# share. See README.md for the layout.
+packages:
+  - 'apps/*'
+  - 'packages/*'
+# Versions that more than one workspace package depends on, pinned once. A package asks for one with
+# `"<name>": "catalog:"`, so the app and the website can never drift onto different majors.
+catalog:
+  '@axe-core/playwright': ^4.13.0
+  '@eslint/js': ^10.0.1
+  '@playwright/test': ^1.64.1
+  '@tailwindcss/postcss': ^4.3.3
+  '@tailwindcss/vite': ^4.3.3
+  '@types/node': ^26.6.5
+  eslint: ^10.12.0
+  prettier: ^3.9.10
+  serve: ^14.2.6
+  tailwindcss: ^4.3.3
+  typescript: ~6.0.3
+  typescript-eslint: 8.71.1
+# Build scripts are opt-in since pnpm 10; these are the trusted native
+# dependencies pulled in by the Angular build toolchain.
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@capacitor-community/sqlite@8.1.1'
+  - '@independo/capacitor-emoji-picker@1.0.1 || 1.0.2 || 1.2.0 || 1.3.3 || 1.3.4'
+  - '@astrojs/internal-helpers@0.13.0'
+  - '@astrojs/markdown-satteri@0.4.4'
+  - '@astrojs/prism@4.1.0'
+  - '@astrojs/telemetry@3.4.0'
+  - astro@7.4.0
+overrides:
+  uuid@<11.1.1: '>=11.1.1'
+  # serve 14.2.6 (latest, dev only: `pnpm serve:dist`) pins compression to exactly 1.8.1, which leaks
+  # memory on a prematurely closed response (GHSA-vc2v-76pw-4v95). Drop the override once serve
+  # ships with compression 1.8.2 or later.
+  compression@<1.8.2: '>=1.8.2'
+  # @semantic-release/release-notes-generator resolves the `conventionalcommits` preset from its own
+  # directory first, which under pnpm lands on the hoisted copy that @commitlint/config-conventional
+  # brings in - not on the one this package.json declares. That copy must stay on a major the
+  # release-notes generator can render: preset 10 renders through @conventional-changelog/template and
+  # demands conventional-changelog-writer@9, while release-notes-generator 14.1.1 (latest) depends on
+  # writer 8, so preset 10 fails the release with `Missing helper`. Pin the whole tree to preset 9 and
+  # drop the override once release-notes-generator ships writer 9.
+  conventional-changelog-conventionalcommits: ^9.3.1

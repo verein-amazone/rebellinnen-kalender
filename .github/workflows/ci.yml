@@ -1,0 +1,444 @@
+# Baseline CI: quality checks and the production build run in parallel, the e2e suite and both
+# native builds run against the promoted build artifact, and `ci-success` is the single stable
+# required check for branch protection. A future release/deploy workflow (App Store / Play Store)
+# consumes the same `dist` artifact instead of rebuilding.
+#
+# The `ios` and `android` jobs exist so native breakage surfaces in a pull request instead of on
+# somebody's laptop. They deliberately have no `paths` filter: the repository is public, so the
+# macOS runner is free, and a skipped job would report `skipped` to `ci-success`, which only accepts
+# `success`.
+#
+# Both native jobs run `cap sync` and then `git diff --exit-code`. A failure there is not flaky - it
+# means the committed native project no longer matches the installed dependencies, which is what a
+# dependency bump without a `pnpm cap:sync` looks like (Dependabot cannot run the Capacitor CLI, so
+# its npm major PRs fail here by design).
+#
+# If a merge queue is ever enabled, add `merge_group:` to `on:` so required checks are produced for
+# queued merges.
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+# Least privilege: no default token permissions; each job opts in to what it needs.
+permissions: {}
+
+# Newest wins for PR pushes; runs on main/dev are never cancelled mid-run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: Format, lint, unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      # Full history: the commit-message check below walks the range between the pull request's base
+      # and head, which a shallow checkout does not contain.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # semantic-release derives the released version from the commit types, so a mistyped subject
+      # silently changes what ships. A conditional step rather than a conditional job: a job that
+      # skips on push events would report `skipped` to `ci-success`, which only accepts `success`.
+      # Pull requests into `main` are skipped: they carry commits that were already checked on their
+      # way into `dev`, and the history before commitlint was set up has subjects it rejects, which
+      # would block the release pull request for good, since `main` cannot be force-pushed.
+      - name: Check commit messages
+        if: github.event_name == 'pull_request' && github.base_ref != 'main'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      # The iOS and Android version fields are derived from the root package.json by the release, never edited
+      # by hand; this catches a native project that no longer matches it.
+      - name: Check the native version fields
+        run: node apps/app/scripts/sync-native-version.mjs --check
+
+      # The store listings are uploaded only after a release from main is tagged; a field over its
+      # limit or a screenshot at the wrong size would fail there. This fails the pull request.
+      - name: Check the store listings
+        run: node apps/app/scripts/check-store-listing.mjs
+
+      # Only into `main`: tester builds from `dev` may carry images whose rights are still being
+      # reviewed, a release may not (#11).
+      - name: Check that every image right is reviewed
+        if: github.base_ref == 'main'
+        run: node apps/app/scripts/check-image-rights.mjs
+
+      - name: Unit tests
+        run: pnpm test:ci
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Angular's disk cache is off on a runner by default - `cli.cache.environment` defaults to
+      # `local`, which means "not when CI is set" - so angular.json sets it to `all` and this keeps
+      # it between runs. It holds the Angular compiler and Babel output keyed by file content, which
+      # is what makes a build of a mostly unchanged tree cheap: 19.9s cold against 6.5s warm here,
+      # for under 4 MB.
+      #
+      # The key ends in the commit because a cache entry is immutable once written, so a key that
+      # never changes would freeze the first run's cache forever. The restore-keys prefix is what
+      # actually matches - the newest entry built against this lockfile.
+      - name: Cache the Angular build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apps/app/.angular/cache
+          key: ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-angular-ci-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      - name: Build
+        run: pnpm build
+
+      - name: Report bundle size
+        run: |
+          {
+            echo '### Production bundle'
+            echo '```'
+            du -sh apps/app/dist/rebellinnen-kalender/browser
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: apps/app/dist/rebellinnen-kalender/browser
+          retention-days: 7
+          if-no-files-found: error
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: apps/app/dist/rebellinnen-kalender/browser
+
+      - name: Determine Playwright version
+        id: playwright-version
+        working-directory: apps/app
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: apps/app
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: apps/app
+        run: pnpm exec playwright install-deps chromium
+
+      - name: End-to-end tests
+        run: pnpm e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: apps/app/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-traces
+          path: apps/app/test-results
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ios:
+    name: iOS build (unsigned)
+    runs-on: macos-latest
+    needs: build
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Not optional: apps/app/ios/App/CapApp-SPM/Package.swift references every Capacitor plugin by its
+      # exact node_modules/.pnpm/<name>@<version> path, so the Swift package graph cannot resolve
+      # without an install that matches the lockfile.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: apps/app/dist/rebellinnen-kalender/browser
+
+      - name: Sync the iOS project
+        working-directory: apps/app
+        run: pnpm exec cap sync ios
+
+      - name: Check that the committed iOS project is in sync
+        run: git diff --exit-code -- apps/app/ios
+
+      - name: Cache resolved Swift packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/spm
+          key: ${{ runner.os }}-spm-${{ hashFiles('apps/app/ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project apps/app/ios/App/App.xcodeproj \
+            -scheme App \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm"
+
+      # A generic simulator destination needs neither a booted simulator nor a signing identity, so
+      # this job stays free of the credentials the release workflow will need.
+      - name: Build the app (unsigned, simulator)
+        run: |
+          xcodebuild build \
+            -project apps/app/ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm" \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+
+  android:
+    name: Android build (debug)
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      # Also verifies the checksum of the committed gradle-wrapper.jar against Gradle's published
+      # list (validate-wrappers is on by default).
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Download build artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: apps/app/dist/rebellinnen-kalender/browser
+
+      - name: Sync the Android project
+        working-directory: apps/app
+        run: pnpm exec cap sync android
+
+      - name: Check that the committed Android project is in sync
+        run: git diff --exit-code -- apps/app/android
+
+      - name: Build the debug APK
+        working-directory: apps/app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      # The licence list the app shows covers what Angular cannot see: the Android and iOS libraries,
+      # copied assets and fonts. The committed file has to match what Gradle and Package.resolved
+      # resolve today, and Licensee fails on an Android library outside apps/app/licenses/policy.json
+      # (#11).
+      - name: Check the third-party licence list
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node apps/app/scripts/build-third-party-licenses.mjs --check
+
+  # The website at kalender.amazone.or.at (apps/site, Astro): static pages, so no app build is
+  # needed. The built site is uploaded so a reviewer can open it locally; nothing is
+  # published from a pull request.
+  site:
+    name: Website
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine Playwright version
+        id: playwright-version
+        working-directory: apps/site
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: apps/site
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: apps/site
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Build and test the website
+        run: pnpm test:site
+
+      - name: Upload the built website
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: website
+          path: apps/site/dist
+          retention-days: 7
+          if-no-files-found: error
+
+  # Stable aggregate check for branch protection: require only this check, so the internal job
+  # layout can change without touching repository settings.
+  ci-success:
+    name: CI success
+    runs-on: ubuntu-latest
+    needs: [checks, build, e2e, ios, android, site]
+    if: always()
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Verify all jobs succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = "success" ] || exit 1
+          done

@@ -1,0 +1,40 @@
+name: Fehler oder Feedback
+description: Etwas funktioniert nicht oder verhält sich anders als erwartet.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du dir die Zeit nimmst. Du musst nichts Technisches wissen - beschreibe einfach
+        mit deinen eigenen Worten, was passiert ist.
+  - type: textarea
+    id: was-ist-passiert
+    attributes:
+      label: Was ist passiert?
+      description: Was hast du gemacht, und was ist dann passiert?
+      placeholder: Ich wollte einen Termin anlegen, und danach war der Kalender leer.
+    validations:
+      required: true
+  - type: textarea
+    id: erwartung
+    attributes:
+      label: Was hättest du erwartet?
+    validations:
+      required: true
+  - type: input
+    id: geraet
+    attributes:
+      label: Gerät und Betriebssystem
+      description: 'Zum Beispiel: iPhone 13 mit iOS 18, oder Samsung Galaxy A54 mit Android 15.'
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App-Version
+      description: Steht in der App unter „Einstellungen" und dort unter „Über die App".
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot oder Bildschirmaufnahme
+      description: Optional, hilft aber oft am meisten. Du kannst Bilder direkt hierher ziehen.

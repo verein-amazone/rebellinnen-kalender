@@ -1,0 +1,499 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { DatePipe } from '@angular/common';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  Injector,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  LucideBell,
+  LucideCheck,
+  LucideExternalLink,
+  LucidePencil,
+  LucideRepeat,
+  LucideRotateCw,
+  LucideTrash2,
+} from '@lucide/angular';
+import { firstValueFrom } from 'rxjs';
+
+import { formatDayLong, RANGE_DASH } from '@app/cross-cutting/helpers/date-format';
+import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
+import { deviceLocalDay } from '@app/cross-cutting/helpers/device-local-day';
+import {
+  AppEventEditingInteractor,
+  type AppEventChanges,
+  type TemporalValue,
+} from '@app/interactors/calendar/app-event-editing.interactor';
+import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { describeStoredRecurrence } from '@app/interactors/calendar/recurrence';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
+import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
+import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
+import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
+import {
+  ConfirmationDialog,
+  type ConfirmationDialogData,
+} from '@app/view/dialogs/confirmation/confirmation.dialog';
+import {
+  RecurrenceScopeDialog,
+  type RecurrenceScope,
+  type RecurrenceScopeDialogData,
+} from '@app/view/dialogs/recurrence-scope/recurrence-scope.dialog';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-memory';
+
+/**
+ * The appointment detail screen: a read view built from `CalendarOccurrence`, an in-place edit
+ * mode built on `EventForm`, delete, and the recurring-scope decision for both. No second route for
+ * editing - `editing` just swaps which half of the template is shown.
+ *
+ * Every mutation ends the same way: announce the outcome through the `LiveAnnouncer` (navigating
+ * away leaves nothing else to announce it) and return to the occurrence's day in the calendar, per
+ * the issue's acceptance criteria.
+ */
+@Component({
+  selector: 'app-event-detail',
+  // Component hosts are unknown elements and therefore inline by default.
+  host: { class: 'block' },
+  imports: [
+    DatePipe,
+    EventForm,
+    LucideBell,
+    FocusedScreenScaffold,
+    LucideCheck,
+    LucideExternalLink,
+    LucidePencil,
+    LucideRepeat,
+    LucideRotateCw,
+    LucideTrash2,
+  ],
+  templateUrl: './event-detail.page.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EventDetailPage {
+  private readonly occurrencesInteractor = inject(CalendarOccurrencesInteractor);
+  private readonly eventEditing = inject(AppEventEditingInteractor);
+  private readonly deviceSync = inject(DeviceCalendarSyncInteractor);
+  private readonly sheets = inject(SheetService);
+  private readonly announcer = inject(LiveAnnouncer);
+  private readonly haptics = inject(HapticsInteractor);
+  private readonly notificationPreferences = inject(NotificationPreferencesInteractor);
+  private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+
+  /**
+   * The edit view's heading and the read view's „Bearbeiten“ button, for moving focus explicitly
+   * when `editing` flips. Neither exists until its half of the `@if` in the template is rendered -
+   * `viewChild` (not `.required`) reflects that as `undefined` until then, which is also why the
+   * lookup is a signal rather than a one-off `ElementRef` grabbed in `ngAfterViewInit`.
+   */
+  private readonly editHeading = viewChild<ElementRef<HTMLElement>>('editHeading');
+  private readonly editButton = viewChild<ElementRef<HTMLButtonElement>>('editButton');
+
+  /**
+   * Looked up by type, not by a `#eventForm` template reference: the header's checkmark button and
+   * `<app-event-form>` live in separate `@if` blocks (each has to have a single root node for content
+   * projection into the scaffold's `headerActions`/`footer` slots to work - see the template), so a
+   * template reference declared on the form would not be visible from the button's own block.
+   * `viewChild` has no such scoping restriction - it searches the whole view.
+   */
+  private readonly eventFormComponent = viewChild(EventForm);
+  protected readonly canSubmitEdit = computed(
+    () => !this.saving() && (this.eventFormComponent()?.canSubmit() ?? false),
+  );
+
+  /** A save in flight: a second tap on the check mark must not apply the same edit twice. */
+  private readonly saving = signal(false);
+
+  /** Why the last save or delete failed; shown on the page, which stays where it was. */
+  protected readonly actionError = signal<string | null>(null);
+
+  readonly id = input.required<string>();
+  /** Bound from the `view` query parameter the calendar's appointment links carry - see `backLink`. */
+  readonly view = input<string>();
+  /**
+   * Bound from `?returnTo=`: the screen the appointment was opened from, when that is not the
+   * calendar - the Today screen sets it. Leaving, saving and deleting all return there.
+   */
+  readonly returnTo = input<string | null>(null);
+
+  protected readonly occurrenceResource = resource({
+    params: () => this.id(),
+    loader: ({ params }) => this.occurrencesInteractor.findById(params),
+  });
+
+  protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
+
+  /**
+   * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a
+   * list/agenda read model) does not carry - the note and the series' rule - which both this page's
+   * read view and `EventForm`'s edit-mode prefill need. `params` stays `undefined` for device/ICS
+   * occurrences, which skips the loader entirely rather than calling it with a meaningless id.
+   */
+  private readonly recordResource = resource({
+    params: () => this.occurrence()?.itemId ?? undefined,
+    loader: ({ params }) => this.eventEditing.findRecord(params),
+  });
+
+  protected readonly note = computed(() => valueOr(this.recordResource, undefined)?.note ?? null);
+  protected readonly rrule = computed(() => valueOr(this.recordResource, undefined)?.rrule ?? null);
+  /** The start the series' rule is anchored on; `null` for a standalone appointment. */
+  protected readonly seriesStart = computed(() => {
+    const record = valueOr(this.recordResource, undefined);
+    return record?.rrule ? record.start : null;
+  });
+  protected readonly reminders = computed(
+    () => valueOr(this.recordResource, undefined)?.reminders ?? null,
+  );
+
+  /**
+   * „15 Minuten vorher, 1 Stunde vorher“ for an app-owned appointment while reminders are on -
+   * the appointment's own list or the defaults it follows. `null` when nothing will remind.
+   */
+  protected readonly reminderSummary = computed(() => {
+    const record = valueOr(this.recordResource, undefined);
+    const occurrence = this.occurrence();
+    if (
+      record === undefined ||
+      record === null ||
+      occurrence === null ||
+      !this.notificationPreferences.isSupported ||
+      !this.notificationPreferences.enabled()
+    ) {
+      return null;
+    }
+
+    const reminders =
+      record.reminders ??
+      (occurrence.allDay
+        ? this.notificationPreferences.allDayDefaults()
+        : this.notificationPreferences.timedDefaults());
+    return reminders.length === 0
+      ? null
+      : reminders.map((minutes) => reminderLabel(minutes, occurrence.allDay)).join(', ');
+  });
+
+  /** „Jede Woche am Montag“ for an app-owned series; `null` for anything else. */
+  protected readonly recurrenceSummary = computed(() => {
+    const record = valueOr(this.recordResource, undefined);
+    return record?.rrule ? describeStoredRecurrence(record.rrule, record.start) : null;
+  });
+
+  protected readonly editing = signal(false);
+
+  protected readonly dateLabel = computed(() => {
+    const occurrence = this.occurrence();
+    if (occurrence === null) {
+      return '';
+    }
+
+    return occurrence.startDay === occurrence.endDay
+      ? formatDayLong(occurrence.startDay)
+      : `${formatDayLong(occurrence.startDay)}${RANGE_DASH}${formatDayLong(occurrence.endDay)}`;
+  });
+
+  protected startEditing(): void {
+    this.actionError.set(null);
+    this.editing.set(true);
+    // The `@if` in the template swaps the whole read view (including the button just activated) for
+    // the edit view, which drops focus to `<body>` unless it is moved explicitly. `afterNextRender`
+    // waits for that swap to actually land in the DOM before the edit heading is looked up.
+    afterNextRender(() => this.editHeading()?.nativeElement.focus(), { injector: this.injector });
+  }
+
+  protected cancelEdit(): void {
+    this.actionError.set(null);
+    this.editing.set(false);
+    // Mirrors `startEditing()`: the edit view is swapped back out, so focus returns to the pencil
+    // button that opened it.
+    afterNextRender(() => this.editButton()?.nativeElement.focus(), { injector: this.injector });
+  }
+
+  /**
+   * Bound to the scaffold's `beforeDismiss`: while editing, a tap on the header's back-arrow exits
+   * edit mode instead of leaving the screen (edit mode has no separate route, so a plain back
+   * navigation would otherwise abandon it silently). A second tap, once `editing` is already `false`,
+   * falls through to the scaffold's default back navigation.
+   */
+  /**
+   * Where the back-arrow goes. The calendar overview keeps both the day being looked at and the
+   * week/month view in the URL, so a bare `/calendar` would drop the user on today's week rather
+   * than where they opened the appointment from. `view` is carried here by the link that opened
+   * this screen (see `OccurrenceCard.linkQueryParams`); it is absent when the appointment was
+   * opened from somewhere without a calendar view, e.g. the Today screen. Until the occurrence has
+   * loaded there is no day to return to either.
+   */
+  /** `null` unless the caller passed a route of this app - see `safeInAppUrl`. */
+  private readonly origin = computed(() => safeInAppUrl(this.returnTo()));
+
+  protected readonly backLink = computed(() => {
+    const origin = this.origin();
+    if (origin !== null) {
+      return origin;
+    }
+
+    const params = new URLSearchParams();
+    const view = this.view();
+    if (view === 'week' || view === 'month') {
+      params.set('view', view);
+    }
+
+    const day = this.occurrence()?.startDay;
+    if (day !== undefined) {
+      params.set('day', day);
+    }
+
+    const query = params.toString();
+    return query === '' ? '/calendar' : `/calendar?${query}`;
+  });
+
+  protected readonly handleBeforeDismiss = (): boolean => {
+    if (!this.editing()) {
+      return false;
+    }
+
+    if (this.eventFormComponent()?.canSubmit() === true) {
+      this.confirmDiscard();
+    } else {
+      this.cancelEdit();
+    }
+    return true;
+  };
+
+  /** Leaving an edit with changes asks first: the back arrow and Android's back are easy to hit. */
+  private confirmDiscard(): void {
+    const data: ConfirmationDialogData = {
+      message: 'Deine Änderungen an diesem Termin gehen verloren.',
+      confirmLabel: 'Verwerfen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Änderungen verwerfen?',
+        data,
+      })
+      .closed.subscribe((confirmed) => {
+        if (confirmed === true) {
+          this.cancelEdit();
+        }
+      });
+  }
+
+  protected async handleSave(result: AppEventFormResult): Promise<void> {
+    if (result.mode !== 'edit' || this.saving()) {
+      return;
+    }
+
+    const occurrence = this.occurrence();
+    if (occurrence === null || occurrence.itemId === null) {
+      return;
+    }
+
+    this.saving.set(true);
+    this.actionError.set(null);
+    try {
+      await this.saveEdit(occurrence, occurrence.itemId, result.changes);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gespeichert werden.', error);
+      this.actionError.set('Der Termin konnte nicht gespeichert werden. Versuche es noch einmal.');
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  private async saveEdit(
+    occurrence: CalendarOccurrence,
+    itemId: string,
+    changes: AppEventChanges,
+  ): Promise<void> {
+    if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
+      // A changed rule or changed reminders describe the series, never a single occurrence.
+      const ruleChanged = changes.rrule !== undefined || changes.reminders !== undefined;
+      const scope = await this.askRecurrenceScope('Was möchtest du ändern?', {
+        message: ruleChanged
+          ? 'Dieser Termin gehört zu einer Serie. Ab wann soll die Änderung gelten?'
+          : 'Dieser Termin gehört zu einer Serie. Was soll geändert werden?',
+        allowSingleOccurrence: !ruleChanged,
+      });
+      if (scope === undefined) {
+        return;
+      }
+
+      await this.applyScopedEdit(
+        scope,
+        { seriesId: occurrence.seriesId, originalStart: occurrence.originalStart },
+        occurrence.start,
+        changes,
+      );
+    } else {
+      await this.eventEditing.updateAll(itemId, changes);
+    }
+
+    this.editing.set(false);
+    void this.haptics.confirm();
+    this.announcer.announce('Termin gespeichert');
+    // The user may have moved the appointment to a different day; navigate to wherever it ended up
+    // rather than back to the day it used to be on. `EventForm` only sets `start` when the time
+    // fields changed, so an edit that left them alone still resolves to the occurrence's own day.
+    await this.navigateToOccurrenceDay(deviceLocalDay(changes.start ?? occurrence.start));
+  }
+
+  /**
+   * Asks before deleting. An occurrence of a series goes straight to the scope sheet, which carries
+   * the warning itself (#152): a generic „wird gelöscht“ first read as if the whole series were
+   * going before the user had chosen what to delete, and was one confirmation more than editing asks.
+   */
+  protected confirmDelete(): void {
+    const occurrence = this.occurrence();
+    if (occurrence === null) {
+      return;
+    }
+
+    if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
+      void this.performDelete(occurrence);
+      return;
+    }
+
+    const data: ConfirmationDialogData = {
+      message: `„${occurrence.title}“ wird gelöscht. Das kann nicht rückgängig gemacht werden.`,
+      confirmLabel: 'Löschen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Termin löschen?',
+        data,
+      })
+      .closed.subscribe((confirmed) => {
+        if (confirmed !== true) {
+          return;
+        }
+
+        void this.performDelete(occurrence);
+      });
+  }
+
+  protected async openInNativeCalendar(): Promise<void> {
+    const occurrence = this.occurrence();
+    if (occurrence === null || occurrence.externalId === null) {
+      return;
+    }
+
+    try {
+      await this.deviceSync.openForEditing(occurrence.externalId);
+      // `openForEditing` only refreshes the device cache; this page's own `occurrenceResource` still
+      // holds whatever it loaded before the user left for the OS calendar app, so it has to be
+      // reloaded explicitly once the handoff resolves. If the user moved the occurrence, this can
+      // legitimately end up not finding it again - a device occurrence id embeds its start instant -
+      // and the "nicht gefunden" read view is the correct, if imperfect, outcome; it is still better
+      // than silently showing stale data.
+      this.occurrenceResource.reload();
+    } catch {
+      // Covers a rejected native prompt: the user cancelled, the platform does not support it, or
+      // permission was revoked in between. There is nothing to recover - just tell the user rather
+      // than leaving an unhandled rejection and no feedback at all.
+      this.announcer.announce('Der Termin konnte nicht in der Kalender-App geöffnet werden.');
+    }
+  }
+
+  private async performDelete(occurrence: CalendarOccurrence): Promise<void> {
+    this.actionError.set(null);
+    try {
+      await this.deleteOccurrence(occurrence);
+    } catch (error) {
+      console.warn('Der Termin konnte nicht gelöscht werden.', error);
+      this.actionError.set('Der Termin konnte nicht gelöscht werden. Versuche es noch einmal.');
+    }
+  }
+
+  private async deleteOccurrence(occurrence: CalendarOccurrence): Promise<void> {
+    if (occurrence.itemId === null) {
+      return;
+    }
+
+    if (occurrence.seriesId !== null && occurrence.originalStart !== null) {
+      const scope = await this.askRecurrenceScope('Was möchtest du löschen?', {
+        message:
+          'Dieser Termin gehört zu einer Serie. Was soll gelöscht werden? Das kann nicht rückgängig gemacht werden.',
+        confirmLabel: 'Löschen',
+        destructive: true,
+      });
+      if (scope === undefined) {
+        return;
+      }
+
+      switch (scope) {
+        case 'occurrence':
+          await this.eventEditing.cancelOccurrence(occurrence.seriesId, occurrence.originalStart);
+          break;
+        case 'following':
+          await this.eventEditing.deleteFollowing(occurrence.seriesId, occurrence.originalStart);
+          break;
+        case 'all':
+          await this.eventEditing.deleteItem(occurrence.itemId);
+      }
+    } else {
+      await this.eventEditing.deleteItem(occurrence.itemId);
+    }
+
+    this.announcer.announce('Termin gelöscht');
+    await this.navigateToOccurrenceDay(occurrence.startDay);
+  }
+
+  private async applyScopedEdit(
+    scope: RecurrenceScope,
+    { seriesId, originalStart }: { seriesId: string; originalStart: string },
+    occurrenceStart: TemporalValue,
+    changes: AppEventChanges,
+  ): Promise<void> {
+    switch (scope) {
+      case 'occurrence':
+        await this.eventEditing.updateOccurrence(seriesId, originalStart, changes);
+        return;
+      case 'following':
+        await this.eventEditing.updateFollowing(seriesId, originalStart, changes);
+        return;
+      case 'all':
+        await this.eventEditing.updateSeries(seriesId, occurrenceStart, changes);
+    }
+  }
+
+  private askRecurrenceScope(
+    heading: string,
+    data: RecurrenceScopeDialogData,
+  ): Promise<RecurrenceScope | undefined> {
+    return firstValueFrom(
+      this.sheets.open<RecurrenceScope, RecurrenceScopeDialogData>(RecurrenceScopeDialog, {
+        heading,
+        data,
+      }).closed,
+    );
+  }
+
+  private async navigateToOccurrenceDay(day: string): Promise<void> {
+    // Replaces rather than pushes: the appointment the user just saved or deleted must not be
+    // reachable again by the platform back gesture. Same reasoning as `FocusedScreenScaffold`.
+    const origin = this.origin();
+    if (origin !== null) {
+      await this.router.navigateByUrl(origin, RETURN_NAVIGATION);
+      return;
+    }
+
+    await this.router.navigate(['/calendar'], { queryParams: { day }, replaceUrl: true });
+  }
+}

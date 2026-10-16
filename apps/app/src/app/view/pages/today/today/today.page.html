@@ -1,0 +1,36 @@
+<!-- `py-2` here and `pt-4` on the block below reproduce the space `.rk-screen-header-bar` +
+     `.rk-screen-body` reserve on a focused screen, so switching between this tab and a focused
+     screen (e.g. event detail) doesn't shift where scrollable content starts. -->
+<div class="flex items-center justify-between gap-2 px-4 py-2">
+  <!-- Body size, the same as the text on the cards below: testers asked for the date not to be
+       smaller than the rest of the page. -->
+  <time [attr.datetime]="today()" class="text-muted-foreground font-semibold">{{
+    dateLabel()
+  }}</time>
+  <a routerLink="/settings" class="rk-icon-button">
+    <svg lucideSettings class="rk-icon" aria-hidden="true"></svg>
+    <span class="sr-only">Einstellungen</span>
+  </a>
+</div>
+
+<div class="space-y-3 px-4 pt-4 pb-6">
+  <app-today-greeting />
+</div>
+
+<section class="px-4 pb-6" aria-labelledby="impulse-heading">
+  <app-today-impulse />
+</section>
+
+<section class="px-4 pb-6" aria-labelledby="today-appointments-heading">
+  <app-today-appointments />
+</section>
+
+<section class="space-y-2 px-4 pb-6" aria-labelledby="reminders-heading">
+  <h2 id="reminders-heading">Nicht vergessen</h2>
+  <app-reminder-list />
+</section>
+
+<section class="space-y-1 px-4 pb-6" aria-labelledby="closing-heading">
+  <h2 id="closing-heading" class="sr-only">Wie dein Tag steht</h2>
+  <app-today-closing />
+</section>

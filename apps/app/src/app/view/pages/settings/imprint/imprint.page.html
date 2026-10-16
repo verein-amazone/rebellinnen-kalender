@@ -1,0 +1,9 @@
+<app-focused-screen heading="Impressum" fallbackLink="/settings">
+  @if (markdown(); as imprint) {
+    <div class="rk-card px-4 py-5">
+      <app-markdown-content [markdown]="imprint" />
+    </div>
+  } @else {
+    <p class="text-muted-foreground">Das Impressum ist in diesem Build nicht verfügbar.</p>
+  }
+</app-focused-screen>

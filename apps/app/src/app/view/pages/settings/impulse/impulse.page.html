@@ -1,0 +1,43 @@
+<app-focused-screen heading="Tagesimpuls" fallbackLink="/settings">
+  <div class="space-y-6">
+    <!-- Reduced animations win over this screen, so say so rather than letting „Bei jedem Öffnen“
+         look broken. Covers both the app's own „Reduziert“ and the device setting it follows. -->
+    @if (appearance.motionReduced()) {
+      <div class="space-y-1">
+        <p class="text-muted-foreground">
+          Animationen sind reduziert, deshalb bewegt sich der Tagesimpuls nicht.
+        </p>
+        <a
+          routerLink="/settings/motion"
+          class="text-foreground min-h-touch inline-flex items-center font-semibold underline underline-offset-2"
+        >
+          Animationen ändern
+        </a>
+      </div>
+    }
+
+    <!-- A visible legend rather than a heading plus a hidden one: the three labels only make sense
+         with the question in front of them, and it is the group's accessible name either way. -->
+    <div class="space-y-2">
+      <fieldset class="space-y-2">
+        <legend class="text-muted-foreground font-display mb-2 text-sm font-semibold">
+          Wann der Tagesimpuls wackelt
+        </legend>
+
+        @for (option of preferences.greetingOptions; track option.id) {
+          <app-choice-row
+            name="impulse-greeting"
+            [value]="option.id"
+            [label]="option.label"
+            [description]="option.description"
+            [checked]="preferences.greeting() === option.id"
+            (selected)="select($event)"
+          />
+        }
+      </fieldset>
+      <p class="text-muted-foreground text-sm">
+        Ob dein Handy dabei vibriert, stellst du unter „Vibration“ ein.
+      </p>
+    </div>
+  </div>
+</app-focused-screen>

@@ -1,0 +1,86 @@
+/*
+ * The screen frame: one scroll region, and the padding around a screen's content.
+ *
+ * The shell is a fixed viewport-height frame rather than a document that grows. At large text sizes
+ * the content is several times taller than the viewport - that vertical scroll is expected and is
+ * what reflow asks for - but the chrome must not scroll away with it, or the bottom navigation ends
+ * up 700px below the fold. So exactly one element scrolls, and the tab bar and the focused-screen
+ * header sit outside it.
+ */
+
+@layer components {
+  /*
+   * The shell frame. Fixed, and as tall as `--rk-app-height` (cross-cutting/infrastructure/
+   * keyboard-visibility.ts) where the platform reports one: the viewport shrinks for the keyboard on
+   * Android, and the shell must not - it keeps its height and lets the keyboard cover its bottom, as
+   * on iOS. Fixed rather than in flow so that a shell taller than the shrunken viewport never makes
+   * the document itself scrollable, which a focused field would then pan.
+   */
+  .rk-shell {
+    @apply fixed inset-x-0 top-0 flex flex-col overflow-hidden;
+    block-size: var(--rk-app-height, 100dvh);
+  }
+
+  /*
+   * The single scrolling element. `overscroll-contain` keeps a scroll gesture from chaining to the
+   * document behind it, which on iOS would otherwise rubber-band the whole shell.
+   *
+   * It is also the query container for everything a screen renders, which is what lets the rules
+   * below react to the root font size - a media query cannot. See docs/architecture/design-system.md.
+   *
+   * The app does not resize for the on-screen keyboard, so it covers the bottom of the shell (the tab
+   * bar included). The padding is exactly the part of the shell it hides: what the viewport lost to
+   * it (Android, where the shell keeps `--rk-app-height` in a shrunken viewport) plus what it covers
+   * inside the viewport (iOS). That lets the last field on a form scroll up above the keyboard, and
+   * `scroll-padding-bottom` keeps a field scrolled into view clear of it. Where a tab bar sits under
+   * the keyboard the padding overshoots by its height, which only adds blank space.
+   */
+  .rk-scroll-region {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+    container-type: inline-size;
+    --rk-keyboard-shell-inset: max(
+      0px,
+      calc(var(--rk-app-height, 100dvh) - 100dvh + var(--rk-keyboard-inset, 0px))
+    );
+    padding-bottom: var(--rk-keyboard-shell-inset);
+    scroll-padding-bottom: calc(var(--rk-keyboard-shell-inset) + 1rem);
+  }
+
+  .rk-screen-body {
+    @apply px-4 py-4;
+  }
+
+  .rk-screen-header-bar {
+    @apply flex items-center gap-2 px-2 py-2;
+  }
+
+  .rk-screen-footer-bar {
+    @apply px-4 py-2;
+  }
+
+  /*
+   * The compact form. The 13rem literal mirrors `--container-compact` in ../theme.css.
+   *
+   * Padding is not text, so trimming it is free legibility: it buys lines of content instead of
+   * margin. The header's dismiss button is capped along with it - it is a label-less icon control
+   * whose accessible name is a visually hidden span, so its glyph carries no text to scale, and
+   * 48px keeps it a valid touch target.
+   */
+  @container (max-width: 13rem) {
+    .rk-screen-body {
+      @apply px-2 py-2;
+    }
+
+    .rk-screen-header-bar {
+      @apply gap-1 px-1 py-1;
+    }
+
+    .rk-screen-header-bar .rk-icon-button {
+      font-size: 20px;
+      min-block-size: 48px;
+      min-inline-size: 48px;
+      inline-size: 48px;
+      block-size: 48px;
+    }
+  }
+}

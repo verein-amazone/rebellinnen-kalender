@@ -1,0 +1,34 @@
+<label class="rk-label" [for]="id()">Kalender</label>
+
+<ul class="rk-list">
+  <li>
+    <button
+      type="button"
+      class="rk-row w-full text-left"
+      [id]="id()"
+      [disabled]="state().disabled()"
+      [attr.aria-invalid]="showError() ? 'true' : null"
+      [attr.aria-describedby]="showError() ? errorId() : null"
+      (click)="open()"
+    >
+      @if (selected(); as calendar) {
+        <span class="rk-row-label flex items-center gap-2">
+          <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
+          {{ calendar.name }}
+        </span>
+      }
+
+      <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+    </button>
+  </li>
+</ul>
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (showError()) {
+    <p [id]="errorId()" class="rk-error">{{ errorMessage() }}</p>
+  }
+</div>

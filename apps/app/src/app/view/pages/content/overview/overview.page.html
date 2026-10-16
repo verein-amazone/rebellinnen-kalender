@@ -1,0 +1,271 @@
+<div ngTabs>
+  <!-- `py-2` here reproduces the space `.rk-screen-header-bar` reserves on a focused screen, so
+       switching between this tab and a focused screen (e.g. event detail) doesn't shift where
+       scrollable content starts - the same pattern `today.page.html`/the calendar overview use.
+       The tabs themselves live in that first row, instead of behind a separate blank spacer; the
+       screen's own actions - search and the explanation - get the row below.
+
+       Pinned like the calendar overview's header, for the same reason: the tabs stay reachable
+       while their panel scrolls underneath them. That needs an own background (or the scrolling
+       content shows through) and `safe-top` here rather than on the shell's `<main>`, so this
+       header's background fills the notch area - see `main-navigation.scaffold.html`.
+
+       `ngTabList`/`ngTab` supply `role="tablist"`/`role="tab"`, `aria-selected`, `aria-controls`,
+       and arrow-key navigation, so `aria-selected:` is enough to style the active tab without a
+       manual "is this selected" class binding. -->
+  <div class="bg-background safe-top sticky top-0 z-10">
+    <!-- `pt-4` rather than the `py-2` the other tabs use: their first row holds icon buttons or
+         small date text inside a 48px control, so their visible content starts ~20px below the
+         safe area. The segmented control here is a filled track that starts at its own edge, so
+         with `pt-2` Inhalte looked noticeably tighter to the status bar than Heute and Kalender. -->
+    <div class="px-4 pt-4 pb-2">
+      <h1 class="sr-only">Inhalte</h1>
+
+      <ul
+        ngTabList
+        aria-label="Bereich"
+        [selectedTab]="activeArea()"
+        (selectedTabChange)="onAreaChange($event)"
+        class="rk-segmented list-none gap-0.5"
+      >
+        <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
+        <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
+      </ul>
+    </div>
+
+    <!-- The row below the tabs: search on the start side, the explanation on the end side - the
+         toggletip's panel opens from its button towards the start, so it belongs at the end.
+
+         Meine Sammlung offers the search from two saved items on - see `searchAvailable`.
+
+         Open, the row is the search field instead. The info button gives way to it: it explains
+         the area, which someone already searching it does not need. The field's label is visually
+         hidden but says what the placeholder shows, so the accessible name matches what is on
+         screen. -->
+    <div class="flex items-center gap-2 px-4 pb-2">
+      @if (searchActive()) {
+        <label class="sr-only" for="content-search">{{ searchLabel() }}</label>
+        <div class="rk-field min-w-0 flex-1">
+          <svg lucideSearch class="rk-icon text-muted-foreground" aria-hidden="true"></svg>
+          <input
+            #searchInput
+            id="content-search"
+            class="rk-input"
+            type="search"
+            enterkeyhint="search"
+            autocomplete="off"
+            [placeholder]="searchLabel()"
+            [value]="searchText()"
+            (input)="onSearchInput($event)"
+            (keydown.enter)="dismissKeyboard($event)"
+          />
+        </div>
+        <button
+          type="button"
+          class="rk-icon-button"
+          aria-label="Suche schließen"
+          (click)="closeSearch()"
+        >
+          <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+        </button>
+      } @else {
+        @if (searchAvailable()) {
+          <button
+            #searchButton
+            type="button"
+            class="rk-icon-button"
+            [attr.aria-label]="searchLabel()"
+            (click)="openSearch()"
+          >
+            <svg lucideSearch class="rk-icon" aria-hidden="true"></svg>
+          </button>
+        }
+
+        <!-- What the selected area is for. Needed the first time, not every time, so it sits
+             behind an info button instead of above each list. -->
+        <div class="ms-auto">
+          @if (activeArea() === 'collection') {
+            <app-info-toggletip label="Info zu Meine Sammlung">
+              Inhalte, die du mit dem Lesezeichen markiert hast, erscheinen hier - so hast du deine
+              persönlichen Fundstücke immer griffbereit.
+            </app-info-toggletip>
+          } @else {
+            <app-info-toggletip label="Info zu Anlaufstellen">
+              Hier findest du Mädchen*- und Queer-Treffs sowie Beratungsstellen in deiner Nähe, an
+              die du dich wenden kannst.
+            </app-info-toggletip>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- The search's result, said once per settled result. Always in the DOM while the search is
+         open: a live region that appears together with its text is often not announced at all. -->
+    @if (searchActive()) {
+      <p
+        role="status"
+        class="text-muted-foreground px-4 text-sm"
+        [class.pb-2]="searchStatus() !== ''"
+      >
+        {{ searchStatus() }}
+      </p>
+    }
+  </div>
+
+  <div class="px-4 pt-4 pb-6">
+    <!-- `visible()` drives `[class.hidden]` by hand: `ngTabPanel` sets `inert` on the hidden panel
+         (removing it from the accessibility tree and from tab order) but deliberately leaves visual
+         hiding to the consumer. `ngTabContent` defers the panel's content until it's selected once,
+         then keeps it mounted - the same lazy-render-and-keep behaviour Angular Material's tabs use. -->
+    <div
+      ngTabPanel
+      value="collection"
+      #collectionPanel="ngTabPanel"
+      [class.hidden]="!collectionPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          @if (!hasSavedItems()) {
+            <!-- Empty states sit on a card here for the same reason they do on the calendar and
+                 Today screens (`calendar-agenda.block.html`): a bare sentence on the page
+                 background reads as a stray note rather than as the list that would be there. -->
+            <div class="rk-card flex flex-col items-center gap-2 px-4 py-6 text-center">
+              <p class="font-semibold">Deine Sammlung ist noch leer</p>
+              <p class="text-muted-foreground text-sm">
+                Wenn du einen Tagesimpuls, Wissensbeitrag oder eine Rebell*in später wiederfinden
+                möchtest, tippe auf das Lesezeichen.
+              </p>
+            </div>
+          } @else {
+            <app-content-kind-filter
+              [kinds]="kindFilters()"
+              [hiddenIds]="hiddenKinds()"
+              (toggled)="toggleKind($event)"
+            />
+
+            @if (filteredSavedItems().length > 0) {
+              <div class="space-y-2">
+                <!-- No remove action on the card: removing happens on the item itself, by
+                     un-bookmarking it, so there is exactly one place that owns the decision. -->
+                @for (item of filteredSavedItems(); track item.id) {
+                  <a
+                    [routerLink]="['/content', item.id]"
+                    [queryParams]="{ returnTo: collectionReturnTo() }"
+                    class="rk-card block px-4 py-3"
+                  >
+                    <span class="rk-pill text-xs">{{ kindLabel(item.kind) }}</span>
+                    <p class="mt-2 font-semibold">{{ item.title }}</p>
+                    <p class="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                      {{ item.teaser }}
+                    </p>
+                  </a>
+                }
+              </div>
+            } @else if (allKindsHidden()) {
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Alle Kategorien sind ausgeblendet. Tippe oben auf eine Kategorie, um sie wieder
+                  einzublenden.
+                </p>
+              </div>
+            } @else if (savedMatches() !== null) {
+              <ng-container [ngTemplateOutlet]="noMatches" />
+            } @else {
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Keine gespeicherten Einträge in dieser Kategorie.
+                </p>
+              </div>
+            }
+          }
+        </div>
+      </ng-template>
+    </div>
+
+    <div
+      ngTabPanel
+      value="services"
+      #servicesPanel="ngTabPanel"
+      [class.hidden]="!servicesPanel.visible()"
+    >
+      <ng-template ngTabContent>
+        <div class="space-y-4">
+          @if (servicesError()) {
+            <div class="rk-card space-y-3 px-4 py-6 text-center">
+              <p>Die Anlaufstellen konnten nicht geladen werden.</p>
+              <button type="button" class="rk-button rk-button-ghost" (click)="reloadServices()">
+                <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+                <span>Erneut versuchen</span>
+              </button>
+            </div>
+          } @else if (servicesLoading()) {
+            <!-- Region-filter chip row, then two service-card placeholders. -->
+            <div class="space-y-2" aria-hidden="true">
+              <!-- Fractions rather than `w-20`/`w-24`/`w-16`: rem-based widths scale with the text
+                   size instead of with the row, so at 300% these three pills alone asked for more
+                   than a 320px viewport has. -->
+              <div class="flex gap-2">
+                <span class="rk-skeleton block h-8 w-1/4 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-1/5 rounded-full"></span>
+                <span class="rk-skeleton block h-8 w-1/6 rounded-full"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-1/2"></span>
+                <span class="rk-skeleton block h-3 w-3/4"></span>
+              </div>
+              <div class="rk-card space-y-2 px-4 py-3">
+                <span class="rk-skeleton block h-4 w-2/5"></span>
+                <span class="rk-skeleton block h-3 w-2/3"></span>
+              </div>
+            </div>
+          } @else if (serviceMatches(); as matches) {
+            <!-- A search spans every region, so the region chips step aside and each card names
+                 its region instead. -->
+            @if (matches.length > 0) {
+              <div class="space-y-2">
+                @for (service of matches; track service.id) {
+                  <app-support-service-card
+                    [service]="service"
+                    [regionLabel]="regionLabel(service.region)"
+                  />
+                }
+              </div>
+            } @else {
+              <ng-container [ngTemplateOutlet]="noMatches" />
+            }
+          } @else if (regions().length > 0) {
+            <app-support-service-region-filter
+              [regions]="regions()"
+              [selectedRegionId]="selectedRegionId()"
+              (regionSelected)="selectRegion($event)"
+            />
+
+            @if (filteredServices().length > 0) {
+              <div class="space-y-2">
+                @for (service of filteredServices(); track service.id) {
+                  <app-support-service-card [service]="service" />
+                }
+              </div>
+            } @else {
+              <div class="rk-card px-4 py-6">
+                <p class="text-muted-foreground text-center">
+                  Für diese Region sind noch keine Anlaufstellen hinterlegt.
+                </p>
+              </div>
+            }
+          }
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- The result of a search that found nothing. The count above already says so; this card says
+       what to try instead. -->
+  <ng-template #noMatches>
+    <div class="rk-card px-4 py-6">
+      <p class="text-muted-foreground text-center">
+        Prüfe die Schreibweise oder versuche einen Teil des Wortes.
+      </p>
+    </div>
+  </ng-template>
+</div>

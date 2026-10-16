@@ -1,0 +1,198 @@
+/* Element defaults and the few shared utilities. Anything themeable belongs in ./theme.css. */
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+
+    /*
+     * German compounds - "Systemeinstellung", "Bewegung & Animationen", "Kalenderabonnement" - are
+     * longer than a phone column once the text is scaled up, and a word that cannot break makes the
+     * whole screen scroll sideways.
+     *
+     * `hyphens: auto` breaks them at real syllable boundaries (it needs the `lang` on <html>, which
+     * index.html sets to `de`). `overflow-wrap: anywhere` is the fallback for what the hyphenation
+     * dictionary does not know - URLs, names, abbreviations. `anywhere` rather than `break-word`
+     * on purpose: only `anywhere` also shrinks the element's min-content width, which is what lets a
+     * flex or grid child actually give up the space instead of overflowing its track.
+     */
+    hyphens: auto;
+    overflow-wrap: anywhere;
+
+    /*
+     * Inter's contextual alternates centre an asterisk between capitals and closing punctuation, so
+     * the gender star in „FLINTA*?“ sat on the middle of the line while the same star in body text
+     * stays raised, and testers asked for it raised in titles too. Off everywhere rather than per
+     * title, since the star turns up in titles, teasers, calendar names and entries alike; Inter's
+     * other alternates (arrow ligatures, case-sensitive brackets) are nothing this app relies on.
+     */
+    font-feature-settings: 'calt' 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold;
+  }
+
+  /* Heading sizes as element defaults, so pages do not repeat them. A screen that needs a
+     different size overrides it at the call site - the focused-screen header does, because its
+     h1 sits in a compact bar. */
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+
+  /* Make the focus ring visible on every theme instead of relying on the UA default, which
+     disappears on the dark themes. */
+  :focus-visible {
+    @apply outline-ring rounded-sm outline-2 outline-offset-2;
+  }
+
+  /*
+   * Headings are focused programmatically after navigation (see PageFocus) so reading starts at
+   * the screen's title, but they are not interactive and are never in the tab order - a visible
+   * ring on them only reads as "this heading is a control". WCAG 2.4.7 covers focusable UI
+   * components; a `tabindex="-1"` reading target is not one.
+   */
+  h1[tabindex='-1']:focus-visible {
+    outline: none;
+  }
+
+  /*
+   * No double-tap zoom anywhere: a double tap on a text, while reading a content item, would
+   * otherwise zoom the whole app in, and it also costs every tap a 300ms wait for a second one.
+   * Pinch zoom stays, so the user can still zoom (WCAG 1.4.4). Set on every element rather than on
+   * the root, because the WebView resets touch-action at each scroll container, `<main>` among
+   * them; a component that needs another value sets it in its own layer, which wins over this one.
+   */
+  * {
+    touch-action: manipulation;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  /*
+   * Theme the native controls with `accent-color` rather than redrawing them behind
+   * `appearance: none`. The platform keeps rendering the control, so the checked state survives
+   * forced-colors mode and matches what the user sees everywhere else on their device.
+   */
+  input[type='radio'],
+  input[type='checkbox'] {
+    accent-color: var(--color-primary);
+  }
+
+  /*
+   * Text entry never renders below 16px. Below that, iOS zooms the page in when the field takes focus
+   * - and it does not zoom back out afterwards, so the app is left magnified and scrolling in both
+   * directions. 16px is the threshold WKWebView uses, and it is reachable from two directions here:
+   * the "Klein" text size is 14px, and the OS scale in `--rk-os-scale` can be below 1 as well.
+   *
+   * `max()` rather than a fixed 16px, so every size above the threshold still scales normally.
+   */
+  input,
+  textarea,
+  select {
+    font-size: max(1rem, 16px);
+  }
+}
+
+@layer utilities {
+  /*
+   * Safe areas. The app draws edge to edge (`viewport-fit=cover` in index.html), so anything that
+   * must stay clear of the notch, the camera cutout, the home indicator or a rounded corner needs
+   * one of these. Applying them to a background-bearing element is intentional: the background then
+   * extends into the inset while the content does not.
+   */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Dotted notebook grid from the Rebell*innen Kalender print design. */
+  .dotted-bg {
+    background-image: radial-gradient(circle, var(--rk-dot-color) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Page transitions, driven by the router's view transitions. A short cross-fade only: the screens
+ * differ completely, so a directional slide would imply a spatial relationship that does not exist.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+
+/*
+ * Reduced motion. `[data-motion='reduced']` is the in-app override; the media query covers the
+ * device setting, which is the default when the user has not chosen anything.
+ *
+ * View transition pseudo-elements live outside the document tree, so the `*` rules below do not
+ * reach them and they need their own rule in each case.
+ * `[data-motion='standard']` deliberately has no rule - choosing it means opting out of the
+ * device preference, so the media query below must not apply.
+ */
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion='reduced']::view-transition-old(root),
+html[data-motion='reduced']::view-transition-new(root) {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='standard'])::view-transition-old(root),
+  html:not([data-motion='standard'])::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  html:not([data-motion='standard']) *,
+  html:not([data-motion='standard']) *::before,
+  html:not([data-motion='standard']) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

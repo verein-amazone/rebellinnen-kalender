@@ -1,0 +1,144 @@
+import { inject, Injectable } from '@angular/core';
+
+import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
+import { placementRank } from '@app/data/stores/calendar-chip-preferences';
+import { CalendarChipsStore } from '@app/data/stores/calendar-chips.store';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
+
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
+
+/**
+ * A calendar the create/edit form's picker may offer, stripped of everything view-irrelevant.
+ * `sourceType` defaults to `'app'` when absent, which every fixture predating device calendars in
+ * the picker relies on.
+ */
+export interface WritableAppCalendar {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string | null;
+  readonly emoji: string | null;
+  readonly sourceType?: 'app' | 'device';
+}
+
+/**
+ * The calendar picker's data source for creating and editing app-owned events and todos.
+ *
+ * Writable calendars come from two source types: the app's own calendars, always writable because
+ * capabilities follow ownership (see `source-capabilities.ts`), and enabled, writable device
+ * calendars - a create writes straight into the OS calendar (see
+ * `AppEventEditingInteractor.create`), never a canonical app record. This is the only interactor
+ * the picker may use; views never read calendar sources themselves.
+ */
+@Injectable({ providedIn: 'root' })
+export class AppCalendarsInteractor {
+  private readonly repository = inject(CalendarRepository);
+  private readonly chips = inject(CalendarChipsStore);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
+
+  /**
+   * Lists the picker's choices, first creating the app's own calendar source if none exists yet -
+   * so a fresh install never shows an empty picker. This runs here rather than from an app
+   * initializer: a `provideAppInitializer` write races the SQLite plugin's own startup and can hang
+   * bootstrap before the plugin is ready to accept queries, where a component-triggered read/write
+   * like this one only ever runs once the app (and the plugin) is already up.
+   */
+  async listWritable(): Promise<WritableAppCalendar[]> {
+    await this.ensureDefault();
+
+    const [sources, calendars] = await Promise.all([
+      this.repository.listSources(),
+      this.repository.listCalendars(),
+    ]);
+
+    const sourceTypeById = new Map(sources.map((source) => [source.id, source.type]));
+    const enabledSourceIds = new Set(
+      sources.filter((source) => source.enabled).map((source) => source.id),
+    );
+
+    // The order the user arranged for the calendar screen's chips, so one list does not contradict
+    // the other. Only within the picker's own two sections, which the dialog groups by source type,
+    // and stable, so anything unplaced keeps the database order it had. Which calendar a new
+    // appointment defaults to does not depend on this - see `EventForm.applyDefaultCalendar`.
+    const rankOfPlacement = placementRank(this.chips.preferences().calendarOrder);
+
+    return calendars
+      .filter((calendar) => {
+        const sourceType = sourceTypeById.get(calendar.sourceId);
+        if (sourceType === 'app') {
+          return true;
+        }
+        return (
+          sourceType === 'device' &&
+          calendar.writable &&
+          calendar.enabled &&
+          enabledSourceIds.has(calendar.sourceId)
+        );
+      })
+      .sort((one, other) => rankOfPlacement(one.id) - rankOfPlacement(other.id))
+      .map((calendar) => ({
+        id: calendar.id,
+        name: calendar.name,
+        color: calendar.color,
+        emoji: calendar.emoji,
+        sourceType: sourceTypeById.get(calendar.sourceId) as 'app' | 'device',
+      }));
+  }
+
+  /** Opens the emoji picker; resolves `null` when the user dismisses it without a selection. */
+  pickEmoji(): Promise<string | null> {
+    return this.emojiPicker.pickEmoji();
+  }
+
+  /** Renames the app calendar or changes its colour/emoji identity. */
+  async updateIdentity(
+    calendarId: string,
+    identity: { name: string; color: string | null; emoji: string | null },
+  ): Promise<void> {
+    await this.repository.updateCalendarIdentity(calendarId, identity, this.context());
+  }
+
+  /**
+   * Creates the app's own calendar source on first run. A no-op once an app source exists - also
+   * when the form and the calendar screen ask at the same time, which is why the check happens in
+   * the repository rather than here.
+   */
+  private async ensureDefault(): Promise<void> {
+    const sourceId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    await this.repository.ensureAppSource(
+      {
+        id: sourceId,
+        type: 'app',
+        name: 'Mein Kalender',
+        enabled: true,
+        state: 'ok',
+        createdAt: now,
+        updatedAt: now,
+      },
+      [
+        {
+          id: crypto.randomUUID(),
+          sourceId,
+          name: 'Mein Kalender',
+          color: DEFAULT_CALENDAR_COLOR,
+          emoji: null,
+          enabled: true,
+          writable: true,
+          externalId: null,
+          nativeSourceId: null,
+          nativeSourceName: null,
+          createdAt: now,
+          updatedAt: now,
+        },
+      ],
+    );
+  }
+
+  private context(): CalendarContext {
+    return {
+      nowUtc: new Date().toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+  }
+}

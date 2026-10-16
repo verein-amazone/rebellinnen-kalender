@@ -1,0 +1,58 @@
+<p class="pt-1 pb-2">{{ data.message }}</p>
+
+<fieldset class="border-0 p-0 pb-4">
+  <legend class="sr-only">Gültigkeitsbereich</legend>
+
+  @if (allowSingleOccurrence) {
+    <app-choice-row
+      name="recurrenceScope"
+      value="occurrence"
+      label="Nur dieser Termin"
+      [checked]="selectedScope() === 'occurrence'"
+      (selected)="selectedScope.set($event)"
+    />
+  }
+
+  <app-choice-row
+    name="recurrenceScope"
+    value="following"
+    label="Dieser und folgende Termine"
+    [checked]="selectedScope() === 'following'"
+    (selected)="selectedScope.set($event)"
+  />
+
+  <app-choice-row
+    name="recurrenceScope"
+    value="all"
+    label="Alle Termine"
+    [checked]="selectedScope() === 'all'"
+    (selected)="selectedScope.set($event)"
+  />
+</fieldset>
+
+<!--
+  Stacked and full width: the confirming and the declining action are not a pair of equal buttons
+  side by side - full-width targets are easier to hit, and stacking keeps the verb readable at any
+  text size.
+-->
+<div class="rk-sheet-footer flex-col">
+  <button
+    type="button"
+    class="rk-button w-full"
+    [class.rk-button-danger]="destructive"
+    [class.rk-button-primary]="!destructive"
+    (click)="confirm()"
+  >
+    @if (destructive) {
+      <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+    } @else {
+      <svg lucideCheck class="rk-icon" aria-hidden="true"></svg>
+    }
+    <span>{{ confirmLabel }}</span>
+  </button>
+
+  <button type="button" class="rk-button rk-button-ghost w-full" (click)="cancel()">
+    <svg lucideX class="rk-icon" aria-hidden="true"></svg>
+    <span>Abbrechen</span>
+  </button>
+</div>

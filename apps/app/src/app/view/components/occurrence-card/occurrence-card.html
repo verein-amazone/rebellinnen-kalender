@@ -1,0 +1,56 @@
+<a
+  [routerLink]="['/calendar/event', occurrence().id]"
+  [queryParams]="linkQueryParams()"
+  class="rk-card min-h-touch hoverable:bg-accent/10 active:bg-accent/20 flex items-stretch gap-3 p-3.5"
+>
+  <!-- The calendar's colour, repeated in the grid's indicator dots. Decorative: the calendar is named in text below. -->
+  <span
+    aria-hidden="true"
+    class="bg-border w-1 shrink-0 self-stretch rounded-full"
+    [style.background-color]="occurrence().calendarColor"
+  ></span>
+
+  <span class="min-w-0 flex-1 space-y-1">
+    @if (coversWholeDay()) {
+      <span class="bg-muted text-muted-foreground inline-block rounded-full px-2 py-0.5 text-sm">
+        Ganztägig
+      </span>
+    } @else if (endsToday()) {
+      <span class="text-muted-foreground block text-sm tabular-nums">
+        bis {{ occurrence().endUtc | date: 'shortTime' : timeZone() }}
+      </span>
+    } @else if (startsToday()) {
+      <span class="text-muted-foreground block text-sm tabular-nums">
+        ab {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}
+      </span>
+    } @else {
+      <span class="text-muted-foreground block text-sm tabular-nums">
+        {{ occurrence().startUtc | date: 'shortTime' : timeZone() }}&nbsp;–
+        {{ occurrence().endUtc | date: 'shortTime' : timeZone() }}
+      </span>
+    }
+
+    <span class="flex items-start gap-1.5 font-semibold">
+      <span class="min-w-0">{{ occurrence().title }}</span>
+      @if (occurrence().seriesId !== null) {
+        <svg
+          lucideRepeat
+          class="rk-icon-sm text-muted-foreground mt-1 shrink-0"
+          aria-hidden="true"
+        ></svg>
+        <span class="sr-only">, wiederholt sich</span>
+      }
+    </span>
+
+    @if (occurrence().location; as location) {
+      <span class="text-muted-foreground block text-sm">{{ location }}</span>
+    }
+
+    <span class="text-muted-foreground block text-sm">
+      @if (occurrence().calendarEmoji; as emoji) {
+        <span aria-hidden="true">{{ emoji }}</span>
+      }
+      {{ occurrence().calendarName }}
+    </span>
+  </span>
+</a>

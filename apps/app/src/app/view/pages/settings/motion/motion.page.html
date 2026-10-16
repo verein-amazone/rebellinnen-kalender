@@ -1,0 +1,18 @@
+<app-focused-screen heading="Animationen" fallbackLink="/settings">
+  <!-- Animation everywhere in the app, like „Textgröße“ an accessibility setting. When the
+       Tagesimpuls wobbles is its own screen; „Reduziert“ still silences that wave too. -->
+  <fieldset class="space-y-2">
+    <legend class="sr-only">Animationen wählen</legend>
+
+    @for (option of appearance.motionOptions; track option.id) {
+      <app-choice-row
+        name="motion"
+        [value]="option.id"
+        [label]="option.label"
+        [description]="option.description"
+        [checked]="appearance.motion() === option.id"
+        (selected)="select($event)"
+      />
+    }
+  </fieldset>
+</app-focused-screen>

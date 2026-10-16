@@ -1,0 +1,420 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import {
+  CdkDrag,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+  type CdkDragDrop,
+} from '@angular/cdk/drag-drop';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  resource,
+  signal,
+} from '@angular/core';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@angular/aria/menu';
+import {
+  LucideArrowDown,
+  LucideArrowUp,
+  LucideEllipsis,
+  LucideGripVertical,
+  LucidePencil,
+  LucidePlus,
+  LucideRotateCw,
+  LucideTrash2,
+} from '@lucide/angular';
+
+import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
+import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
+import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
+import type { Reminder } from '@app/interactors/reminders/reminder.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { CheckHaptics } from '@app/view/components/field/check-haptics';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
+import {
+  ConfirmationDialog,
+  type ConfirmationDialogData,
+} from '@app/view/dialogs/confirmation/confirmation.dialog';
+import {
+  ReminderEditDialog,
+  type ReminderEditDialogData,
+} from '@app/view/dialogs/reminder-edit/reminder-edit.dialog';
+import { valueOr } from '@app/cross-cutting/helpers/resource-value';
+
+/** What a row's menu can do. The menu emits one of these; the block turns it into a use case. */
+export type ReminderAction = 'move-up' | 'move-down' | 'edit' | 'delete';
+
+/**
+ * The „Nicht vergessen“ list: add an entry, tick it off, put it where you want it, correct it, remove
+ * it.
+ *
+ * A block rather than part of the Today page, because Today grows a greeting, an impulse and the
+ * day's appointments around it and would otherwise carry all of their state in one component.
+ *
+ * The list itself lives here as a `resource`, not in the interactor: interactors are stateless, and
+ * this is the only screen showing the list. `reload()` after a write keeps the previous value while
+ * the new one loads, so ticking an entry does not blink through the empty state. The resource depends
+ * on the local day, so entries completed yesterday disappear at midnight without anyone reopening the
+ * app.
+ *
+ * Open and completed entries are two lists rather than one, and the two are deliberately not
+ * connected: dragging can rearrange a section but never complete or reopen an entry - the checkbox
+ * stays the only way across. Dragging is also never the only way to move a row; the same moves sit in
+ * the row's menu, which is what makes them reachable by tap and by keyboard.
+ *
+ * Adding opens the same sheet `edit()` does, with an empty draft - see `openAdd()`.
+ */
+@Component({
+  selector: 'app-reminder-list',
+  host: { class: 'block' },
+  imports: [
+    CdkDrag,
+    CdkDragHandle,
+    CdkDropList,
+    CheckHaptics,
+    LucideArrowDown,
+    LucideArrowUp,
+    LucideEllipsis,
+    LucideGripVertical,
+    LucidePencil,
+    LucidePlus,
+    LucideRotateCw,
+    LucideTrash2,
+    Menu,
+    MenuContent,
+    MenuItem,
+    MenuTrigger,
+  ],
+  templateUrl: './reminder-list.block.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ReminderListBlock {
+  private readonly reminders = inject(ReminderListInteractor);
+  private readonly haptics = inject(HapticsInteractor);
+  private readonly sheets = inject(SheetService);
+  private readonly announcer = inject(LiveAnnouncer);
+  private readonly currentDay = inject(LocalDay);
+  private readonly reminderChanges = inject(ReminderChanges);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+
+  protected readonly items = resource({
+    // Reloads by itself when the day rolls over, which is when completed entries stop being shown.
+    params: () => this.currentDay.day(),
+    loader: () => this.reminders.list(),
+  });
+
+  /**
+   * The order a completed move produced, until the next load replaces it.
+   *
+   * A move is written before it is shown, so this is not an optimistic guess: it is the same order
+   * the database would return, applied without waiting for a round trip. Reloading anyway would let
+   * the row snap back to where it came from for one frame.
+   */
+  private readonly ordered = signal<readonly Reminder[] | null>(null);
+
+  /** Why the last change to the list failed; cleared by the next one. */
+  protected readonly writeError = signal<string | null>(null);
+
+  protected readonly entries = computed(() => this.ordered() ?? valueOr(this.items, []));
+
+  protected readonly openItems = computed(() => this.entries().filter((item) => !item.completed));
+  protected readonly doneItems = computed(() => this.entries().filter((item) => item.completed));
+  protected readonly isEmpty = computed(() => this.entries().length === 0);
+
+  /**
+   * One list, with the open entries first and the completed ones after them - no headings between.
+   *
+   * That the open entries come first and are contiguous is the data layer's guarantee, not something
+   * re-established here: the list is read in exactly that order (see `ReminderDao.listAll`). The group
+   * arithmetic below relies on it.
+   *
+   * The two groups are still two groups as far as moving goes: an entry only ever moves among its
+   * own kind, and the checkbox stays the one way across. Each row therefore carries where it sits
+   * *within its group*, because that is the index the interactor works in and the index the „Nach
+   * oben“ / „Nach unten“ items have to be decided from.
+   *
+   * The rows have to be real children of the `<ul>` in the template: rendering them through an
+   * `ng-template` made Angular re-create a row that had only moved, so the row vanished mid-move, and
+   * it put the row outside the reach of the drop list, which stopped dragging working at all.
+   */
+  protected readonly rows = computed(() => {
+    const openCount = this.openItems().length;
+
+    return this.entries().map((item, index) => ({
+      item,
+      groupIndex: item.completed ? index - openCount : index,
+      groupSize: item.completed ? this.entries().length - openCount : openCount,
+    }));
+  });
+
+  constructor() {
+    // A new day means a new list, so a hand-made order from yesterday must not survive it.
+    effect(() => {
+      this.currentDay.day();
+      this.ordered.set(null);
+    });
+  }
+
+  /** Opens the same sheet `edit()` uses, empty rather than prefilled. */
+  protected openAdd(): void {
+    const data: ReminderEditDialogData = { text: '' };
+
+    this.sheets
+      .open<string, ReminderEditDialogData>(ReminderEditDialog, {
+        heading: 'Neue Erinnerung',
+        // The field, not the heading: this sheet exists to type one line, and a tester asked for the
+        // caret to be waiting in it.
+        initialFocus: 'content',
+        data,
+      })
+      .closed.subscribe(async (text) => {
+        if (text === undefined) {
+          return;
+        }
+
+        if (await this.write(() => this.reminders.add(text), 'gespeichert')) {
+          void this.haptics.confirm();
+        }
+      });
+  }
+
+  protected async toggle(item: Reminder, event: Event): Promise<void> {
+    const saved = await this.write(
+      () => (item.completed ? this.reminders.reopen(item.id) : this.reminders.complete(item.id)),
+      'gespeichert',
+    );
+    if (!saved) {
+      // The tap already flipped the box, and the reloaded entry binds the same `completed` value,
+      // so Angular has no change to write back: put the stored state back by hand.
+      (event.target as HTMLInputElement).checked = item.completed;
+    }
+  }
+
+  /** A row was lifted for dragging. Felt together with the drop, like a detent. */
+  protected pickedUp(): void {
+    void this.haptics.selection();
+  }
+
+  /** The label states what activating the control will do, not what the current state is. */
+  protected toggleLabel(item: Reminder): string {
+    return item.completed
+      ? `„${item.text}“ wieder als offen markieren`
+      : `„${item.text}“ als erledigt markieren`;
+  }
+
+  /**
+   * Keeps a dragged row inside its own group while the drag is still happening.
+   *
+   * With one list there is no structural barrier between the open and the completed entries any more,
+   * so this is what stops a drag from doing what only the checkbox may do. Refusing the position
+   * rather than correcting it afterwards means the gap never opens on the wrong side of the boundary,
+   * so it never looks as though dropping there would complete the entry.
+   *
+   * An arrow property because the CDK calls it unbound.
+   */
+  protected readonly sortPredicate = (index: number, drag: CdkDrag<Reminder>): boolean => {
+    const openCount = this.openItems().length;
+    return drag.data.completed ? index >= openCount : index < openCount;
+  };
+
+  /** A row was dropped. The index is over the whole list, so it is read back into its group. */
+  protected async drop(event: CdkDragDrop<readonly Reminder[]>): Promise<void> {
+    void this.haptics.selection();
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    const item = event.container.data[event.previousIndex];
+    if (item === undefined) {
+      return;
+    }
+
+    const openCount = this.openItems().length;
+    const group = item.completed ? this.doneItems() : this.openItems();
+    const target = clamp(
+      item.completed ? event.currentIndex - openCount : event.currentIndex,
+      0,
+      group.length - 1,
+    );
+
+    await this.moveWithin(item, group, group.indexOf(item), target);
+  }
+
+  /**
+   * The same move from the row's menu, one step at a time.
+   *
+   * Focus goes back to the moved entry's menu trigger afterwards (#151). The menu hands it back as it
+   * closes, but re-ordering the rows moves the trigger in the DOM, and a browser blurs an element it
+   * moves - a keyboard or screen reader user would otherwise start again from the top of the page.
+   */
+  protected async moveBy(item: Reminder, groupIndex: number, offset: number): Promise<void> {
+    const group = item.completed ? this.doneItems() : this.openItems();
+    const target = groupIndex + offset;
+
+    if (target < 0 || target >= group.length) {
+      return;
+    }
+
+    if (await this.moveWithin(item, group, groupIndex, target)) {
+      afterNextRender(
+        () =>
+          // Matched by value rather than in the selector: an id is not guaranteed to be CSS-safe.
+          Array.from(this.host.nativeElement.querySelectorAll<HTMLElement>('[data-menu-of]'))
+            .find((trigger) => trigger.dataset['menuOf'] === item.id)
+            ?.focus(),
+        { injector: this.injector },
+      );
+    }
+  }
+
+  protected runAction(action: ReminderAction, item: Reminder, groupIndex: number): void {
+    switch (action) {
+      case 'move-up':
+        void this.moveBy(item, groupIndex, -1);
+        return;
+      case 'move-down':
+        void this.moveBy(item, groupIndex, 1);
+        return;
+      case 'edit':
+        this.edit(item);
+        return;
+      case 'delete':
+        this.confirmDelete(item);
+    }
+  }
+
+  private async moveWithin(
+    item: Reminder,
+    group: readonly Reminder[],
+    from: number,
+    to: number,
+  ): Promise<boolean> {
+    if (from === to || from < 0) {
+      return false;
+    }
+
+    const reordered = [...group];
+    moveItemInArray(reordered, from, to);
+    return this.applyMove(item, reordered, to);
+  }
+
+  /**
+   * Writes the move, then shows the section in its new order.
+   *
+   * The new position is announced through the `LiveAnnouncer` and nowhere else: after a drop nothing
+   * on screen states where the row ended up, and after a menu selection the menu that was operated
+   * has already closed. A second, visible live region would make one move sound like two.
+   *
+   * Resolves to whether the move was written.
+   */
+  private async applyMove(
+    item: Reminder,
+    section: readonly Reminder[],
+    toIndex: number,
+  ): Promise<boolean> {
+    try {
+      await this.reminders.move(item.id, toIndex);
+    } catch {
+      // The order on screen would otherwise claim a move that never reached the database.
+      this.reload();
+      return false;
+    }
+
+    this.ordered.set(
+      item.completed ? [...this.openItems(), ...section] : [...section, ...this.doneItems()],
+    );
+    this.announcer.announce(
+      `„${item.text}“ ist jetzt an Position ${toIndex + 1} von ${section.length}`,
+    );
+    return true;
+  }
+
+  private edit(item: Reminder): void {
+    const data: ReminderEditDialogData = { text: item.text };
+
+    this.sheets
+      .open<string, ReminderEditDialogData>(ReminderEditDialog, {
+        heading: 'Erinnerung bearbeiten',
+        initialFocus: 'content',
+        data,
+      })
+      .closed.subscribe(async (text) => {
+        // `undefined` means cancelled or dismissed, and must leave the entry untouched.
+        if (text === undefined) {
+          return;
+        }
+
+        if (await this.write(() => this.reminders.rename(item.id, text), 'gespeichert')) {
+          void this.haptics.confirm();
+        }
+      });
+  }
+
+  private confirmDelete(item: Reminder): void {
+    const data: ConfirmationDialogData = {
+      message: `„${item.text}“ wird gelöscht. Das kann nicht rückgängig gemacht werden.`,
+      confirmLabel: 'Löschen',
+      destructive: true,
+    };
+
+    this.sheets
+      .open<boolean, ConfirmationDialogData>(ConfirmationDialog, {
+        heading: 'Erinnerung löschen?',
+        data,
+      })
+      .closed.subscribe(async (confirmed) => {
+        if (confirmed !== true) {
+          return;
+        }
+
+        if (await this.write(() => this.reminders.remove(item.id), 'gelöscht')) {
+          // The row simply disappears, and focus has returned to the page heading by now, so the
+          // outcome would otherwise go unannounced.
+          this.announcer.announce(`„${item.text}“ gelöscht`);
+        }
+      });
+  }
+
+  /**
+   * Every reload drops the hand-made order: the list that arrives is the one to show. Also the one
+   * place every write funnels through, so it doubles as the notification the Today page's closing
+   * message - a sibling block with no other view of this list - reacts to.
+   */
+  /**
+   * Runs one change to the list and reloads it either way, so the rows always show what the
+   * database holds. A failure is reported in the block's alert rather than as an unhandled
+   * rejection. Resolves to whether the change went through.
+   */
+  private async write(change: () => Promise<unknown>, outcome: string): Promise<boolean> {
+    this.writeError.set(null);
+    try {
+      await change();
+      return true;
+    } catch (error) {
+      console.warn('Die Erinnerung konnte nicht geändert werden.', error);
+      this.writeError.set(
+        `Die Erinnerung konnte nicht ${outcome} werden. Versuche es noch einmal.`,
+      );
+      return false;
+    } finally {
+      this.reload();
+    }
+  }
+
+  protected reload(): void {
+    this.ordered.set(null);
+    this.items.reload();
+    this.reminderChanges.notify();
+  }
+}
+
+function clamp(value: number, lowest: number, highest: number): number {
+  return Math.min(Math.max(value, lowest), highest);
+}

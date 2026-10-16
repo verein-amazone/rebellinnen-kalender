@@ -1,0 +1,216 @@
+---
+import Phone from '../components/Phone.astro';
+import StoreButtons from '../components/StoreButtons.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { APP_NAME, PROMOTIONAL, SOURCE_CODE_URL, SUBTITLE } from '../lib/site';
+
+/*
+ * The copy follows the store description Verein Amazone approved
+ * (apps/app/fastlane/metadata/de-DE/description.txt), with one deliberate difference: the website
+ * makes no claim about advertising (Verein Amazone asked for it to be left out here), so the privacy
+ * band says „ohne Konto und ohne Tracking“ where the store text adds „ohne Werbung“.
+ */
+const features = [
+  {
+    title: 'Dein Kalender',
+    text: 'Du kannst Termine anlegen mit Wiederholungen und Erinnerungen in praktischer Wochen- oder Monatsansicht. Du kannst die App mit dem Kalender deines Handys verbinden und auch andere Kalender abonnieren, zum Beispiel von deinem Verein oder deiner Schule. Wenn du magst, kannst du dir andere Termine anzeigen lassen, zum Beispiel Feier- und Aktionstage oder Veranstaltungen.',
+    screen: 'kalender',
+    alt: 'Die Wochenansicht der App: der Internationale Frauentag aus den Rebell*innen Terminen, darunter eigene Termine aus „Mein Kalender“.',
+  },
+  {
+    title: 'Rebell*innen und Wissen',
+    text: 'Deine tägliche Dosis Feminismus mit inspirierenden Rebell*innen wie Ada Lovelace oder Malala Yousafzai. Dazu gibt’s Infos zu verschiedenen Themen, von Feminismus, Gesundheit und Vielfalt bis hin zu Rezepten und Buchtipps. Speicher, was dir wichtig ist oder du später noch lesen möchtest, in „Meine Sammlung“.',
+    screen: 'rebellin',
+    alt: 'Das Porträt der Astronautin Christina Koch in der App, mit einem Zitat und ihrer Geschichte.',
+  },
+  {
+    title: 'Anlaufstellen',
+    text: 'Hier findest du verschiedene Angebote für Mädchen*, zum Beispiel Beratungsstellen oder Mädchentreffs in ganz Österreich.',
+    screen: 'anlaufstellen',
+    alt: 'Die Anlaufstellen in Vorarlberg in der App: Verein Amazone und der Mädchen*treff Dornbirn, jeweils mit Knopf zum Anrufen und Link zur Webseite.',
+  },
+] as const;
+
+const extras = [
+  {
+    title: 'Nicht vergessen',
+    text: 'Mach dir eine To-do-Liste für alles, was du nicht vergessen darfst.',
+  },
+  {
+    title: 'Mach dir die App, wie sie dir gefällt',
+    text: 'Gestalte die App mit Farben, Schriftgrößen, App-Symbolen und Animationen. Die App funktioniert mit VoiceOver.',
+  },
+];
+
+// The promotional text, without the subtitle it starts with, as the line under the subtitle.
+const promise = PROMOTIONAL.startsWith(SUBTITLE)
+  ? PROMOTIONAL.slice(SUBTITLE.length).trim()
+  : PROMOTIONAL;
+---
+
+<BaseLayout title={`${APP_NAME} – ${SUBTITLE}`} description={PROMOTIONAL} path="/">
+  <main id="inhalt" class="flex-1">
+    <section
+      class="wrap grid gap-10 pt-[clamp(1.75rem,6vw,4.5rem)] split:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] split:items-center split:gap-x-[clamp(2rem,5vw,3rem)] split:py-12 desktop:min-h-[min(100svh,52rem)]"
+      aria-labelledby="app-name"
+    >
+      <div class="grid justify-items-start gap-5">
+        {/* The artwork brings its own rounded corners, so the shadow follows its shape. */}
+        <img
+          src="/assets/icon.webp"
+          alt=""
+          width="256"
+          height="256"
+          class="size-18 drop-shadow-[0_0.5rem_0.6rem_rgb(14_17_69/0.4)]"
+        />
+        <h1
+          id="app-name"
+          class="text-[clamp(3.25rem,15vw,6rem)] leading-[0.92] tracking-[-0.02em] split:text-[clamp(3.5rem,8.5vw,6rem)]"
+        >
+          {APP_NAME}
+        </h1>
+        <p class="-mt-1.5 font-display text-[clamp(1.5rem,5.5vw,2.25rem)] leading-tight font-medium split:text-[clamp(1.5rem,3.2vw,2.25rem)]">
+          {SUBTITLE}
+        </p>
+        <p class="max-w-[32ch] text-lead">{promise}</p>
+        <StoreButtons class="mt-2" />
+      </div>
+      {/* Cropped by the fold on a phone: the screen reads as "there is more below". */}
+      <Phone
+        screen="heute"
+        lazy={false}
+        alt="Der Heute-Bildschirm der App: ein Gruß, der Wissensimpuls „Heute ist Feministischer Kampftag!“ mit einer gezeichneten Katze und die Termine des Tages."
+        class="-mb-24 w-[min(78vw,20rem)] justify-self-center split:mb-0 split:w-[min(34vw,21rem)] split:rotate-3"
+      />
+    </section>
+
+    <section
+      class="wrap pt-36 pb-8 split:grid split:grid-cols-2 split:items-end split:gap-x-[clamp(2rem,6vw,4rem)] split:pt-24"
+      aria-labelledby="mehr"
+    >
+      <h2
+        id="mehr"
+        class="max-w-[14ch] text-[clamp(2.25rem,8vw,4rem)] split:text-[clamp(2.25rem,5vw,4rem)]"
+      >
+        Die Rebell*innen App ist mehr als nur ein Kalender
+      </h2>
+      <p class="mt-5 max-w-152 text-lead split:mt-0">
+        Sie begleitet dich durch den Alltag und hilft, auch in stressigen Zeiten den Überblick zu
+        bewahren. Neben Terminen und To-dos findest du viele Funktionen, wie du die App nach deinen
+        Wünschen und Bedürfnissen gestalten kannst – so wie’s dir gefällt! Außerdem erwarten dich
+        jede Menge spannende Infos und Inspo zu verschiedensten Themen, Anlaufstellen und
+        Unterstützungsangebote in Österreich und alles, was dein feministisches Herz begehrt!
+      </p>
+    </section>
+
+    <div class="wrap grid gap-[clamp(4rem,12vw,7rem)] pt-12 pb-[clamp(4rem,12vw,7rem)]">
+      {features.map((feature, index) => {
+        const flipped = index % 2 === 1;
+        return (
+          <section
+            class="grid justify-items-center gap-8 split:grid-cols-2 split:items-center split:gap-x-[clamp(2rem,6vw,4rem)]"
+            aria-labelledby={`feature-${index}`}
+          >
+            <div class:list={['grid gap-4 justify-self-stretch', flipped && 'split:order-2']}>
+              <h3
+                id={`feature-${index}`}
+                class="text-[clamp(1.875rem,6.5vw,3rem)] split:text-[clamp(1.875rem,4vw,3rem)]"
+              >
+                {feature.title}
+              </h3>
+              <p class="max-w-136 text-lead">{feature.text}</p>
+            </div>
+            <Phone
+              screen={feature.screen}
+              alt={feature.alt}
+              settle
+              tilt={flipped ? 'right' : 'left'}
+              class:list={[
+                'w-[min(68vw,17rem)] split:w-[min(36vw,22rem)]',
+                flipped ? 'split:justify-self-end' : 'split:justify-self-start',
+              ]}
+            />
+          </section>
+        );
+      })}
+    </div>
+
+    <div class="wrap grid gap-10 pb-[clamp(4rem,12vw,7rem)] split:grid-cols-2 split:gap-x-[clamp(2rem,6vw,4rem)]">
+      {extras.map((extra) => (
+        <section>
+          <h3 class="mb-3 text-[clamp(1.5rem,5vw,2rem)]">{extra.title}</h3>
+          <p class="max-w-136">{extra.text}</p>
+        </section>
+      ))}
+    </div>
+
+    <section class="on-navy py-[clamp(4rem,12vw,7rem)]" aria-labelledby="daten">
+      <div class="wrap">
+        <h2 id="daten" class="max-w-[14ch] text-[clamp(2.25rem,8vw,4rem)]">
+          Deine Daten bleiben bei dir
+        </h2>
+        <ul class="my-9 grid gap-1 font-display text-[clamp(2rem,9vw,3.75rem)] leading-[1.1] font-semibold">
+          <li>
+            <span class="text-accent">Ohne</span> Konto
+          </li>
+          <li>
+            <span class="text-accent">Ohne</span> Tracking
+          </li>
+          <li>
+            <span class="text-accent">Auch ohne</span> Internet
+          </li>
+        </ul>
+        <p class="max-w-144 text-lead text-rebel-text-muted">
+          Die App funktioniert ohne Konto und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät.
+          Die App funktioniert auch ohne Internet.
+        </p>
+        <p class="mt-6 flex flex-wrap gap-x-7 gap-y-2 font-semibold">
+          <a class="inline-flex min-h-touch items-center" href="/datenschutz/">
+            Datenschutzerklärung lesen
+          </a>
+          <a class="inline-flex min-h-touch items-center" href={SOURCE_CODE_URL}>
+            Offener Quellcode auf GitHub
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="wrap grid grid-cols-1 gap-5 py-[clamp(4rem,12vw,7rem)] split:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] split:items-start split:gap-x-[clamp(2rem,6vw,4rem)]"
+      aria-labelledby="wer"
+    >
+      <div class="grid grid-cols-1 gap-5 [&_p]:max-w-152">
+        <h2
+          id="wer"
+          class="max-w-[16ch] text-[clamp(2rem,7vw,3.25rem)] split:text-[clamp(2rem,4.5vw,3.25rem)]"
+        >
+          Gemeinsam mit Jugendlichen erarbeitet
+        </h2>
+        <p>
+          Die App wurde von Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender
+          Jugendlichen aus verschiedenen Regionen Österreichs gemeinsam mit dem Verein Amazone
+          erarbeitet.
+        </p>
+        <p>
+          Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazone in
+          Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*,
+          jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und
+          österreichweit als Print herausgegeben wird:{' '}
+          <a href="https://www.amazone.or.at/projekte/rebell-innen-kalender">
+            www.amazone.or.at/projekte/rebell-innen-kalender
+          </a>
+        </p>
+        <p>
+          Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen:{' '}
+          <a href={SOURCE_CODE_URL}>github.com/verein-amazone/rebellinnen-kalender</a>
+        </p>
+      </div>
+      <div class="mt-10 grid justify-items-start gap-5 rounded-lg bg-card p-[clamp(1.75rem,6vw,3rem)] split:sticky split:top-8 split:mt-0">
+        <h2 class="text-[clamp(1.875rem,6vw,2.75rem)] split:text-[clamp(1.875rem,3.5vw,2.75rem)]">
+          Hol dir die App
+        </h2>
+        <StoreButtons />
+      </div>
+    </section>
+  </main>
+</BaseLayout>

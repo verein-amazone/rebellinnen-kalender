@@ -355,12 +355,8 @@ PublishScripts/
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
-# The packages folder can be ignored because of Package Restore
-**/[Pp]ackages/*
-# except build/, which is used as an MSBuild target.
-!**/[Pp]ackages/build/
-# Uncomment if necessary however generally it will be regenerated when needed
-#!**/[Pp]ackages/repositories.config
+# The template's `**/[Pp]ackages/*` rule (NuGet's restore folder) is left out on purpose: packages/
+# holds this workspace's shared pnpm packages, which are committed source.
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
@@ -610,15 +606,14 @@ Carthage/Build/
 
 # fastlane
 #
-# It is recommended to not store the screenshots in the git repo.
-# Instead, use fastlane to re-generate the screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
+# The store screenshots under apps/app/fastlane/screenshots/ and fastlane/metadata/android/*/images/ are
+# committed on purpose, against fastlane's default: they are reviewed in the pull request that
+# changes them, and the release job uploads them from the tag without a browser on the macOS
+# runner. `pnpm store:screenshots` regenerates them (docs/store-listing.md).
 
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
+apps/app/fastlane/report.xml
+apps/app/fastlane/Preview.html
+apps/app/fastlane/test_output
 
 ### Gradle template
 .gradle
@@ -627,12 +622,6 @@ fastlane/test_output
 
 # Ignore Gradle GUI config
 gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
 
 # Cache of project
 .gradletasknamecache
@@ -681,3 +670,70 @@ gradle-app.setting
 hs_err_pid*
 replay_pid*
 
+
+### Angular / Capacitor project setup ###
+# Angular build & cache
+.angular/
+out-tsc/
+
+# Astro: generated types; the website's second build with test store addresses (pnpm test:site)
+.astro/
+dist-stores/
+/bazel-out
+dist/
+
+# Vitest / test output
+coverage/
+__screenshots__/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+
+# Capacitor / native build artifacts (native projects themselves ARE committed)
+/apps/app/ios/App/Pods/
+/apps/app/ios/App/build/
+/apps/app/ios/DerivedData/
+/apps/app/android/.gradle/
+/apps/app/android/build/
+/apps/app/android/app/build/
+/apps/app/android/captures/
+/apps/app/android/local.properties
+
+# The Gradle wrapper JAR is part of the committed Android project: without it `./gradlew` does not
+# work on a fresh clone. These negations have to sit *after* the `*.jar` rules of the Java and
+# Kotlin templates above - git applies the last matching pattern, which is why the identical pair
+# shipped inside the Gradle template had no effect.
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# macOS
+.DS_Store
+
+# Playwright
+playwright/.auth/
+
+tmp
+
+# impeccable design-review hook's local cache - config.json (ignore rules) is versioned, this isn't
+.impeccable/hook.cache.json
+# impeccable review captures and mocks: local evidence for a design review, regenerated on demand
+.impeccable/review/
+.impeccable/mocks/
+
+# Release credentials and signed artefacts. These belong in GitHub secrets and in a backup outside
+# this repository - never in a commit. See docs/release.md for the inventory and custody.
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+*.jks
+*.keystore
+play-service-account*.json
+*.aab
+
+# Written per release by apps/app/scripts/build-store-release-notes.mjs from the GitHub release body.
+# Committing them would be a second copy of notes that already exist and can drift.
+apps/app/fastlane/metadata/android/*/changelogs/

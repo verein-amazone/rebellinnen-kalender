@@ -1,0 +1,63 @@
+<!--
+  A fixed viewport frame, not a growing document: only <main> scrolls, so the bottom navigation
+  stays put however tall the content becomes. At large text sizes it is several viewports tall.
+-->
+<div class="rk-shell">
+  <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
+  <!--
+    Primary destinations without a header of their own have the shell keep their content clear of
+    the notch - today is the only one left. The calendar and content tabs own a sticky header each
+    (their Woche/Monat and Anlaufstellen/Meine Sammlung switchers stay pinned while the panel
+    scrolls under them), so they apply the top inset to that header instead - same reasoning as a
+    focused screen's `<header>` - and must not get it here too, or the inset would be added twice.
+  -->
+  <main #scrollRegion class="rk-scroll-region safe-x" [class.safe-top]="activeTab() === 'today'">
+    <router-outlet />
+  </main>
+
+  @if (activeTab(); as active) {
+    <nav class="rk-tab-bar safe-bottom safe-x" aria-label="Hauptbereiche">
+      <ul class="rk-tab-list">
+        @for (destination of destinations; track destination.tab) {
+          <li class="flex-1">
+            <!-- Tapping the destination you are already on scrolls its screen back to the top,
+                 the way a phone's own tab bars behave - after reading a long list, the way back up
+                 is the control your thumb is already near. It keeps the query parameters, so that
+                 tap stays on the same view (the calendar's month, say) instead of resetting it. -->
+            <a
+              [routerLink]="destination.link"
+              [queryParamsHandling]="destination.tab === active ? 'preserve' : null"
+              [attr.aria-current]="destination.tab === active ? 'page' : null"
+              (click)="handleTabActivated(destination.tab)"
+              class="rk-tab"
+              [class.text-rebel-text]="destination.tab === active"
+              [class.font-bold]="destination.tab === active"
+              [class.text-rebel-text-muted]="destination.tab !== active"
+            >
+              @switch (destination.tab) {
+                @case ('today') {
+                  <svg lucideSun class="rk-tab-icon" aria-hidden="true"></svg>
+                }
+                @case ('calendar') {
+                  <svg lucideCalendarDays class="rk-tab-icon" aria-hidden="true"></svg>
+                }
+                @case ('content') {
+                  <svg lucideBookOpen class="rk-tab-icon" aria-hidden="true"></svg>
+                }
+              }
+              <span>{{ destination.label }}</span>
+              <!-- Second, non-colour indicator so the active destination is not signalled by colour alone. -->
+              <span
+                class="rk-tab-indicator"
+                [class.invisible]="destination.tab !== active"
+                aria-hidden="true"
+              ></span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+    <!-- Paints the browser's bottom toolbar in the navigation colour; see .rk-tab-bar-tint. -->
+    <div class="rk-tab-bar-tint" aria-hidden="true"></div>
+  }
+</div>

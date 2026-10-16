@@ -1,0 +1,103 @@
+<app-focused-screen heading="Abonnierte Kalender" fallbackLink="/settings/calendars">
+  <app-info-toggletip header-actions label="Info zu Abonnierte Kalender">
+    Kalender, die du per Link abonnierst, werden regelmäßig aktualisiert und sind schreibgeschützt.
+  </app-info-toggletip>
+
+  <div class="space-y-6">
+    @if (isNativePlatform) {
+      @if (actionError(); as message) {
+        <p role="alert" class="rk-error">{{ message }}</p>
+      }
+
+      @if (icsResource.hasValue() && icsResource.value(); as subscriptions) {
+        @if (subscriptions.length > 0) {
+          <ul class="rk-list">
+            @for (subscription of subscriptions; track subscription.id) {
+              <!-- `.rk-row` on the `<li>`, not a single control: the row holds the identity button,
+                   the enable toggle and the remove action. -->
+              <li class="rk-row items-center gap-2">
+                <button
+                  type="button"
+                  class="rk-icon-button shrink-0"
+                  [attr.aria-label]="'Kalender ' + subscription.name + ' bearbeiten'"
+                  (click)="
+                    editIcsIdentity(subscription.id, {
+                      name: subscription.name,
+                      color: subscription.color,
+                      emoji: subscription.emoji,
+                    })
+                  "
+                >
+                  <app-calendar-avatar [color]="subscription.color" [emoji]="subscription.emoji" />
+                </button>
+                <app-toggle-field
+                  [id]="'ics-calendar-' + subscription.id"
+                  [label]="subscription.name"
+                  class="min-w-0 flex-1"
+                  [checked]="subscription.enabled"
+                  (checkedChange)="toggleIcs(subscription.id, $event)"
+                />
+                <button
+                  type="button"
+                  class="rk-icon-button text-danger shrink-0"
+                  [attr.aria-label]="'Kalender ' + subscription.name + ' entfernen'"
+                  (click)="confirmRemoveIcs(subscription.id, subscription.name)"
+                >
+                  <svg lucideTrash2 class="rk-icon" aria-hidden="true"></svg>
+                </button>
+              </li>
+              <!-- The retry action sits with the error/stale text it belongs to, not on the row. -->
+              @if (subscription.state === 'error' || subscription.state === 'stale') {
+                <div class="flex items-center justify-between gap-2 px-4 py-2">
+                  @if (subscription.state === 'error' && subscription.lastError !== null) {
+                    <p class="text-muted-foreground text-sm">{{ subscription.lastError }}</p>
+                  } @else if (subscription.state === 'stale') {
+                    <p class="text-muted-foreground text-sm">
+                      Konnte zuletzt nicht aktualisiert werden. Angezeigte Daten können veraltet
+                      sein.
+                    </p>
+                  } @else {
+                    <span></span>
+                  }
+                  <button
+                    type="button"
+                    class="rk-button rk-button-ghost shrink-0"
+                    [attr.aria-label]="'Erneut versuchen: ' + subscription.name"
+                    (click)="retryIcs(subscription.id)"
+                  >
+                    <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+                    <span>Erneut versuchen</span>
+                  </button>
+                </div>
+              }
+            }
+          </ul>
+        } @else {
+          <p class="text-muted-foreground text-sm">Noch keine abonnierten Kalender.</p>
+        }
+      } @else if (icsResource.error() !== undefined) {
+        <div class="rk-card space-y-3 px-4 py-6 text-center">
+          <p>Die abonnierten Kalender konnten nicht geladen werden.</p>
+          <button type="button" class="rk-button rk-button-ghost" (click)="icsResource.reload()">
+            <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+            <span>Erneut versuchen</span>
+          </button>
+        </div>
+      }
+
+      <button
+        type="button"
+        class="rk-button rk-button-secondary w-full"
+        (click)="addIcsSubscription()"
+      >
+        <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+        <span>Kalender per Link hinzufügen</span>
+      </button>
+    } @else {
+      <p class="text-muted-foreground text-sm">
+        Abonnierte Kalender sind im Web nicht verfügbar. Öffne die App auf deinem Gerät, um einen
+        Kalender per Link zu abonnieren.
+      </p>
+    }
+  </div>
+</app-focused-screen>

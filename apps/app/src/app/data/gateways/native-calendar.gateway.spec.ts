@@ -1,0 +1,433 @@
+import { TestBed } from '@angular/core/testing';
+import type { CapacitorCalendar } from '@ebarooni/capacitor-calendar';
+
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
+import { CAPACITOR_CALENDAR } from '@app/cross-cutting/plugins/calendar.plugin';
+import { NativeCalendarGateway } from './native-calendar.gateway';
+
+function setup(
+  plugin: Partial<typeof CapacitorCalendar>,
+  platform: 'ios' | 'android' | 'web' = 'web',
+): NativeCalendarGateway {
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: CAPACITOR_CALENDAR, useValue: plugin },
+      { provide: DevicePlatformService, useValue: { platform } },
+    ],
+  });
+
+  return TestBed.inject(NativeCalendarGateway);
+}
+
+describe('NativeCalendarGateway', () => {
+  it('maps unknown permission states to prompt and known ones through', async () => {
+    const gateway = setup({
+      checkPermission: async () => ({ result: 'prompt-with-rationale' as never }),
+    });
+
+    await expect(gateway.checkReadPermission()).resolves.toBe('prompt');
+  });
+
+  it('maps native calendars to plugin-free shapes, read-only when writability is unknown as on Android', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          { id: 'cal-1', title: 'Familie', color: '#ff0000', allowsContentModifications: null },
+        ] as never,
+      }),
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      {
+        id: 'cal-1',
+        name: 'Familie',
+        color: '#ff0000',
+        writable: false,
+        sourceId: null,
+        sourceName: null,
+      },
+    ]);
+  });
+
+  it('offers a calendar for writing when the plugin reports it modifiable', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          { id: 'cal-1', title: 'Familie', color: '#ff0000', allowsContentModifications: true },
+          { id: 'cal-2', title: 'Feiertage', color: '#00ff00', allowsContentModifications: false },
+        ] as never,
+      }),
+    });
+
+    const calendars = await gateway.listCalendars();
+
+    expect(calendars.map(({ id, writable }) => ({ id, writable }))).toEqual([
+      { id: 'cal-1', writable: true },
+      { id: 'cal-2', writable: false },
+    ]);
+  });
+
+  it('reads the native source from iOS’s `source` object', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          {
+            id: 'cal-1',
+            title: 'Familie',
+            color: '#ff0000',
+            allowsContentModifications: true,
+            source: { id: 'icloud', title: 'iCloud' },
+          },
+        ] as never,
+      }),
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ sourceId: 'icloud', sourceName: 'iCloud' }),
+    ]);
+  });
+
+  it('falls back to Android’s `accountName` when there is no `source` object', async () => {
+    const gateway = setup({
+      listCalendars: async () => ({
+        result: [
+          {
+            id: 'cal-1',
+            title: 'Familie',
+            color: '#ff0000',
+            allowsContentModifications: true,
+            accountName: 'user@gmail.com',
+          },
+        ] as never,
+      }),
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ sourceId: 'user@gmail.com', sourceName: 'user@gmail.com' }),
+    ]);
+  });
+
+  it('names a calendar the platform reports without a title', async () => {
+    const gateway = setup({
+      listCalendars: async () =>
+        ({
+          result: [
+            { id: 'cal-1', title: null, internalTitle: 'Arbeit', accountName: 'user@gmail.com' },
+            { id: 'cal-2', title: null, internalTitle: null, accountName: 'user@gmail.com' },
+            { id: 'cal-3', title: null, internalTitle: null, accountName: null },
+          ],
+        }) as never,
+    });
+
+    await expect(gateway.listCalendars()).resolves.toEqual([
+      expect.objectContaining({ id: 'cal-1', name: 'Arbeit' }),
+      expect.objectContaining({ id: 'cal-2', name: 'user@gmail.com' }),
+      expect.objectContaining({ id: 'cal-3', name: 'cal-3' }),
+    ]);
+  });
+
+  it('translates instance epochs to UTC instants without a fractional-second suffix', async () => {
+    const gateway = setup({
+      listEventsInRange: async (options: { from: number; to: number }) => {
+        expect(options.from).toBe(Date.parse('2026-08-01T00:00:00Z'));
+        expect(options.to).toBe(Date.parse('2026-08-31T00:00:00Z'));
+        return {
+          result: [
+            {
+              id: 'event-1',
+              title: 'Zahnarzt',
+              calendarId: 'cal-1',
+              location: null,
+              description: 'Kontrolle und Reinigung',
+              startDate: Date.parse('2026-08-10T08:00:00Z'),
+              endDate: Date.parse('2026-08-10T09:00:00Z'),
+              isAllDay: false,
+              timezone: 'Europe/Vienna',
+            },
+          ] as never,
+        };
+      },
+    });
+
+    const instances = await gateway.listEventInstances(
+      '2026-08-01T00:00:00Z',
+      '2026-08-31T00:00:00Z',
+      'Europe/Vienna',
+    );
+
+    // `Date#toISOString()` would produce `…T08:00:00.000Z`; occurrence rows compare these strings
+    // lexicographically against Temporal-formatted instants, which never carry the `.000` - the two
+    // formats must match exactly or a device row's range boundary silently shifts.
+    expect(instances).toEqual([
+      {
+        eventId: 'event-1',
+        calendarId: 'cal-1',
+        title: 'Zahnarzt',
+        location: null,
+        description: 'Kontrolle und Reinigung',
+        startUtc: '2026-08-10T08:00:00Z',
+        endUtc: '2026-08-10T09:00:00Z',
+        isAllDay: false,
+        timeZone: 'Europe/Vienna',
+      },
+    ]);
+  });
+
+  it('opens the system prompt to modify an event by id', async () => {
+    let requestedId: string | undefined;
+    const gateway = setup({
+      modifyEventWithPrompt: async (options: { id: string }) => {
+        requestedId = options.id;
+        return { result: null as never };
+      },
+    });
+
+    await gateway.openEventForEditing('event-1');
+
+    expect(requestedId).toBe('event-1');
+  });
+
+  it('writes a new event straight into a device calendar with its reminders as alerts', async () => {
+    let sentOptions: unknown;
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sentOptions = options;
+        return { ics: null, id: 'event-2' };
+      },
+    });
+
+    const result = await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: 'Vereinsraum',
+      startUtc: '2026-08-10T08:00:00Z',
+      endUtc: '2026-08-10T09:00:00Z',
+      isAllDay: false,
+      alertMinutesBefore: [15, 60],
+      recurrence: null,
+    });
+
+    expect(result).toEqual({ eventId: 'event-2' });
+    expect(sentOptions).toEqual({
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: 'Vereinsraum',
+      startDate: Date.parse('2026-08-10T08:00:00Z'),
+      endDate: Date.parse('2026-08-10T09:00:00Z'),
+      isAllDay: false,
+      alerts: [-15, -60],
+      recurrence: undefined,
+    });
+  });
+
+  it('turns a recurrence into a native series rule', async () => {
+    const sent: { recurrence?: unknown }[] = [];
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sent.push(options as { recurrence?: unknown });
+        return { ics: null, id: 'event-6' };
+      },
+    });
+    const base = {
+      alertMinutesBefore: [],
+      calendarId: 'cal-1',
+      title: 'Plenum',
+      location: null,
+      startUtc: '2026-08-10T08:00:00Z',
+      endUtc: '2026-08-10T09:00:00Z',
+      isAllDay: false,
+    };
+
+    await gateway.createEvent({
+      ...base,
+      recurrence: { frequency: 'weekly', interval: 2, weekdays: [1, 3], count: 6, untilUtc: null },
+    });
+    await gateway.createEvent({
+      ...base,
+      recurrence: {
+        frequency: 'monthly',
+        interval: 1,
+        weekdays: [],
+        count: null,
+        untilUtc: '2026-12-31T22:59:59Z',
+      },
+    });
+
+    expect(sent.map((options) => options.recurrence)).toEqual([
+      { frequency: 'weekly', interval: 2, byWeekDay: [1, 3], count: 6, end: undefined },
+      {
+        frequency: 'monthly',
+        interval: 1,
+        byWeekDay: undefined,
+        count: undefined,
+        end: Date.parse('2026-12-31T22:59:59Z'),
+      },
+    ]);
+  });
+
+  it('sets no alert for an event without reminders', async () => {
+    let sentOptions: unknown;
+    const gateway = setup({
+      createEvent: async (options: unknown) => {
+        sentOptions = options;
+        return { ics: null, id: 'event-3' };
+      },
+    });
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-08-10T00:00:00Z',
+      endUtc: '2026-08-11T00:00:00Z',
+      isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
+    });
+
+    expect(sentOptions).toEqual(expect.objectContaining({ isAllDay: true, alerts: undefined }));
+  });
+
+  it("hands iOS an all-day end on the appointment's last day, not the exclusive midnight", async () => {
+    // EventKit reads an all-day end as the last day covered, so passing the exclusive midnight
+    // would create an appointment that runs a day longer than the user asked for.
+    let sentOptions: { endDate?: number } | undefined;
+    const gateway = setup(
+      {
+        createEvent: async (options: unknown) => {
+          sentOptions = options as { endDate?: number };
+          return { ics: null, id: 'event-4' };
+        },
+      },
+      'ios',
+    );
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-09-18T00:00:00Z',
+      endUtc: '2026-09-19T00:00:00Z',
+      isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
+    });
+
+    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
+  });
+
+  it("hands Android an all-day end on the appointment's last day too", async () => {
+    // Since 8.7.1 the plugin reads an Android all-day end as the last local day covered, the same
+    // as on iOS, and derives CalendarContract's exclusive UTC midnight from it itself.
+    let sentOptions: { endDate?: number } | undefined;
+    const gateway = setup(
+      {
+        createEvent: async (options: unknown) => {
+          sentOptions = options as { endDate?: number };
+          return { ics: null, id: 'event-5' };
+        },
+      },
+      'android',
+    );
+
+    await gateway.createEvent({
+      calendarId: 'cal-1',
+      title: 'Geburtstag',
+      location: null,
+      startUtc: '2026-09-18T00:00:00Z',
+      endUtc: '2026-09-19T00:00:00Z',
+      isAllDay: true,
+      alertMinutesBefore: [],
+      recurrence: null,
+    });
+
+    expect(sentOptions?.endDate).toBe(Date.parse('2026-09-19T00:00:00Z') - 1);
+  });
+
+  describe('all-day instances', () => {
+    function allDayInstance(startDate: string, endDate: string) {
+      return {
+        id: 'event-6',
+        title: 'Urlaub',
+        calendarId: 'cal-1',
+        location: null,
+        description: null,
+        startDate: Date.parse(startDate),
+        endDate: Date.parse(endDate),
+        isAllDay: true,
+        timezone: 'UTC',
+      };
+    }
+
+    function gatewayReturning(
+      platform: 'ios' | 'android',
+      instance: ReturnType<typeof allDayInstance>,
+    ): NativeCalendarGateway {
+      return setup({ listEventsInRange: async () => ({ result: [instance] as never }) }, platform);
+    }
+
+    // CalendarContract stores and expands all-day events at UTC midnights. Bucketed in a zone east
+    // of UTC that exclusive end lands on the following day; west of UTC the start lands on the day
+    // before. Either way the appointment shows up one day too long.
+    it.each([
+      ['Europe/Vienna', '2026-10-19T22:00:00Z', '2026-10-21T22:00:00Z'],
+      ['America/New_York', '2026-10-20T04:00:00Z', '2026-10-22T04:00:00Z'],
+    ])(
+      'moves Android’s UTC-midnight days onto device-zone midnights in %s',
+      async (timeZone, startUtc, endUtc) => {
+        const gateway = gatewayReturning(
+          'android',
+          allDayInstance('2026-10-20T00:00:00Z', '2026-10-22T00:00:00Z'),
+        );
+
+        const [instance] = await gateway.listEventInstances(
+          '2026-10-01T00:00:00Z',
+          '2026-11-01T00:00:00Z',
+          timeZone,
+        );
+
+        expect(instance).toEqual(expect.objectContaining({ startUtc, endUtc, isAllDay: true }));
+      },
+    );
+
+    it('keeps the device-zone midnights iOS already reports', async () => {
+      const gateway = gatewayReturning(
+        'ios',
+        allDayInstance('2026-10-19T22:00:00Z', '2026-10-20T22:00:00Z'),
+      );
+
+      const [instance] = await gateway.listEventInstances(
+        '2026-10-01T00:00:00Z',
+        '2026-11-01T00:00:00Z',
+        'Europe/Vienna',
+      );
+
+      expect(instance).toEqual(
+        expect.objectContaining({
+          startUtc: '2026-10-19T22:00:00Z',
+          endUtc: '2026-10-20T22:00:00Z',
+        }),
+      );
+    });
+  });
+
+  it('rejects when the platform reports no id for the created event', async () => {
+    const gateway = setup({
+      createEvent: async () => ({ ics: null, id: null }),
+    });
+
+    await expect(
+      gateway.createEvent({
+        calendarId: 'cal-1',
+        title: 'Plenum',
+        location: null,
+        startUtc: '2026-08-10T08:00:00Z',
+        endUtc: '2026-08-10T09:00:00Z',
+        isAllDay: false,
+        alertMinutesBefore: [],
+        recurrence: null,
+      }),
+    ).rejects.toThrow('did not return an id');
+  });
+});

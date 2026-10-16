@@ -1,0 +1,18 @@
+# fastlane match keeps the Apple Distribution certificate and the App Store provisioning profile in
+# a private repository, encrypted with MATCH_PASSWORD. Nothing signing-related lives in this public
+# repository, and CI only ever reads.
+#
+# The certificate is created once, from a maintainer's machine:
+#
+#   bundle exec fastlane match appstore --readonly false
+#
+# `readonly` is true here on purpose, so a CI run can never create, renew or revoke a certificate -
+# a runner that mints certificates silently burns Apple's per-team limit.
+git_url('git@github.com:verein-amazone/certificates.git')
+storage_mode('git')
+
+type('appstore')
+app_identifier(['at.or.amazone.rebellinnenkalender'])
+team_id('66FNFGH7RT')
+
+readonly(true)

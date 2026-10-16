@@ -1,0 +1,191 @@
+/*
+ * The website's stylesheet. It wears the app's own Amazone theme at page scale: teal ground with
+ * the dotted notebook grid of the printed calendar, navy type and bands, cream for reading
+ * surfaces, orange as the one highlight. The tokens, the fonts and the `hoverable:` variant come
+ * from @amazone/design-system, so a colour changed there changes the app and the website together.
+ *
+ * Pages style themselves with Tailwind utilities on those tokens. What is here is only what no
+ * single element owns: element defaults, the page width, the one animation, and the Markdown of the
+ * legal texts, which has no markup to put classes on.
+ */
+@import 'tailwindcss';
+@import '@amazone/design-system/fonts.css';
+@import '@amazone/design-system/theme.css';
+
+@theme {
+  /* Two layout tiers above the phone. `split` is where a section can stand side by side - copy next
+     to its screen, from a portrait tablet up; `desktop` is where a reading page gains a side column
+     for its section list and the hero takes the full first viewport. */
+  --breakpoint-split: 48rem;
+  --breakpoint-desktop: 64rem;
+
+  /* The website's text sizes, at page scale: the app's ramp (DESIGN.md) is sized for a phone screen
+     held close, these for a page read at arm's length. Headings are fluid per element (`clamp()`). */
+  --text-fine: 0.9375rem;
+  --text-fine--line-height: 1.55;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-lead: 1.1875rem;
+  --text-lead--line-height: 1.5;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    scrollbar-color: var(--rk-foreground) var(--rk-background);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* The focus ring is navy on teal and cream, and orange on the navy bands (`.on-navy`). */
+    --focus-ring: var(--rk-foreground);
+  }
+
+  html {
+    background: var(--rk-background);
+  }
+
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    color: var(--rk-foreground);
+    background-color: var(--rk-background);
+    background-image: radial-gradient(circle, var(--rk-dot-color) 1px, transparent 1.2px);
+    background-size: 14px 14px;
+    font: 400 var(--text-body) / var(--text-body--line-height) var(--font-sans);
+    overflow-wrap: break-word;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.1;
+    text-wrap: balance;
+    /* The headings are big and German: a long compound - or „Rebell*innen“ under a visitor's own
+       wider letter spacing (WCAG 1.4.12) - must break rather than push the page sideways. */
+    hyphens: auto;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.09em;
+    text-underline-offset: 0.22em;
+  }
+
+  ::selection {
+    background: var(--rk-accent);
+    color: var(--rk-foreground);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* In-page links (the legal pages' section list) glide, unless the visitor asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  :target {
+    scroll-margin-top: 1.5rem;
+  }
+}
+
+/* The page width: the content column, with a 1rem gutter on a phone. */
+@utility wrap {
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
+}
+
+/* Navy band with cream text, like the app's Rebell*innen cards. */
+@utility on-navy {
+  background-color: var(--rk-rebel-bg);
+  color: var(--rk-rebel-text);
+  --focus-ring: var(--rk-accent);
+}
+
+/*
+ * The one moment of motion: each app screen settles into place as it scrolls in, from a resting
+ * tilt that is already fully visible. Nothing moves for visitors who asked for less motion, and
+ * browsers without scroll-driven animations simply show the screens upright.
+ */
+@utility settle {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      /* Longhands on purpose: the minifier folds a complete set into the `animation` shorthand,
+         which cannot carry `animation-timeline`, and browsers then drop the whole declaration. */
+      animation-name: settle;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: translateY(2.5rem) rotate(var(--tilt, -5deg));
+    animation-timing-function: var(--ease-out);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+/* The legal texts, rendered from @amazone/legal's Markdown. */
+@layer components {
+  .legal-text {
+    font-size: var(--text-body);
+
+    & h2 {
+      font-size: 1.5rem;
+      margin: 2.25rem 0 0.75rem;
+    }
+
+    & h3 {
+      font-size: var(--text-lead);
+      margin: 1.75rem 0 0.5rem;
+    }
+
+    & > :first-child {
+      margin-top: 0;
+    }
+
+    & p,
+    & ul,
+    & ol {
+      margin: 0 0 1rem;
+    }
+
+    & ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+
+    & ol {
+      list-style: decimal;
+      padding-left: 1.25rem;
+    }
+
+    & li + li {
+      margin-top: 0.35rem;
+    }
+
+    & strong {
+      font-weight: 650;
+    }
+  }
+}

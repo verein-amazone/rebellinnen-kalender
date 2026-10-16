@@ -1,0 +1,40 @@
+---
+/**
+ * A real app screen in a flat navy device outline - the app persuading for itself. `settle` lets
+ * it tilt into place as it scrolls in (global.css); `tilt` picks the side it leans from.
+ */
+interface Props {
+  screen: 'heute' | 'kalender' | 'rebellin' | 'anlaufstellen';
+  alt: string;
+  settle?: boolean;
+  tilt?: 'left' | 'right';
+  lazy?: boolean;
+  class?: string;
+}
+
+const { screen, alt, settle = false, tilt = 'left', lazy = true, class: className } = Astro.props;
+---
+
+{/*
+  The frame sizes itself to the screenshot instead of to a fixed ratio: a fixed ratio counted the
+  frame's own border in, so `object-cover` cropped the screen (the tab bar's labels at the bottom).
+  The padding is the bezel, so the screen's own rounded corners only ever clip its background.
+*/}
+<div
+  class:list={[
+    'relative rounded-[2.5rem] bg-foreground p-[0.6rem]',
+    'shadow-[0_2rem_3rem_-1.5rem_rgb(14_17_69/0.55),0_0.5rem_1rem_-0.5rem_rgb(14_17_69/0.35)]',
+    settle && 'settle',
+    settle && tilt === 'right' && '[--tilt:5deg]',
+    className,
+  ]}
+>
+  <img
+    src={`/assets/screens/${screen}.webp`}
+    width="600"
+    height="1304"
+    alt={alt}
+    loading={lazy ? 'lazy' : undefined}
+    class="block h-auto w-full rounded-[1.9rem] bg-background"
+  />
+</div>

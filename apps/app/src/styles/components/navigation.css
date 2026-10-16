@@ -1,0 +1,92 @@
+/*
+ * The bottom tab bar of the app shell.
+ *
+ * It sits outside the scroll region (see ./screen.css), so it stays reachable no matter how long
+ * the content is. That makes its height a fixed cost taken off every screen: at 3x text the
+ * rem-based version measured 216px of a 667px viewport. The compact form below gives most of that
+ * back by pinning the decoration - icon, active indicator, padding - to physical pixels once the
+ * text has grown past roughly 2x. The labels keep scaling; they are the part that carries meaning.
+ */
+
+@layer components {
+  .rk-tab-bar {
+    @apply bg-nav-bg text-rebel-text shrink-0;
+    container-type: inline-size;
+  }
+
+  .rk-tab-list {
+    @apply flex;
+  }
+
+  /*
+   * Safari on iOS tints its own top and bottom bars from the page. It ignores `theme-color` and
+   * samples a `fixed` or `sticky` element that reaches the viewport edge instead, falling back to
+   * the <body> background when there is none. The tab bar is an ordinary flex child of the shell's
+   * `100dvh` frame, so the fallback wins and the strip behind the browser's bottom toolbar comes
+   * out in the screen background rather than the navigation colour.
+   *
+   * This element is that sampling target and nothing else: it sits in the browser's chin, below
+   * the frame, and the few pixels of it that reach into the viewport land on the tab bar, which is
+   * the same colour. It is inert everywhere the chin does not exist - the native WebView, an
+   * installed PWA - because the tab bar covers it there.
+   */
+  .rk-tab-bar-tint {
+    @apply bg-nav-bg;
+    position: fixed;
+    inset-inline: 0;
+    bottom: -8px;
+    height: 12px;
+    pointer-events: none;
+  }
+
+  /*
+   * `min-h-touch`, not a fixed height: the label has to be able to wrap onto a second line without
+   * being clipped.
+   */
+  .rk-tab {
+    @apply min-h-touch flex flex-col items-center justify-center gap-1 px-2 py-2 text-sm;
+  }
+
+  /*
+   * A tab reaches the edge of the bar, which itself sits at the edge of the shell's clipped frame,
+   * so the default ring - drawn 2px outside the element - is cut off along the outer edges of the
+   * first and last tab. Draw it inside instead, where the whole ring stays visible.
+   */
+  .rk-tab:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .rk-tab-icon {
+    @apply size-6;
+  }
+
+  /* The active destination's second, non-colour indicator - bold weight is the first. */
+  .rk-tab-indicator {
+    @apply bg-accent h-1 w-6 rounded-full;
+  }
+
+  /*
+   * The compact form. The 13rem literal mirrors `--container-compact` in ../theme.css; CSS cannot
+   * interpolate a custom property into a query condition, so the two are kept in sync by hand.
+   *
+   * The minimum target stays at 48px, which is the floor a touch target may not go below - and in
+   * practice the wrapped label makes every tab far taller than that at these text sizes.
+   */
+  @container (max-width: 13rem) {
+    .rk-tab {
+      @apply gap-0.5 px-1;
+      min-block-size: 48px;
+      padding-block: 4px;
+    }
+
+    .rk-tab-icon {
+      inline-size: 24px;
+      block-size: 24px;
+    }
+
+    .rk-tab-indicator {
+      inline-size: 16px;
+      block-size: 3px;
+    }
+  }
+}

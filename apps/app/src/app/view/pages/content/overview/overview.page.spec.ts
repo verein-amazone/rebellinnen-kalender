@@ -1,0 +1,531 @@
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { vi } from 'vitest';
+
+import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
+import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
+import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
+import type {
+  SupportServiceRegion,
+  SupportServiceView,
+} from '@app/interactors/support-services/support-service.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
+
+import { ContentOverviewPage } from './overview.page';
+
+function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
+  return {
+    id: 'wi-01',
+    kind: 'wissensimpulse',
+    title: 'Was tut dir gut?',
+    teaser: 'Wir haben ein paar Ideen für dich!',
+    bodyMarkdown: 'Ein Bad nehmen.',
+    imagePath: null,
+    imageAlt: null,
+    imageAttribution: null,
+    sourceLabel: null,
+    sourceUrl: null,
+    relatedSources: [],
+    ...overrides,
+  };
+}
+
+function service(overrides: Partial<SupportServiceView> = {}): SupportServiceView {
+  return {
+    id: 'rat-auf-draht',
+    region: 'online',
+    name: 'Rat auf Draht',
+    teaser: 'Beratung für Kinder und Jugendliche',
+    icon: '🧠',
+    actions: [
+      { type: 'phone', label: 'Anrufen', uri: 'tel:147', displayValue: '147' },
+      {
+        type: 'chat',
+        label: 'Chat',
+        uri: 'https://www.rataufdraht.at/chatberatung',
+        displayValue: null,
+      },
+    ],
+    ...overrides,
+  };
+}
+
+class FakeBookmarksInteractor {
+  savedItems: ContentItemView[] = [];
+
+  listSavedItems(): Promise<ContentItemView[]> {
+    return Promise.resolve(this.savedItems);
+  }
+
+  /** Stands in for the FTS search: a title match, `null` below three characters. */
+  searchSavedItems(query: string): Promise<ContentItemView[] | null> {
+    return Promise.resolve(
+      query.length < 3
+        ? null
+        : this.savedItems.filter((item) => item.title.toLowerCase().includes(query.toLowerCase())),
+    );
+  }
+
+  toggle(contentItemId: string): Promise<void> {
+    this.savedItems = this.savedItems.filter((item) => item.id !== contentItemId);
+    return Promise.resolve();
+  }
+}
+
+class FakeSupportServicesInteractor {
+  services: SupportServiceView[] = [];
+  regions: SupportServiceRegion[] = [];
+
+  listAll(): Promise<SupportServiceView[]> {
+    return Promise.resolve(this.services);
+  }
+
+  listRegions(): Promise<SupportServiceRegion[]> {
+    return Promise.resolve(this.regions);
+  }
+
+  search(query: string): Promise<SupportServiceView[] | null> {
+    return Promise.resolve(
+      query.length < 3
+        ? null
+        : this.services.filter((entry) => entry.name.toLowerCase().includes(query.toLowerCase())),
+    );
+  }
+}
+
+class FakeHapticsInteractor {
+  confirms = 0;
+  ticks = 0;
+  selections = 0;
+
+  confirm(): Promise<void> {
+    this.confirms += 1;
+    return Promise.resolve();
+  }
+
+  tick(): Promise<void> {
+    this.ticks += 1;
+    return Promise.resolve();
+  }
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
+async function setup(
+  options: {
+    items?: ContentItemView[];
+    services?: SupportServiceView[];
+    regions?: SupportServiceRegion[];
+    queryParams?: Record<string, string>;
+  } = {},
+) {
+  const bookmarks = new FakeBookmarksInteractor();
+  bookmarks.savedItems = options.items ?? [];
+
+  const supportServices = new FakeSupportServicesInteractor();
+  supportServices.services = options.services ?? [];
+  supportServices.regions = options.regions ?? [];
+  const haptics = new FakeHapticsInteractor();
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      provideRouter([]),
+      { provide: BookmarksInteractor, useValue: bookmarks },
+      { provide: SupportServicesInteractor, useValue: supportServices },
+      { provide: HapticsInteractor, useValue: haptics },
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { queryParamMap: convertToParamMap(options.queryParams ?? {}) } },
+      },
+    ],
+  });
+
+  const navigate = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigate = navigate;
+
+  const fixture = TestBed.createComponent(ContentOverviewPage);
+  // `area` is bound from the query parameter by `withComponentInputBinding()` in the real app.
+  fixture.componentRef.setInput('area', options.queryParams?.['area']);
+  await fixture.whenStable();
+
+  return {
+    element: fixture.nativeElement as HTMLElement,
+    whenStable: () => fixture.whenStable(),
+    navigate,
+    /** Stands in for the router feeding the navigated-to `?area=` back into the input. */
+    setArea: async (area: string) => {
+      fixture.componentRef.setInput('area', area);
+      await fixture.whenStable();
+    },
+    bookmarks,
+    haptics,
+    bookmarkChanges: TestBed.inject(BookmarkChanges),
+  };
+}
+
+describe('ContentOverviewPage', () => {
+  it('shows Meine Sammlung by default', async () => {
+    const { element } = await setup({
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+    });
+
+    expect(element.textContent).toContain('Was tut dir gut?');
+  });
+
+  it('exposes a real ARIA tabs widget with the Meine Sammlung tab selected by default', async () => {
+    const { element } = await setup();
+
+    expect(element.querySelector('[role="tablist"]')).not.toBeNull();
+
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    const servicesTab = tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'));
+    const collectionTab = tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'));
+    expect(collectionTab?.getAttribute('aria-selected')).toBe('true');
+    expect(servicesTab?.getAttribute('aria-selected')).toBe('false');
+
+    // Meine Sammlung also comes first in the tab list itself, not only in the selection.
+    expect(tabs[0]).toBe(collectionTab);
+
+    const panels = Array.from(element.querySelectorAll('[role="tabpanel"]'));
+    expect(panels).toHaveLength(2);
+    expect(collectionTab?.getAttribute('aria-controls')).toBe(
+      panels.find((panel) => !panel.hasAttribute('inert'))?.id,
+    );
+  });
+
+  it('shows only entries matching the selected region', async () => {
+    const { element, whenStable } = await setup({
+      queryParams: { area: 'services' },
+      regions: [
+        { id: 'online', label: 'Online & Telefon' },
+        { id: 'vorarlberg', label: 'Vorarlberg' },
+      ],
+      services: [
+        service({ id: 'rat-auf-draht', region: 'online', name: 'Rat auf Draht' }),
+        service({ id: 'verein-amazone', region: 'vorarlberg', name: 'Verein Amazone' }),
+      ],
+    });
+
+    expect(element.textContent).toContain('Rat auf Draht');
+    expect(element.textContent).not.toContain('Verein Amazone');
+
+    const regionButtons = Array.from(element.querySelectorAll('button[role="radio"]'));
+    const vorarlbergButton = regionButtons.find((button) =>
+      button.textContent?.includes('Vorarlberg'),
+    );
+    (vorarlbergButton as HTMLButtonElement).click();
+    await whenStable();
+
+    expect(element.textContent).toContain('Verein Amazone');
+    expect(element.textContent).not.toContain('Rat auf Draht');
+  });
+
+  it('ticks when another region is picked, and not when the selected one is tapped again', async () => {
+    const { element, whenStable, haptics } = await setup({
+      queryParams: { area: 'services' },
+      regions: [
+        { id: 'online', label: 'Online & Telefon' },
+        { id: 'vorarlberg', label: 'Vorarlberg' },
+      ],
+    });
+    const region = (label: string) =>
+      Array.from(element.querySelectorAll<HTMLButtonElement>('button[role="radio"]')).find(
+        (button) => button.textContent?.includes(label),
+      )!;
+
+    region('Online & Telefon').click();
+    await whenStable();
+    expect(haptics.selections).toBe(0);
+
+    region('Vorarlberg').click();
+    await whenStable();
+    expect(haptics.selections).toBe(1);
+  });
+
+  it('shows an empty state for a region with no entries', async () => {
+    const { element } = await setup({
+      queryParams: { area: 'services' },
+      regions: [{ id: 'online', label: 'Online & Telefon' }],
+      services: [],
+    });
+
+    expect(element.textContent).toContain('noch keine Anlaufstellen');
+  });
+
+  /** Anlaufstellen is the second tab now, so the services tests have to switch to it. */
+  async function openServices(
+    element: HTMLElement,
+    setArea: (area: string) => Promise<void>,
+  ): Promise<void> {
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'))?.click();
+    await setArea('services');
+  }
+
+  it('switches to Anlaufstellen when its tab is tapped', async () => {
+    const { element, setArea } = await setup({
+      regions: [{ id: 'online', label: 'Online & Telefon' }],
+      services: [service()],
+    });
+
+    await openServices(element, setArea);
+
+    expect(element.textContent).toContain('Rat auf Draht');
+  });
+
+  it('shows every bookmarked item in Meine Sammlung, linking back to the content tab', async () => {
+    const { element } = await setup({
+      items: [item({ id: 'wi-01', title: 'Was tut dir gut?' })],
+    });
+
+    const links = [...element.querySelectorAll<HTMLAnchorElement>('a[href^="/content/"]')];
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/content/wi-01?returnTo=%2Fcontent%3Farea%3Dcollection',
+    ]);
+    expect(element.textContent).toContain('Was tut dir gut?');
+  });
+
+  it('shows the empty-collection state when nothing is bookmarked', async () => {
+    const { element } = await setup({ items: [] });
+
+    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+  });
+
+  function kindFilter(element: HTMLElement, label: string): HTMLButtonElement {
+    const buttons = Array.from(element.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'));
+    return buttons.find((button) => button.textContent?.includes(label))!;
+  }
+
+  it('shows every content type by default and switches one off independently', async () => {
+    const { element, whenStable, haptics } = await setup({
+      items: [
+        item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
+        item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
+      ],
+    });
+
+    expect(kindFilter(element, 'Wissen').getAttribute('aria-pressed')).toBe('true');
+    expect(kindFilter(element, 'Rebell*innen').getAttribute('aria-pressed')).toBe('true');
+    expect(element.textContent).toContain('Wissensimpuls');
+    expect(element.textContent).toContain('Eine Rebellin');
+
+    kindFilter(element, 'Wissen').click();
+    await whenStable();
+
+    expect(kindFilter(element, 'Wissen').getAttribute('aria-pressed')).toBe('false');
+    expect(haptics.selections).toBe(1);
+    expect(element.textContent).toContain('Eine Rebellin');
+    expect(element.textContent).not.toContain('Wissensimpuls');
+  });
+
+  it('explains that the filter, not the collection, is empty when every type is switched off', async () => {
+    const { element, whenStable } = await setup({
+      items: [item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' })],
+    });
+
+    kindFilter(element, 'Wissen').click();
+    kindFilter(element, 'Rebell*innen').click();
+    await whenStable();
+
+    expect(element.textContent).toContain('Alle Kategorien sind ausgeblendet');
+    expect(element.textContent).not.toContain('Deine Sammlung ist noch leer');
+  });
+
+  it('restores the tab and the kind filter from the returnTo query params', async () => {
+    const { element } = await setup({
+      items: [
+        item({ id: 'wi-01', kind: 'wissensimpulse', title: 'Wissensimpuls' }),
+        item({ id: 'reb-01', kind: 'rebellin', title: 'Eine Rebellin' }),
+      ],
+      queryParams: { area: 'collection', hidden: 'wissensimpulse' },
+    });
+
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    expect(
+      tabs
+        .find((tab) => tab.textContent?.includes('Meine Sammlung'))
+        ?.getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(element.textContent).toContain('Eine Rebellin');
+    expect(element.textContent).not.toContain('Wissensimpuls');
+  });
+
+  it('reloads the collection when a bookmark changes elsewhere', async () => {
+    const { element, whenStable, bookmarks, bookmarkChanges } = await setup({ items: [] });
+
+    expect(element.textContent).toContain('Deine Sammlung ist noch leer');
+
+    bookmarks.savedItems = [item({ id: 'wi-01', title: 'Was tut dir gut?' })];
+    bookmarkChanges.notify();
+    await whenStable();
+
+    expect(element.textContent).toContain('Was tut dir gut?');
+  });
+
+  describe('search', () => {
+    /** Longer than the field's debounce, so the typed query has been searched for. */
+    async function typeQuery(
+      element: HTMLElement,
+      whenStable: () => Promise<void>,
+      text: string,
+    ): Promise<void> {
+      const input = element.querySelector<HTMLInputElement>('input[type="search"]')!;
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await whenStable();
+    }
+
+    function button(element: HTMLElement, name: string): HTMLButtonElement | undefined {
+      return Array.from(element.querySelectorAll('button')).find(
+        (candidate) => candidate.getAttribute('aria-label') === name,
+      );
+    }
+
+    /** Meine Sammlung offers the search from two saved items on. */
+    const TWO_ITEMS = [
+      item({ id: 'reb-01', kind: 'rebellin', title: 'Ada Lovelace' }),
+      item({ id: 'reb-02', kind: 'rebellin', title: 'Hedy Lamarr' }),
+    ];
+
+    it('offers a search named after the area, next to the info button', async () => {
+      const { element } = await setup({ items: TWO_ITEMS });
+
+      expect(button(element, 'In Meine Sammlung suchen')).toBeDefined();
+      expect(button(element, 'Info zu Meine Sammlung')).toBeDefined();
+    });
+
+    it('offers no search in a collection of fewer than two items, but always in Anlaufstellen', async () => {
+      const { element } = await setup({ items: [TWO_ITEMS[0]] });
+
+      expect(button(element, 'In Meine Sammlung suchen')).toBeUndefined();
+      expect(button(element, 'Info zu Meine Sammlung')).toBeDefined();
+
+      const services = await setup({ queryParams: { area: 'services' } });
+      expect(button(services.element, 'In Anlaufstellen suchen')).toBeDefined();
+    });
+
+    it('opens a labelled field in place of the row, with the focus in it', async () => {
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+
+      const input = element.querySelector<HTMLInputElement>('input[type="search"]');
+      expect(input).not.toBeNull();
+      expect(document.activeElement).toBe(input);
+      expect(element.querySelector(`label[for="${input!.id}"]`)?.textContent?.trim()).toBe(
+        'In Meine Sammlung suchen',
+      );
+      expect(input!.placeholder).toBe('In Meine Sammlung suchen');
+      expect(button(element, 'Info zu Meine Sammlung')).toBeUndefined();
+    });
+
+    it('narrows the collection to the matches and says how many there are', async () => {
+      const { element, whenStable, navigate } = await setup({ items: TWO_ITEMS });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'lovelace');
+
+      expect(element.textContent).toContain('Ada Lovelace');
+      expect(element.textContent).not.toContain('Hedy Lamarr');
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe('1 Treffer');
+      expect(navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: { q: 'lovelace' }, replaceUrl: true }),
+      );
+    });
+
+    it('keeps the whole collection and asks for more while the query is too short', async () => {
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'ad');
+
+      expect(element.textContent).toContain('Ada Lovelace');
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe(
+        'Mindestens 3 Zeichen eingeben',
+      );
+    });
+
+    it('says when nothing matches and what to try instead', async () => {
+      const { element, whenStable } = await setup({ items: TWO_ITEMS });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'zyklus');
+
+      expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe(
+        'Keine Treffer für „zyklus“',
+      );
+      expect(element.textContent).toContain('versuche einen Teil des Wortes');
+    });
+
+    it('searches every region, without the region chips, and names each result’s region', async () => {
+      const { element, whenStable } = await setup({
+        queryParams: { area: 'services' },
+        regions: [
+          { id: 'online', label: 'Online & Telefon' },
+          { id: 'tirol', label: 'Tirol' },
+        ],
+        services: [
+          service({ id: 'rat-auf-draht', region: 'online', name: 'Rat auf Draht' }),
+          service({ id: 'evita', region: 'tirol', name: 'Evita Frauenberatung' }),
+        ],
+      });
+
+      button(element, 'In Anlaufstellen suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'evita');
+
+      expect(element.querySelector('button[role="radio"]')).toBeNull();
+      expect(element.textContent).toContain('Evita Frauenberatung');
+      expect(element.textContent).toContain('Tirol');
+      expect(element.textContent).not.toContain('Rat auf Draht');
+    });
+
+    it('closes, clears and hands the focus back to the search button', async () => {
+      const { element, whenStable } = await setup({
+        items: [
+          item({ id: 'reb-01', title: 'Ada Lovelace' }),
+          item({ id: 'reb-02', title: 'Hedy Lamarr' }),
+        ],
+      });
+
+      button(element, 'In Meine Sammlung suchen')!.click();
+      await whenStable();
+      await typeQuery(element, whenStable, 'lovelace');
+      button(element, 'Suche schließen')!.click();
+      await whenStable();
+
+      expect(element.querySelector('input[type="search"]')).toBeNull();
+      expect(document.activeElement).toBe(button(element, 'In Meine Sammlung suchen'));
+      expect(element.textContent).toContain('Hedy Lamarr');
+    });
+
+    it('reopens a search from the returnTo query params, and carries it into the next returnTo', async () => {
+      const { element, whenStable } = await setup({
+        items: [
+          item({ id: 'reb-01', title: 'Ada Lovelace' }),
+          item({ id: 'reb-02', title: 'Hedy Lamarr' }),
+        ],
+        queryParams: { area: 'collection', q: 'hedy' },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await whenStable();
+
+      expect(element.querySelector<HTMLInputElement>('input[type="search"]')?.value).toBe('hedy');
+      expect(element.textContent).not.toContain('Ada Lovelace');
+      expect(element.querySelector('a[href*="returnTo"]')?.getAttribute('href')).toContain(
+        encodeURIComponent('q=hedy'),
+      );
+    });
+  });
+});

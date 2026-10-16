@@ -1,0 +1,9 @@
+---
+import { Content, getHeadings } from '@amazone/legal/nutzungsbedingungen.md';
+
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+
+<LegalLayout title="Nutzungsbedingungen" path="/nutzungsbedingungen/" headings={getHeadings()}>
+  <Content />
+</LegalLayout>

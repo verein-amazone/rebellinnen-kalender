@@ -1,0 +1,95 @@
+---
+/**
+ * A legal text from @amazone/legal on a cream sheet. The app shows the same file under Settings, so
+ * the app, the website and the store listings never say different things.
+ *
+ * A long text gets a list of its sections: a collapsed „Inhalt“ above the text on a phone, and a
+ * column beside it that stays in view on a wide screen. The imprint is short enough to read whole.
+ */
+import type { MarkdownHeading } from 'astro';
+
+import { APP_NAME } from '../lib/site';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  path: string;
+  /** The Markdown's headings (`getHeadings()`); the top-level sections become the list. */
+  headings?: MarkdownHeading[];
+}
+
+const { title, path, headings = [] } = Astro.props;
+
+const sections = headings.filter((heading) => heading.depth === 2);
+const showSections = sections.length >= 6;
+const linkClass =
+  'flex min-h-touch items-center rounded-sm py-1 leading-snug no-underline hoverable:underline';
+---
+
+<BaseLayout
+  title={`${title} – ${APP_NAME}`}
+  description={`${title} der ${APP_NAME} App von Verein Amazone.`}
+  path={path}
+>
+  <main id="inhalt" class="wrap flex-1 pt-6 pb-[clamp(3rem,10vw,5rem)]">
+    <h1 class="mb-6 text-[clamp(2.5rem,10vw,4rem)]">{title}</h1>
+    <div
+      class:list={[
+        'grid grid-cols-1 gap-6',
+        showSections &&
+          'desktop:grid-cols-[minmax(0,46rem)_minmax(0,17rem)] desktop:items-start desktop:gap-x-12',
+      ]}
+    >
+      {showSections && (
+        <details class="group rounded-lg bg-card desktop:hidden">
+          <summary class="flex min-h-touch cursor-pointer list-none items-center justify-between gap-4 px-[clamp(1.25rem,5vw,3rem)] py-3 font-display text-xl font-semibold [&::-webkit-details-marker]:hidden">
+            Inhalt
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="size-6 flex-none transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <nav aria-label={`Inhalt: ${title}`} class="px-[clamp(1.25rem,5vw,3rem)] pb-4">
+            <ol>
+              {sections.map((section) => (
+                <li>
+                  <a class={linkClass} href={`#${section.slug}`}>
+                    {section.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </details>
+      )}
+      <article class="legal-text max-w-184 rounded-lg bg-card p-[clamp(1.25rem,5vw,3rem)]">
+        <slot />
+      </article>
+      {showSections && (
+        <nav
+          aria-label={`Inhalt: ${title}`}
+          class="hidden text-fine desktop:sticky desktop:top-6 desktop:block desktop:max-h-[calc(100dvh-3rem)] desktop:overflow-y-auto"
+        >
+          <h2 class="mb-2 text-xl">Inhalt</h2>
+          <ol>
+            {sections.map((section) => (
+              <li>
+                <a class={linkClass} href={`#${section.slug}`}>
+                  {section.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+    </div>
+  </main>
+</BaseLayout>

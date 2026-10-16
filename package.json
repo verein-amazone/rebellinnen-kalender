@@ -1,0 +1,47 @@
+{
+  "name": "rebellinnen-kalender",
+  "version": "1.0.0-rc.61",
+  "description": "Workspace root: the app (apps/app), the website (apps/site) and the packages they share. Holds the release version and the repository-wide tooling.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verein-amazone/rebellinnen-kalender.git"
+  },
+  "private": true,
+  "scripts": {
+    "start": "pnpm --filter @amazone/app start",
+    "build": "pnpm --filter @amazone/app build",
+    "watch": "pnpm --filter @amazone/app watch",
+    "test": "pnpm --filter @amazone/app test",
+    "test:ci": "pnpm -r --if-present test:ci",
+    "lint": "pnpm -r --if-present lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e": "pnpm --filter @amazone/app e2e",
+    "store:screenshots": "pnpm --filter @amazone/app store:screenshots",
+    "serve:dist": "pnpm --filter @amazone/app serve:dist",
+    "deps:update": "apps/app/scripts/update-app-dependencies.sh",
+    "cap:sync": "pnpm --filter @amazone/app cap:sync",
+    "cap:open:ios": "pnpm --filter @amazone/app cap:open:ios",
+    "cap:open:android": "pnpm --filter @amazone/app cap:open:android",
+    "build:site": "pnpm --filter @amazone/site build",
+    "test:site": "pnpm --filter @amazone/site test:e2e"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^11.0.1",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "prettier": "catalog:",
+    "prettier-plugin-astro": "^1.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "semantic-release": "^25.0.9",
+    "tailwindcss": "catalog:"
+  }
+}

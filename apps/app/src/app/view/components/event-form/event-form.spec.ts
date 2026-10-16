@@ -1,0 +1,1009 @@
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { Observable, of } from 'rxjs';
+
+import {
+  APP_EVENT_TITLE_MAX_LENGTH,
+  type AppEventChanges,
+  type AppEventDraft,
+  type TemporalValue,
+} from '@app/interactors/calendar/app-event-editing.interactor';
+import {
+  AppCalendarsInteractor,
+  type WritableAppCalendar,
+} from '@app/interactors/calendar/app-calendars.interactor';
+import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
+import { SheetService } from '@app/view/components/sheet/sheet.service';
+
+import { EventForm, type AppEventFormResult } from './event-form';
+
+const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const calendarPrivate: WritableAppCalendar = {
+  id: 'cal-privat',
+  name: 'Privat',
+  color: '#a1b2c3',
+  emoji: '🏠',
+};
+const calendarVerein: WritableAppCalendar = {
+  id: 'cal-verein',
+  name: 'Verein',
+  color: '#c3b2a1',
+  emoji: null,
+};
+
+class FakeAppCalendarsInteractor {
+  calendars: WritableAppCalendar[] = [calendarPrivate, calendarVerein];
+
+  listWritable(): Promise<WritableAppCalendar[]> {
+    return Promise.resolve(this.calendars);
+  }
+}
+
+/** Answers the next sheet open with the given result, without ever attaching a real overlay. */
+class StubSheetService {
+  results: unknown[] = [];
+  opens: { heading: string; data: unknown }[] = [];
+
+  open(
+    _content: unknown,
+    config: { heading: string; data?: unknown },
+  ): { closed: Observable<unknown> } {
+    this.opens.push({ heading: config.heading, data: config.data });
+    return { closed: of(this.results.shift()) };
+  }
+}
+
+function timedOccurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurrence {
+  return {
+    id: 'occ-1',
+    sourceId: 'source-app',
+    calendarId: 'cal-privat',
+    seriesId: null,
+    originalStart: null,
+    itemId: 'item-1',
+    externalId: null,
+    kind: 'event',
+    title: 'Zahnarzt',
+    location: 'Praxis Dr. Muster',
+    description: null,
+    allDay: false,
+    start: { kind: 'zoned', value: '2026-08-10T09:00:00', timeZone: deviceZone },
+    end: { kind: 'zoned', value: '2026-08-10T10:30:00', timeZone: deviceZone },
+    startUtc: '2026-08-10T09:00:00Z',
+    endUtc: '2026-08-10T10:30:00Z',
+    startDay: '2026-08-10',
+    endDay: '2026-08-10',
+    actions: { editableInApp: true, deletableInApp: true, editViaNativeCalendar: false },
+    stale: false,
+    sourceName: 'Meine Termine',
+    calendarName: 'Privat',
+    calendarColor: '#a1b2c3',
+    calendarEmoji: '🏠',
+    ...overrides,
+  };
+}
+
+async function setup(inputs: {
+  mode: 'create' | 'edit';
+  initialOccurrence?: CalendarOccurrence | null;
+  initialNote?: string | null;
+  initialDate?: string | null;
+  initialRrule?: string | null;
+  initialSeriesStart?: TemporalValue | null;
+  initialReminders?: readonly number[] | null;
+  calendars?: WritableAppCalendar[];
+  /** Reminders on, with these defaults; leave out for the web, where the section is hidden. */
+  reminderDefaults?: { timed: number[]; allDay: number[] };
+}) {
+  const interactor = new FakeAppCalendarsInteractor();
+  if (inputs.calendars !== undefined) {
+    interactor.calendars = inputs.calendars;
+  }
+  const sheets = new StubSheetService();
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: AppCalendarsInteractor, useValue: interactor },
+      { provide: SheetService, useValue: sheets },
+      ...(inputs.reminderDefaults === undefined
+        ? []
+        : [
+            {
+              provide: NotificationPreferencesInteractor,
+              useValue: {
+                isSupported: true,
+                enabled: signal(true),
+                timedDefaults: signal(inputs.reminderDefaults.timed),
+                allDayDefaults: signal(inputs.reminderDefaults.allDay),
+                permission: () => Promise.resolve('granted'),
+              },
+            },
+          ]),
+    ],
+  });
+
+  const fixture = TestBed.createComponent(EventForm);
+  fixture.componentRef.setInput('mode', inputs.mode);
+  if (inputs.initialOccurrence !== undefined) {
+    fixture.componentRef.setInput('initialOccurrence', inputs.initialOccurrence);
+  }
+  if (inputs.initialNote !== undefined) {
+    fixture.componentRef.setInput('initialNote', inputs.initialNote);
+  }
+  if (inputs.initialDate !== undefined) {
+    fixture.componentRef.setInput('initialDate', inputs.initialDate);
+  }
+  if (inputs.initialRrule !== undefined) {
+    fixture.componentRef.setInput('initialRrule', inputs.initialRrule);
+  }
+  if (inputs.initialSeriesStart !== undefined) {
+    fixture.componentRef.setInput('initialSeriesStart', inputs.initialSeriesStart);
+  }
+  if (inputs.initialReminders !== undefined) {
+    fixture.componentRef.setInput('initialReminders', inputs.initialReminders);
+  }
+  await fixture.whenStable();
+
+  const element = fixture.nativeElement as HTMLElement;
+  const saved: AppEventFormResult[] = [];
+  fixture.componentInstance.save.subscribe((result) => saved.push(result));
+
+  return {
+    fixture,
+    element,
+    interactor,
+    sheets,
+    saved,
+    settle: () => fixture.whenStable(),
+    // Plain `#id` is safe here: `app-text-field`/`app-textarea-field` suppress reflecting their
+    // `id` @Input onto the host element (`[attr.id]: null` in each component's `host` object), so
+    // only the inner `<input>`/`<textarea>` carries the id - no duplicate for `querySelector` to
+    // trip over.
+    field(id: string): HTMLInputElement | HTMLTextAreaElement {
+      return element.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`)!;
+    },
+    async type(id: string, value: string) {
+      const control = this.field(id);
+      control.value = value;
+      control.dispatchEvent(new Event('input'));
+      await fixture.whenStable();
+    },
+    /** Expands the collapsed Starts/Ends/Ganztägig section, so its fields exist in the DOM. */
+    async expandDateTime() {
+      element.querySelector<HTMLButtonElement>('#event-form-date-time button')!.click();
+      await fixture.whenStable();
+    },
+    async pickCalendar(calendarId: string) {
+      sheets.results = [calendarId];
+      element.querySelector<HTMLButtonElement>('#event-form-calendar')!.click();
+      await fixture.whenStable();
+    },
+    async pickAllDay(allDay: boolean) {
+      const toggle = element.querySelector<HTMLInputElement>('#event-form-date-time .rk-toggle')!;
+      if (toggle.checked !== allDay) {
+        toggle.click();
+        await fixture.whenStable();
+      }
+    },
+    /** Expands the collapsed „Wiederholen“ section. */
+    async expandRepeat() {
+      element.querySelector<HTMLButtonElement>('app-recurrence-field button')!.click();
+      await fixture.whenStable();
+    },
+    async select(id: string, value: string) {
+      const control = element.querySelector<HTMLSelectElement>(`#${id}`)!;
+      control.value = value;
+      control.dispatchEvent(new Event('input'));
+      control.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    },
+    async submit() {
+      element.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
+      await fixture.whenStable();
+    },
+  };
+}
+
+describe('EventForm, create mode', () => {
+  it('defaults the calendar picker to a writable calendar, and leaves the title blank', async () => {
+    const form = await setup({ mode: 'create' });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
+
+    const title = form.element.querySelector<HTMLInputElement>('input[type="text"]');
+    expect(title?.value).toBe('');
+  });
+
+  it("defaults to the app's own calendar, whatever position it is listed in", async () => {
+    // The list may be arranged by the user (Einstellungen › Kalender verwalten › Reihenfolge), so
+    // the default must follow the source type rather than "whatever came first".
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-privat', name: 'Privat', color: null, emoji: null, sourceType: 'app' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
+  });
+
+  it('falls back to the first calendar when there is no app calendar at all', async () => {
+    const form = await setup({
+      mode: 'create',
+      calendars: [
+        { id: 'cal-arbeit', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+        { id: 'cal-familie', name: 'Familie', color: null, emoji: null, sourceType: 'device' },
+      ],
+    });
+
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Arbeit');
+  });
+
+  it('prefills the date from initialDate, e.g. the day the user was viewing', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-08-05' });
+    await form.expandDateTime();
+
+    expect(form.field('event-form-date-time-start-date').value).toBe('2026-08-05');
+  });
+
+  it('emits a completed draft, with kind "event" and no recurrence, on save', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickCalendar('cal-verein');
+    await form.type('event-form-title', 'Vereinstreffen');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '18:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '19:30');
+    await form.type('event-form-location', 'Gemeindesaal');
+    await form.type('event-form-note', 'Bitte Stühle mitbringen');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const result = form.saved[0];
+    expect(result.mode).toBe('create');
+    const draft = (result as { mode: 'create'; draft: AppEventDraft }).draft;
+    expect(draft).toEqual({
+      calendarId: 'cal-verein',
+      kind: 'event',
+      title: 'Vereinstreffen',
+      location: 'Gemeindesaal',
+      note: 'Bitte Stühle mitbringen',
+      start: { kind: 'zoned', value: '2026-09-01T18:00:00', timeZone: deviceZone },
+      end: { kind: 'zoned', value: '2026-09-01T19:30:00', timeZone: deviceZone },
+      rrule: null,
+      reminders: null,
+    });
+  });
+
+  it('builds an all-day draft as date-only temporal values spanning one day', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickCalendar('cal-privat');
+    await form.type('event-form-title', 'Geburtstag');
+    await form.pickAllDay(true);
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
+    expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
+    // The last day the appointment covers, not the day after it - one day means start === end.
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
+  });
+
+  it('builds a multi-day all-day draft, storing the chosen end date as its last day', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickCalendar('cal-privat');
+    await form.type('event-form-title', 'Zeltlager');
+    await form.pickAllDay(true);
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-end-date', '2026-09-03');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
+    expect(draft.start).toEqual({ kind: 'date', value: '2026-09-01', timeZone: null });
+    expect(draft.end).toEqual({ kind: 'date', value: '2026-09-03', timeZone: null });
+  });
+
+  it('blocks save when the all-day end date is before the start date', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickCalendar('cal-privat');
+    await form.type('event-form-title', 'Verkehrter Zeitraum');
+    await form.pickAllDay(true);
+    await form.type('event-form-date-time-start-date', '2026-09-05');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+    expect(form.element.querySelector('.rk-error')?.textContent).toContain(
+      'Enddatum darf nicht vor dem Startdatum liegen',
+    );
+  });
+
+  it('turns blank location and note into null, never empty strings', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickCalendar('cal-privat');
+    await form.type('event-form-title', 'Ohne Details');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '08:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '09:00');
+    await form.submit();
+
+    const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
+    expect(draft.location).toBeNull();
+    expect(draft.note).toBeNull();
+  });
+});
+
+describe('EventForm, no writable calendars', () => {
+  it('shows an empty-state message instead of an empty picker', async () => {
+    const form = await setup({ mode: 'create', calendars: [] });
+
+    expect(form.element.querySelector('#event-form-calendar')).toBeNull();
+    expect(form.element.textContent).toContain('Es ist noch kein Kalender vorhanden');
+  });
+});
+
+describe('EventForm, edit mode', () => {
+  it('pre-fills every field from the initial occurrence and the given note', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: 'Zahnreinigung nicht vergessen',
+    });
+    await form.expandDateTime();
+
+    expect(form.field('event-form-title').value).toBe('Zahnarzt');
+    expect(form.field('event-form-location').value).toBe('Praxis Dr. Muster');
+    expect(form.field('event-form-note').value).toBe('Zahnreinigung nicht vergessen');
+    expect(form.field('event-form-date-time-start-date').value).toBe('2026-08-10');
+    expect(form.field('event-form-date-time-start-time').value).toBe('09:00');
+    expect(form.field('event-form-date-time-end-date').value).toBe('2026-08-10');
+    expect(form.field('event-form-date-time-end-time').value).toBe('10:30');
+    expect(form.element.querySelector('#event-form-calendar')?.textContent).toContain('Privat');
+  });
+
+  it('disables the calendar picker, since moving an app item between calendars is not supported', async () => {
+    const form = await setup({ mode: 'edit', initialOccurrence: timedOccurrence() });
+
+    const button = form.element.querySelector<HTMLButtonElement>('#event-form-calendar')!;
+    expect(button.disabled).toBe(true);
+  });
+
+  it('emits changes without a calendarId, since the interactor cannot move an item between calendars', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+    });
+
+    await form.type('event-form-title', 'Zahnarzt (verschoben)');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const result = form.saved[0];
+    expect(result.mode).toBe('edit');
+    const changes = (result as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).not.toHaveProperty('calendarId');
+    expect(changes).toEqual({
+      title: 'Zahnarzt (verschoben)',
+      location: 'Praxis Dr. Muster',
+      note: null,
+    });
+  });
+
+  it("leaves an overnight occurrence's times alone across a save that never touches them", async () => {
+    // 22:00 one day through 02:00 the next - the form has no field for the end date, so this is the
+    // case that used to be silently rewritten to end before it starts (#19 final review, finding 4).
+    const overnight = timedOccurrence({
+      start: { kind: 'zoned', value: '2026-08-10T22:00:00', timeZone: deviceZone },
+      end: { kind: 'zoned', value: '2026-08-11T02:00:00', timeZone: deviceZone },
+      startDay: '2026-08-10',
+      endDay: '2026-08-11',
+    });
+    const form = await setup({ mode: 'edit', initialOccurrence: overnight, initialNote: '' });
+
+    await form.type('event-form-title', 'Nachtschicht (bestätigt)');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    // Absent fields keep their stored value, so nothing can be rewritten to end before it starts.
+    expect(changes).not.toHaveProperty('start');
+    expect(changes).not.toHaveProperty('end');
+  });
+
+  it("shifts an overnight occurrence's end date together with the start date the user changes", async () => {
+    const overnight = timedOccurrence({
+      start: { kind: 'zoned', value: '2026-08-10T22:00:00', timeZone: deviceZone },
+      end: { kind: 'zoned', value: '2026-08-11T02:00:00', timeZone: deviceZone },
+      startDay: '2026-08-10',
+      endDay: '2026-08-11',
+    });
+    const form = await setup({ mode: 'edit', initialOccurrence: overnight, initialNote: '' });
+    await form.expandDateTime();
+
+    await form.type('event-form-date-time-start-date', '2026-08-20');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.start).toEqual({
+      kind: 'zoned',
+      value: '2026-08-20T22:00:00',
+      timeZone: deviceZone,
+    });
+    expect(changes.end).toEqual({
+      kind: 'zoned',
+      value: '2026-08-21T02:00:00',
+      timeZone: deviceZone,
+    });
+  });
+
+  it('shifts the end time together with the start time, keeping the duration', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+    });
+    await form.expandDateTime();
+
+    // Start moves from 09:00 to 09:30 - the original 90-minute span (09:00–10:30) should carry
+    // forward, landing the end at 11:00, not stay pinned at 10:30.
+    await form.type('event-form-date-time-start-time', '09:30');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.start).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T09:30:00',
+      timeZone: deviceZone,
+    });
+    expect(changes.end).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T11:00:00',
+      timeZone: deviceZone,
+    });
+  });
+
+  it('keeps the duration when the start time moves across midnight relative to the end', async () => {
+    const overnight = timedOccurrence({
+      start: { kind: 'zoned', value: '2026-08-10T23:00:00', timeZone: deviceZone },
+      end: { kind: 'zoned', value: '2026-08-11T01:00:00', timeZone: deviceZone },
+      startDay: '2026-08-10',
+      endDay: '2026-08-11',
+    });
+    const form = await setup({ mode: 'edit', initialOccurrence: overnight, initialNote: '' });
+    await form.expandDateTime();
+
+    // The start-time field itself never crosses midnight (the date field is untouched), so the
+    // shift is the plain clock delta: 23:00 -> 01:00 is -22h, applied to both ends alike. The
+    // 2-hour span survives: new start 2026-08-10T01:00, new end 2026-08-10T03:00.
+    await form.type('event-form-date-time-start-time', '01:00');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.start).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T01:00:00',
+      timeZone: deviceZone,
+    });
+    expect(changes.end).toEqual({
+      kind: 'zoned',
+      value: '2026-08-10T03:00:00',
+      timeZone: deviceZone,
+    });
+  });
+});
+
+describe('EventForm, all-day toggle', () => {
+  it('shows the start/end time fields by default and hides them once all-day is chosen', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    expect(form.element.querySelector('#event-form-date-time-start-time')).not.toBeNull();
+    expect(form.element.querySelector('#event-form-date-time-end-time')).not.toBeNull();
+
+    await form.pickAllDay(true);
+
+    expect(form.element.querySelector('#event-form-date-time-start-time')).toBeNull();
+    expect(form.element.querySelector('#event-form-date-time-end-time')).toBeNull();
+  });
+
+  it('shows the time fields again once all-day is turned back off', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.pickAllDay(true);
+    await form.pickAllDay(false);
+
+    expect(form.element.querySelector('#event-form-date-time-start-time')).not.toBeNull();
+    expect(form.element.querySelector('#event-form-date-time-end-time')).not.toBeNull();
+  });
+
+  it('summarises the collapsed row with the date and time range', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-08-05' });
+
+    const summary = form.element.querySelector('#event-form-date-time button')!.textContent;
+    expect(summary).toContain('2026');
+  });
+
+  it('fills the start/end time with a default, like a new appointment, when turning Ganztägig off on an occurrence that was saved as all-day', async () => {
+    const allDayOccurrence = timedOccurrence({
+      allDay: true,
+      start: { kind: 'date', value: '2026-08-10', timeZone: null },
+      end: { kind: 'date', value: '2026-08-10', timeZone: null },
+    });
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: allDayOccurrence,
+      initialNote: '',
+    });
+    await form.expandDateTime();
+
+    await form.pickAllDay(false);
+
+    expect(form.field('event-form-date-time-start-time').value).not.toBe('');
+    expect(form.field('event-form-date-time-end-time').value).not.toBe('');
+    // The stored end is the last day the appointment covers, so the picker shows it unchanged.
+    expect(form.field('event-form-date-time-end-date').value).toBe('2026-08-10');
+  });
+});
+
+describe('EventForm, validation', () => {
+  it('blocks save while the title is empty, and reveals the error', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '08:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '09:00');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+    expect(form.element.querySelector('.rk-error')).not.toBeNull();
+  });
+
+  it('blocks save while the title is only whitespace', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', '   ');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '08:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '09:00');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+  });
+
+  it(`blocks save once the title exceeds ${APP_EVENT_TITLE_MAX_LENGTH} characters`, async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'x'.repeat(APP_EVENT_TITLE_MAX_LENGTH + 1));
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '08:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '09:00');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+    expect(form.element.querySelector('.rk-error')).not.toBeNull();
+  });
+
+  it('blocks save while start/end time is missing and the event is not all-day', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Ohne Uhrzeit');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+  });
+
+  it('does not require start/end time once all-day is chosen', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Feiertag');
+    await form.pickAllDay(true);
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+  });
+
+  it('blocks save when the end time is before the start time on the same day', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Verkehrte Zeiten');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '18:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '09:00');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+    expect(form.element.querySelector('.rk-error')?.textContent).toContain(
+      'Das Ende muss nach dem Beginn liegen',
+    );
+  });
+
+  it('blocks save when the end time equals the start time on the same day', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Nulldauer');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '18:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '18:00');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+  });
+
+  it('allows an end time after the start time', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Richtige Reihenfolge');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '18:00');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.type('event-form-date-time-end-time', '19:00');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+  });
+
+  it('allows an end date after the start date, even with an earlier clock time', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Nachtschicht');
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-start-time', '22:00');
+    await form.type('event-form-date-time-end-date', '2026-09-02');
+    await form.type('event-form-date-time-end-time', '02:00');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+    const draft = (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
+    expect(draft.start).toEqual({
+      kind: 'zoned',
+      value: '2026-09-01T22:00:00',
+      timeZone: deviceZone,
+    });
+    expect(draft.end).toEqual({
+      kind: 'zoned',
+      value: '2026-09-02T02:00:00',
+      timeZone: deviceZone,
+    });
+  });
+
+  it('does not apply the end-after-start check once all-day is chosen', async () => {
+    const form = await setup({ mode: 'create' });
+    await form.expandDateTime();
+
+    await form.type('event-form-title', 'Feiertag');
+    await form.pickAllDay(true);
+    await form.type('event-form-date-time-start-date', '2026-09-01');
+    await form.type('event-form-date-time-end-date', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toHaveLength(1);
+  });
+});
+
+describe('EventForm, canSubmit', () => {
+  it('is false until the user edits a field, then becomes true', async () => {
+    const form = await setup({ mode: 'edit', initialOccurrence: timedOccurrence() });
+
+    expect(form.fixture.componentInstance.canSubmit()).toBe(false);
+
+    await form.type('event-form-title', 'Halb bearbeitet');
+
+    expect(form.fixture.componentInstance.canSubmit()).toBe(true);
+  });
+});
+
+describe('EventForm, repetition', () => {
+  // Monday, 7 September 2026.
+  async function createWithRepeat() {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07' });
+    await form.type('event-form-title', 'Plenum');
+    await form.expandRepeat();
+    return form;
+  }
+
+  function draftOf(form: { saved: AppEventFormResult[] }): AppEventDraft {
+    return (form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft;
+  }
+
+  it('summarises „Nie“ while nothing repeats', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07' });
+
+    expect(form.element.querySelector('app-recurrence-field button')?.textContent).toContain('Nie');
+  });
+
+  it('creates a weekly series on the start weekday plus the chosen days', async () => {
+    const form = await createWithRepeat();
+    await form.select('event-form-repeat-frequency', 'weekly');
+
+    const thursday = form.element.querySelectorAll<HTMLInputElement>(
+      'app-recurrence-field input[type="checkbox"]',
+    )[3];
+    thursday.click();
+    await form.settle();
+    await form.submit();
+
+    expect(draftOf(form).rrule).toBe('FREQ=WEEKLY;BYDAY=MO,TH');
+    expect(form.element.querySelector('app-recurrence-field button')?.textContent).toContain(
+      'Jede Woche am Montag und Donnerstag',
+    );
+  });
+
+  it('keeps the start weekday ticked and not untickable', async () => {
+    const form = await createWithRepeat();
+    await form.select('event-form-repeat-frequency', 'weekly');
+
+    const monday = form.element.querySelector<HTMLInputElement>(
+      'app-recurrence-field input[type="checkbox"]',
+    )!;
+    expect(monday.checked).toBe(true);
+    expect(monday.disabled).toBe(true);
+  });
+
+  it('writes an interval and a count', async () => {
+    const form = await createWithRepeat();
+    await form.select('event-form-repeat-frequency', 'daily');
+    await form.type('event-form-repeat-interval', '2');
+    form.element
+      .querySelector<HTMLInputElement>('app-recurrence-field input[type="radio"][value="count"]')!
+      .click();
+    await form.settle();
+    await form.type('event-form-repeat-count', '5');
+    await form.submit();
+
+    expect(draftOf(form).rrule).toBe('FREQ=DAILY;COUNT=5;INTERVAL=2');
+  });
+
+  it('refuses a last day before the start', async () => {
+    const form = await createWithRepeat();
+    await form.select('event-form-repeat-frequency', 'monthly');
+    form.element
+      .querySelector<HTMLInputElement>('app-recurrence-field input[type="radio"][value="until"]')!
+      .click();
+    await form.settle();
+    await form.type('event-form-repeat-until', '2026-09-01');
+    await form.submit();
+
+    expect(form.saved).toEqual([]);
+    expect(form.element.textContent).toContain('Der letzte Tag darf nicht vor dem Beginn liegen.');
+  });
+
+  it('prefills the stored rule and leaves it out of an edit that does not touch it', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({ seriesId: 'series-1' }),
+      initialNote: '',
+      initialRrule: 'FREQ=WEEKLY;BYDAY=MO;COUNT=6',
+    });
+    await form.expandRepeat();
+
+    expect(
+      form.element.querySelector<HTMLSelectElement>('#event-form-repeat-frequency')?.value,
+    ).toBe('weekly');
+
+    await form.type('event-form-title', 'Plenum (neu)');
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).not.toHaveProperty('rrule');
+  });
+
+  it('anchors the weekdays on the series start, not on the opened occurrence', async () => {
+    // Thursday 13 August of a Monday + Thursday series that started on Monday 10 August.
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({
+        seriesId: 'series-1',
+        start: { kind: 'zoned', value: '2026-08-13T09:00:00', timeZone: deviceZone },
+        end: { kind: 'zoned', value: '2026-08-13T10:30:00', timeZone: deviceZone },
+      }),
+      initialNote: '',
+      initialRrule: 'FREQ=WEEKLY;BYDAY=MO,TH',
+      initialSeriesStart: { kind: 'zoned', value: '2026-08-10T09:00:00', timeZone: deviceZone },
+    });
+    await form.expandRepeat();
+
+    const [monday, , , thursday] = form.element.querySelectorAll<HTMLInputElement>(
+      'app-recurrence-field input[type="checkbox"]',
+    );
+    expect(monday.disabled).toBe(true);
+    expect(thursday.checked).toBe(true);
+    expect(thursday.disabled).toBe(false);
+
+    thursday.click();
+    await form.settle();
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.rrule).toBe('FREQ=WEEKLY;BYDAY=MO');
+  });
+
+  it('emits rrule null when the repetition is removed', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({ seriesId: 'series-1' }),
+      initialNote: '',
+      initialRrule: 'FREQ=WEEKLY;BYDAY=MO',
+    });
+    await form.expandRepeat();
+    await form.select('event-form-repeat-frequency', 'none');
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.rrule).toBeNull();
+  });
+
+  it('keeps a rule it cannot represent, unchanged', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({ seriesId: 'series-1' }),
+      initialNote: '',
+      initialRrule: 'FREQ=MONTHLY;BYDAY=2TU',
+    });
+
+    expect(form.element.querySelector('app-recurrence-field button')?.textContent).toContain(
+      'Wiederholt sich nach einer eigenen Regel',
+    );
+
+    await form.type('event-form-title', 'Plenum (neu)');
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).not.toHaveProperty('rrule');
+  });
+});
+
+describe('EventForm, reminders', () => {
+  const reminderDefaults = { timed: [15], allDay: [900] };
+
+  function reminderLabels(element: HTMLElement): string[] {
+    return [...element.querySelectorAll('app-reminder-list-field .rk-row-label')].map(
+      (label) => label.textContent?.trim() ?? '',
+    );
+  }
+
+  it('starts a new appointment with the default reminders and stores them as „follow defaults“', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    expect(reminderLabels(form.element)).toContain('15 Minuten vorher');
+
+    await form.submit();
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toBeNull();
+  });
+
+  it("adds a reminder from the presets and stores the list as the appointment's own", async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    form.sheets.results = [60];
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('Erinnerung hinzufügen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    expect(form.sheets.opens[0].heading).toBe('Erinnerung hinzufügen');
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toEqual([
+      60, 15,
+    ]);
+  });
+
+  it('removes a reminder by its labelled button', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.type('event-form-title', 'Plenum');
+
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('15 Minuten vorher entfernen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    expect((form.saved[0] as { mode: 'create'; draft: AppEventDraft }).draft.reminders).toEqual([]);
+  });
+
+  it('swaps to the all-day defaults when the appointment becomes all-day', async () => {
+    const form = await setup({ mode: 'create', initialDate: '2026-09-07', reminderDefaults });
+    await form.expandDateTime();
+    await form.pickAllDay(true);
+
+    expect(reminderLabels(form.element)).toContain('1 Tag vorher um 09:00');
+  });
+
+  it('leaves default reminders out of a switch to all-day, so one occurrence can change alone', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence({ seriesId: 'series-1' }),
+      initialNote: '',
+      initialRrule: 'FREQ=WEEKLY;BYDAY=MO',
+      initialReminders: null,
+      reminderDefaults,
+    });
+    await form.expandDateTime();
+    await form.pickAllDay(true);
+
+    expect(reminderLabels(form.element)).toContain('1 Tag vorher um 09:00');
+
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).toHaveProperty('start');
+    expect(changes).not.toHaveProperty('reminders');
+  });
+
+  it('emits reminders the user changed in an edit', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+      initialReminders: null,
+      reminderDefaults,
+    });
+
+    [...form.element.querySelectorAll<HTMLButtonElement>('app-reminder-list-field button')]
+      .find((button) => button.textContent?.includes('15 Minuten vorher entfernen'))!
+      .click();
+    await form.settle();
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes.reminders).toEqual([]);
+  });
+
+  it('leaves the reminders out of an edit that does not touch them', async () => {
+    const form = await setup({
+      mode: 'edit',
+      initialOccurrence: timedOccurrence(),
+      initialNote: '',
+      initialReminders: [60],
+      reminderDefaults,
+    });
+
+    expect(reminderLabels(form.element)).toContain('1 Stunde vorher');
+
+    await form.type('event-form-title', 'Zahnarzt (verschoben)');
+    await form.submit();
+
+    const changes = (form.saved[0] as { mode: 'edit'; changes: AppEventChanges }).changes;
+    expect(changes).not.toHaveProperty('reminders');
+  });
+});

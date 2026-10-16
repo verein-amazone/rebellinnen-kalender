@@ -1,0 +1,186 @@
+@if (writeError(); as message) {
+  <p role="alert" class="rk-error mb-3">{{ message }}</p>
+}
+
+@if (items.error() !== undefined) {
+  <div class="rk-card space-y-3 px-4 py-6 text-center">
+    <p>Die Liste konnte nicht geladen werden.</p>
+    <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
+      <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+      <span>Erneut versuchen</span>
+    </button>
+  </div>
+} @else if (items.status() === 'loading') {
+  <!--
+    Only the very first load - see the `status()` note in ../../../../styles/components/skeleton.css.
+    A tick/reorder/add reloads this resource too, and must keep showing the current rows while that
+    happens in the background rather than collapsing to this placeholder, or the list's height drops
+    to one line and the page loses its scroll position.
+  -->
+  <div class="rk-card space-y-3 px-4 py-4" aria-hidden="true">
+    <div class="flex items-center gap-3">
+      <span class="rk-skeleton block h-5 w-5 shrink-0 rounded-full"></span>
+      <span class="rk-skeleton block h-4 w-2/3"></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="rk-skeleton block h-5 w-5 shrink-0 rounded-full"></span>
+      <span class="rk-skeleton block h-4 w-1/2"></span>
+    </div>
+  </div>
+} @else {
+  <!--
+    One card holds the entries and the row that adds the next one, so the list reads as a single
+    block. `overflow-visible` because a row's menu hangs outside the card, unlike everywhere else.
+  -->
+  <div class="rk-card overflow-visible">
+    @if (isEmpty()) {
+      <p class="text-muted-foreground px-4 py-6 text-center">
+        Trage ein, was du nicht vergessen möchtest.
+      </p>
+    } @else {
+      <!--
+        One list, open entries first and completed ones after them. They are still two groups as far
+        as moving goes: `sortPredicate` refuses a position outside the dragged row's own group, so a
+        drag can rearrange but never complete or reopen an entry - ticking the checkbox is the one way
+        across, and it is a plain tap.
+      -->
+      <ul
+        class="rk-list rk-reorder-list overflow-visible rounded-none bg-transparent"
+        cdkDropList
+        cdkDropListLockAxis="y"
+        [cdkDropListData]="entries()"
+        [cdkDropListSortPredicate]="sortPredicate"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (row of rows(); track row.item.id) {
+          <!--
+            `.rk-row` sits on the <li> here rather than on a control inside it, unlike the grouped
+            lists card.css describes: a row carries the checkbox with its label and the menu trigger,
+            so there is no single control that could own the whole row. `relative` anchors the menu.
+
+            No enter or leave animation on purpose - see the header of reorder.css: both fought the
+            drag, which owns this element's `transform` and reads the list by document position.
+          -->
+          <li
+            class="rk-row relative"
+            cdkDrag
+            [cdkDragData]="row.item"
+            (cdkDragStarted)="pickedUp()"
+          >
+            <!--
+                Decoration, not a control: it does nothing without a pointer drag, and a focusable
+                element with no keyboard behaviour would be a stop in the tab order that does nothing.
+                „Nach oben“ and „Nach unten“ in the row's menu are the reachable equivalent.
+              -->
+            <span cdkDragHandle class="rk-drag-handle" aria-hidden="true">
+              <svg lucideGripVertical class="rk-icon" aria-hidden="true"></svg>
+            </span>
+
+            <label class="flex min-w-0 flex-1 items-center gap-3">
+              <input
+                type="checkbox"
+                class="rk-check"
+                appCheckHaptics
+                [checked]="row.item.completed"
+                [attr.aria-label]="toggleLabel(row.item)"
+                (change)="toggle(row.item, $event)"
+              />
+              <!--
+                  Completion is signalled three ways, none of them colour: the checkmark itself, the
+                  strikethrough, and the checkbox's label switching to the opposite action.
+                -->
+              <span
+                class="min-w-0 flex-1"
+                [class.line-through]="row.item.completed"
+                [class.text-muted-foreground]="row.item.completed"
+                >{{ row.item.text }}</span
+              >
+            </label>
+
+            <!--
+                Enter and Space are handled by `ngMenuTrigger` itself. Without `preventDefault` the
+                browser would also synthesise a click on this <button>, which the directive reads as a
+                second activation and closes the menu again in the same keystroke.
+              -->
+            <button
+              type="button"
+              class="rk-icon-button"
+              ngMenuTrigger
+              [menu]="rowMenu"
+              [attr.data-menu-of]="row.item.id"
+              (keydown.enter)="$event.preventDefault()"
+              (keydown.space)="$event.preventDefault()"
+            >
+              <svg lucideEllipsis class="rk-icon" aria-hidden="true"></svg>
+              <span class="sr-only">Optionen für „{{ row.item.text }}“</span>
+            </button>
+
+            <!--
+                `itemSelected` rather than a click handler per item: it also fires for Enter and
+                Space, which is how the menu is used from a keyboard.
+              -->
+            <div
+              ngMenu
+              #rowMenu="ngMenu"
+              class="rk-menu absolute top-full right-3"
+              (itemSelected)="runAction($event, row.item, row.groupIndex)"
+            >
+              <!--
+                  `ngMenuContent` renders the items only once the menu opens, which is also what lets
+                  the directive move focus into them: a hidden panel cannot receive focus. The two
+                  move items are left out where they would do nothing rather than offered as dead
+                  controls.
+                -->
+              <ng-template ngMenuContent>
+                @if (row.groupIndex > 0) {
+                  <button type="button" class="rk-menu-item" ngMenuItem value="move-up">
+                    <svg lucideArrowUp class="rk-icon-sm" aria-hidden="true"></svg>
+                    <span class="min-w-0">Nach oben</span>
+                  </button>
+                }
+
+                @if (row.groupIndex < row.groupSize - 1) {
+                  <button type="button" class="rk-menu-item" ngMenuItem value="move-down">
+                    <svg lucideArrowDown class="rk-icon-sm" aria-hidden="true"></svg>
+                    <span class="min-w-0">Nach unten</span>
+                  </button>
+                }
+
+                <button type="button" class="rk-menu-item" ngMenuItem value="edit">
+                  <svg lucidePencil class="rk-icon-sm" aria-hidden="true"></svg>
+                  <span class="min-w-0">Bearbeiten</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="rk-menu-item rk-menu-item-danger"
+                  ngMenuItem
+                  value="delete"
+                >
+                  <svg lucideTrash2 class="rk-icon-sm" aria-hidden="true"></svg>
+                  <span class="min-w-0">Löschen</span>
+                </button>
+              </ng-template>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <!--
+    Adding an entry opens the same sheet `edit()` uses rather than growing an inline field here. The
+    list sits in the page's own scroll region, not a sheet's own - a field that grew and focused in
+    place there fought the keyboard for scroll position (the row above it appearing after a submit
+    pushed the still-focused field behind the keyboard, and closing the keyboard again did not
+    reliably give the scroll position back). The sheet already owns exactly that problem correctly
+    for editing an entry; adding one reuses it instead of solving it a second time here.
+
+    A filled button under the card, not a quiet last row inside it: it is the twin of „Neuer Termin"
+    one section up, and testers read the two different shapes as two different kinds of action.
+  -->
+  <button type="button" class="rk-button rk-button-primary mt-3 flex w-full" (click)="openAdd()">
+    <svg lucidePlus class="rk-icon" aria-hidden="true"></svg>
+    Punkt hinzufügen
+  </button>
+}

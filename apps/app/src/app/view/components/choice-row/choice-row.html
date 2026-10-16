@@ -1,0 +1,24 @@
+<!--
+  The <input> sits inside the <label>, so the label text names it implicitly and the whole row is
+  the target. Any description is inside the same label on purpose: it becomes part of the
+  accessible name ("Systemeinstellung, Die App übernimmt die Textgröße deines Geräts"), which reads
+  correctly and avoids having to generate ids for `aria-describedby`.
+-->
+<label class="rk-choice">
+  <input
+    type="radio"
+    class="rk-choice-control"
+    [name]="name()"
+    [value]="value()"
+    [checked]="checked()"
+    (change)="selected.emit(value())"
+  />
+  <span class="rk-choice-text">
+    {{ label() }}
+    @if (description(); as text) {
+      <span class="rk-choice-description">{{ text }}</span>
+    }
+  </span>
+  <!-- Trailing decoration, e.g. the theme page's colour swatch. -->
+  <ng-content />
+</label>

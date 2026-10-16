@@ -1,0 +1,6 @@
+app_identifier('at.or.amazone.rebellinnenkalender')
+team_id('66FNFGH7RT')
+
+for_platform :android do
+  package_name('at.or.amazone.rebellinnenkalender')
+end

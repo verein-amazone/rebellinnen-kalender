@@ -1,0 +1,30 @@
+Die Rebell*innen App ist mehr als nur ein Kalender. Sie begleitet dich durch den Alltag und hilft, auch in stressigen Zeiten den Überblick zu bewahren. Neben Terminen und To-dos findest du viele Funktionen, wie du die App nach deinen Wünschen und Bedürfnissen gestalten kannst – so wie’s dir gefällt! Außerdem erwarten dich jede Menge spannende Infos und Inspo zu verschiedensten Themen, Anlaufstellen und Unterstützungsangebote in Österreich und alles, was dein feministisches Herz begehrt!
+
+Die App wurde von Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen aus verschiedenen Regionen Österreichs gemeinsam mit dem Verein Amazone erarbeitet.
+
+HEUTE
+Deine nächsten Termine, die Info des Tages und deine To-do-Liste auf einen Blick.
+
+DEIN KALENDER
+Du kannst Termine anlegen mit Wiederholungen und Erinnerungen in praktischer Wochen- oder Monatsansicht. Du kannst die App mit dem Kalender deines Handys verbinden und auch andere Kalender abonnieren, zum Beispiel von deinem Verein oder deiner Schule. Wenn du magst, kannst du dir andere Termine anzeigen lassen, zum Beispiel Feier- und Aktionstage oder Veranstaltungen.
+
+REBELL*INNEN UND WISSEN
+Deine tägliche Dosis Feminismus mit inspirierenden Rebell*innen wie Ada Lovelace oder Malala Yousafzai. Dazu gibt’s Infos zu verschiedenen Themen, von Feminismus, Gesundheit und Vielfalt bis hin zu Rezepten und Buchtipps. Speicher, was dir wichtig ist oder du später noch lesen möchtest, in „Meine Sammlung“.
+
+NICHT VERGESSEN
+Mach dir eine To-do-Liste für alles, was du nicht vergessen darfst.
+
+ANLAUFSTELLEN
+Hier findest du verschiedene Angebote für Mädchen*, zum Beispiel Beratungsstellen oder Mädchentreffs in ganz Österreich.
+
+MACH DIR DIE APP, WIE SIE DIR GEFÄLLT
+Gestalte die App mit Farben, Schriftgrößen, App-Symbolen und Animationen. Die App funktioniert mit TalkBack.
+
+DEINE DATEN BLEIBEN BEI DIR
+Die App funktioniert ohne Konto, ohne Werbung und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät. Die App funktioniert auch ohne Internet.
+
+Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazone in Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und österreichweit als Print herausgegeben wird: www.amazone.or.at/projekte/rebell-innen-kalender
+
+Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender
+
+Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union. Ebenfalls gefördert von der Hil-Foundation.

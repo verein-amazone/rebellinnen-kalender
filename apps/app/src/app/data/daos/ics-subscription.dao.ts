@@ -1,0 +1,182 @@
+import { inject, Injectable } from '@angular/core';
+
+import type { IcsSubscriptionRecord } from '../entities/ics.record';
+import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
+
+/** The database shape of an `ics_subscriptions` row. */
+interface SubscriptionRow {
+  readonly id: string;
+  readonly url: string;
+  readonly allow_insecure: number;
+  readonly etag: string | null;
+  readonly last_modified: string | null;
+  readonly last_success_at: string | null;
+  readonly last_checked_at: string | null;
+  readonly last_attempt_at: string | null;
+  readonly last_error: string | null;
+  readonly active_revision_id: string | null;
+  readonly created_at: string;
+  readonly updated_at: string;
+  readonly curated_id: string | null;
+}
+
+// `raw_ics` is left out on purpose: see `IcsSubscriptionRecord`.
+const COLUMNS = `id, url, allow_insecure, etag, last_modified, last_success_at, last_checked_at,
+  last_attempt_at, last_error, active_revision_id, created_at, updated_at, curated_id`;
+
+/**
+ * Table access for ICS subscriptions. The URL is sensitive; this DAO stores and returns it, and
+ * everything above is responsible for never logging or displaying it unredacted.
+ */
+@Injectable({ providedIn: 'root' })
+export class IcsSubscriptionDao {
+  private readonly database = inject(SQLITE_DATABASE);
+
+  async list(executor: SqliteExecutor = this.database): Promise<IcsSubscriptionRecord[]> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions ORDER BY created_at ASC, id ASC`,
+    );
+
+    return rows.map(toRecord);
+  }
+
+  /** The subscriptions whose calendar source is switched on - the ones the app may download. */
+  async listEnabled(executor: SqliteExecutor = this.database): Promise<IcsSubscriptionRecord[]> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions
+       WHERE id IN (SELECT id FROM calendar_sources WHERE enabled = 1)
+       ORDER BY created_at ASC, id ASC`,
+    );
+
+    return rows.map(toRecord);
+  }
+
+  async find(
+    id: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<IcsSubscriptionRecord | null> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions WHERE id = ?`,
+      [id],
+    );
+
+    const row = rows[0];
+    return row ? toRecord(row) : null;
+  }
+
+  async findByCuratedId(
+    curatedId: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<IcsSubscriptionRecord | null> {
+    const rows = await executor.query<SubscriptionRow>(
+      `SELECT ${COLUMNS} FROM ics_subscriptions WHERE curated_id = ?`,
+      [curatedId],
+    );
+
+    const row = rows[0];
+    return row ? toRecord(row) : null;
+  }
+
+  async insert(
+    record: IcsSubscriptionRecord,
+    executor: SqliteExecutor = this.database,
+  ): Promise<void> {
+    await executor.run(
+      `INSERT INTO ics_subscriptions (${COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        record.id,
+        record.url,
+        record.allowInsecure ? 1 : 0,
+        record.etag,
+        record.lastModified,
+        record.lastSuccessAt,
+        record.lastCheckedAt,
+        record.lastAttemptAt,
+        record.lastError,
+        record.activeRevisionId,
+        record.createdAt,
+        record.updatedAt,
+        record.curatedId,
+      ],
+    );
+  }
+
+  /** The last successful document of a subscription, or `null` before its first download. */
+  async findRawIcs(id: string, executor: SqliteExecutor = this.database): Promise<string | null> {
+    const rows = await executor.query<{ readonly raw_ics: string | null }>(
+      `SELECT raw_ics FROM ics_subscriptions WHERE id = ?`,
+      [id],
+    );
+
+    return rows[0]?.raw_ics ?? null;
+  }
+
+  /** A successful refresh: the new revision is active, HTTP cache metadata and raw text kept. */
+  async recordSuccess(
+    id: string,
+    revisionId: string,
+    rawIcs: string,
+    etag: string | null,
+    lastModified: string | null,
+    nowUtc: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<void> {
+    await executor.run(
+      `UPDATE ics_subscriptions SET active_revision_id = ?, raw_ics = ?, etag = ?,
+         last_modified = ?, last_success_at = ?, last_checked_at = ?, last_attempt_at = ?,
+         last_error = NULL, updated_at = ?
+       WHERE id = ?`,
+      [revisionId, rawIcs, etag, lastModified, nowUtc, nowUtc, nowUtc, nowUtc, id],
+    );
+  }
+
+  /** A response that confirmed the cached revision is still current. */
+  async recordNotModified(
+    id: string,
+    nowUtc: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<void> {
+    await executor.run(
+      `UPDATE ics_subscriptions SET last_checked_at = ?, last_attempt_at = ?, last_error = NULL,
+         updated_at = ?
+       WHERE id = ?`,
+      [nowUtc, nowUtc, nowUtc, id],
+    );
+  }
+
+  /** A failed refresh: the previous revision stays untouched; only the error is recorded. */
+  async recordFailure(
+    id: string,
+    error: string,
+    nowUtc: string,
+    executor: SqliteExecutor = this.database,
+  ): Promise<void> {
+    await executor.run(
+      `UPDATE ics_subscriptions SET last_attempt_at = ?, last_error = ?, updated_at = ?
+       WHERE id = ?`,
+      [nowUtc, error, nowUtc, id],
+    );
+  }
+
+  async delete(id: string, executor: SqliteExecutor = this.database): Promise<void> {
+    await executor.run(`DELETE FROM ics_subscriptions WHERE id = ?`, [id]);
+  }
+}
+
+function toRecord(row: SubscriptionRow): IcsSubscriptionRecord {
+  return {
+    id: row.id,
+    url: row.url,
+    allowInsecure: row.allow_insecure === 1,
+    etag: row.etag ?? null,
+    lastModified: row.last_modified ?? null,
+    lastSuccessAt: row.last_success_at ?? null,
+    lastCheckedAt: row.last_checked_at ?? null,
+    lastAttemptAt: row.last_attempt_at ?? null,
+    lastError: row.last_error ?? null,
+    activeRevisionId: row.active_revision_id ?? null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    curatedId: row.curated_id ?? null,
+  };
+}

@@ -1,0 +1,531 @@
+# Data & persistence
+
+This document describes how the app stores data and the conventions the data layer must follow. It
+complements [frontend-architecture.md](./frontend-architecture.md).
+
+> Status: the SQLite foundation exists (gateway with transactions, migration registry, DAOs), and
+> the calendar data architecture (#29) is in place: canonical app items, the materialized occurrence
+> layer, the native calendar gateway with its offline cache, and ICS subscriptions, together with
+> the calendar screens consuming it.
+
+## Local-only persistence
+
+The app works **without login and without its own server infrastructure**. All application-owned
+data is stored locally on the device. There is no backend, no cloud synchronization, and no
+authentication.
+
+## SQLite via `@capacitor-community/sqlite`
+
+Relational, application-owned data is persisted in SQLite through
+[`@capacitor-community/sqlite`](https://github.com/capacitor-community/sqlite) on a device and
+through SQLite's own WebAssembly build in the browser (see [SQLite in the browser](#sqlite-in-the-browser)),
+accessed behind DAOs and versioned migrations.
+
+### The database gateway
+
+`data/gateways/sqlite.gateway.ts` is the only file that injects the plugin (the plugin object
+itself is imported once in `cross-cutting/plugins/sqlite.plugin.ts` - see below). Everything above it
+depends on the `SqliteDatabase` contract in `sqlite-database.ts` - `query()` and `run()`, plus a
+`SqliteUnavailableError` and the `SQLITE_DATABASE` token DAOs inject. Two consequences worth knowing:
+
+- **The connection opens lazily on first use, not from an app initializer.** Nothing in the first
+  paint needs the database, and a database that cannot open has to surface as an error inside the
+  screen that wanted it rather than aborting the bootstrap. In practice the first use comes right
+  after bootstrap anyway: the root `App` component starts the calendar consistency check
+  (`CalendarMaintenanceInteractor`) from its constructor, without awaiting it, and a failure there
+  is only logged. The open promise is memoised so
+  concurrent callers share one open sequence, and it is dropped on failure so a retry really retries.
+- **The open sequence starts with `checkConnectionsConsistency()`.** The plugin keeps a connection
+  dictionary that survives a dev-server reload; without this reconciliation `createConnection` fails
+  after every HMR update.
+
+The contract also exposes `transaction<T>(work)`: the callback receives a `SqliteExecutor` (the same
+`query`/`run` surface) and everything issued through it commits together or not at all. The gateway
+implements this with plain `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` statements - identical behaviour on
+iOS and Android - with the plugin's automatic per-statement transaction switched off inside, and
+serializes statements and transactions on the single shared connection. Two rules follow:
+
+- **Inside a `transaction()` callback, only the passed executor may be used.** Calling the database
+  directly from within the callback would wait on the serialization lock the transaction holds.
+- **On web, the database is saved once per committed transaction**, never for a rolled-back one,
+  and once after a single `run()` outside a transaction.
+
+### SQLite in the browser
+
+The app ships to iOS and Android. The browser is used for `ng serve` and the Playwright suite, and it gets **real** SQLite there - but not through the plugin.
+The `SQLITE_DATABASE` token resolves to `data/gateways/wasm-sqlite.gateway.ts` on the web, which
+runs [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm), SQLite's own WebAssembly
+build, on the main thread. That way the handwritten SQL and the migrations that run on a phone are
+the same ones a developer clicks through.
+
+Why not the plugin's own web layer: it forwards every call to `jeep-sqlite`, which runs `sql.js`,
+and the newest `sql.js` that links against jeep-sqlite's bundled glue (1.12.0) is compiled without
+FTS5 - so full-text search could not run in the browser, and the e2e suite could not open a
+database whose migrations create an FTS5 table. The wasm build is the same engine generation as the
+SQLCipher builds the plugin links on iOS and Android (3.53), FTS5 and its `trigram` tokenizer
+included. The upstream fix is
+[capacitor-community/sqlite#694](https://github.com/capacitor-community/sqlite/pull/694), which
+replaces the plugin's web layer with the same engine; once it ships, the token can resolve to
+`SqliteGateway` on every platform again and `WasmSqliteGateway` can go.
+
+How it works:
+
+- `WasmSqliteGateway` and the specs' `InMemorySqliteDatabase` (`node:sqlite`) are both synchronous
+  in-process engines, so they share one core, `synchronous-sqlite.ts`: the serialization lock, the
+  `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` transaction and the migration runner. The specs exercise the
+  transaction logic the browser runs.
+- The database lives in memory. After every committed write the whole file is exported and saved
+  as one IndexedDB record (`web-sqlite-snapshot.ts`), and the next page load restores it. The record
+  key is `DATABASE_NAME`, scoped per deployment like every other storage name.
+- Migrations follow the plugin's model: `PRAGMA user_version` is the schema version, and every
+  migration above it runs in its own transaction together with the new stamp. Foreign keys are on,
+  as the plugin turns them on on a device.
+- Under automation (`navigator.webdriver`) the gateway exposes its connection as
+  `window.rkWebSqlite`, which `apps/app/e2e/support/calendar-seed.ts` seeds rows through.
+- The engine module is loaded with a dynamic import, so a native build never fetches it.
+  `sqlite3.wasm` is still copied by **every** build (see `apps/app/angular.json`): CI runs the e2e suite
+  against the production bundle served statically, so the production web build must be able to
+  open a database too. The asset also ships in the native bundles, which is accepted for now.
+- Its path is resolved through `assetUrl()` (`cross-cutting/helpers/asset-url.ts`) and handed to the
+  engine as `locateFile`, like every other asset the app requests by hand. The bundler does not
+  rewrite the module's own `import.meta.url` lookup, and a build served from a subdirectory
+  (`--base-href`) cannot write its prefix into a string in TypeScript.
+
+### No ORM
+
+We deliberately do not install an ORM or query builder:
+
+- The SQLite plugin is fully open source and already familiar from Independo applications.
+- Available ORM/query-builder adapters do not currently provide enough confidence for the selected
+  Angular 22 and Capacitor 8 stack.
+- A small application does not justify the additional abstraction and migration tooling.
+- Handwritten SQL stays contained and testable inside the data layer.
+- Interactors and views remain independent of the persistence implementation.
+
+### The plugin caps the native Capacitor version
+
+On iOS the plugin's own `Package.swift` declares its Capacitor dependency as
+`.package(url: "…/capacitor-swift-pm.git", branch: "8.0.0")`. An unversioned Swift Package Manager
+requirement wins over a versioned one for the **entire** dependency graph, so that branch overrides
+the `exact: "8.5.0"` that `apps/app/ios/App/CapApp-SPM/Package.swift` asks for. Three things follow:
+
+- **`package.json` does not tell you which Capacitor the app links against.**
+  `apps/app/ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` does, and it
+  currently reads `branch: "8.0.0"`, revision `5962590`. Check that file, not the npm version.
+- **Native APIs added after Capacitor iOS 8.0 are unavailable at compile time.** The concrete case is
+  `SceneDelegateProxy` from [Capacitor 8.5](https://capacitorjs.com/docs/updating/8-5), which is why
+  `apps/app/ios/App/App/SceneDelegate.swift` is hand-written and forwards through `ApplicationDelegateProxy`
+  instead. The legacy `capacitorOpenURL` / `capacitorOpenUniversalLink` notifications it posts are
+  the ones plugins observe, so behaviour is equivalent.
+- **Do not delete `Package.resolved` to force a re-resolve.** `refs/heads/8.0.0` no longer exists on
+  `capacitor-swift-pm`; the pinned revision survives only because it is still reachable from `main`.
+  A resolve without that file has no branch to follow and fails.
+
+The way out is upstream, tracked in
+[capacitor-community/sqlite#697](https://github.com/capacitor-community/sqlite/issues/697): when the
+plugin publishes a version without the branch pin, take it, confirm
+`Package.resolved` moves to 8.5.0 or later, and replace `SceneDelegate.swift` with the stock
+implementation from the Capacitor 8.5 guide.
+
+## DAOs
+
+DAOs (`data/daos/*.dao.ts`) contain thin, table-oriented SQLite access:
+
+- Parameterized SQL (never string-concatenated values).
+- Insert, update and delete operations.
+- Queries and row-to-record conversion where necessary.
+- Optional transaction parameters.
+
+DAOs **must not** contain business rules. The only places handwritten SQL should normally appear are
+DAOs, database initialization, and migrations. Use the `*Dao` suffix consistently for direct
+SQLite/table access.
+
+A method that writes many rows issues **one statement per chunk, not one per row**: on a device
+every statement is its own round trip through the Capacitor bridge, and a loop of them dominated
+app start. Only placeholders are generated into the SQL - every value stays bound. Chunk sizes are
+per table and deliberately conservative, because `SQLITE_MAX_VARIABLE_NUMBER` is 999 on older
+builds and iOS, Android and the browser do not all ship the same engine (see `INSERT_CHUNK_ROWS`
+in `occurrence.dao.ts` for the reasoning, and `reminder.dao.ts` for the `CASE`-per-id update form).
+
+## Migrations
+
+All schema changes are **versioned migrations** under `data/migrations/`: one file per version
+(`019-create-schema.ts`, `020-rebuild-content-items.ts`), collected in `migrations.ts`, which also derives `DATABASE_VERSION` from
+the highest `toVersion`. Never mutate an existing shipped migration - a device that already applied
+it will not run it again, so the edit would only reach fresh installs and the two would drift apart.
+Add a new migration instead - and when it ships, add its hash to the pinned list in
+`migrations.spec.ts`, which fails on any later edit.
+
+**Every migration must survive running twice.** The plugin commits a migration's statements and
+only afterwards stamps the new version in a separate step, so a crash or a killed app between the
+two runs the same migration again on the next launch. A statement that fails the second time - a
+plain `ALTER TABLE … ADD COLUMN`, a `CREATE TABLE` without `IF NOT EXISTS` - would then stop the
+database from opening on every launch after it. Use `IF NOT EXISTS` / `IF EXISTS`, and add or drop
+a column by rebuilding the table (create the new shape, copy, drop, rename) rather than with
+`ADD COLUMN` or `DROP COLUMN`.
+`migrations.spec.ts` applies the whole registry twice to hold every migration to this.
+
+**Version 19 is the baseline.** The pre-release versions 1-18 were squashed into one migration
+before 1.0.0 (#32), so a fresh install creates the whole schema in one step. It is numbered 19, not
+1, because TestFlight and Play internal-testing builds had already left databases at every version up
+to 18, and the plugin only upgrades: a device at 18 asked for 1 would keep its old schema and never
+run a later migration. Version 19 drops every table first and recreates it, so those devices start
+over with an empty database - the agreed price for pre-release data. Local state that describes the
+database has to start over with it: the curated-calendar sync moved to a new `localStorage` key for
+that reason, and the content catalog sync already re-checks that its table is not empty.
+
+Version 20 is the first change on top of it: `content_items` names its picture by an image id
+(`hero_image_id`) and drops the columns the image catalog made redundant. It rebuilds the table rather than using `DROP COLUMN` or `RENAME COLUMN`, which would fail on a
+second run, and puts `bookmarks` aside around the rebuild, because dropping the table its foreign key points
+at fails while a bookmark is still on it.
+
+Applying them is the plugin's job, not ours: the gateway hands the registry to
+`addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is
+supported on every platform, applies each upgrade in a transaction (with a backup on native), and
+reports the same number through `getVersion()` - a hand-rolled `user_version` loop would duplicate
+that bookkeeping and could disagree with it.
+
+## Transaction boundaries
+
+A single logical unit of work (for example, a multi-table write for one use case) runs inside one
+`transaction()` call. Transaction control belongs at the boundary that represents the unit of work -
+the service that coordinates several DAOs - not buried inside unrelated DAO methods. DAOs stay
+transaction-agnostic: a DAO method takes an optional trailing `SqliteExecutor` parameter defaulting
+to the injected database, so the same method works standalone and inside a transaction.
+
+## Records, IDs and timestamps
+
+Persisted record types live in `data/entities/*.record.ts`. Conventions for application-owned
+records:
+
+- Use **client-generated UUIDs** for application-owned records.
+- Use **UTC timestamps** for persisted instants.
+- Where date semantics matter, preserve the **local calendar date** separately from the instant.
+- Persist **`createdAt`** and **`updatedAt`** for mutable application-owned records.
+- Keep **external calendar identifiers separate** from application-owned identifiers.
+
+`reminders`, the first table, follows these and adds one decision worth repeating: the completion
+state is the `completed_at` timestamp alone (`NULL` means open). A second boolean column could
+disagree with the timestamp, so there is none. The list is read in exactly one order -
+`ORDER BY (completed_at IS NULL) DESC, position ASC, created_at ASC`, i.e. open entries first, each
+section in the order the user arranged, with `created_at` only breaking a tie - and the table's only
+index mirrors that.
+
+### Manual order
+
+`position` is a `REAL`, not an integer rank. Moving an entry between two others writes the midpoint of
+their positions, so a reorder is a **single-row `UPDATE`** - and a single statement is already atomic,
+which is why dragging a row does not need transaction support that does not exist. An entry entering a
+section gets one step (1000) beyond the end it enters at.
+
+Fractional positions can only be halved so many times before two doubles round to the same value. When
+the gap between the neighbours falls below `1e-6` the interactor renumbers that section instead -
+still in one statement, built as `SET position = CASE id WHEN ? THEN ? … END` by
+`ReminderDao.reassignPositions`. Reaching that point takes roughly fifty drops into the same shrinking
+gap; writing it as a loop of updates would have been the only part of the feature that could be
+interrupted halfway.
+
+Completing or reopening an entry moves it into the other section and therefore always writes a new
+position with the same statement (`updateCompletion`): a half-applied move would order the entry by a
+position belonging to the section it just left.
+
+**Hiding completed entries at the day change is an interactor rule, not SQL.** `completed_at` is a UTC
+instant while the cutoff is local midnight, and SQLite's `localtime` modifier resolves against the host
+process' zone - which is not the same on the native plugin and in the browser build - and cannot
+be bound as a parameter. It is also a product rule driven by a preference, and DAOs hold no business
+rules. Hidden entries are only filtered out of the list; the rows stay in the database.
+
+## The calendar data architecture
+
+The calendar (#29) combines three source types behind one read model. The dependency chain is
+`interactors/calendar/*` → `data/calendar/calendar.repository.ts` → DAOs, gateways and the
+recurrence machinery. The repository is the calendar's unit-of-work boundary - the deliberate
+exception to „repositories are not introduced automatically“: it coordinates several DAOs, the
+recurrence engine, the native calendar gateway and the ICS pipeline, and every method that changes
+derived rows runs inside one transaction. Interactors never import the calendar DAOs themselves,
+not even to read; ESLint enforces that (`CALENDAR_DAOS` in `apps/app/eslint.config.js`).
+
+### Authoritative, derived, disposable
+
+- **Authoritative:** `calendar_sources` and app `calendars` (configuration); `app_items` and
+  `app_item_exceptions` (canonical events/todos: a master, an optional RFC 5545 `RRULE`, and
+  per-occurrence overrides or cancellations keyed by the occurrence's **original start**);
+  `ics_subscriptions` (configuration plus the raw text and HTTP validators of the last valid
+  download).
+- **Derived but retained:** `ics_items`/`ics_item_exceptions` - the normalized form of the active
+  ICS revision. Only a fully validated new revision may replace them; a failed refresh never
+  touches them.
+- **Derived and disposable:** `occurrences` and `source_coverage`. One row per concrete instance
+  across all sources, always rebuildable from the authoritative or retained data (or a fresh
+  native query), never the only representation of anything.
+
+Start and end times are stored as a lossless temporal triple (`kind` ∈ `date | zoned | floating |
+utc`, `value`, `tz`; see `data/entities/temporal-value.ts`), so a rule like „weekly at 18:00 in
+Europe/Vienna“ survives DST and a birthday stays a date. Materialized rows additionally carry
+computed `start_utc`/`end_utc` (end exclusive) and device-zone day columns; `date` and `floating`
+rows are computed in the device zone at materialization time, which is legitimate because a zone
+change triggers a rebuild (`CalendarMaintenanceInteractor`). The device cache cannot be rebuilt
+without the native provider, so a zone change repairs it in place: a timed row keeps its instants
+and moves to other days, an all-day row keeps its days and moves to the new zone's midnights.
+
+An occurrence override's `null` field inherits the series' value. An emptied location or note is
+stored as `''`, so clearing it on one occurrence does not bring the series' value back.
+
+**A `date` end is inclusive: the last day the appointment covers.** That holds for every stored
+record - app items, ICS items, the device cache - and for the event form that writes them. Only the
+computed `*_utc` columns are exclusive, and `DeviceEventDraft.endUtc` follows them; the native
+gateway translates that into what the calendar plugin expects, which on both platforms is the last
+day (since `@ebarooni/capacitor-calendar` 8.7.1 the plugin itself turns it into the exclusive UTC
+midnight `CalendarContract` stores). On the way back the gateway moves Android's all-day instances,
+which `CalendarContract` reports at UTC midnights, onto device-zone midnights - the convention iOS
+already uses - so the normalizer buckets both platforms the same way. The form used to write the
+exclusive day instead, which made every all-day appointment render a day too long.
+
+**Every calendar the user creates has a colour.** „Mein Kalender“ and ICS subscriptions start with
+`DEFAULT_CALENDAR_COLOR` (`interactors/calendar/calendar-colors.ts`), because the week and month
+grid only draws a dot for a coloured calendar.
+Device calendars keep whatever colour the OS reports, and the grid falls back to a muted dot for one
+that reports none.
+
+### Authoring recurring appointments
+
+The appointment form authors a deliberate subset of RFC 5545 (#80): every n days, weeks (on chosen
+weekdays), months (on the start's day of the month) or years, ending never, on a day, or after a
+number of occurrences. `data/calendar/recurrence/recurrence-rule.ts` turns that `RecurrenceRule`
+into the stored `RRULE` value and back, with `ical.js` (`ICAL.Recur`) reading and writing the value
+itself; `interactors/calendar/recurrence.ts` re-exports it for views
+and adds the German summary („Alle 2 Wochen am Montag und Mittwoch, bis 31. Dezember 2026“).
+
+- A weekly rule always lists the start's weekday, because the materializer counts DTSTART as the
+  first occurrence. The form shows that weekday ticked and disabled.
+- `UNTIL` takes the start's kind: a date for an all-day series, otherwise the last second of the
+  chosen day in the start's zone, written as UTC.
+- A stored rule outside the subset (BYSETPOS, „the second Tuesday“, …) parses to `null`. The form
+  shows it read-only and never rewrites it unless the user picks another repetition.
+- An edit only carries the time and repetition fields that changed. „Alle Termine“ goes through
+  `AppEventEditingInteractor.updateSeries()`, which applies a moved start as a shift onto the
+  series' own start rather than restarting the series on the occurrence that was opened. A changed
+  rule is never offered for „Nur dieser Termin“.
+- The form authors the rule against the series' own start (moved by any shift the user made), not
+  against the opened occurrence, so the weekday it keeps ticked is the series' weekday.
+  `rebaseRecurrenceRule()` moves a stored rule to a new start: weekly weekdays move along with it,
+  and `UNTIL` is rewritten when the series switches between all-day and timed.
+- „Dieser und folgende Termine“ keeps a finite series finite. The continuation keeps `UNTIL` and
+  carries on with what is left of `COUNT` (`countGeneratedBefore()` counts the occurrences before the
+  split, cancelled ones included, as RFC 5545 does). A rule changed in the form is anchored on the
+  continuation's own start, its first occurrence.
+- A rule on an appointment for a writable device calendar becomes a native series
+  (`DeviceEventDraft.recurrence`); the OS owns and expands it from then on.
+
+### Occurrence identity
+
+Identity is always source-scoped: `app:<series>#<originalStart>`,
+`ics:<subscription>:<uid>#<recurrenceId>`, `device:<platform>:<calendarId>:<eventId>#<start>`.
+The original start is the identity of a series occurrence; its effective time can differ when an
+override moved it. Identical UIDs from different sources can never collide.
+
+### Materialization window
+
+Expansion is bounded to a configurable window (defaults −6/+18 months,
+`data/calendar/recurrence/materialization-config.ts`) and extended when a range query approaches a
+coverage edge. Coverage rows are written in the same transaction as the rows they describe and are
+stamped with the recurrence-engine version, so an engine upgrade triggers a cheap full rebuild of
+derived rows without touching canonical data.
+
+### Recognising work that would change nothing
+
+Rebuilding derived rows is cheap to write but not free, and the two paths that run on every launch
+would otherwise redo it in full each time:
+
+- A coverage row also carries a **content fingerprint** of the external data its rows were built
+  from (`data/calendar/device-cache-fingerprint.ts`). Only the device source has such input - app
+  and ICS rows are materialized from canonical data already in the database, so the column stays
+  `NULL` for them. A device refresh normalizes what the OS returned, fingerprints it, and skips the
+  swap when it matches what is stored _and_ the row count still agrees. The fingerprint describes
+  the input; the count confirms the output is still there. Either disagreeing rebuilds, which is
+  the safe direction. There is no change token on either platform, so the instances still have to
+  be fetched and normalized - what this avoids is rewriting the whole window.
+- An ICS subscription records `last_checked_at` separately from `last_success_at`: a `304 Not
+Modified` confirms the cached revision is current without storing a new one. The automatic
+  refresh interval is measured against the check, so a feed that never changes stops being asked
+  on every launch.
+
+Writes that would restate what a row already says are skipped throughout the layer - coverage rows
+included - because such a write is indistinguishable from no write to every reader, and re-stamping
+one invalidates caches built on top of it.
+
+## Plugin tokens - `cross-cutting/plugins/`
+
+Every Capacitor plugin package is imported in exactly one file,
+`cross-cutting/plugins/<capability>.plugin.ts`, which hands it on as an Angular `InjectionToken`.
+Two layers inject such a token and no others: `data/gateways/**` for plugins that are a data source,
+and `cross-cutting/infrastructure/**` for plugins that are a device capability. ESLint enforces both
+the package ban and the token ban (specs excepted - substituting a token is what it is for).
+
+The reason is testability. Most of these plugins have no web implementation, so under jsdom every
+call rejects with `"<Plugin>.<method>() is not implemented on web"`, and a directly imported plugin
+object leaves a spec no seam to replace it - not even a component spec that only happens to construct
+the wrapper transitively. The folder also makes the native surface countable: those files are the
+complete list of native capabilities the app depends on.
+`apps/app/src/app/cross-cutting/plugins/README.md` carries the detail, including why several tokens hold a
+plain forwarding object rather than the plugin itself.
+
+## Native calendar gateway boundary
+
+The device calendar is read through `data/gateways/native-calendar.gateway.ts` wrapping
+[`@ebarooni/capacitor-calendar`](https://github.com/ebarooni/capacitor-calendar) - the only file
+injecting it. The gateway **prevents Capacitor plugin types from leaking** into interactors or
+views. Permissions are only ever requested from the explicit „connect device calendars“ action,
+never on startup. Writing goes the other way only once: `createEvent` creates a standalone event or a
+native series and leaves it to the OS from then on.
+
+## Appointment reminders
+
+Reminders (#81) are stored as **minutes before the start**, never as instants, so a moved
+appointment or a whole series needs no rewrite. For an all-day appointment the start is midnight of
+its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Tag um 09:00“ is `-540`.
+
+- `app_items.reminders` holds a JSON array, or `NULL` for „follow the default reminders“ - every
+  appointment whose list equals the defaults when it is saved, so changing the defaults later still reaches it. `[]` is an explicit
+  „no reminder“. Reminders belong to the whole series, like the rule: an occurrence override has
+  none of its own, and the scope dialog does not offer „Nur dieser Termin“ for a changed list.
+- The switch and the two default lists (timed `[15]`, all-day `[900]`, at most five each) live in
+  `notification-preferences.store.ts`. Reminders are off until the user turns them on, in the
+  settings or the introduction's last step - the only places the app asks for the notification
+  permission, always from a tap.
+- `ReminderSchedulerInteractor` hands the OS the **complete set** on every app start, resume and
+  edit: the next 60 reminders of app-owned occurrences in enabled calendars, computed from the
+  materialized `occurrences` rows (`CalendarRepository.upcomingReminderCandidates`). iOS keeps at
+  most 64 pending notifications per app and silently drops the rest; staying below that keeps the
+  choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
+  a zone change and an app update with one code path. Runs are serialized and coalesced.
+- A run cancels only the pending notifications the new set no longer contains, and before it
+  schedules the new set, which stays within iOS's limit. The others are scheduled again under their
+  stable ids and replace themselves, so a failing schedule call leaves the reminders that were
+  already pending in place. The failure is logged rather than lost.
+- A notification id is a stable 31-bit FNV-1a hash of `<occurrence id>|<minutes>`, moved to the
+  next free number on a collision within one batch. The occurrence id travels in the
+  notification's `extra`, and `App` opens `/calendar/event/<id>` when it is tapped.
+- Device-calendar appointments are never scheduled locally: their reminders are written as native
+  alerts (`DeviceEventDraft.alertMinutesBefore`), so the OS calendar delivers them. While reminders
+  are off, a new device event gets none.
+- Android: `USE_EXACT_ALARM` (granted without asking from Android 13, needs the Play Console's
+  „exact alarm“ declaration as a calendar app) keeps reminders on time. Without the grant, the
+  scheduler falls back to inexact delivery instead of letting the plugin open the system settings
+  from a background reschedule.
+- The web build cannot deliver a reminder while the page is closed; the settings say so and the form
+  hides the section.
+
+## What is and is not stored in SQLite
+
+Stored locally:
+
+- The „Nicht vergessen“ list (`reminders`).
+- App-owned events and content (canonical, editable in the app).
+- Calendar sources, calendars, ICS subscriptions with their normalized items, and the materialized
+  occurrence rows of all three source types.
+- Copies of the bundled curated catalogs - content (`content_items`) and Anlaufstellen
+  (`support_services`) - reconciled from their versioned JSON assets, and their full-text indexes.
+
+About device calendar data specifically:
+
+- The OS (EventKit / Calendar Provider) stays **authoritative**; device events are never stored as
+  canonical app records and cached instances are never editable in the app.
+- Concrete instances for the covered range **are cached** in the `occurrences` table as
+  disposable, rebuildable rows for offline display, replaced transactionally on every refresh. The
+  covered range is the materialization window around today (6 months back, 18 months ahead, plus a
+  day of buffer), anchored on the start of today: it moves with the date rather than growing, and
+  rows it has moved past are dropped with the next rebuild.
+  (This deliberately supersedes the earlier „queried on demand, never copied“ rule: offline views
+  need the rows, and their disposability keeps the ownership story intact.)
+- Losing calendar permission or a failing native query keeps the cache and flags the source
+  (`permission-lost` / `error`) instead of emptying the calendar.
+
+ICS subscription URLs may embed access tokens. They live only in `ics_subscriptions`, and every
+log- or UI-facing string uses `redactIcsUrl()` (origin plus path tail). HTTPS is required unless a
+subscription explicitly opts into `http`.
+
+## Full-text search
+
+Meine Sammlung and the Anlaufstellen are searched in SQLite, through two FTS5 tables with the
+`trigram` tokenizer (`021-search-index.ts`): `content_search` and `support_service_search`. FTS5
+trigram is available on every runtime - the SQLCipher builds on iOS and Android, SQLite's wasm
+build in the browser (see [SQLite in the browser](#sqlite-in-the-browser)) and `node:sqlite` in
+the specs.
+
+- **Why trigram.** Every run of three characters is indexed, so a term matches anywhere inside a
+  word. German compounds need that: „beratung“ must find „Mädchenberatungsstelle“, which a
+  word-based or prefix index only finds from „mädchen“. The cost is a three-character minimum per
+  term.
+- **Folding is ours, in TypeScript** (`data/search/search-text.ts`). The index holds folded copies of
+  the text, never the displayed text: lowercase, no diacritics, `ß` as `ss`, gender characters
+  inside a word dropped (`Rebell*innen` → `rebellinnen`), every other punctuation mark a space.
+  `toFtsMatch` folds the query the same way, drops terms under three characters, quotes each term
+  as an FTS5 string - so nothing typed is read as query syntax - and requires all of them, in any
+  column and any order. It returns `null` when no term is left, and the screen then shows the
+  unfiltered list.
+- **Ranking** is `bm25()` with column weights: a hit in the title (or name) outranks one in the
+  teaser, which outranks one in the body or the contact details. Equal matches keep the list's own
+  order.
+- **The syncs write the index.** `ContentCatalogSync` and `SupportServiceCatalogSync` rebuild their
+  index in the same transaction as the rows, from Markdown reduced to plain text
+  (`MarkdownRenderer.toPlainText`) and the region's display name. Not a trigger: the folding is
+  TypeScript. An index that does not hold every row counts as not caught up, which is how devices
+  that synced before version 21 fill theirs.
+- **The dev-tools reset skips the shadow tables** (`*_data`, `*_idx`, …) that hold an FTS5 index -
+  SQLite refuses a `DELETE` on them - and empties the FTS5 table itself instead.
+
+## Stores
+
+`data/stores/*.store.ts` hold small persisted values that do not belong in a relational table - the
+appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
+greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
+(`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
+hidden and in which order the chips appear (`calendar-chips.store.ts`), whether the first-launch
+introduction was seen and which step it reached (`intro.store.ts`), and the reminder switch and default reminders
+(`notification-preferences.store.ts`). They persist to `localStorage`, which is available in both the iOS and Android
+WebViews, survives restarts, and avoids paying the SQLite connection cost for a handful of scalars read
+on every startup.
+
+`reminders.store.ts` is the one to look at for the boundary: it holds where a new entry enters its
+section and whether completed entries disappear at the day change - two scalars. The
+entries themselves stay in SQLite. `calendar-chips.store.ts` draws the same line for calendars: two
+lists of ids that say how the chip row is arranged, while whether a calendar is connected at all
+stays in `calendars.enabled`.
+
+Stores expose their state as signals and **validate on read**: a stored value may come from an older
+app version or from a manually edited storage entry, so an unrecognised value falls back to the
+documented default instead of reaching the rest of the app. When a preference moves or changes
+shape, the reader carries the old value over rather than dropping it - the Tagesimpuls greeting
+moved out of the appearance preferences that way, and `ImpulsePreferencesStore` writes the carried
+value straight away so it survives the appearance store dropping the old field.
+
+Not everything in a store is persisted: `DailyImpulseStore` also holds whether the Tagesimpuls has
+greeted since the app was last opened, which has to start over on every cold start and is reset on
+every return from the background.
+
+`localStorage` access throws in some privacy modes, so it is never touched directly - reads and
+writes are guarded, and a lost preference is preferable to a broken app.
+
+### Storage names never change
+
+The SQLite database name (`data/gateways/database-name.ts`) and every store's `localStorage` key are
+what an installed app finds its data by. Renaming one starts that part of every existing install
+empty, so a new name needs a migration that reads the old one first, the way
+`ImpulsePreferencesStore` still reads its legacy key. `apps/app/e2e/support/calendar-seed.ts` relies on the
+database name as well.
+
+A store is **not** where a table-backed list belongs. The screen that shows one holds it in a
+`resource()` and reloads after each write (see
+[frontend-architecture.md](./frontend-architecture.md)); interactors stay stateless. When a second
+consumer of the same list appears, that cache can be promoted into the data layer - and this
+document amended.
+
+## Future synchronization
+
+The design keeps future sync possible through clean boundaries and stable IDs (client-generated
+UUIDs, separated external identifiers). We deliberately do **not** implement synchronization
+infrastructure now - no sync tables, outboxes, or tombstones - because there is no backend and adding
+that machinery prematurely would add cost without value. It can be introduced later behind the data
+layer (for example via a repository combining local records with a sync source) without changing
+interactors or views.

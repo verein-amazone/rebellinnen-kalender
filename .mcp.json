@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "angular-cli": {
+      "command": "pnpm",
+      "args": ["--dir", "apps/app", "exec", "ng", "mcp"]
+    }
+  }
+}

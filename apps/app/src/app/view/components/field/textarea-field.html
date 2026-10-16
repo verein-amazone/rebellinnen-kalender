@@ -1,0 +1,27 @@
+<label class="rk-label" [for]="id()">{{ label() }}</label>
+
+<div class="rk-field">
+  <textarea
+    [id]="id()"
+    class="rk-input"
+    [rows]="rows()"
+    [placeholder]="placeholder()"
+    [formField]="field()"
+    [attr.aria-invalid]="showError() ? 'true' : null"
+    [attr.aria-describedby]="showError() ? errorId() : null"
+  ></textarea>
+</div>
+
+@if (hint(); as text) {
+  <p class="rk-hint">{{ text }}</p>
+}
+
+<!--
+  Always in the DOM: a live region that appears together with its text is frequently not announced
+  at all. See the contract in src/styles/components/field.css.
+-->
+<div aria-live="polite" aria-atomic="true">
+  @if (showError()) {
+    <p [id]="errorId()" class="rk-error">{{ errorMessage() }}</p>
+  }
+</div>

@@ -1,0 +1,421 @@
+# Store uploads. Everything before this file - the version, the tag, the GitHub release and the
+# release notes - is semantic-release's job (.releaserc.json); everything after it belongs to the
+# App Store Connect and Play consoles.
+#
+# There are two channels:
+#
+#   dev  -> `ios beta`    TestFlight, "What to Test" filled in, handed to the testing groups
+#                         named in TESTFLIGHT_GROUPS (upload only when that is empty)
+#           `android internal`  Play internal testing, draft release
+#   main -> `ios release` App Store Connect, build attached to the version with its "What's New"
+#                         text, *not* submitted for review and *not* set to auto-release
+#           `android production`  Play production track, draft release
+#
+# So a merge into `main` leaves both stores one deliberate click from live: "Submit for Review" in
+# App Store Connect, "Publish" in the Play console. Nothing on `main` ever reaches a user on its own.
+#
+# The `main` lanes also write the store listing - text, screenshots, the Play graphics and the Apple
+# age rating - from fastlane/metadata/ and fastlane/screenshots/ (docs/store-listing.md). The `dev`
+# lanes never touch it: a Play listing is shared by every track, so an internal-testing upload that
+# wrote it would change the public listing with every merge.
+#
+# `ios listing` and `android listing` write the same listing without a build, plus the Play Data
+# safety answers. .github/workflows/store-listing.yml runs them when a listing change reaches `main`
+# without a release, and on demand - for example to fill the first App Store version before 1.0.0.
+#
+# TestFlight on `dev` is the one exception, on purpose: leaving each build for someone to attach by
+# hand meant nobody did, and testers sent a whole round of feedback from rc.8 while rc.14 was out,
+# about bugs fixed four releases earlier. External groups still pass Apple's beta review first.
+#
+# Run by .github/workflows/store-upload.yml; see docs/release.md for the credentials.
+
+APP_IDENTIFIER = 'at.or.amazone.rebellinnenkalender'.freeze
+TEAM_ID = '66FNFGH7RT'.freeze
+XCODE_PROJECT = 'ios/App/App.xcodeproj'.freeze
+XCODE_SCHEME = 'App'.freeze
+
+# The name match gives the profile it stores; `readonly` match never invents a different one.
+MATCH_PROFILE_NAME = "match AppStore #{APP_IDENTIFIER}".freeze
+
+# The app is German-only and both listings are German-only with it. `supply` and `deliver` both
+# reject a locale the listing does not actually have, so this is one constant rather than two.
+STORE_LOCALE = 'de-DE'.freeze
+
+AAB_PATH = 'android/app/build/outputs/bundle/release/app-release.aab'.freeze
+
+# The Apple age-rating answers, recorded with their reasons in docs/store-compliance.md.
+APP_RATING_CONFIG_PATH = 'fastlane/metadata/app_store_rating_config.json'.freeze
+
+# The Play Data safety answers, in the CSV format the Play Console imports and exports. Also
+# recorded with their reasons in docs/store-compliance.md.
+DATA_SAFETY_CSV_PATH = 'fastlane/metadata/android/data_safety.csv'.freeze
+
+# Where CI keeps its cached Swift package clones, so a release does not re-clone SQLCipher,
+# ZIPFoundation and capacitor-swift-pm from github.com. Unset locally, where Xcode's own
+# ~/Library/Caches/org.swift.swiftpm is already warm; fastlane treats a nil option as not given.
+SPM_CLONE_PATH = ENV.fetch('SPM_CLONE_PATH', nil)
+
+# How App Store Connect turns down a build number it has already seen: Apple's own error code and
+# the iris code that travels with it, in the message fastlane raises. Both halves are matched
+# because both are machine-readable and neither is the prose around them, which Apple rewords.
+DUPLICATE_BUILD_ERROR = /-19232|ENTITY_ERROR\.ATTRIBUTE\.INVALID\.DUPLICATE/
+UPLOAD_ATTEMPTS = 3
+UPLOAD_RETRY_SECONDS = 30
+
+# Handing a build to a group needs Apple to have finished processing it, which usually takes 5-20
+# minutes after the upload. Past this the lane gives up rather than holding the runner.
+PROCESSING_TIMEOUT_SECONDS = 45 * 60
+
+# Reads the App Store Connect API key from the environment.
+#
+# ENV.fetch rather than ENV[]: a missing secret has to fail here with the name of the secret, not
+# fifteen minutes later inside xcodebuild.
+def app_store_connect_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch('APP_STORE_CONNECT_KEY_ID'),
+    issuer_id: ENV.fetch('APP_STORE_CONNECT_ISSUER_ID'),
+    key_content: ENV.fetch('APP_STORE_CONNECT_KEY_P8_BASE64'),
+    is_key_content_base64: true
+  )
+end
+
+# Archives a signed, App Store ready .ipa. Identical for both channels: the same certificate, the
+# same profile and the same export method serve TestFlight and the App Store.
+def archive_signed_ipa(api_key)
+  # Temporary keychain on CI, no-op locally. Without it the imported certificate would have
+  # nowhere to live that xcodebuild can unlock unattended.
+  setup_ci
+
+  match(type: 'appstore', readonly: true, api_key: api_key)
+
+  # Manual signing against match's profile, written into the project rather than committed: the
+  # checked-in project keeps CODE_SIGN_STYLE = Automatic so opening it in Xcode still just works,
+  # and CI checks out a fresh tree every run, so this edit never outlives the job.
+  #
+  # It has to be a per-target edit. The same settings passed as xcargs land on the xcodebuild
+  # command line, where they apply to *every* target in the build - including the resource-bundle
+  # targets Swift Package Manager generates for dependencies, which reject a profile outright:
+  # "ZIPFoundation_ZIPFoundation does not support provisioning profiles".
+  update_code_signing_settings(
+    path: XCODE_PROJECT,
+    targets: [XCODE_SCHEME],
+    build_configurations: ['Release'],
+    use_automatic_signing: false,
+    team_id: TEAM_ID,
+    code_sign_identity: 'Apple Distribution',
+    profile_name: MATCH_PROFILE_NAME,
+    bundle_identifier: APP_IDENTIFIER
+  )
+
+  build_app(
+    project: XCODE_PROJECT,
+    scheme: XCODE_SCHEME,
+    configuration: 'Release',
+    export_method: 'app-store',
+    output_directory: 'build/ios',
+    # Applies to both xcodebuild calls gym makes - the package resolution it runs first and the
+    # archive itself - because fastlane builds one parameter list for the two.
+    cloned_source_packages_path: SPM_CLONE_PATH,
+    export_options: {
+      signingStyle: 'manual',
+      provisioningProfiles: { APP_IDENTIFIER => MATCH_PROFILE_NAME }
+    }
+  )
+end
+
+# Runs an App Store Connect upload so that a build Apple already has cannot leave the lane red.
+#
+# altool transfers the package and *then* talks to App Store Connect about it. When the store is
+# having a bad day the transfer succeeds - "UPLOAD SUCCEEDED with no errors", Delivery UUID issued -
+# while the calls after it (GET APP SETTINGS, GET UPLOAD STATE) come back 500 or 502. altool exits
+# nonzero, and fastlane reports "Error uploading ipa file" for a build that is already on Apple's
+# side. Retrying then earns the duplicate-version rejection, which is the receipt for that first
+# upload: the build is there, so the lane is done. Run 35649195619 failed exactly this way, twice.
+#
+# Only the upload is retried, never the archive: the .ipa exists by the time this runs and both
+# upload actions take it from the lane context, so a further attempt costs seconds.
+#
+# Returns `:uploaded`, or `:delivered_before` when the build turned out to be there already - in
+# which case whatever the upload action would have done after the transfer (waiting for processing,
+# handing the build to groups) has not happened, and the caller has to catch up on it.
+#
+# Treating a duplicate as success does mean a build number that failed to move reads as success.
+# It cannot go unnoticed here - the number comes from the released version via
+# scripts/sync-native-version.mjs, and semantic-release moves the version on every release - so a
+# collision says this very version was delivered before, which is the state the lane wants anyway.
+def upload_tolerating_a_delivered_build
+  attempt = 0
+
+  begin
+    attempt += 1
+    yield
+    :uploaded
+  # Rescued this broadly on purpose: the class fastlane wraps an altool failure in has moved
+  # between fastlane releases, and the block holds nothing but the upload action.
+  rescue StandardError => e
+    if DUPLICATE_BUILD_ERROR.match?(e.message.to_s)
+      UI.important('App Store Connect already has this build - an earlier attempt delivered it.')
+      UI.important('Nothing left to upload; treating the upload as done.')
+      return :delivered_before
+    end
+
+    raise if attempt >= UPLOAD_ATTEMPTS
+
+    UI.important("Upload attempt #{attempt} of #{UPLOAD_ATTEMPTS} failed: #{e.message}")
+    UI.important("Retrying in #{UPLOAD_RETRY_SECONDS} seconds.")
+    sleep(UPLOAD_RETRY_SECONDS)
+    retry
+  end
+end
+
+# The TestFlight groups a `dev` build is handed to, from the TESTFLIGHT_GROUPS repository variable:
+# group names exactly as App Store Connect shows them, comma-separated. Empty or unset means upload
+# only, which is what a fork or a fresh setup without testers gets.
+def testflight_groups
+  ENV.fetch('TESTFLIGHT_GROUPS', '').split(',').map(&:strip).reject(&:empty?)
+end
+
+# How a `dev` build is handed out: the groups that still need it attached, and whether any of them
+# is external.
+TestflightDistribution = Struct.new(:groups, :external) do
+  def none?
+    groups.empty?
+  end
+end
+
+# Checks the configured groups against App Store Connect before the archive, so a typo fails the
+# lane in seconds rather than after twenty minutes of xcodebuild - pilot itself skips a group name
+# it cannot match without a word, which is how a misnamed group would go unnoticed for good.
+#
+# An internal group with automatic distribution ("hasAccessToAllBuilds") already receives every
+# build by itself and is left out. An external group makes the whole distribution external: pilot
+# then submits the build to Apple's beta review, and its testers get it once Apple approves - for
+# later builds of an already reviewed version usually within minutes.
+def testflight_distribution(names)
+  return TestflightDistribution.new([], false) if names.empty?
+
+  app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
+  UI.user_error!("App Store Connect has no app #{APP_IDENTIFIER}.") if app.nil?
+
+  available = app.get_beta_groups
+  selected = names.map do |name|
+    group = available.find { |candidate| candidate.name == name }
+    next group unless group.nil?
+
+    known = available.map(&:name).join(', ')
+    UI.user_error!("TESTFLIGHT_GROUPS names \"#{name}\", which App Store Connect does not have. " \
+                   "Groups for this app: #{known}")
+  end
+
+  needing = selected.reject do |group|
+    next false unless group.is_internal_group && group.has_access_to_all_builds
+
+    UI.message("\"#{group.name}\" receives every build automatically; nothing to attach.")
+    true
+  end
+
+  TestflightDistribution.new(needing.map(&:name), needing.any? { |group| !group.is_internal_group })
+end
+
+# Uploads the release bundle to one Play track as a draft, and with `listing: true` the store
+# listing along with it.
+#
+# The changelog is a file, not a parameter: `supply` reads
+# fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt, which
+# scripts/build-store-release-notes.mjs has written by the time this runs.
+#
+# The listing - title, descriptions, icon, feature graphic, phone screenshots - is one per app, not
+# one per track, so only the production lane writes it. Everything goes in one supply run, which is
+# one Play edit: a listing the API rejects leaves nothing committed, rather than a bundle without
+# the listing it was released with. `sync_image_upload` compares hashes and re-uploads only the
+# images that changed. Play sends a listing change to review and publishes it when approved, unless
+# Managed publishing is on in the console - docs/release.md asks for it.
+#
+# `draft` rather than `completed` on both tracks: the bundle lands in the console with its notes
+# attached and a human decides when it goes out. On `internal` that is also what lets the pipeline
+# be verified before the Play "App content" declarations (#78, #79) are answered - those block the
+# rollout, not the upload.
+def upload_bundle_to_play(track, listing:)
+  upload_to_play_store(
+    track: track,
+    release_status: 'draft',
+    aab: AAB_PATH,
+    # The service account JSON stays in memory; it is never written to the runner's disk.
+    json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
+    skip_upload_metadata: !listing,
+    skip_upload_images: !listing,
+    skip_upload_screenshots: !listing,
+    sync_image_upload: listing,
+    skip_upload_changelogs: false
+  )
+end
+
+# Writes the Play listing - title, descriptions, icon, feature graphic, phone screenshots - without
+# uploading a bundle.
+#
+# supply only writes a listing as part of a release it can find on the track, even with the
+# changelogs skipped: without a version code it gives up with "Could not find release for version
+# code". So the run is pointed at the newest build on the internal track, which every prerelease
+# from `dev` keeps current. The listing itself is app-wide; which release supply used to find it
+# changes nothing about what it writes, and no track is updated.
+def upload_play_listing
+  json_key_data = ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON')
+  version_code = google_play_track_version_codes(track: 'internal', json_key_data: json_key_data).max
+  UI.user_error!('The Play internal track has no build yet; release one from `dev` first.') if version_code.nil?
+
+  upload_to_play_store(
+    track: 'internal',
+    version_code: version_code,
+    json_key_data: json_key_data,
+    skip_upload_apk: true,
+    skip_upload_aab: true,
+    skip_upload_changelogs: true,
+    sync_image_upload: true
+  )
+end
+
+# Replaces the Play Data safety answers with fastlane/metadata/android/data_safety.csv.
+#
+# supply has no option for it, so this calls the Play Developer API's `applications.dataSafety`
+# through the client supply already authenticates. It is not part of an edit: Play applies it
+# straight away, and it goes out with the next change Managed publishing lets through.
+def upload_play_data_safety
+  require 'supply'
+
+  client = Supply::Client.make_from_config(
+    params: { json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'), timeout: 300 }
+  )
+  # Lane code runs inside fastlane/, while the paths here are relative to the repository root, where
+  # fastlane runs its actions.
+  request = Google::Apis::AndroidpublisherV3::SafetyLabelsUpdateRequest.new(
+    safety_labels: File.read(File.join('..', DATA_SAFETY_CSV_PATH))
+  )
+  # The Play package name is the iOS bundle identifier (fastlane/Appfile).
+  client.client.data_application_safety(APP_IDENTIFIER, request)
+  UI.success('Play Data safety answers updated.')
+rescue Google::Apis::Error => e
+  UI.user_error!("Play rejected the Data safety answers: #{e.message} - #{e.body}")
+end
+
+default_platform(:ios)
+
+platform :ios do
+  desc 'Archive the app, upload it to TestFlight and hand it to the internal TESTFLIGHT_GROUPS.'
+  lane :beta do |options|
+    api_key = app_store_connect_key
+    distribution = testflight_distribution(testflight_groups)
+    archive_signed_ipa(api_key)
+
+    # With groups to hand the build to, pilot has to wait for Apple's processing to finish - a build
+    # still processing cannot be attached to a group. Without any, it only waits until the build
+    # appears in App Store Connect, long enough to set "What to Test", and the job ends there.
+    delivery = upload_tolerating_a_delivered_build do
+      upload_to_testflight(
+        api_key: api_key,
+        changelog: options[:changelog],
+        groups: distribution.none? ? nil : distribution.groups,
+        distribute_external: distribution.external,
+        notify_external_testers: distribution.external,
+        skip_waiting_for_build_processing: distribution.none?,
+        wait_processing_timeout_duration: PROCESSING_TIMEOUT_SECONDS
+      )
+    end
+    next if delivery == :uploaded || distribution.none?
+
+    # The build was delivered by an earlier attempt whose follow-up failed - the App Store Connect
+    # hiccup `upload_tolerating_a_delivered_build` describes, or a processing wait that ran out. So
+    # it may never have reached the groups: hand it over now, by the version and number in the .ipa
+    # this run archived, which are the ones App Store Connect already has.
+    ipa = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    upload_to_testflight(
+      api_key: api_key,
+      distribute_only: true,
+      app_version: FastlaneCore::IpaFileAnalyser.fetch_app_version(ipa),
+      build_number: FastlaneCore::IpaFileAnalyser.fetch_app_build(ipa),
+      changelog: options[:changelog],
+      groups: distribution.groups,
+      distribute_external: distribution.external,
+      notify_external_testers: distribution.external,
+      wait_processing_timeout_duration: PROCESSING_TIMEOUT_SECONDS
+    )
+  end
+
+  desc 'Archive the app, stage it as an App Store version and write the listing. Does not submit it for review.'
+  lane :release do |options|
+    api_key = app_store_connect_key
+    archive_signed_ipa(api_key)
+    version = options.fetch(:version)
+
+    # Everything that makes this "staged rather than published" is in these three flags, on both
+    # deliver runs below: `submit_for_review: false` leaves the version in "Prepare for Submission",
+    # `automatic_release` false means an approved version still waits for a human, and
+    # `run_precheck_before_submit` false keeps precheck from running for a submission that is not
+    # happening.
+    staged = {
+      api_key: api_key,
+      app_version: version,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      # No HTML preview to confirm: there is no terminal to confirm it in.
+      force: true
+    }
+
+    # The binary first and on its own. deliver writes metadata *before* it uploads, so in one run a
+    # listing that App Store Connect turns down would cost every retry below and keep the build out.
+    upload_tolerating_a_delivered_build do
+      upload_to_app_store(**staged, skip_metadata: true, skip_screenshots: true)
+    end
+
+    # Then the listing, from the repository: fastlane/metadata/ (text, categories, review notes),
+    # fastlane/screenshots/ and the age rating. Outside the retry, so it also runs - and is not
+    # repeated - when an earlier attempt had already delivered the build. App Store Connect has no
+    # "What's New" on an app's first version; deliver skips the release notes there by itself.
+    upload_to_app_store(
+      **staged,
+      skip_binary_upload: true,
+      release_notes: { STORE_LOCALE => options.fetch(:changelog) },
+      overwrite_screenshots: true,
+      app_rating_config_path: APP_RATING_CONFIG_PATH
+    )
+  end
+
+  desc 'Write the App Store listing to the version being prepared, without a build. Does not submit it for review.'
+  lane :listing do
+    # No `app_version`: deliver edits the version App Store Connect has in "Prepare for Submission"
+    # (or "Rejected", "Developer Rejected", ...) and fails when there is none - a version that is live
+    # or in review cannot be edited, and creating the next one is the release lane's job. No release
+    # notes either: they belong to a build, and the first version has none.
+    upload_to_app_store(
+      api_key: app_store_connect_key,
+      skip_binary_upload: true,
+      skip_app_version_update: true,
+      overwrite_screenshots: true,
+      app_rating_config_path: APP_RATING_CONFIG_PATH,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+      force: true
+    )
+  end
+end
+
+platform :android do
+  desc 'Upload the release bundle to the Play internal testing track, as a draft.'
+  lane :internal do
+    upload_bundle_to_play('internal', listing: false)
+  end
+
+  desc 'Upload the release bundle to the Play production track, as a draft, with the store listing.'
+  lane :production do
+    upload_bundle_to_play('production', listing: true)
+  end
+
+  desc 'Write the Play listing and the Data safety answers, without a bundle.'
+  lane :listing do
+    upload_play_listing
+    upload_play_data_safety
+  end
+end

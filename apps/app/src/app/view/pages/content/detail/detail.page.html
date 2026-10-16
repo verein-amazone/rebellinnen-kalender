@@ -1,0 +1,156 @@
+<app-focused-screen [heading]="heading()" fallbackLink="/content" [returnTo]="safeReturnTo()">
+  @if (item(); as headerContent) {
+    <button
+      header-actions
+      type="button"
+      class="rk-icon-button"
+      [class.rk-icon-button-outline-primary]="bookmarked()"
+      [attr.aria-pressed]="bookmarked()"
+      (click)="toggleBookmark()"
+    >
+      @if (bookmarked()) {
+        <svg lucideBookmarkCheck class="rk-icon" aria-hidden="true"></svg>
+      } @else {
+        <svg lucideBookmark class="rk-icon" aria-hidden="true"></svg>
+      }
+      <span class="sr-only">{{ bookmarkActionLabel() }}: {{ headerContent.title }}</span>
+    </button>
+  }
+
+  @if (bookmarkError(); as message) {
+    <p role="alert" class="rk-error mb-4">{{ message }}</p>
+  }
+
+  @if (item(); as content) {
+    <div class="space-y-4">
+      <!-- The content type is never colour alone: an icon and its own text label always ship
+           together. -->
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="rk-pill text-xs">
+          @if (content.kind === 'rebellin') {
+            <svg lucideUsers class="rk-icon-sm" aria-hidden="true"></svg>
+          } @else {
+            <svg lucideSparkles class="rk-icon-sm" aria-hidden="true"></svg>
+          }
+          <span>{{ typeLabel() }}</span>
+        </span>
+      </div>
+
+      <!-- The teaser leads: it is the one sentence that says what this item is about, and it read
+           as missing once the reader was already looking at the picture. -->
+      @if (content.teaser) {
+        <p class="text-lg">{{ content.teaser }}</p>
+      }
+
+      @if (content.imagePath; as imagePath) {
+        <!-- `imageAlt` describes the picture. The credit is not a description and stays where it
+             belongs, in the visible caption further down. -->
+        <img [src]="imagePath" [alt]="content.imageAlt ?? ''" class="w-full rounded-lg" />
+      }
+
+      @if (content.bodyMarkdown) {
+        <div class="rk-card px-4 py-5">
+          <app-markdown-content [markdown]="content.bodyMarkdown" />
+        </div>
+      }
+
+      @if (relatedSources().length > 0) {
+        <!-- One card for every link, below the body card: each row opens its page outside the
+             app, with an icon on the right that says so, or names the platform it opens. -->
+        <section class="rk-card px-4 py-4" aria-labelledby="related-sources-heading">
+          <h2 id="related-sources-heading" class="text-muted-foreground text-sm font-semibold">
+            Mehr zum Thema
+          </h2>
+          <ul class="divide-border mt-1 divide-y">
+            @for (source of relatedSources(); track source.url) {
+              <li>
+                <a
+                  [href]="source.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="min-h-touch flex items-center justify-between gap-3 py-3"
+                >
+                  <!-- Title and subtitle wrap rather than truncating: there is no second place to
+                       read them in full, and a truncated line is exactly what the scaling rules
+                       forbid. -->
+                  <span class="min-w-0">
+                    <span class="block font-semibold break-words">{{ source.title }}</span>
+                    @if (source.subtitle; as subtitle) {
+                      <span class="text-muted-foreground block text-sm break-words">{{
+                        subtitle
+                      }}</span>
+                    }
+                  </span>
+                  <!-- Lucide has no brand logos, so a platform gets the closest plain symbol; any
+                       other site keeps the external-link icon. Decoration only: the subtitle names
+                       the platform. -->
+                  @switch (source.platform) {
+                    @case ('instagram') {
+                      <svg lucideCamera class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('youtube') {
+                      <svg lucideSquarePlay class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('tiktok') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('spotify') {
+                      <svg lucideMusic class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('linkedin') {
+                      <svg lucideBriefcase class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @case ('snapchat') {
+                      <svg lucideGhost class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                    @default {
+                      <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                    }
+                  }
+                  <span class="sr-only">, öffnet in einem neuen Fenster</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (content.sourceLabel || content.sourceUrl || content.imageAttribution) {
+        <div class="border-border space-y-0.5 border-t pt-4">
+          @if (content.sourceLabel || content.sourceUrl) {
+            <p class="text-muted-foreground text-sm">
+              Quelle:
+              @if (content.sourceUrl; as sourceUrl) {
+                <a
+                  [href]="sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 underline underline-offset-2"
+                  >{{ content.sourceLabel ?? sourceUrl }}
+                  <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                  <span class="sr-only">, öffnet in einem neuen Fenster</span></a
+                >
+              } @else {
+                {{ content.sourceLabel }}
+              }
+            </p>
+          }
+
+          @if (content.imageAttribution) {
+            <p class="text-muted-foreground text-sm">Bild: {{ content.imageAttribution }}</p>
+          }
+        </div>
+      }
+    </div>
+  } @else if (loadFailed()) {
+    <div class="rk-card space-y-3 px-4 py-6 text-center">
+      <p>Der Inhalt konnte nicht geladen werden.</p>
+      <button type="button" class="rk-button rk-button-ghost" (click)="reload()">
+        <svg lucideRotateCw class="rk-icon" aria-hidden="true"></svg>
+        <span>Erneut versuchen</span>
+      </button>
+    </div>
+  } @else {
+    <p class="text-muted-foreground">Dieser Inhalt ist nicht verfügbar.</p>
+  }
+</app-focused-screen>

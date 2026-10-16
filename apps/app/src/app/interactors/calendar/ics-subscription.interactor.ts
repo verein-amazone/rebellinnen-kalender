@@ -1,0 +1,328 @@
+import { inject, Injectable } from '@angular/core';
+
+import {
+  CalendarRepository,
+  icsCalendarRowId,
+  type CalendarContext,
+} from '@app/data/calendar/calendar.repository';
+import { parseIcsCalendar } from '@app/data/calendar/ics/ics-parser';
+import { IcsUrlInvalidError, normalizeIcsUrl, redactIcsUrl } from '@app/data/calendar/ics/ics-url';
+import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
+import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
+import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
+import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
+
+import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
+
+export { IcsUrlInvalidError } from '@app/data/calendar/ics/ics-url';
+
+/** Foreground auto-refresh only bothers the network when the last check is older than this. */
+export const ICS_AUTO_REFRESH_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+export const ICS_SUBSCRIPTION_NAME_MAX_LENGTH = 200;
+
+export class IcsSubscriptionNameInvalidError extends Error {
+  constructor() {
+    super('Der Name darf nicht leer und höchstens 200 Zeichen lang sein.');
+    this.name = 'IcsSubscriptionNameInvalidError';
+  }
+}
+
+export type IcsRefreshOutcome = 'updated' | 'unchanged' | 'failed';
+
+/** One ICS subscription as the calendar-management screen lists it. */
+export interface IcsSubscriptionRow {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string | null;
+  readonly emoji: string | null;
+  readonly enabled: boolean;
+  readonly state: CalendarSourceState;
+  readonly lastError: string | null;
+}
+
+/**
+ * The lifecycle of ICS subscriptions: add, refresh, remove, and - for the management screen -
+ * renaming/recolouring, enabling/disabling and listing.
+ *
+ * A subscription is a read-only calendar source of its own. A refresh only replaces data after
+ * download, parse and normalization all succeeded - otherwise the last valid offline copy stays
+ * and the source is flagged. The subscription URL is sensitive; every log- or UI-facing string
+ * uses its redacted form.
+ */
+@Injectable({ providedIn: 'root' })
+export class IcsSubscriptionInteractor {
+  private readonly repository = inject(CalendarRepository);
+  private readonly http = inject(IcsHttpGateway);
+  private readonly emojiPicker = inject(NativeEmojiPicker);
+  private readonly isWeb = inject(DevicePlatformService).platform === 'web';
+
+  /** One download per subscription at a time; see `refresh`. */
+  private readonly inFlight = new Map<string, Promise<IcsRefreshOutcome>>();
+
+  /**
+   * The reason a link is unusable, or `null` when `add()` would accept it. Lets the add form report
+   * a broken link and keep its submit button disabled without guessing at the interactor's rules.
+   */
+  urlError(url: string, options: { allowInsecure?: boolean } = {}): string | null {
+    try {
+      normalizeIcsUrl(url, { allowInsecure: options.allowInsecure ?? false });
+      return null;
+    } catch (error) {
+      if (error instanceof IcsUrlInvalidError) {
+        return error.message;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Adds a subscription and loads it once. Throws `IcsUrlInvalidError` for an unusable link; a
+   * failing first download keeps the subscription with an error state the UI can explain.
+   */
+  async add(
+    name: string,
+    url: string,
+    options: { allowInsecure?: boolean } = {},
+  ): Promise<{ subscriptionId: string; outcome: IcsRefreshOutcome }> {
+    const allowInsecure = options.allowInsecure ?? false;
+    const normalizedUrl = normalizeIcsUrl(url, { allowInsecure });
+    const trimmedName = validatedName(name);
+    const context = this.context();
+    const subscriptionId = crypto.randomUUID();
+
+    await this.repository.createIcsSubscription(
+      {
+        id: subscriptionId,
+        type: 'ics',
+        name: trimmedName,
+        enabled: true,
+        state: 'ok',
+        createdAt: context.nowUtc,
+        updatedAt: context.nowUtc,
+      },
+      {
+        id: icsCalendarRowId(subscriptionId),
+        sourceId: subscriptionId,
+        name: trimmedName,
+        color: DEFAULT_CALENDAR_COLOR,
+        emoji: null,
+        enabled: true,
+        writable: false,
+        externalId: null,
+        nativeSourceId: null,
+        nativeSourceName: null,
+        createdAt: context.nowUtc,
+        updatedAt: context.nowUtc,
+      },
+      {
+        id: subscriptionId,
+        url: normalizedUrl,
+        allowInsecure,
+        etag: null,
+        lastModified: null,
+        lastSuccessAt: null,
+        lastCheckedAt: null,
+        lastAttemptAt: null,
+        lastError: null,
+        activeRevisionId: null,
+        createdAt: context.nowUtc,
+        updatedAt: context.nowUtc,
+        curatedId: null,
+      },
+    );
+
+    const outcome = await this.refresh(subscriptionId, { force: true });
+    return { subscriptionId, outcome };
+  }
+
+  /**
+   * Refreshes one subscription; without `force` it respects the conditional-request metadata.
+   *
+   * Concurrent calls for the same subscription share one download instead of racing. Several
+   * unrelated paths can ask at once - the foreground auto-refresh, and every screen that awaits
+   * `CuratedCalendarSync` and then force-refreshes the ids it reports - and without this each of
+   * them fetched the same feed again. A plain call joining a forced one is harmless: `force` is
+   * strictly the stronger refresh.
+   */
+  refresh(subscriptionId: string, options: { force?: boolean } = {}): Promise<IcsRefreshOutcome> {
+    // A browser cannot download a calendar feed: `IcsHttpGateway` only escapes CORS through
+    // `CapacitorHttp` on a device, and calendar servers send no `Access-Control-Allow-Origin`.
+    // Skipping here rather than letting every attempt fail keeps the browser build (`ng serve`, the
+    // Playwright suite) from flagging perfectly healthy subscriptions as broken - the screens that
+    // would show that flag are hidden there anyway. Nothing was downloaded, and nothing was marked
+    // failed.
+    if (this.isWeb) {
+      return Promise.resolve('unchanged');
+    }
+
+    const pending = this.inFlight.get(subscriptionId);
+    if (pending !== undefined) {
+      return pending;
+    }
+
+    const attempt = this.performRefresh(subscriptionId, options).finally(() => {
+      this.inFlight.delete(subscriptionId);
+    });
+    this.inFlight.set(subscriptionId, attempt);
+
+    return attempt;
+  }
+
+  private async performRefresh(
+    subscriptionId: string,
+    options: { force?: boolean },
+  ): Promise<IcsRefreshOutcome> {
+    const context = this.context();
+    const subscription = await this.repository.findIcsSubscription(subscriptionId);
+    if (subscription === null) {
+      return 'failed';
+    }
+
+    try {
+      const result = await this.http.download({
+        url: subscription.url,
+        etag: options.force === true ? null : subscription.etag,
+        lastModified: options.force === true ? null : subscription.lastModified,
+      });
+
+      if (result.status === 'not-modified') {
+        await this.repository.recordIcsNotModified(subscriptionId, context);
+        return 'unchanged';
+      }
+
+      const revisionId = crypto.randomUUID();
+      const parsed = parseIcsCalendar(result.body, subscriptionId, revisionId);
+      if (parsed.warnings.length > 0) {
+        // Individually unusable components are skipped rather than failing the whole feed, but
+        // that must leave a trace instead of silently losing data.
+        console.warn(
+          `ICS subscription ${redactIcsUrl(subscription.url)}: skipped ${parsed.warnings.length} unusable entr${parsed.warnings.length === 1 ? 'y' : 'ies'}.`,
+          parsed.warnings,
+        );
+      }
+      await this.repository.activateIcsRevision(
+        subscriptionId,
+        revisionId,
+        parsed,
+        result.body,
+        result.etag,
+        result.lastModified,
+        context,
+      );
+      return 'updated';
+    } catch (error) {
+      // Never the URL itself: the message plus the redacted origin is enough to diagnose.
+      const reason = error instanceof Error ? error.message : 'Unbekannter Fehler';
+      await this.repository.recordIcsFailure(
+        subscriptionId,
+        `${reason} (${redactIcsUrl(subscription.url)})`,
+        context,
+      );
+      return 'failed';
+    }
+  }
+
+  /**
+   * Refreshes every enabled subscription whose last check is older than the auto-refresh age.
+   *
+   * A disabled subscription is never downloaded in the background: switching a calendar off is the
+   * user's way of saying the app should stop contacting its provider, and the privacy policy says
+   * so. Switching it back on makes it due again on the next start or foreground.
+   */
+  async refreshAllDue(): Promise<void> {
+    const now = Date.now();
+    for (const subscription of await this.repository.listEnabledIcsSubscriptions()) {
+      // Measured against the last *check*, not the last stored revision: a feed that answers `304`
+      // is being confirmed as current, and gating on `lastSuccessAt` made such a feed count as due
+      // forever - re-downloaded on every launch and every foreground. `lastSuccessAt` is the
+      // fallback for rows written before that column existed, so an update does not make every
+      // subscription due at once.
+      const lastChecked = subscription.lastCheckedAt ?? subscription.lastSuccessAt;
+      const checkedAt = lastChecked === null ? 0 : Date.parse(lastChecked);
+      if (now - checkedAt >= ICS_AUTO_REFRESH_MAX_AGE_MS) {
+        // One subscription whose failure could not even be recorded must not hold back the rest.
+        try {
+          await this.refresh(subscription.id);
+        } catch (error) {
+          console.warn(`ICS subscription ${subscription.id} could not be refreshed.`, error);
+        }
+      }
+    }
+  }
+
+  /** Removes the subscription with its source, calendar, normalized data and derived rows. */
+  async remove(subscriptionId: string): Promise<void> {
+    await this.repository.removeIcsSubscription(subscriptionId);
+  }
+
+  /** Renames the subscription's calendar or changes its colour/emoji identity. */
+  async updateIdentity(
+    subscriptionId: string,
+    identity: { name: string; color: string | null; emoji: string | null },
+  ): Promise<void> {
+    const trimmedName = validatedName(identity.name);
+    await this.repository.updateCalendarIdentity(
+      icsCalendarRowId(subscriptionId),
+      { name: trimmedName, color: identity.color, emoji: identity.emoji },
+      this.context(),
+    );
+  }
+
+  /** Enables or disables the subscription; its source and calendar flip together. */
+  async setEnabled(subscriptionId: string, enabled: boolean): Promise<void> {
+    await this.repository.setIcsSubscriptionEnabled(subscriptionId, enabled, this.context());
+  }
+
+  /** Opens the emoji picker; resolves `null` when the user dismisses it without a selection. */
+  pickEmoji(): Promise<string | null> {
+    return this.emojiPicker.pickEmoji();
+  }
+
+  /** Lists every ICS subscription joined with its calendar identity, for the management screen. */
+  async listForManagement(): Promise<IcsSubscriptionRow[]> {
+    const [sources, calendars, subscriptions] = await Promise.all([
+      this.repository.listSources(),
+      this.repository.listCalendars(),
+      this.repository.listIcsSubscriptions(),
+    ]);
+
+    const calendarBySourceId = new Map(calendars.map((calendar) => [calendar.sourceId, calendar]));
+    const subscriptionById = new Map(
+      subscriptions.map((subscription) => [subscription.id, subscription]),
+    );
+
+    return sources
+      .filter(
+        (source) => source.type === 'ics' && subscriptionById.get(source.id)?.curatedId == null,
+      )
+      .map((source) => {
+        const calendar = calendarBySourceId.get(source.id);
+        return {
+          id: source.id,
+          name: calendar?.name ?? source.name,
+          color: calendar?.color ?? null,
+          emoji: calendar?.emoji ?? null,
+          enabled: source.enabled,
+          state: source.state,
+          lastError: subscriptionById.get(source.id)?.lastError ?? null,
+        };
+      });
+  }
+
+  private context(): CalendarContext {
+    return {
+      nowUtc: new Date().toISOString(),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
+  }
+}
+
+function validatedName(name: string): string {
+  const trimmed = name.trim();
+  if (trimmed.length === 0 || trimmed.length > ICS_SUBSCRIPTION_NAME_MAX_LENGTH) {
+    throw new IcsSubscriptionNameInvalidError();
+  }
+
+  return trimmed;
+}

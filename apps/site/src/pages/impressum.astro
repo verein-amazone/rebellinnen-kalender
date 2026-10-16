@@ -1,0 +1,9 @@
+---
+import { Content, getHeadings } from '@amazone/legal/impressum.md';
+
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+
+<LegalLayout title="Impressum" path="/impressum/" headings={getHeadings()}>
+  <Content />
+</LegalLayout>

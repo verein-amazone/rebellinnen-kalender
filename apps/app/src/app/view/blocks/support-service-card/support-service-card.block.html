@@ -1,0 +1,72 @@
+<!-- Past the `row` container width (large text sizes) the card stacks: the emoji's box is sized in
+     rem, so at 2x it alone claimed half the width and squeezed the name to a letter per line. The
+     emoji then sits above the text in a fixed-pixel box - it is decoration, and the compact rule is
+     that decoration stops scaling while text never does - and the actions go one per line. Below
+     that, the actions start at their natural width (`flex-auto`) and the second one wraps to its
+     own line once both no longer fit, rather than both shrinking until „Anrufen“ hyphenates. -->
+<div class="rk-card space-y-3 p-4">
+  <div class="@max-row:flex-col-reverse flex gap-3">
+    <div class="min-w-0 flex-1 space-y-1">
+      @if (regionLabel(); as region) {
+        <span class="rk-pill text-xs">{{ region }}</span>
+      }
+      <p class="font-semibold">{{ service().name }}</p>
+      <p class="text-muted-foreground">{{ service().teaser }}</p>
+    </div>
+
+    <!-- The entry's emoji, drawn plain: it carries its own colour, so a frame or tint behind it
+         only competes with the card's own surface. Purely decorative - the service is named in
+         text right next to it - so it is `aria-hidden`. The fixed box keeps emoji of different
+         widths lined up down a scrolling list. -->
+    <span
+      aria-hidden="true"
+      class="@max-row:size-[64px] @max-row:text-[48px] grid size-24 shrink-0 place-content-center text-6xl"
+    >
+      {{ service().icon }}
+    </span>
+  </div>
+
+  @if (service().actions.length > 0) {
+    <div class="@max-row:flex-col flex flex-wrap gap-2">
+      @for (action of service().actions; track action.uri; let first = $first) {
+        <a
+          [href]="action.uri"
+          [attr.target]="isExternal(action.type) ? '_blank' : null"
+          [attr.rel]="isExternal(action.type) ? 'noopener noreferrer' : null"
+          class="rk-button flex-auto hyphens-none"
+          [class.rk-button-primary]="first"
+          [class.rk-button-outline-primary]="!first"
+          [attr.aria-label]="actionAriaLabel(service().name, action.label, action.displayValue)"
+        >
+          @switch (action.type) {
+            @case ('phone') {
+              <svg lucidePhone class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @case ('sms') {
+              <svg lucideMessageSquare class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @case ('chat') {
+              <svg lucideMessageCircle class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+            @default {
+              <svg lucideExternalLink class="rk-icon-sm" aria-hidden="true"></svg>
+            }
+          }
+          <span class="flex flex-col items-center leading-tight">
+            <span>{{ action.label }}</span>
+            @if (action.displayValue) {
+              <!-- The visible number, not just the aria-label's spoken one: a sighted user reading
+                   the card (e.g. to note it down or dial from another device) needs to see the
+                   actual digits, not just "Anrufen". -->
+              <!-- Dimmed only on the filled button: on the outline variant the primary text has no
+                   contrast to spare (see `.rk-button-outline-primary`). -->
+              <span class="text-xs font-normal" [class.opacity-90]="first">{{
+                action.displayValue
+              }}</span>
+            }
+          </span>
+        </a>
+      }
+    </div>
+  }
+</div>

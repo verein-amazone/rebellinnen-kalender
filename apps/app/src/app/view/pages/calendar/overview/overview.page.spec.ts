@@ -1,0 +1,405 @@
+import { LOCALE_ID, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
+import {
+  CalendarFiltersInteractor,
+  type CalendarFilterOption,
+} from '@app/interactors/calendar/calendar-filters.interactor';
+import {
+  CalendarOccurrencesInteractor,
+  type OccurrenceFilter,
+} from '@app/interactors/calendar/calendar-occurrences.interactor';
+import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
+
+import { CalendarOverviewPage } from './overview.page';
+
+function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurrence {
+  return {
+    id: 'occ-1',
+    sourceId: 'source-1',
+    calendarId: 'calendar-1',
+    seriesId: null,
+    originalStart: null,
+    itemId: null,
+    externalId: null,
+    kind: 'event',
+    title: 'Workshop',
+    location: null,
+    description: null,
+    allDay: false,
+    start: { kind: 'zoned', value: '2026-08-05T09:30:00', timeZone: 'Europe/Vienna' },
+    end: { kind: 'zoned', value: '2026-08-05T11:00:00', timeZone: 'Europe/Vienna' },
+    startUtc: '2026-08-05T07:30:00Z',
+    endUtc: '2026-08-05T09:00:00Z',
+    startDay: '2026-08-05',
+    endDay: '2026-08-05',
+    actions: { editableInApp: true, deletableInApp: true, editViaNativeCalendar: false },
+    stale: false,
+    sourceName: 'Meine Kalender',
+    calendarName: 'Mein Kalender',
+    calendarColor: '#7b3fa8',
+    calendarEmoji: '📅',
+    ...overrides,
+  };
+}
+
+class FakeCalendarOccurrencesInteractor {
+  items: CalendarOccurrence[] = [];
+  failure: Error | null = null;
+  readonly calls: { fromDay: string; toDay: string; filter?: OccurrenceFilter }[] = [];
+
+  listForDays(
+    fromDay: string,
+    toDay: string,
+    filter?: OccurrenceFilter,
+  ): Promise<CalendarOccurrence[]> {
+    this.calls.push({ fromDay, toDay, filter });
+    return this.failure === null ? Promise.resolve(this.items) : Promise.reject(this.failure);
+  }
+}
+
+class FakeCalendarFiltersInteractor {
+  calendars: CalendarFilterOption[] = [];
+  /** The interactor owns the hidden ids now, so the fake holds them as the real one would. */
+  readonly hidden = signal<ReadonlySet<string>>(new Set());
+  readonly hiddenIds = this.hidden.asReadonly();
+  readonly moves: { calendarId: string; toIndex: number }[] = [];
+
+  listFilterable(): Promise<CalendarFilterOption[]> {
+    return Promise.resolve(this.calendars);
+  }
+
+  toggleHidden(calendarId: string): void {
+    const next = new Set(this.hidden());
+    if (!next.delete(calendarId)) {
+      next.add(calendarId);
+    }
+    this.hidden.set(next);
+  }
+
+  move(calendarId: string, toIndex: number): Promise<void> {
+    this.moves.push({ calendarId, toIndex });
+    return Promise.resolve();
+  }
+}
+
+class StubLocalDay {
+  readonly day = signal('2026-08-07');
+}
+
+class FakeDeviceCalendarSyncInteractor {
+  refreshCalls = 0;
+
+  refresh(): Promise<void> {
+    this.refreshCalls += 1;
+    return Promise.resolve();
+  }
+}
+
+class FakeHapticsInteractor {
+  selections = 0;
+
+  selection(): Promise<void> {
+    this.selections += 1;
+    return Promise.resolve();
+  }
+}
+
+interface Setup {
+  readonly element: HTMLElement;
+  readonly interactor: FakeCalendarOccurrencesInteractor;
+  readonly filters: FakeCalendarFiltersInteractor;
+  readonly haptics: FakeHapticsInteractor;
+  readonly navigate: ReturnType<typeof vi.fn>;
+  readonly setInputs: (inputs: { view?: string; day?: string }) => Promise<void>;
+  readonly whenStable: () => Promise<void>;
+}
+
+async function setup(
+  inputs: { view?: string; day?: string } = {},
+  items: CalendarOccurrence[] = [],
+  filterableCalendars: CalendarFilterOption[] = [],
+  failure: Error | null = null,
+): Promise<Setup> {
+  const interactor = new FakeCalendarOccurrencesInteractor();
+  interactor.items = items;
+  interactor.failure = failure;
+  const filters = new FakeCalendarFiltersInteractor();
+  filters.calendars = filterableCalendars;
+  const haptics = new FakeHapticsInteractor();
+
+  TestBed.configureTestingModule({
+    providers: [
+      provideRouter([]),
+      { provide: LOCALE_ID, useValue: 'de' },
+      { provide: CalendarOccurrencesInteractor, useValue: interactor },
+      { provide: CalendarFiltersInteractor, useValue: filters },
+      { provide: DeviceCalendarSyncInteractor, useClass: FakeDeviceCalendarSyncInteractor },
+      { provide: LocalDay, useClass: StubLocalDay },
+      { provide: HapticsInteractor, useValue: haptics },
+    ],
+  });
+
+  const navigate = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigate = navigate;
+
+  const fixture = TestBed.createComponent(CalendarOverviewPage);
+  fixture.componentRef.setInput('view', inputs.view);
+  fixture.componentRef.setInput('day', inputs.day);
+  await fixture.whenStable();
+
+  return {
+    element: fixture.nativeElement as HTMLElement,
+    interactor,
+    filters,
+    haptics,
+    navigate,
+    setInputs: async (next) => {
+      fixture.componentRef.setInput('view', next.view);
+      fixture.componentRef.setInput('day', next.day);
+      await fixture.whenStable();
+    },
+    whenStable: () => fixture.whenStable(),
+  };
+}
+
+function tabNamed(element: HTMLElement, label: string): HTMLElement {
+  const tab = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]')).find(
+    (candidate) => candidate.textContent?.trim() === label,
+  );
+  if (tab === undefined) {
+    throw new Error(`No tab named "${label}"`);
+  }
+  return tab;
+}
+
+function queryParamsOf(navigate: ReturnType<typeof vi.fn>, call = 0): Record<string, string> {
+  const options = navigate.mock.calls[call][1] as {
+    queryParams: Record<string, string>;
+    queryParamsHandling: string;
+    replaceUrl: boolean;
+  };
+  expect(options.queryParamsHandling).toBe('merge');
+  expect(options.replaceUrl).toBe(true);
+  return options.queryParams;
+}
+
+describe('CalendarOverviewPage', () => {
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('defaults to the week view around today', async () => {
+    const { element, interactor } = await setup();
+
+    // 2026-08-07 is a Friday; its week runs 3 through 9 August.
+    expect(interactor.calls).toEqual([{ fromDay: '2026-08-03', toDay: '2026-08-09' }]);
+    expect(element.textContent).toContain('3.\u00a0– 9. August 2026');
+    expect(element.querySelectorAll('h1')).toHaveLength(1);
+  });
+
+  it('offers a retry instead of a broken screen when the appointments cannot be loaded', async () => {
+    const { element, interactor, whenStable } = await setup({}, [], [], new Error('closed'));
+
+    const retry = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Erneut versuchen'),
+    );
+    expect(element.textContent).toContain('Die Termine konnten nicht geladen werden.');
+    expect(retry).toBeDefined();
+
+    interactor.failure = null;
+    retry!.click();
+    await whenStable();
+
+    expect(element.textContent).not.toContain('Die Termine konnten nicht geladen werden.');
+  });
+
+  it('loads the full grid range in month view', async () => {
+    const { interactor, element } = await setup({ view: 'month', day: '2026-08-15' });
+
+    expect(interactor.calls).toEqual([{ fromDay: '2026-07-27', toDay: '2026-09-06' }]);
+    expect(element.textContent).toContain('August 2026');
+  });
+
+  it('falls back to today when the day parameter is not a date', async () => {
+    const { interactor } = await setup({ day: 'nonsense' });
+
+    expect(interactor.calls).toEqual([{ fromDay: '2026-08-03', toDay: '2026-08-09' }]);
+  });
+
+  it('does not reload when the selected day stays inside the loaded range', async () => {
+    const { interactor, setInputs } = await setup({ day: '2026-08-05' });
+
+    await setInputs({ day: '2026-08-06' });
+
+    expect(interactor.calls).toHaveLength(1);
+  });
+
+  it('navigates a week back and forward from the arrow buttons', async () => {
+    const { element, navigate } = await setup({ day: '2026-08-05' });
+
+    element.querySelector<HTMLButtonElement>('button[aria-label="Vorherige Woche"]')?.click();
+    element.querySelector<HTMLButtonElement>('button[aria-label="Nächste Woche"]')?.click();
+
+    expect(queryParamsOf(navigate, 0)).toEqual({ day: '2026-07-29' });
+    expect(queryParamsOf(navigate, 1)).toEqual({ day: '2026-08-12' });
+  });
+
+  it('pages the grid with a horizontal swipe, the same way the arrows do', async () => {
+    const { element, navigate } = await setup({ day: '2026-08-05' });
+
+    const grid = element.querySelector('.rk-card')!;
+    const drag = (fromX: number, toX: number) => {
+      const options = { bubbles: true, cancelable: true, pointerId: 1, isPrimary: true, button: 0 };
+      grid.dispatchEvent(
+        new PointerEvent('pointerdown', { ...options, clientX: fromX, clientY: 100 }),
+      );
+      grid.dispatchEvent(new PointerEvent('pointerup', { ...options, clientX: toX, clientY: 100 }));
+    };
+
+    drag(240, 60);
+    drag(60, 240);
+
+    expect(queryParamsOf(navigate, 0)).toEqual({ day: '2026-08-12' });
+    expect(queryParamsOf(navigate, 1)).toEqual({ day: '2026-07-29' });
+  });
+
+  it('navigates a month back and forward in month view', async () => {
+    const { element, navigate } = await setup({ view: 'month', day: '2026-08-31' });
+
+    element.querySelector<HTMLButtonElement>('button[aria-label="Vorheriger Monat"]')?.click();
+    element.querySelector<HTMLButtonElement>('button[aria-label="Nächster Monat"]')?.click();
+
+    expect(queryParamsOf(navigate, 0)).toEqual({ day: '2026-07-31' });
+    expect(queryParamsOf(navigate, 1)).toEqual({ day: '2026-09-30' });
+  });
+
+  it('returns to and selects today from „Heute"', async () => {
+    const { element, navigate } = await setup({ view: 'month', day: '2026-11-15' });
+
+    const today = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Heute'),
+    );
+    today?.click();
+
+    expect(queryParamsOf(navigate)).toEqual({ view: 'month', day: '2026-08-07' });
+  });
+
+  it('switches the view while keeping the selected day', async () => {
+    const { element, navigate, whenStable } = await setup({ day: '2026-08-05' });
+
+    tabNamed(element, 'Monat').click();
+    await whenStable();
+
+    expect(queryParamsOf(navigate)).toEqual({ view: 'month', day: '2026-08-05' });
+  });
+
+  it('offers week and month as a real tab widget, with the week view selected by default', async () => {
+    const { element } = await setup();
+
+    const tabList = element.querySelector('[role="tablist"]');
+    expect(tabList?.getAttribute('aria-label')).toBe('Ansicht');
+
+    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
+    expect(tabs.map((tab) => tab.textContent?.trim())).toEqual(['Woche', 'Monat']);
+    expect(tabNamed(element, 'Woche').getAttribute('aria-selected')).toBe('true');
+    expect(tabNamed(element, 'Monat').getAttribute('aria-selected')).toBe('false');
+
+    // The selected tab controls the panel that is not `inert` - the one showing the grid.
+    const panels = Array.from(element.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    expect(panels).toHaveLength(2);
+    const shown = panels.find((panel) => !panel.hasAttribute('inert'));
+    expect(tabNamed(element, 'Woche').getAttribute('aria-controls')).toBe(shown?.id);
+  });
+
+  it('selecting a day in the grid navigates to it', async () => {
+    const { element, navigate } = await setup({ day: '2026-08-05' });
+
+    // The grid's first cell is Monday the 3rd.
+    const cells = Array.from(element.querySelectorAll<HTMLButtonElement>('button[aria-pressed]'));
+    cells[0]?.click();
+
+    expect(queryParamsOf(navigate)).toEqual({ day: '2026-08-03' });
+  });
+
+  it('feeds the selected day and loaded occurrences to the agenda', async () => {
+    const { element } = await setup({ day: '2026-08-05' }, [occurrence()]);
+
+    expect(element.textContent).toContain('Workshop');
+    expect(element.textContent).toContain('Mittwoch, 5. August 2026');
+  });
+
+  it('still draws a dot for an appointment whose calendar has no colour', async () => {
+    const { element } = await setup({ day: '2026-08-05' }, [occurrence({ calendarColor: null })]);
+
+    const dots = Array.from(element.querySelectorAll('span.rounded-full[style]'));
+    expect(dots.map((dot) => dot.getAttribute('style'))).toEqual([
+      expect.stringContaining('var(--color-muted-foreground)'),
+    ]);
+  });
+
+  it('renders a filter chip for every filterable calendar', async () => {
+    const { element } = await setup(
+      { day: '2026-08-05' },
+      [],
+      [
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
+        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
+      ],
+    );
+
+    expect(element.textContent).toContain('Mein Kalender');
+    expect(element.textContent).toContain('Rebell*innen Termine');
+  });
+
+  it('filters the agenda client-side after hiding a calendar, without re-querying the interactor', async () => {
+    const { element, interactor, haptics, whenStable } = await setup(
+      { day: '2026-08-05' },
+      [
+        occurrence({ id: 'a', calendarId: 'cal-1', title: 'Von Mein Kalender' }),
+        occurrence({ id: 'b', calendarId: 'cal-2', title: 'Von Rebellinnen' }),
+      ],
+      [
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
+        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
+      ],
+    );
+
+    expect(element.textContent).toContain('Von Mein Kalender');
+    expect(element.textContent).toContain('Von Rebellinnen');
+
+    const chip = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Mein Kalender'),
+    );
+    chip?.click();
+    await whenStable();
+
+    expect(element.textContent).not.toContain('Von Mein Kalender');
+    expect(element.textContent).toContain('Von Rebellinnen');
+    // The fix for the scroll-jump-on-toggle bug: filtering must never re-trigger the occurrences
+    // resource, only recompute from what is already loaded.
+    expect(interactor.calls).toHaveLength(1);
+    expect(haptics.selections).toBe(1);
+  });
+
+  it('shows the sources-hidden explanation once every filterable calendar is toggled off', async () => {
+    const { element, whenStable } = await setup(
+      { day: '2026-08-05' },
+      [],
+      [{ id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' }],
+    );
+
+    const chip = Array.from(element.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Mein Kalender'),
+    );
+    chip?.click();
+    await whenStable();
+
+    expect(element.textContent).toContain('Alle Kalender ausgeblendet');
+  });
+});
