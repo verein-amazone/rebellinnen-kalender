@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 /**
- * Renders the store screenshots and the Play feature graphic - not a test suite. See
+ * Renders the store screenshots and the store graphics - not a test suite. See
  * docs/store-listing.md; run it with `pnpm store:screenshots`.
  *
  * Kept apart from `playwright.config.ts` on purpose: a different `testDir`, so `pnpm e2e` never
@@ -13,6 +13,8 @@ import { defineConfig } from '@playwright/test';
  *
  * - `app-store` - 440×956 @3 = 1320×2868, the 6.9" iPhone size App Store Connect requires (and
  *   scales down for every smaller iPhone).
+ * - `app-store-duo` - 669×951 @3 = 2007×2853, iPhone Duo's inner display in portrait. App Store
+ *   Connect does not derive this set from the 6.9" one, so Duo gets screenshots of its own.
  * - `play` - 432×864 @2.5 = 1080×2160, a 1:2 phone screenshot, within Play's 2:1 limit.
  */
 const PORT = 4300;
@@ -54,6 +56,10 @@ export default defineConfig({
     {
       name: 'app-store',
       use: { viewport: { width: 440, height: 956 }, deviceScaleFactor: 3 },
+    },
+    {
+      name: 'app-store-duo',
+      use: { viewport: { width: 669, height: 951 }, deviceScaleFactor: 3 },
     },
     {
       name: 'play',

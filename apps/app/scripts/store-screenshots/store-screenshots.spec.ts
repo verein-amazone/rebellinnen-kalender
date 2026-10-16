@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
 
@@ -10,7 +10,8 @@ import {
 } from '../../e2e/support/calendar-seed';
 
 /**
- * The store screenshots and the Play feature graphic, rendered from the production web build (see
+ * The store screenshots, the Play feature graphic and the App Store header and search results
+ * assets, rendered from the production web build (see
  * playwright.store.config.ts and docs/store-listing.md).
  *
  * Everything that would make two runs differ is pinned: the clock (a fixed Sunday, Weltfrauentag,
@@ -21,13 +22,29 @@ import {
 /** Playwright runs from the repository root, like `e2e/support/developer-tools.ts` assumes. */
 const ROOT = process.cwd();
 
-/** Where each store's tool reads its screenshots from, in upload order by file name. */
-const OUTPUT: Record<string, string> = {
-  'app-store': join(ROOT, 'fastlane', 'screenshots', 'de-DE'),
-  play: join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'images', 'phoneScreenshots'),
+const APP_STORE_SCREENSHOTS = join(ROOT, 'fastlane', 'screenshots', 'de-DE');
+
+/**
+ * Where each store's tool reads its screenshots from, in upload order by file name. Both App Store
+ * sets share one folder: deliver sorts a screenshot into its display type by its pixel size, so the
+ * prefix only keeps the two sets apart on disk - and lets each project replace its own files only.
+ */
+const OUTPUT: Record<string, { dir: string; prefix: string }> = {
+  'app-store': { dir: APP_STORE_SCREENSHOTS, prefix: 'iphone-' },
+  'app-store-duo': { dir: APP_STORE_SCREENSHOTS, prefix: 'duo-' },
+  play: {
+    dir: join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'images', 'phoneScreenshots'),
+    prefix: '',
+  },
 };
 
 const PLAY_IMAGES = join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'images');
+
+/**
+ * The App Store header and search results assets. deliver cannot upload either, so they live outside
+ * `fastlane/screenshots/` and `fastlane/metadata/` and are uploaded by hand (docs/store-listing.md).
+ */
+const APP_STORE_ASSETS = join(ROOT, 'fastlane', 'app-store-assets');
 
 /** Sunday, 8 March 2026, 9:30 in Vienna. */
 const NOW = new Date('2026-03-08T09:30:00+01:00');
@@ -148,9 +165,13 @@ async function seedDemoData(page: Page): Promise<void> {
 
 test.describe('store screenshots', () => {
   test('renders the screenshots', async ({ page }, testInfo) => {
-    const outputDir = OUTPUT[testInfo.project.name];
-    rmSync(outputDir, { recursive: true, force: true });
+    const { dir: outputDir, prefix } = OUTPUT[testInfo.project.name];
     mkdirSync(outputDir, { recursive: true });
+    for (const name of readdirSync(outputDir)) {
+      if (name.endsWith('.png') && name.startsWith(prefix)) {
+        rmSync(join(outputDir, name));
+      }
+    }
 
     // `temporal-polyfill` hands out the browser's own Temporal where there is one, and a native
     // `Temporal.Now` reads the system clock, which Playwright's fake clock does not reach. Without
@@ -234,7 +255,7 @@ test.describe('store screenshots', () => {
       await shot.prepare?.(page);
       await shot.ready(page);
       await settle(page);
-      const file = `${String(index + 1).padStart(2, '0')}-${shot.name}.png`;
+      const file = `${prefix}${String(index + 1).padStart(2, '0')}-${shot.name}.png`;
       await writeOpaquePng(await page.screenshot(), join(outputDir, file));
     }
   });
@@ -242,16 +263,51 @@ test.describe('store screenshots', () => {
   test('renders the Play feature graphic', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'play', 'Only the Play listing has a feature graphic.');
 
-    await page.setViewportSize({ width: 1024, height: 500 });
-    await page.setContent(featureGraphicHtml(), { waitUntil: 'load' });
-    await page.evaluate(() => document.fonts.ready);
+    await renderGraphic(
+      page,
+      { width: 1024, height: 500, scale: 1 },
+      PLAY_IMAGES,
+      'featureGraphic',
+    );
+  });
 
-    mkdirSync(PLAY_IMAGES, { recursive: true });
-    // The graphic is specified in pixels, so it is captured at 1x regardless of the project's density.
-    const png = await page.locator('main').screenshot({ scale: 'css' });
-    await writeOpaquePng(png, join(PLAY_IMAGES, 'featureGraphic.png'));
+  test('renders the App Store header and search results assets', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'app-store', 'Only the App Store has these assets.');
+
+    // The header spans the top of the product page and is cropped to the screen on a phone, so the
+    // logo stays small and central. The search results asset stands in for the screenshots in a
+    // search result card; it takes the feature graphic's layout, scaled up.
+    await renderGraphic(
+      page,
+      { width: 3840, height: 1646, scale: 2.4 },
+      APP_STORE_ASSETS,
+      'header',
+    );
+    await renderGraphic(
+      page,
+      { width: 1920, height: 1280, scale: 1.75 },
+      APP_STORE_ASSETS,
+      'search-results',
+    );
   });
 });
+
+/** Renders the brand graphic at a store's pixel size and writes it as `<dir>/<name>.png`. */
+async function renderGraphic(
+  page: Page,
+  size: { width: number; height: number; scale: number },
+  dir: string,
+  name: string,
+): Promise<void> {
+  await page.setViewportSize({ width: size.width, height: size.height });
+  await page.setContent(brandGraphicHtml(size), { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+
+  mkdirSync(dir, { recursive: true });
+  // The graphic is specified in pixels, so it is captured at 1x regardless of the project's density.
+  const png = await page.locator('main').screenshot({ scale: 'css' });
+  await writeOpaquePng(png, join(dir, `${name}.png`));
+}
 
 /** Inlines a bundled font, so `setContent` - which has no base URL - can use it. */
 function fontFace(family: string, file: string, weight: string): string {
@@ -262,14 +318,16 @@ function fontFace(family: string, file: string, weight: string): string {
 }
 
 /**
- * The feature graphic: the app icon and name on the Amazone theme's teal, which the navy icon stands
- * out from, like on the website's start page. Play shows it above the screenshots and sometimes
- * crops its edges, so everything that matters sits in the middle.
+ * The brand graphic behind the Play feature graphic and the App Store header and search results
+ * assets: the app icon and name on the Amazone theme's teal, which the navy icon stands out from,
+ * like on the website's start page. The stores crop the edges of these graphics, so everything that
+ * matters sits in the middle. `scale` grows the icon and the text from the feature graphic's sizes.
  */
-function featureGraphicHtml(): string {
+function brandGraphicHtml(size: { width: number; height: number; scale: number }): string {
   const icon = readFileSync(join(ROOT, 'resources', 'app-icons', 'cool-cat-nacht.png')).toString(
     'base64',
   );
+  const px = (value: number): string => `${value * size.scale}px`;
 
   return `<!doctype html>
 <html lang="de">
@@ -280,13 +338,13 @@ function featureGraphicHtml(): string {
   ${fontFace('Inter', 'inter-latin.woff2', '100 900')}
   html, body { margin: 0; }
   main {
-    width: 1024px; height: 500px; box-sizing: border-box;
-    display: flex; align-items: center; justify-content: center; gap: 56px;
+    width: ${size.width}px; height: ${size.height}px; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; gap: ${px(56)};
     background: #7dbdbb; color: #15195f;
   }
-  img { width: 232px; height: 232px; border-radius: 52px; }
-  h1 { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 64px; line-height: 1.05; margin: 0; }
-  p { font-family: 'Inter', sans-serif; font-size: 28px; line-height: 1.35; margin: 20px 0 0; color: #15195f; }
+  img { width: ${px(232)}; height: ${px(232)}; border-radius: ${px(52)}; }
+  h1 { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: ${px(64)}; line-height: 1.05; margin: 0; }
+  p { font-family: 'Inter', sans-serif; font-size: ${px(28)}; line-height: 1.35; margin: ${px(20)} 0 0; color: #15195f; }
 </style>
 </head>
 <body>

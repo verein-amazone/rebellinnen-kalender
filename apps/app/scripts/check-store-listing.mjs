@@ -8,7 +8,7 @@
 //
 //   node apps/app/scripts/check-store-listing.mjs
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 
 import sharp from 'sharp';
 
@@ -56,8 +56,23 @@ const DATA_SAFETY_TOP_QUESTION = 'PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA';
 const CURATED_CATALOG = join(ROOT, 'public', 'curated-calendars', 'catalog.json');
 const PRIVACY_POLICY = join(REPO_ROOT, 'packages', 'legal', 'src', 'datenschutz.md');
 
-/** The 6.9" iPhone size; App Store Connect scales it down for every smaller iPhone. */
-const APP_STORE_SCREENSHOT = { width: 1320, height: 2868, min: 1, max: 10 };
+/**
+ * The App Store screenshot sets, all in one folder and told apart by their file name prefix
+ * (scripts/store-screenshots/). deliver sorts each file into its display type by pixel size.
+ *
+ * - The 6.9" iPhone size; App Store Connect scales it down for every smaller iPhone.
+ * - iPhone Duo's inner display, which it is not derived from.
+ */
+const APP_STORE_SCREENSHOT_SETS = [
+  { prefix: 'iphone-', width: 1320, height: 2868, min: 1, max: 10 },
+  { prefix: 'duo-', width: 2007, height: 2853, min: 1, max: 10 },
+];
+/** Uploaded by hand: deliver has no support for either (docs/store-listing.md). */
+const APP_STORE_ASSETS = join(ROOT, 'fastlane', 'app-store-assets');
+const APP_STORE_ASSET_SIZES = {
+  'header.png': { width: 3840, height: 1646 },
+  'search-results.png': { width: 1920, height: 1280 },
+};
 /** Play: 2-8 phone screenshots, each side 320-3840 px, the long side at most twice the short one. */
 const PLAY_SCREENSHOTS = { min: 2, max: 8, minSide: 320, maxSide: 3840, maxRatio: 2 };
 
@@ -234,9 +249,35 @@ async function main() {
     }
   }
 
-  checkCount(APP_STORE_SCREENSHOTS, APP_STORE_SCREENSHOT);
-  for (const path of pngsIn(APP_STORE_SCREENSHOTS)) {
-    await checkImage(path, { ...APP_STORE_SCREENSHOT, alpha: false });
+  const appStoreScreenshots = pngsIn(APP_STORE_SCREENSHOTS);
+  /** @type {string[][]} */
+  const shotNames = [];
+  for (const set of APP_STORE_SCREENSHOT_SETS) {
+    const files = appStoreScreenshots.filter((path) => basename(path).startsWith(set.prefix));
+    if (files.length < set.min || files.length > set.max) {
+      problems.push(
+        `${display(APP_STORE_SCREENSHOTS)} has ${files.length} ${set.prefix}* screenshots; the store takes ${set.min}-${set.max}`,
+      );
+    }
+    for (const path of files) {
+      await checkImage(path, { ...set, alpha: false });
+    }
+    shotNames.push(files.map((path) => basename(path).slice(set.prefix.length)));
+  }
+  for (const path of appStoreScreenshots) {
+    if (!APP_STORE_SCREENSHOT_SETS.some((set) => basename(path).startsWith(set.prefix))) {
+      problems.push(
+        `${display(path)} belongs to no screenshot set; deliver would upload it anyway`,
+      );
+    }
+  }
+  // Every device shows the same screens in the same order.
+  if (new Set(shotNames.map((names) => names.join())).size > 1) {
+    problems.push(`${display(APP_STORE_SCREENSHOTS)}: the screenshot sets show different screens`);
+  }
+
+  for (const [file, size] of Object.entries(APP_STORE_ASSET_SIZES)) {
+    await checkImage(join(APP_STORE_ASSETS, file), { ...size, alpha: false });
   }
 
   const phoneScreenshots = join(PLAY_LOCALE, 'images', 'phoneScreenshots');
