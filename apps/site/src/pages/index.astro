@@ -51,7 +51,7 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
 <BaseLayout title={`${APP_NAME} – ${SUBTITLE}`} description={PROMOTIONAL} path="/">
   <main id="inhalt" class="flex-1">
     <section
-      class="wrap grid gap-10 pt-[clamp(1.75rem,6vw,4.5rem)] desktop:min-h-[min(100svh,52rem)] desktop:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] desktop:items-center desktop:gap-x-12 desktop:py-12"
+      class="wrap grid gap-10 pt-[clamp(1.75rem,6vw,4.5rem)] split:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] split:items-center split:gap-x-[clamp(2rem,5vw,3rem)] split:py-12 desktop:min-h-[min(100svh,52rem)]"
       aria-labelledby="app-name"
     >
       <div class="grid justify-items-start gap-5">
@@ -63,13 +63,16 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
           height="256"
           class="size-18 drop-shadow-[0_0.5rem_0.6rem_rgb(14_17_69/0.4)]"
         />
-        <h1 id="app-name" class="text-[clamp(3.25rem,15vw,6rem)] leading-[0.92] tracking-[-0.02em]">
+        <h1
+          id="app-name"
+          class="text-[clamp(3.25rem,15vw,6rem)] leading-[0.92] tracking-[-0.02em] split:text-[clamp(3.5rem,8.5vw,6rem)]"
+        >
           {APP_NAME}
         </h1>
-        <p class="-mt-1.5 font-display text-[clamp(1.5rem,5.5vw,2.25rem)] leading-tight font-medium">
+        <p class="-mt-1.5 font-display text-[clamp(1.5rem,5.5vw,2.25rem)] leading-tight font-medium split:text-[clamp(1.5rem,3.2vw,2.25rem)]">
           {SUBTITLE}
         </p>
-        <p class="max-w-[32ch] text-[1.1875rem] leading-normal">{promise}</p>
+        <p class="max-w-[32ch] text-lead">{promise}</p>
         <StoreButtons class="mt-2" />
       </div>
       {/* Cropped by the fold on a phone: the screen reads as "there is more below". */}
@@ -77,18 +80,21 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
         screen="heute"
         lazy={false}
         alt="Der Heute-Bildschirm der App: ein Gruß, der Wissensimpuls „Heute ist Feministischer Kampftag!“ mit einer gezeichneten Katze und die Termine des Tages."
-        class="-mb-24 w-[min(78vw,20rem)] justify-self-center desktop:mb-0 desktop:w-84 desktop:rotate-3"
+        class="-mb-24 w-[min(78vw,20rem)] justify-self-center split:mb-0 split:w-[min(34vw,21rem)] split:rotate-3"
       />
     </section>
 
     <section
-      class="wrap pt-36 pb-8 desktop:grid desktop:grid-cols-2 desktop:items-end desktop:gap-x-16 desktop:pt-24"
+      class="wrap pt-36 pb-8 split:grid split:grid-cols-2 split:items-end split:gap-x-[clamp(2rem,6vw,4rem)] split:pt-24"
       aria-labelledby="mehr"
     >
-      <h2 id="mehr" class="max-w-[14ch] text-[clamp(2.25rem,8vw,4rem)]">
+      <h2
+        id="mehr"
+        class="max-w-[14ch] text-[clamp(2.25rem,8vw,4rem)] split:text-[clamp(2.25rem,5vw,4rem)]"
+      >
         Die Rebell*innen App ist mehr als nur ein Kalender
       </h2>
-      <p class="mt-5 max-w-152 text-[1.1875rem] desktop:mt-0">
+      <p class="mt-5 max-w-152 text-lead split:mt-0">
         Sie begleitet dich durch den Alltag und hilft, auch in stressigen Zeiten den Überblick zu
         bewahren. Neben Terminen und To-dos findest du viele Funktionen, wie du die App nach deinen
         Wünschen und Bedürfnissen gestalten kannst – so wie’s dir gefällt! Außerdem erwarten dich
@@ -102,14 +108,17 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
         const flipped = index % 2 === 1;
         return (
           <section
-            class="grid justify-items-center gap-8 desktop:grid-cols-2 desktop:items-center desktop:gap-x-16"
+            class="grid justify-items-center gap-8 split:grid-cols-2 split:items-center split:gap-x-[clamp(2rem,6vw,4rem)]"
             aria-labelledby={`feature-${index}`}
           >
-            <div class:list={['grid gap-4 justify-self-stretch', flipped && 'desktop:order-2']}>
-              <h3 id={`feature-${index}`} class="text-[clamp(1.875rem,6.5vw,3rem)]">
+            <div class:list={['grid gap-4 justify-self-stretch', flipped && 'split:order-2']}>
+              <h3
+                id={`feature-${index}`}
+                class="text-[clamp(1.875rem,6.5vw,3rem)] split:text-[clamp(1.875rem,4vw,3rem)]"
+              >
                 {feature.title}
               </h3>
-              <p class="max-w-136 text-lg">{feature.text}</p>
+              <p class="max-w-136 text-lead">{feature.text}</p>
             </div>
             <Phone
               screen={feature.screen}
@@ -117,8 +126,8 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
               settle
               tilt={flipped ? 'right' : 'left'}
               class:list={[
-                'w-[min(68vw,17rem)] desktop:w-88',
-                flipped ? 'desktop:justify-self-end' : 'desktop:justify-self-start',
+                'w-[min(68vw,17rem)] split:w-[min(36vw,22rem)]',
+                flipped ? 'split:justify-self-end' : 'split:justify-self-start',
               ]}
             />
           </section>
@@ -126,7 +135,7 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
       })}
     </div>
 
-    <div class="wrap grid gap-10 pb-[clamp(4rem,12vw,7rem)] tablet:grid-cols-2 tablet:gap-x-16">
+    <div class="wrap grid gap-10 pb-[clamp(4rem,12vw,7rem)] split:grid-cols-2 split:gap-x-[clamp(2rem,6vw,4rem)]">
       {extras.map((extra) => (
         <section>
           <h3 class="mb-3 text-[clamp(1.5rem,5vw,2rem)]">{extra.title}</h3>
@@ -151,7 +160,7 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
             <span class="text-accent">Auch ohne</span> Internet
           </li>
         </ul>
-        <p class="max-w-144 text-lg text-rebel-text-muted">
+        <p class="max-w-144 text-lead text-rebel-text-muted">
           Die App funktioniert ohne Konto und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät.
           Die App funktioniert auch ohne Internet.
         </p>
@@ -167,11 +176,14 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
     </section>
 
     <section
-      class="wrap grid grid-cols-1 gap-5 py-[clamp(4rem,12vw,7rem)] desktop:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] desktop:items-start desktop:gap-x-16"
+      class="wrap grid grid-cols-1 gap-5 py-[clamp(4rem,12vw,7rem)] split:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] split:items-start split:gap-x-[clamp(2rem,6vw,4rem)]"
       aria-labelledby="wer"
     >
       <div class="grid grid-cols-1 gap-5 [&_p]:max-w-152">
-        <h2 id="wer" class="max-w-[16ch] text-[clamp(2rem,7vw,3.25rem)]">
+        <h2
+          id="wer"
+          class="max-w-[16ch] text-[clamp(2rem,7vw,3.25rem)] split:text-[clamp(2rem,4.5vw,3.25rem)]"
+        >
           Gemeinsam mit Jugendlichen erarbeitet
         </h2>
         <p>
@@ -193,9 +205,11 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
           <a href={SOURCE_CODE_URL}>github.com/verein-amazone/rebellinnen-kalender</a>
         </p>
       </div>
-      <div class="mt-10 grid justify-items-start gap-5 rounded-lg bg-card p-[clamp(1.75rem,6vw,3rem)] desktop:sticky desktop:top-8 desktop:mt-0">
-        <h2 class="text-[clamp(1.875rem,6vw,2.75rem)]">Hol dir die App</h2>
-        <StoreButtons surface="cream" />
+      <div class="mt-10 grid justify-items-start gap-5 rounded-lg bg-card p-[clamp(1.75rem,6vw,3rem)] split:sticky split:top-8 split:mt-0">
+        <h2 class="text-[clamp(1.875rem,6vw,2.75rem)] split:text-[clamp(1.875rem,3.5vw,2.75rem)]">
+          Hol dir die App
+        </h2>
+        <StoreButtons />
       </div>
     </section>
   </main>
