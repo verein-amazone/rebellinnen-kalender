@@ -1,3 +1,19 @@
+## [1.0.0-rc.57](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.56...v1.0.0-rc.57) (2026-10-16)
+
+### Features
+
+* **site:** rebuild the website with Astro and Tailwind in apps/site ([57a85c7](https://github.com/verein-amazone/rebellinnen-kalender/commit/57a85c71ac7de70ac4bd9dd4b84d4c2d188120d4))
+
+### Build
+
+* introduce the pnpm workspace, a version catalog and tsconfig.base ([21790d6](https://github.com/verein-amazone/rebellinnen-kalender/commit/21790d69ee73933962c7e552060ecd46b9c4fde7))
+
+### Refactoring
+
+* extract the design tokens and webfonts into @amazone/design-system ([6e370fd](https://github.com/verein-amazone/rebellinnen-kalender/commit/6e370fd2488b0078f2934c269781d62841ca2a25))
+* extract the legal texts into @amazone/legal ([2e50cc5](https://github.com/verein-amazone/rebellinnen-kalender/commit/2e50cc5a2dda64b2974bbe8957daf0d520c78ca4))
+* move the app into apps/app ([0208b4d](https://github.com/verein-amazone/rebellinnen-kalender/commit/0208b4d5b55a4638077f78f5bf087506c3c3df76))
+
 ## [1.0.0-rc.56](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.55...v1.0.0-rc.56) (2026-10-16)
 
 ### Features
