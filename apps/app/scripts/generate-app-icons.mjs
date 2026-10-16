@@ -32,7 +32,8 @@
  * - `apps/site/public/apple-touch-icon.png` - the 180px icon Safari on iOS shows when the website
  *   (`apps/site`, see docs/store-listing.md) is added to a home screen or shared.
  * - `public/favicon.ico` and `apps/site/public/favicon.ico` - the browser tab icon, 16, 32 and 48px
- *   in one file, for `ng serve` and for the website.
+ *   in one file, for `ng serve` and for the website. Rounded like the icon on a home screen: a tab
+ *   applies no mask of its own, and the square artwork read as a flat navy block there.
  * - `fastlane/metadata/android/de-DE/images/icon.png` - the 512px hi-res icon of the Play listing,
  *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
  *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
@@ -294,6 +295,18 @@ async function roundLayer(source, size, background, headCentre) {
     .toBuffer();
 }
 
+/**
+ * A white rounded square on transparent, used as a `dest-in` mask to round the favicon. The radius
+ * is close to the corner of an iOS home-screen icon (about 22.5 % of the side), so the tab shows the
+ * shape people know the icon by.
+ */
+function roundedSquareMask(size) {
+  const radius = size * 0.225;
+  return Buffer.from(
+    `<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="#fff"/></svg>`,
+  );
+}
+
 /** A white disc on transparent, used as a `dest-in` mask to round the legacy round icon. */
 function discMask(size) {
   const radius = size / 2;
@@ -362,8 +375,11 @@ async function writeAppleTouchIcon(source) {
  */
 async function writeFavicon(source) {
   const images = await Promise.all(
-    FAVICON_SIZES.map((size) =>
-      sharp(source).resize(size, size, { fit: 'cover' }).png({ compressionLevel: 9 }).toBuffer(),
+    FAVICON_SIZES.map(async (size) =>
+      sharp(await sharp(source).resize(size, size, { fit: 'cover' }).ensureAlpha().toBuffer())
+        .composite([{ input: roundedSquareMask(size), blend: 'dest-in' }])
+        .png({ compressionLevel: 9 })
+        .toBuffer(),
     ),
   );
 
