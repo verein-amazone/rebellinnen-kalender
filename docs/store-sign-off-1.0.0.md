@@ -26,7 +26,7 @@ Gleich in beiden Stores, sofern nicht anders angegeben. Zeichenlimits in Klammer
 | Kategorien, App Store                          | Produktivität, zweite Kategorie Lifestyle                                                                                         | ☑             |
 | Copyright                                      | 2026 Verein Amazone                                                                                                               | ☑             |
 | Support-URL                                    | https://www.amazone.or.at/kontakt                                                                                                 | ☑             |
-| Marketing-URL                                  | https://www.rebellinnen.at (leitet auf die Projektseite von Verein Amazone weiter)                                                | ☑             |
+| Marketing-URL                                  | https://www.amazone.or.at/projekte/rebell-innen-kalender (die Projektseite von Verein Amazone; www.rebellinnen.at gibt es nicht)  | ☑             |
 
 ### Beschreibung (4000)
 
@@ -76,7 +76,7 @@ Rückmeldung nur Satzzeichen korrigiert („Voiceover“ → „VoiceOver“, zw
 > Die App baut inhaltlich auf dem Rebell\*innen Kalender auf, der vom Verein Amazone in Kooperation
 > mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen\*, jungen Frauen\*,
 > inter\*, nicht-binären, trans\* und agender Jugendlichen erarbeitet und österreichweit als Print
-> herausgegeben wird: www.rebellinnen.at
+> herausgegeben wird: www.amazone.or.at/projekte/rebell-innen-kalender
 >
 > Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen:
 > github.com/verein-amazone/rebellinnen-kalender
