@@ -1,3 +1,16 @@
+## [1.0.0-rc.52](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.51...v1.0.0-rc.52) (2026-10-16)
+
+### Features
+
+* **pages:** publish the web demo and legal pages at kalender.amazone.or.at ([e8b4bc2](https://github.com/verein-amazone/rebellinnen-kalender/commit/e8b4bc2b59887ebaa2c20aaafd1931f0a97b6b0f))
+* rename the app to Rebell*innen and adopt the v2 store texts ([e6d04cb](https://github.com/verein-amazone/rebellinnen-kalender/commit/e6d04cb644989373a94cf6b021f5967e871214a9))
+* **settings:** ship the Impressum with the app ([6554868](https://github.com/verein-amazone/rebellinnen-kalender/commit/6554868c31f1a96cd4d98761c338527160936733))
+* **site:** build the public website for kalender.amazone.or.at ([e7e9212](https://github.com/verein-amazone/rebellinnen-kalender/commit/e7e921276980d4aa50c4aa4cb9be10ee057e774d))
+
+### Delivery
+
+* **pages:** publish the website instead of the web demo ([7648968](https://github.com/verein-amazone/rebellinnen-kalender/commit/7648968634c885c905802fe81681d83d85ac41e0))
+
 ## [1.0.0-rc.51](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.50...v1.0.0-rc.51) (2026-10-14)
 
 ### Bug Fixes
