@@ -10,10 +10,11 @@ technischen Hintergründe stehen in [store-listing.md](./store-listing.md) und
   eingearbeitet am 16. Oktober 2026
 - Anwesend: …
 - Geplante Veröffentlichung: **9. November 2026**. Eingereicht wird schon vorher, damit die Prüfung
-  Zeit hat. Im App Store als Vorbestellung mit Erscheinungsdatum 9. November und „nach der Prüfung
-  automatisch veröffentlichen, frühestens am 9. November“. Google Play kennt kein Datum: Mit
-  „Verwaltete Veröffentlichung“ wartet die geprüfte Version, bis sie am 9. November **von Hand**
-  veröffentlicht wird.
+  Zeit hat. Im App Store als Vorbestellung mit Erscheinungsdatum 9. November: Eine Vorbestellung
+  verlangt „Diese Version manuell freigeben“, nach der Prüfung wird sie mit „Als Vorbestellung
+  freigeben“ freigegeben, und der App Store veröffentlicht die App am 9. November von selbst.
+  Google Play kennt kein Datum: Mit „Verwaltete Veröffentlichung“ wartet die geprüfte Version, bis
+  sie am 9. November **von Hand** veröffentlicht wird.
 
 ## 1. Texte im Store
 
