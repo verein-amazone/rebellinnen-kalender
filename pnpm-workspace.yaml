@@ -16,7 +16,7 @@ catalog:
   prettier: ^3.9.10
   serve: ^14.2.6
   tailwindcss: ^4.3.3
-  typescript: ~6.0.3
+  typescript: ~7.0.2
   typescript-eslint: 8.71.1
 # Build scripts are opt-in since pnpm 10; these are the trusted native
 # dependencies pulled in by the Angular build toolchain.
