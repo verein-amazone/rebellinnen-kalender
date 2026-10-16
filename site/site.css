@@ -469,7 +469,7 @@ a {
   margin: 2.25rem 0;
   padding: 0;
   display: grid;
-  gap: 0.25rem 2.5rem;
+  gap: 0.25rem;
   font-family: var(--display);
   font-weight: 600;
   font-size: clamp(2rem, 9vw, 3.75rem);
@@ -478,12 +478,6 @@ a {
 
 .without span {
   color: var(--orange);
-}
-
-@media (min-width: 48rem) {
-  .without {
-    grid-template-columns: repeat(2, max-content);
-  }
 }
 
 .privacy p {
