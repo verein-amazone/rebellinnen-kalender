@@ -1,3 +1,9 @@
+## [1.0.0-rc.59](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.58...v1.0.0-rc.59) (2026-10-16)
+
+### Features
+
+* **site:** link Google Play now that the listing is public ([c6f28af](https://github.com/verein-amazone/rebellinnen-kalender/commit/c6f28afbc656741f8933994b841ca1f68dd82040))
+
 ## [1.0.0-rc.58](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.57...v1.0.0-rc.58) (2026-10-16)
 
 ### Features
