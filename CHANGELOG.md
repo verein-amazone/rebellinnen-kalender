@@ -1,3 +1,9 @@
+## [1.0.0-rc.55](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.54...v1.0.0-rc.55) (2026-10-16)
+
+### Bug Fixes
+
+* **android:** frame the round launcher icons like a portrait ([e0fa8e1](https://github.com/verein-amazone/rebellinnen-kalender/commit/e0fa8e1efdc509d4930509668a5e99eb4bad921b))
+
 ## [1.0.0-rc.54](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.53...v1.0.0-rc.54) (2026-10-16)
 
 ### Features
