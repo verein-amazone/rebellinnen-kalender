@@ -9,8 +9,11 @@ technischen Hintergründe stehen in [store-listing.md](./store-listing.md) und
 - Rückmeldung von Verein Amazone (neue Store-Texte, Rechtstexte, Impressum, Entscheidungen)
   eingearbeitet am 16. Oktober 2026
 - Anwesend: …
-- Geplante Veröffentlichung: **1. November 2026**, in beiden Stores **von Hand** freigeschaltet
-  (keine automatische Veröffentlichung nach der Prüfung)
+- Geplante Veröffentlichung: **9. November 2026**. Eingereicht wird schon vorher, damit die Prüfung
+  Zeit hat. Im App Store als Vorbestellung mit Erscheinungsdatum 9. November und „nach der Prüfung
+  automatisch veröffentlichen, frühestens am 9. November“. Google Play kennt kein Datum: Mit
+  „Verwaltete Veröffentlichung“ wartet die geprüfte Version, bis sie am 9. November **von Hand**
+  veröffentlicht wird.
 
 ## 1. Texte im Store
 
@@ -26,7 +29,7 @@ Gleich in beiden Stores, sofern nicht anders angegeben. Zeichenlimits in Klammer
 | Kategorien, App Store                          | Produktivität, zweite Kategorie Lifestyle                                                                                         | ☑             |
 | Copyright                                      | 2026 Verein Amazone                                                                                                               | ☑             |
 | Support-URL                                    | https://www.amazone.or.at/kontakt                                                                                                 | ☑             |
-| Marketing-URL                                  | https://kalender.amazone.or.at (die Website der App; www.rebellinnen.at gibt es nicht)                                            | ☐             |
+| Marketing-URL                                  | https://kalender.amazone.or.at (die Website der App; www.rebellinnen.at gibt es nicht)                                            | ☑             |
 
 ### Beschreibung (4000)
 
@@ -115,7 +118,7 @@ Termine“ und den neuen App-Symbolen. Inhalte wie per Mail gewünscht: Heute ze
 #mikrofeminismus, Meine Sammlung enthält außerdem „Ally“ und „Tipps gegen Hass im Netz“, und die
 Anlaufstellen zeigen Vorarlberg mit Verein Amazone an erster Stelle.
 
-☐ Screenshots und Titelgrafik freigegeben – Änderungen: …
+☑ Screenshots und Titelgrafik freigegeben – Änderungen: …
 
 ## 3. Altersfreigabe
 
@@ -126,22 +129,22 @@ und Hilfsangebote. Nichts davon wird gezeigt oder ausgemalt.
 
 | Store                   | Vorschlag                                                                                                                          | Ergebnis                                                                       | OK / Änderung |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------- |
-| App Store               | „Erwachsene/anzügliche Themen“ und „Medizinische Informationen“: selten/schwach; „Gesundheit/Wohlbefinden“: ja; alles andere: nein | **13+** (mit „nein“ überall wäre es 4+, was den Biografien nicht gerecht wird) | ☐             |
-| Google Play             | bereits am 20.09.2026 eingereicht                                                                                                  | **PEGI 12** (Österreich), USK 6, ESRB Teen, sonst 12+                          | ☐             |
-| Google Play, Zielgruppe | 13–15, 16–17, 18+ (nicht für Kinder unter 13 gemacht)                                                                              | –                                                                              | ☐             |
+| App Store               | „Erwachsene/anzügliche Themen“ und „Medizinische Informationen“: selten/schwach; „Gesundheit/Wohlbefinden“: ja; alles andere: nein | **13+** (mit „nein“ überall wäre es 4+, was den Biografien nicht gerecht wird) | ☑             |
+| Google Play             | bereits am 20.09.2026 eingereicht                                                                                                  | **PEGI 12** (Österreich), USK 6, ESRB Teen, sonst 12+                          | ☑             |
+| Google Play, Zielgruppe | 13–15, 16–17, 18+ (nicht für Kinder unter 13 gemacht)                                                                              | –                                                                              | ☑             |
 
 ## 4. Datenschutz und rechtliche Angaben
 
 | Punkt                                       | Vorschlag                                                                                                                                                                                                                                                                                                                                                                                                              | OK / Änderung |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://kalender.amazone.or.at/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text: `packages/legal/src/datenschutz.md`.                                                                                                                                                                  | ☐             |
-| Nutzungsbedingungen                         | In der App unter Einstellungen → Nutzungsbedingungen und öffentlich unter https://kalender.amazone.or.at/nutzungsbedingungen/. Text: `packages/legal/src/nutzungsbedingungen.md`. Sie ersetzen nicht die Standard-Lizenzvereinbarung (EULA) von Apple, die daneben gilt.                                                                                                                                               | ☐             |
-| Impressum                                   | Eigenes Impressum für die App, in der App unter Einstellungen → Impressum und öffentlich unter https://kalender.amazone.or.at/impressum/. Text: `packages/legal/src/impressum.md`: die neue Fassung, ergänzt um zwei Sätze aus dem Impressum auf amazone.or.at (Copyright für Inhalte und Fotos, Verantwortung für verlinkte Seiten). Bankverbindung und Webdesign-Angaben der Website sind weggelassen. Bitte prüfen. | ☐             |
-| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                                                                                                                                                                                   | ☐             |
-| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                                                                                                                                                                                            | ☐             |
-| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                                                                                                                                                                                          | ☐             |
+| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://kalender.amazone.or.at/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text: `packages/legal/src/datenschutz.md`.                                                                                                                                                                  | ☑             |
+| Nutzungsbedingungen                         | In der App unter Einstellungen → Nutzungsbedingungen und öffentlich unter https://kalender.amazone.or.at/nutzungsbedingungen/. Text: `packages/legal/src/nutzungsbedingungen.md`. Sie ersetzen nicht die Standard-Lizenzvereinbarung (EULA) von Apple, die daneben gilt.                                                                                                                                               | ☑             |
+| Impressum                                   | Eigenes Impressum für die App, in der App unter Einstellungen → Impressum und öffentlich unter https://kalender.amazone.or.at/impressum/. Text: `packages/legal/src/impressum.md`: die neue Fassung, ergänzt um zwei Sätze aus dem Impressum auf amazone.or.at (Copyright für Inhalte und Fotos, Verantwortung für verlinkte Seiten). Bankverbindung und Webdesign-Angaben der Website sind weggelassen. Bitte prüfen. | ☑             |
+| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                                                                                                                                                                                   | ☑             |
+| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                                                                                                                                                                                            | ☑             |
+| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                                                                                                                                                                                          | ☑             |
 | Kontakt für App-Prüfung (Apple)             | Name: Verein Amazone, Telefon: +43 5574 45801, E-Mail: office@amazone.or.at                                                                                                                                                                                                                                                                                                                                            | ☑             |
-| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                                                                                                                                                                                                | ☐             |
+| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                                                                                                                                                                                                | ☑             |
 
 ### Inhalt der Datenschutzerklärung
 
@@ -165,7 +168,7 @@ Der Text muss mindestens sagen:
    Datenschutzbehörde) – kurz, weil der Verein über die App keine Daten verarbeitet.
 9. Stand-Datum und der Hinweis, dass sich der Text mit App-Updates ändern kann.
 
-☐ Datenschutzerklärung und Nutzungsbedingungen (neue Fassung, Stand 16. Oktober 2026) freigegeben.
+☑ Datenschutzerklärung und Nutzungsbedingungen (neue Fassung, Stand 16. Oktober 2026) freigegeben.
 Gegenüber der Fassung von Verein Amazone geändert: das Stand-Datum ergänzt und Abschnitt 9 auf die
 Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
 
@@ -226,7 +229,7 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
 
 ## 6. Nur Verein Amazone kann das erledigen
 
-- ☐ **EU-Händlerstatus (Digital Services Act) in App Store Connect.** Ohne diese Angabe nimmt
+- ☑ **EU-Händlerstatus (Digital Services Act) in App Store Connect.** Ohne diese Angabe nimmt
   Apple keine App für die EU an, also auch nicht für Österreich. Das kann nur die
   Kontoinhaberin oder ein Admin des Apple-Kontos „AMAZONE, Verein …“ eintragen (App Store Connect →
   Business). Zu entscheiden: Ist Verein Amazone bei dieser kostenlosen App **Händler** (dann werden
@@ -241,7 +244,7 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   stehen in der EU öffentlich auf der Store-Seite, Apple und Google prüfen sie und wollen sie bei
   Änderungen neu bestätigt haben. Eine eigene Adresse wie `app@amazone.or.at` hält Anfragen zur App
   aus dem allgemeinen Postfach heraus.
-- ☐ **Händlerstatus auch in Google Play.** Die Play Console fragt dasselbe (Einstellungen →
+- ☑ **Händlerstatus auch in Google Play.** Die Play Console fragt dasselbe (Einstellungen →
   Entwicklerkonto → Händlerstatus); dort sollte dieselbe Antwort stehen wie bei Apple.
 - ☐ Wer ist die zweite Person mit Admin-Zugang, falls die Kontoinhaberin nicht erreichbar ist?
   Rückfrage: Kontoinhaberin von welchem Konto? Gemeint ist das Apple-Entwicklerkonto „AMAZONE,
@@ -253,13 +256,13 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   wird nicht mehr veröffentlicht. Noch zu tun:
   Datenschutz-URL in App Store Connect und Play Console auf
   https://kalender.amazone.or.at/datenschutz/ ändern.
-- ☐ **Website prüfen.** https://kalender.amazone.or.at/ ist jetzt die Website der App statt der
+- ☑ **Website prüfen.** https://kalender.amazone.or.at/ ist jetzt die Website der App statt der
   Web-Demo: eine Startseite mit den Links in die Stores, `/download` als Ziel für QR-Codes (leitet
   ein iPhone in den App Store und ein Android-Handy zu Google Play) und die drei Rechtstexte. Die
   Texte stammen aus den freigegebenen Store-Texten. Bitte prüfen: Startseite, die Überschrift
   „Gemeinsam mit Jugendlichen erarbeitet“ und den Abschnitt 9 der Datenschutzerklärung, der jetzt
   die Website statt der Web-Demo beschreibt.
-- ☐ **Förderhinweis und Logos.** Im Fuß der Website stehen der Satz zur Förderung aus der
+- ☑ **Förderhinweis und Logos.** Im Fuß der Website stehen der Satz zur Förderung aus der
   Store-Beschreibung, das Emblem „Kofinanziert von der Europäischen Union“ und das Logo von
   ProEuropean Values (CERV), beide von proeuropeanvalues.at/finanzierung. Bitte bei PEVA
   (peva@icnm.net) bestätigen, ob das so passt und ob ein zusätzlicher Haftungsausschluss der EU
