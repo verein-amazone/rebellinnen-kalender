@@ -58,7 +58,14 @@ describe('AppIconInteractor', () => {
   it('offers every icon with a label and a preview', () => {
     const { interactor } = setup();
 
-    expect(interactor.options.map((option) => option.id)).toEqual(['klassisch', 'pixel', 'nacht']);
+    expect(interactor.options.map((option) => option.id)).toEqual([
+      'cool-cat-nacht',
+      'cool-cat-lila',
+      'cool-cat-hell',
+      'sam-orange',
+      'sam-tuerkis',
+      'sam-hell',
+    ]);
     for (const option of interactor.options) {
       expect(option.label).not.toBe('');
       expect(option.previewUrl).toContain(option.id);
@@ -71,17 +78,17 @@ describe('AppIconInteractor', () => {
 
     await expect(interactor.loadSnapshot()).resolves.toEqual({
       available: true,
-      selected: 'klassisch',
+      selected: 'cool-cat-nacht',
     });
   });
 
   it('maps the active native icon name back to its id', async () => {
     const { interactor, gateway } = setup();
-    gateway.currentIcon = 'Nacht';
+    gateway.currentIcon = 'SamTuerkis';
 
     await expect(interactor.loadSnapshot()).resolves.toEqual({
       available: true,
-      selected: 'nacht',
+      selected: 'sam-tuerkis',
     });
   });
 
@@ -91,7 +98,7 @@ describe('AppIconInteractor', () => {
 
     await expect(interactor.loadSnapshot()).resolves.toEqual({
       available: true,
-      selected: 'klassisch',
+      selected: 'cool-cat-nacht',
     });
   });
 
@@ -101,33 +108,33 @@ describe('AppIconInteractor', () => {
 
     await expect(interactor.loadSnapshot()).resolves.toEqual({
       available: false,
-      selected: 'klassisch',
+      selected: 'cool-cat-nacht',
     });
   });
 
   it('reports unavailable on the web without touching the plugin', async () => {
     const { interactor, gateway } = setup('web');
-    gateway.currentIcon = 'Pixel';
+    gateway.currentIcon = 'CoolCatLila';
 
     await expect(interactor.loadSnapshot()).resolves.toEqual({
       available: false,
-      selected: 'klassisch',
+      selected: 'cool-cat-nacht',
     });
   });
 
   it('sets an alternate icon by its native name', async () => {
     const { interactor, gateway } = setup();
 
-    await interactor.select('pixel');
+    await interactor.select('cool-cat-lila');
 
-    expect(gateway.setIconCalls).toEqual(['Pixel']);
+    expect(gateway.setIconCalls).toEqual(['CoolCatLila']);
     expect(gateway.resetIconCalls).toBe(0);
   });
 
   it('restores the default icon rather than setting one by name', async () => {
     const { interactor, gateway } = setup();
 
-    await interactor.select('klassisch');
+    await interactor.select('cool-cat-nacht');
 
     expect(gateway.resetIconCalls).toBe(1);
     expect(gateway.setIconCalls).toEqual([]);

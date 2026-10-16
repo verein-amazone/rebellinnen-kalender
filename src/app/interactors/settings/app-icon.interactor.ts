@@ -4,7 +4,14 @@ import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-
 import { DeviceAppIcon } from '@app/cross-cutting/infrastructure/app-icon';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
-export const APP_ICON_IDS = ['klassisch', 'pixel', 'nacht'] as const;
+export const APP_ICON_IDS = [
+  'cool-cat-nacht',
+  'cool-cat-lila',
+  'cool-cat-hell',
+  'sam-orange',
+  'sam-tuerkis',
+  'sam-hell',
+] as const;
 export type AppIconId = (typeof APP_ICON_IDS)[number];
 
 /** A selectable app icon. The preview is the same artwork the launcher icon is generated from. */
@@ -24,12 +31,15 @@ export interface AppIconSnapshot {
  * `getCurrentIcon()` reports as `null`.
  */
 const NATIVE_NAMES: Record<AppIconId, string | null> = {
-  klassisch: null,
-  pixel: 'Pixel',
-  nacht: 'Nacht',
+  'cool-cat-nacht': null,
+  'cool-cat-lila': 'CoolCatLila',
+  'cool-cat-hell': 'CoolCatHell',
+  'sam-orange': 'SamOrange',
+  'sam-tuerkis': 'SamTuerkis',
+  'sam-hell': 'SamHell',
 };
 
-const DEFAULT_ICON: AppIconId = 'klassisch';
+const DEFAULT_ICON: AppIconId = 'cool-cat-nacht';
 
 /**
  * What happens after the icon is picked, which is different on each platform and is only ever true
@@ -66,14 +76,12 @@ export class AppIconInteractor {
   private readonly platform = inject(DevicePlatformService);
 
   readonly options: readonly AppIconOption[] = [
-    {
-      id: 'klassisch',
-      label: 'Klassisch',
-      description: null,
-      previewUrl: 'app-icons/klassisch.webp',
-    },
-    { id: 'pixel', label: 'Pixel', description: null, previewUrl: 'app-icons/pixel.webp' },
-    { id: 'nacht', label: 'Nacht', description: null, previewUrl: 'app-icons/nacht.webp' },
+    option('cool-cat-nacht', 'Cool Cat Nacht'),
+    option('cool-cat-lila', 'Cool Cat Lila'),
+    option('cool-cat-hell', 'Cool Cat Hell'),
+    option('sam-orange', 'Sam Orange'),
+    option('sam-tuerkis', 'Sam Türkis'),
+    option('sam-hell', 'Sam Hell'),
   ];
 
   /** What to expect after picking an icon here, in this device's terms - see `CHANGE_NOTICES`. */
@@ -112,6 +120,10 @@ export class AppIconInteractor {
   labelOf(id: AppIconId): string {
     return this.options.find((option) => option.id === id)?.label ?? id;
   }
+}
+
+function option(id: AppIconId, label: string): AppIconOption {
+  return { id, label, description: null, previewUrl: `app-icons/${id}.webp` };
 }
 
 /**

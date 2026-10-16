@@ -36,7 +36,7 @@
  *   full-bleed, since Play applies its own mask. `supply` uploads it with the listing (see
  *   docs/store-listing.md). The App Store takes its icon from the build, not from the listing.
  *
- * Adding a fourth icon means dropping a square PNG into `resources/app-icons/`, adding an entry to
+ * Adding another icon means dropping a square PNG into `resources/app-icons/`, adding an entry to
  * `ICONS` below, registering an `activity-alias` in `AndroidManifest.xml`, adding the catalog name
  * to `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES` in the Xcode project, and adding the option to
  * `AppIconInteractor`.
@@ -58,9 +58,37 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
  * iOS alternate catalogs must not start with `AppIcon` - the system fails to resolve them on device.
  */
 const ICONS = [
-  { id: 'klassisch', source: 'klassisch.png', catalog: 'AppIcon', resource: 'ic_launcher' },
-  { id: 'pixel', source: 'pixel.png', catalog: 'Pixel', resource: 'ic_launcher_pixel' },
-  { id: 'nacht', source: 'nacht.png', catalog: 'Nacht', resource: 'ic_launcher_nacht' },
+  {
+    id: 'cool-cat-nacht',
+    source: 'cool-cat-nacht.png',
+    catalog: 'AppIcon',
+    resource: 'ic_launcher',
+  },
+  {
+    id: 'cool-cat-lila',
+    source: 'cool-cat-lila.png',
+    catalog: 'CoolCatLila',
+    resource: 'ic_launcher_cool_cat_lila',
+  },
+  {
+    id: 'cool-cat-hell',
+    source: 'cool-cat-hell.png',
+    catalog: 'CoolCatHell',
+    resource: 'ic_launcher_cool_cat_hell',
+  },
+  {
+    id: 'sam-orange',
+    source: 'sam-orange.png',
+    catalog: 'SamOrange',
+    resource: 'ic_launcher_sam_orange',
+  },
+  {
+    id: 'sam-tuerkis',
+    source: 'sam-tuerkis.png',
+    catalog: 'SamTuerkis',
+    resource: 'ic_launcher_sam_tuerkis',
+  },
+  { id: 'sam-hell', source: 'sam-hell.png', catalog: 'SamHell', resource: 'ic_launcher_sam_hell' },
 ];
 
 /** Legacy launcher icon size in px per density bucket (48dp). */

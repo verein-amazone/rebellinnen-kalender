@@ -109,8 +109,8 @@ Sieben Screenshots, gleich in beiden Stores, aus der aktuellen Version erzeugt
 Meine Sammlung, Anlaufstellen, Kalender (Monat). Gezeigt werden nur Porträts, die gemeinfrei sind,
 und Wissensbilder von Verein Amazone selbst. Dazu für Google Play eine Titelgrafik (App-Symbol und
 Name „Rebell\*innen“, darunter „Dein feministischer Kalender. Ohne Konto. Alles bleibt bei dir.“)
-und das App-Symbol „Klassisch“. Neu erzeugt mit dem neuen Namen und dem Kalender „Rebell\*innen
-Termine“.
+und das App-Symbol „Cool Cat Nacht“. Neu erzeugt mit dem neuen Namen, dem Kalender „Rebell\*innen
+Termine“ und den neuen App-Symbolen.
 
 ☐ Screenshots und Titelgrafik freigegeben – Änderungen: …
 

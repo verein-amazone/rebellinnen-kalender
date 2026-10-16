@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resources/app-icons/klassisch.png" alt="Rebell*innen Kalender app icon" width="240">
+  <img src="./docs/images/app-icon.png" alt="Rebell*innen app icon: Cool Cat, a cat with a headscarf and sunglasses, drawn in white on navy" width="240">
 </p>
 
 # Rebell\*innen Kalender

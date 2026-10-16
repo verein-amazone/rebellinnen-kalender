@@ -404,7 +404,9 @@ function parseDescription(text) {
 function withoutAdvertisingClaim(texts) {
   const claim = 'ohne Konto, ohne Werbung und ohne Tracking';
   if (texts === undefined || !texts.some((text) => text.includes(claim))) {
-    throw new Error(`build-site: the description no longer says "${claim}"; check the privacy band`);
+    throw new Error(
+      `build-site: the description no longer says "${claim}"; check the privacy band`,
+    );
   }
   return texts.map((text) => text.replace(claim, 'ohne Konto und ohne Tracking'));
 }

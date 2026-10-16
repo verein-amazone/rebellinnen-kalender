@@ -235,11 +235,12 @@ function fontFace(family: string, file: string, weight: string): string {
 }
 
 /**
- * The feature graphic: the app icon and name on the Amazone theme's navy. Play shows it above the
- * screenshots and sometimes crops its edges, so everything that matters sits in the middle.
+ * The feature graphic: the app icon and name on the Amazone theme's teal, which the navy icon stands
+ * out from, like on the website's start page. Play shows it above the screenshots and sometimes
+ * crops its edges, so everything that matters sits in the middle.
  */
 function featureGraphicHtml(): string {
-  const icon = readFileSync(join(ROOT, 'resources', 'app-icons', 'klassisch.png')).toString(
+  const icon = readFileSync(join(ROOT, 'resources', 'app-icons', 'cool-cat-nacht.png')).toString(
     'base64',
   );
 
@@ -254,11 +255,11 @@ function featureGraphicHtml(): string {
   main {
     width: 1024px; height: 500px; box-sizing: border-box;
     display: flex; align-items: center; justify-content: center; gap: 56px;
-    background: #15195f; color: #fffdf6;
+    background: #7dbdbb; color: #15195f;
   }
   img { width: 232px; height: 232px; border-radius: 52px; }
   h1 { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 64px; line-height: 1.05; margin: 0; }
-  p { font-family: 'Inter', sans-serif; font-size: 28px; line-height: 1.35; margin: 20px 0 0; color: #7dbdbb; }
+  p { font-family: 'Inter', sans-serif; font-size: 28px; line-height: 1.35; margin: 20px 0 0; color: #15195f; }
 </style>
 </head>
 <body>
