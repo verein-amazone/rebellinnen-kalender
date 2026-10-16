@@ -349,12 +349,12 @@ describe('CalendarOverviewPage', () => {
       [],
       [
         { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
-        { id: 'cal-2', name: 'Rebell*innen Kalender', color: '#E92F2A', emoji: '✊' },
+        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
       ],
     );
 
     expect(element.textContent).toContain('Mein Kalender');
-    expect(element.textContent).toContain('Rebell*innen Kalender');
+    expect(element.textContent).toContain('Rebell*innen Termine');
   });
 
   it('filters the agenda client-side after hiding a calendar, without re-querying the interactor', async () => {
@@ -366,7 +366,7 @@ describe('CalendarOverviewPage', () => {
       ],
       [
         { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
-        { id: 'cal-2', name: 'Rebell*innen Kalender', color: '#E92F2A', emoji: '✊' },
+        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
       ],
     );
 

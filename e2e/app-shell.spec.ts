@@ -93,7 +93,7 @@ test.describe('application shell', () => {
     ).toBeVisible();
     // The gender star is escaped in the Markdown, so it renders as text, not as emphasis.
     await expect(
-      page.getByRole('heading', { name: '1. Über den Rebell*innen Kalender', level: 2 }),
+      page.getByRole('heading', { name: '1. Über die Rebell*innen App', level: 2 }),
     ).toBeVisible();
     await expectNoBlockingViolations(page);
 

@@ -87,7 +87,7 @@ async function seedDemoData(page: Page): Promise<void> {
     sourceType: 'ics',
     title: 'Internationaler Frauentag',
     day: TODAY,
-    calendarName: 'Rebell*innen Kalender',
+    calendarName: 'Rebell*innen Termine',
     color: '#7B3FA8',
   });
 

@@ -16,8 +16,8 @@ import { IntroPage } from './intro.page';
 function row(overrides: Partial<CuratedCalendarRow>): CuratedCalendarRow {
   return {
     id: 'source-1',
-    name: 'Rebell*innen Kalender',
-    description: 'Veranstaltungen und Aktionen vom Verein Amazone.',
+    name: 'Rebell*innen Termine',
+    description: 'Aktionstage und Veranstaltungen vom Verein Amazone.',
     color: '#7B3FA8',
     emoji: '✊',
     enabled: true,
@@ -85,7 +85,7 @@ describe('IntroPage', () => {
     expect(element.textContent).toContain('Schritt 4 von 6');
     const switches = [...element.querySelectorAll<HTMLInputElement>('input[role="switch"]')];
     expect(switches.map((input) => input.labels?.[0]?.textContent?.trim())).toEqual([
-      expect.stringContaining('Rebell*innen Kalender'),
+      expect.stringContaining('Rebell*innen Termine'),
       expect.stringContaining('Feiertage Österreich'),
     ]);
     expect(switches.every((input) => input.checked)).toBe(true);

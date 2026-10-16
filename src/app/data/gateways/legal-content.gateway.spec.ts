@@ -65,11 +65,11 @@ describe('LegalContentGateway', () => {
     const urls: string[] = [];
     stubFetch((url) => {
       urls.push(url);
-      return Promise.resolve(textResponse('## 1. Über den Rebell*innen Kalender'));
+      return Promise.resolve(textResponse('## 1. Über die Rebell*innen App'));
     });
     const gateway = setup();
 
-    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über den Rebell*innen Kalender');
+    expect(await gateway.fetchTermsOfUse()).toBe('## 1. Über die Rebell*innen App');
     expect(urls[0]).toContain('legal/nutzungsbedingungen.md');
   });
 

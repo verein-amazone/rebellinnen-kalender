@@ -1,10 +1,10 @@
-**Stand: 13. Oktober 2026**
+**Stand: 16. Oktober 2026**
 
-## 1. Über den Rebell\*innen Kalender
+## 1. Über die Rebell\*innen App
 
-Der Rebell\*innen Kalender ist eine kostenlose Kalender-App mit feministischen Inhalten, Wissensimpulsen und Informationen für deinen Alltag.
+Die Rebell\*innen App ist ein kostenloser feministischer Kalender mit Terminen, To-do-Liste und vielen Infos und Inspo zu verschiedenen Themen.
 
-Die App ist die digitale Weiterentwicklung des gedruckten Rebell\*innen Kalenders des Vereins Amazone. Sie wurde gemeinsam mit Jugendlichen und jungen Erwachsenen in einem partizipativen Entwicklungsprozess gestaltet.
+Die App wurde von Mädchen\*, jungen Frauen\*, inter\*, nicht-binären, trans\* und agender Jugendlichen aus verschiedenen Regionen Österreichs gemeinsam mit dem Verein Amazone erarbeitet.
 
 Anbieter der App ist:
 
@@ -21,22 +21,22 @@ Website: https://www.amazone.or.at
 
 Die technische Entwicklung erfolgt durch die Independo GmbH im Auftrag des Vereins Amazone.
 
-Diese Nutzungsbedingungen regeln die Verwendung der mobilen App „Rebell\*innen Kalender“ für iOS und Android.
+Diese Nutzungsbedingungen regeln die Verwendung der mobilen App „Rebell\*innen“ für iOS und Android.
 
 ## 2. Was bietet dir die App?
 
-Der Rebell\*innen Kalender verbindet eine persönliche Kalenderfunktion mit Informationen, Inspiration und praktischen Werkzeugen.
+Die Rebell\*innen App verbindet eine persönliche Kalenderfunktion mit Informationen, Inspiration und praktischen Features.
 
 Du kannst unter anderem:
 
 - eigene Termine erstellen, bearbeiten und organisieren;
-- auf Wunsch vorhandene Gerätekalender einbinden;
+- vorhandene Gerätekalender einbinden;
 - zusätzliche Kalender über ICS- beziehungsweise Webcal-Links abonnieren;
 - Erinnerungen für Termine einrichten;
-- Aufgaben in der Liste „Nicht vergessen“ verwalten;
-- Rebell\*innen kennenlernen und Wissensimpulse entdecken;
+- To-dos in der Liste „Nicht vergessen“ eintragen und verwalten;
+- Rebell\*innen kennenlernen und Wissen sammeln;
 - interessante Inhalte in „Meine Sammlung“ speichern;
-- Beratungsstellen und Unterstützungsangebote finden;
+- Angebote für Mädchen\* in Österreich finden;
 - die Darstellung der App an deine Bedürfnisse anpassen.
 
 Welche Funktionen verfügbar sind, kann von der App-Version, deinem Gerät und deinem Betriebssystem abhängen.
@@ -49,7 +49,7 @@ Die App steht dir kostenlos zur Verfügung.
 
 Für die Nutzung benötigst du kein Benutzerkonto und musst dich nicht registrieren.
 
-Es gibt derzeit keine kostenpflichtigen Abonnements, In-App-Käufe oder Werbeanzeigen.
+Es gibt keine kostenpflichtigen Abonnements, In-App-Käufe oder Werbeanzeigen.
 
 Für die Nutzung bestimmter Funktionen können Kosten bei anderen Anbietern entstehen, beispielsweise durch mobile Datenverbindungen oder Telefonanrufe. Auf solche Kosten haben wir keinen Einfluss.
 
@@ -59,15 +59,15 @@ Die App richtet sich insbesondere an Jugendliche und junge Erwachsene, kann aber
 
 Deine Privatsphäre ist uns wichtig.
 
-Deshalb werden deine persönlichen Kalenderdaten, Aufgaben und Einstellungen grundsätzlich lokal auf deinem Gerät gespeichert.
+Deshalb werden deine persönlichen Kalenderdaten, To-dos und Einstellungen grundsätzlich lokal auf deinem Gerät gespeichert.
 
 Wir betreiben keine eigene Cloud-Synchronisierung für diese Daten und bieten kein Benutzerkonto an.
 
-Du kannst die App jederzeit deinstallieren. Dabei werden die lokal gespeicherten Anwendungsdaten grundsätzlich gelöscht. Daten in externen Kalenderkonten sowie gegebenenfalls vorhandene Gerätesicherungen bleiben davon unberührt.
+Du kannst die App jederzeit deinstallieren. Dabei werden die lokal gespeicherten Anwendungsdaten gelöscht. Daten in externen Kalenderkonten sowie gegebenenfalls vorhandene Gerätesicherungen bleiben davon unberührt.
 
 Bitte beachte, dass die App keinen eigenen Cloud-Backupdienst bereitstellt. Wenn du dein Gerät verlierst oder wechselst, können deine ausschließlich lokal gespeicherten Daten verloren gehen.
 
-Weitere Informationen dazu findest du in unserer **Datenschutzerklärung für den Rebell\*innen Kalender**.
+Weitere Informationen dazu findest du in unserer **Datenschutzerklärung für die Rebell\*innen App**.
 
 ## 5. Kalender und externe Dienste
 
@@ -95,7 +95,7 @@ Wenn du private Kalenderlinks verwendest, achte darauf, dass diese nicht unbeabs
 
 ### 5.3 Internetverbindung
 
-Viele grundlegende Funktionen des Rebell\*innen Kalenders kannst du ohne Internetverbindung verwenden.
+Viele grundlegende Funktionen der Rebell\*innen App kannst du ohne Internetverbindung verwenden.
 
 Für das erstmalige Laden und spätere Aktualisieren abonnierter Online-Kalender sowie für externe Websites und Dienste ist eine Internetverbindung erforderlich.
 
@@ -107,11 +107,11 @@ Ob und wann eine Erinnerung angezeigt wird, hängt auch von deinem Gerät, den B
 
 Wir können deshalb nicht gewährleisten, dass jede Erinnerung zu einem bestimmten Zeitpunkt angezeigt wird.
 
-Bitte verlasse dich bei besonders wichtigen oder sicherheitskritischen Terminen nicht ausschließlich auf die Erinnerungsfunktion der App. Das gilt beispielsweise für medizinische Behandlungen, die Einnahme wichtiger Medikamente oder andere Situationen, in denen eine versäumte Erinnerung erhebliche Folgen haben könnte.
+Bitte verlass dich bei besonders wichtigen oder sicherheitskritischen Terminen nicht ausschließlich auf die Erinnerungsfunktion der App. Das gilt beispielsweise für medizinische Behandlungen, die Einnahme wichtiger Medikamente oder andere Situationen, in denen eine versäumte Erinnerung erhebliche Folgen haben könnte.
 
 ## 7. Inhalte und Informationen
 
-Der Rebell\*innen Kalender enthält redaktionelle Inhalte zu gesellschaftlichen Themen, Geschlechtergerechtigkeit, Gesundheit, Selbstbestimmung, politischer Beteiligung und anderen Lebensbereichen.
+Die Rebell\*innen App enthält redaktionelle Inhalte zu gesellschaftlichen Themen, Geschlechtergerechtigkeit, Gesundheit, Selbstbestimmung, politischer Beteiligung und anderen Lebensbereichen.
 
 Wir bemühen uns, diese Informationen sorgfältig auszuwählen, verständlich aufzubereiten und aktuell zu halten.
 
@@ -141,7 +141,7 @@ Wenn du einen externen Dienst nutzt, können dessen Nutzungsbedingungen und Date
 
 ### 9.1 Programmcode
 
-Der Quellcode des Rebell\*innen Kalenders wird als Open-Source-Software veröffentlicht.
+Der Quellcode der Rebell\*innen App wird als Open-Source-Software veröffentlicht.
 
 Soweit im jeweiligen Repository nicht anders angegeben, steht der Programmcode unter der **MIT-Lizenz**.
 
@@ -167,7 +167,7 @@ Informationen über verwendete Open-Source-Bibliotheken und die Nutzungsrechte e
 
 ### 9.3 Deine eigenen Inhalte
 
-Termine, Aufgaben und andere persönliche Informationen, die du selbst in der App erstellst, bleiben deine Inhalte.
+Termine, To-dos und andere persönliche Informationen, die du selbst in der App erstellst, bleiben deine Inhalte.
 
 Du räumst dem Verein Amazone allein durch das lokale Speichern dieser Informationen keine Rechte zu ihrer Veröffentlichung oder anderweitigen Verwertung ein.
 
@@ -185,7 +185,7 @@ Die Rechte, die dir im Rahmen der MIT-Lizenz oder anderer anwendbarer Open-Sourc
 
 ## 11. Verfügbarkeit und Weiterentwicklung
 
-Wir möchten, dass der Rebell\*innen Kalender zuverlässig funktioniert und langfristig weiterentwickelt werden kann.
+Wir möchten, dass die Rebell\*innen App zuverlässig funktioniert und langfristig weiterentwickelt werden kann.
 
 Trotzdem können technische Probleme, Fehler oder Einschränkungen auftreten. Einzelne Funktionen können vorübergehend nicht verfügbar sein, beispielsweise aufgrund von Problemen mit dem Betriebssystem, einer fehlenden Internetverbindung oder nicht erreichbaren Kalenderanbietern.
 
@@ -199,7 +199,7 @@ Eine dauerhaft unveränderte Verfügbarkeit sämtlicher Funktionen können wir n
 
 ## 12. Haftung und gesetzliche Rechte
 
-Der Rebell\*innen Kalender wird mit dem Ziel bereitgestellt, dir eine zuverlässige und hilfreiche Anwendung zur Verfügung zu stellen.
+Die Rebell\*innen App wird mit dem Ziel bereitgestellt, dir eine zuverlässige und hilfreiche Anwendung zur Verfügung zu stellen.
 
 Es gelten die gesetzlichen Gewährleistungs- und Haftungsbestimmungen.
 
@@ -213,7 +213,7 @@ Auch deine zwingenden gesetzlichen Gewährleistungs- und Verbraucher\*innenrecht
 
 ## 13. Nutzung über App-Stores
 
-Der Rebell\*innen Kalender kann über den Apple App Store und Google Play bereitgestellt werden.
+Die Rebell\*innen App kann über den Apple App Store und Google Play bereitgestellt werden.
 
 Für den Download und die Verwendung des jeweiligen App-Stores können zusätzlich die Bedingungen des entsprechenden Plattformanbieters gelten.
 
@@ -223,7 +223,7 @@ Apple und Google sind keine Vertragsparteien dieser Nutzungsbedingungen zwischen
 
 ## 14. Datenschutz
 
-Informationen darüber, wie deine persönlichen Daten in Zusammenhang mit der App verarbeitet werden, findest du in unserer gesonderten **Datenschutzerklärung für den Rebell\*innen Kalender**.
+Informationen darüber, wie deine persönlichen Daten in Zusammenhang mit der App verarbeitet werden, findest du in unserer gesonderten **Datenschutzerklärung für die Rebell\*innen App**.
 
 Die Datenschutzerklärung ist unabhängig von diesen Nutzungsbedingungen und dient der Information über die Datenverarbeitung.
 
@@ -249,7 +249,7 @@ Sollte eine Bestimmung dieser Nutzungsbedingungen unwirksam sein, bleiben die ü
 
 ## 17. Kontakt
 
-Wenn du Fragen zur App, zu diesen Nutzungsbedingungen oder zur Verwendung von Inhalten hast, kannst du dich an uns wenden:
+Wenn du Fragen zur App, zu diesen Nutzungsbedingungen oder zur Verwendung von Inhalten hast, kannst du dich gerne an uns wenden:
 
 **Verein Amazone**  
 Bahnhofstraße 31  

@@ -89,7 +89,7 @@ describe('CuratedCalendarSync', () => {
       sources: [
         catalogEntry({
           id: 'amazone',
-          name: 'Rebell*innen Kalender',
+          name: 'Rebell*innen Termine',
           url: 'https://a.example/a.ics',
         }),
         catalogEntry(),
@@ -100,7 +100,7 @@ describe('CuratedCalendarSync', () => {
 
     // listSources() sorts by created_at, so equal timestamps would fall back to the random UUID.
     expect((await sources.listSources()).map((source) => source.name)).toEqual([
-      'Rebell*innen Kalender',
+      'Rebell*innen Termine',
       'Feiertage Österreich',
     ]);
   });
