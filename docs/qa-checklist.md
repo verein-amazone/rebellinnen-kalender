@@ -133,7 +133,9 @@ The workflow:
 - [ ] **Timezone change:** change the device timezone while the app is open - timed appointments
       move, all-day appointments stay on their day.
 - [ ] **All-day device events on Android** are written and read on the right day (#98).
-- [ ] **App icon:** Klassisch, Pixel and Nacht can each be selected and show on the home screen.
+- [ ] **App icon:** each of the six cat icons can be selected and shows on the home screen.
+- [ ] **App icon after the upgrade:** on a device whose tester build had „Pixel“ or „Nacht“
+      selected, the app still has a home-screen icon after the update (the default, Cool Cat Nacht).
 - [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
       Impressum) open in the browser or the phone app, and the back path into the app works.
 - [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.

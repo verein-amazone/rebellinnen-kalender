@@ -142,7 +142,7 @@ minimum terms for one.
   (section 9) describes exactly this; keep the two in step.
 - **Assets** in `site/assets/`: the official German store badges (Apple's badge tool, Google's badge
   page), the EU co-funding emblem and the ProEuropean Values (CERV) logo from
-  proeuropeanvalues.at/finanzierung, the Klassisch icon and the store screenshots as WebP
+  proeuropeanvalues.at/finanzierung, the default app icon and the store screenshots as WebP
   (`cwebp -q 82 -resize 600 0`). Regenerate the screenshots after `pnpm store:screenshots` changes
   them.
 - **Published** by `.github/workflows/pages.yml` on every push to `dev` that touches its sources,

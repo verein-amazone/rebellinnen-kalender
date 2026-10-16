@@ -16,16 +16,26 @@ import { AppIconPage } from './app-icon.page';
 class FakeAppIconInteractor {
   readonly options: readonly AppIconOption[] = [
     {
-      id: 'klassisch',
-      label: 'Klassisch',
+      id: 'cool-cat-nacht',
+      label: 'Cool Cat Nacht',
       description: null,
-      previewUrl: 'app-icons/klassisch.webp',
+      previewUrl: 'app-icons/cool-cat-nacht.webp',
     },
-    { id: 'pixel', label: 'Pixel', description: null, previewUrl: 'app-icons/pixel.webp' },
-    { id: 'nacht', label: 'Nacht', description: null, previewUrl: 'app-icons/nacht.webp' },
+    {
+      id: 'cool-cat-lila',
+      label: 'Cool Cat Lila',
+      description: null,
+      previewUrl: 'app-icons/cool-cat-lila.webp',
+    },
+    {
+      id: 'sam-orange',
+      label: 'Sam Orange',
+      description: null,
+      previewUrl: 'app-icons/sam-orange.webp',
+    },
   ];
 
-  snapshot: AppIconSnapshot = { available: true, selected: 'klassisch' };
+  snapshot: AppIconSnapshot = { available: true, selected: 'cool-cat-nacht' };
   readonly selectCalls: AppIconId[] = [];
 
   loadSnapshot(): Promise<AppIconSnapshot> {
@@ -87,43 +97,49 @@ async function setup(snapshot?: AppIconSnapshot) {
 
 describe('AppIconPage', () => {
   it('renders one radio per icon with the active one checked', async () => {
-    const { element } = await setup({ available: true, selected: 'nacht' });
+    const { element } = await setup({ available: true, selected: 'sam-orange' });
 
     const radios = [...element.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
-    expect(radios.map((radio) => radio.value)).toEqual(['klassisch', 'pixel', 'nacht']);
-    expect(radios.filter((radio) => radio.checked).map((radio) => radio.value)).toEqual(['nacht']);
+    expect(radios.map((radio) => radio.value)).toEqual([
+      'cool-cat-nacht',
+      'cool-cat-lila',
+      'sam-orange',
+    ]);
+    expect(radios.filter((radio) => radio.checked).map((radio) => radio.value)).toEqual([
+      'sam-orange',
+    ]);
   });
 
   it('changes the icon when an option is picked', async () => {
     const { element, appIcon, fixture } = await setup();
 
-    const pixel = element.querySelector<HTMLInputElement>('input[value="pixel"]')!;
-    pixel.click();
+    const lila = element.querySelector<HTMLInputElement>('input[value="cool-cat-lila"]')!;
+    lila.click();
     await fixture.whenStable();
 
-    expect(appIcon.selectCalls).toEqual(['pixel']);
+    expect(appIcon.selectCalls).toEqual(['cool-cat-lila']);
   });
 
   it('announces the new icon once', async () => {
     const { element, announcer, fixture } = await setup();
 
-    element.querySelector<HTMLInputElement>('input[value="pixel"]')!.click();
+    element.querySelector<HTMLInputElement>('input[value="cool-cat-lila"]')!.click();
     await fixture.whenStable();
 
-    expect(announcer.announcements).toEqual(['App-Symbol: Pixel']);
+    expect(announcer.announcements).toEqual(['App-Symbol: Cool Cat Lila']);
   });
 
   it('confirms the switch with one selection tick', async () => {
     const { element, haptics, fixture } = await setup();
 
-    element.querySelector<HTMLInputElement>('input[value="pixel"]')!.click();
+    element.querySelector<HTMLInputElement>('input[value="cool-cat-lila"]')!.click();
     await fixture.whenStable();
 
     expect(haptics.selections).toBe(1);
   });
 
   it('offers no choice where alternate icons are unavailable', async () => {
-    const { element } = await setup({ available: false, selected: 'klassisch' });
+    const { element } = await setup({ available: false, selected: 'cool-cat-nacht' });
 
     expect(element.querySelectorAll('input[type="radio"]')).toHaveLength(0);
     expect(element.textContent).toContain('nicht');

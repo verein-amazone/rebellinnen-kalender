@@ -23,8 +23,8 @@ Gestalte die App mit Farben, Schriftgrößen, App-Symbolen und Animationen. Die 
 DEINE DATEN BLEIBEN BEI DIR
 Die App funktioniert ohne Konto, ohne Werbung und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät. Die App funktioniert auch ohne Internet.
 
-Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazone in Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und österreichweit als Print herausgegeben wird: www.rebellinnen.at
+Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazone in Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und österreichweit als Print herausgegeben wird: www.amazone.or.at/projekte/rebell-innen-kalender
 
 Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender
 
-Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.
+Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union. Ebenfalls gefördert von der Hil-Foundation.

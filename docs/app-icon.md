@@ -1,28 +1,29 @@
 # App icon
 
-The app ships three interchangeable home-screen icons. „Klassisch“ is the default; „Pixel“ and
-„Nacht“ can be picked at runtime under **Einstellungen → Darstellung & Bedienung → App-Symbol**.
-More candidates from [issue #9](https://github.com/verein-amazone/rebellinnen-kalender/issues/9)
-can be added later without changing anything but data and generated assets.
+The app ships six interchangeable home-screen icons, two cats in three colourings each. „Cool Cat
+Nacht“ is the default; the others can be picked at runtime under **Einstellungen → Darstellung &
+Bedienung → App-Symbol**. More can be added later without changing anything but data, generated
+assets and the native registration (see [Adding another icon](#adding-another-icon)).
 
 ## Where the artwork comes from
 
 <p align="center">
-  <img src="./images/workshop-logo-sketch.png" alt="A collaborative board where hundreds of small coloured sticky notes form the outline of a head with spiked hair, in pink, blue and orange" width="420">
+  <img src="./images/app-icon.png" alt="The default icon, Cool Cat Nacht, with rounded corners" width="240">
 </p>
 
-The shape was built by workshop participants on a shared board, one sticky note at a time: a head
-with spiked hair, drawn collectively rather than designed by one person. That sketch is the
-inspiration for all three icons - every one of them is the same silhouette, redrawn to survive being
-shown at 48 px on a home screen.
+Verein Amazone supplied the six icons in October 2026. They replace „Klassisch“, „Pixel“ and
+„Nacht“ from release candidate 52 and earlier.
 
-- **Klassisch** - the angular reading of the sketch, with the pink outline sitting behind a cyan
-  head shape.
-- **Pixel** - keeps the sticky-note grid of the original literally, as square blocks.
-- **Nacht** - the sharpest reading: long teal spikes over a coral outline.
+- **Cool Cat** - a cat with a headscarf, sunglasses and a handbag, the same character as in the
+  Wissensimpuls illustration „Heute ist Feministischer Kampftag!“. In white and mint on navy
+  („Cool Cat Nacht“), black and white on lilac („Cool Cat Lila“), and red and orange on white
+  („Cool Cat Hell“).
+- **Sam** - a cat in a shirt and tie. In white and purple on orange („Sam Orange“), white and teal on
+  teal („Sam Türkis“), and red on white („Sam Hell“).
 
-The sketch itself is kept here rather than in the README because it is a record of how the icon came
-about, not the app's current face.
+`docs/images/app-icon.png` is the rounded version of the default icon from the same delivery, for the
+README. The earlier icons were based on a sketch workshop participants built from sticky notes
+(`docs/images/workshop-logo-sketch.png`), kept as a record.
 
 ## Sources and generated assets
 
@@ -30,10 +31,16 @@ The square sources live in `resources/app-icons/`, one PNG per icon (at least 10
 no rounded corners - every platform applies its own mask):
 
 ```
-resources/app-icons/klassisch.png
-resources/app-icons/pixel.png
-resources/app-icons/nacht.png
+resources/app-icons/cool-cat-nacht.png
+resources/app-icons/cool-cat-lila.png
+resources/app-icons/cool-cat-hell.png
+resources/app-icons/sam-orange.png
+resources/app-icons/sam-tuerkis.png
+resources/app-icons/sam-hell.png
 ```
+
+They are the delivered 4267 px files, scaled to 2048 px and stored without the alpha channel they
+carried (fully opaque anyway).
 
 Everything else is generated and committed:
 
@@ -53,7 +60,7 @@ Per icon that writes:
 | `android/…/values/ic_launcher_background.xml`      | The background colours, averaged from each source's own corners.      |
 | `public/app-icons/<id>.webp`                       | The 192 px preview shown on the settings screen.                      |
 
-And, from the default icon (`klassisch`) only:
+And, from the default icon (`cool-cat-nacht`) only:
 
 | Output                                            | What it is                                                                                                                 |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
@@ -62,7 +69,7 @@ And, from the default icon (`klassisch`) only:
 | `fastlane/metadata/android/de-DE/images/icon.png` | The Play listing's 512 px hi-res icon, full-bleed (Play applies its own mask). See [store-listing.md](./store-listing.md). |
 
 `favicon.ico` and `apple-touch-icon.png` belong to the website (`scripts/build-site.mjs`), whose
-`site/assets/icon.webp` is the Klassisch icon at 256 px; `ng serve` uses the same tab icon. The
+`site/assets/icon.webp` is the default icon at 256 px; `ng serve` uses the same tab icon. The
 website shows only the default icon, so the alternates need none.
 
 Two details are worth knowing before editing an icon:
@@ -81,8 +88,11 @@ Both platforms need each icon registered at build time; neither can be given a n
 - **Android** - the launcher `<intent-filter>` sits on one `<activity-alias>` per icon in
   `android/app/src/main/AndroidManifest.xml`, not on `MainActivity`. Switching means enabling one
   alias and disabling the others. Exactly one alias may be `android:enabled="true"`: the plugin
-  treats the first enabled launcher component as the default, and that is what „Klassisch“ returns
-  to. Some launchers only pick the new icon up once the app's task has been closed.
+  treats the first enabled launcher component as the default, and that is what „Cool Cat Nacht“
+  returns to. Never bring back a removed alias name: Android keeps the enabled state the plugin set
+  for a component across updates, so a revived name could start disabled and leave the app without
+  a launcher entry. That is why the cat icons got new alias names rather than taking over
+  `.Klassisch`, `.Pixel` and `.Nacht`. Some launchers only pick the new icon up once the app's task has been closed.
 - **iOS** - the alternates are asset catalogs listed in
   `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES`. Their names are case-sensitive and must not start
   with `AppIcon`, or the system fails to resolve them on a physical device. iOS shows a system alert

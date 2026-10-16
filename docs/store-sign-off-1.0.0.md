@@ -26,7 +26,7 @@ Gleich in beiden Stores, sofern nicht anders angegeben. Zeichenlimits in Klammer
 | Kategorien, App Store                          | Produktivität, zweite Kategorie Lifestyle                                                                                         | ☑             |
 | Copyright                                      | 2026 Verein Amazone                                                                                                               | ☑             |
 | Support-URL                                    | https://www.amazone.or.at/kontakt                                                                                                 | ☑             |
-| Marketing-URL                                  | https://www.rebellinnen.at (leitet auf die Projektseite von Verein Amazone weiter)                                                | ☑             |
+| Marketing-URL                                  | https://kalender.amazone.or.at (die Website der App; www.rebellinnen.at gibt es nicht)                                            | ☐             |
 
 ### Beschreibung (4000)
 
@@ -76,13 +76,13 @@ Rückmeldung nur Satzzeichen korrigiert („Voiceover“ → „VoiceOver“, zw
 > Die App baut inhaltlich auf dem Rebell\*innen Kalender auf, der vom Verein Amazone in Kooperation
 > mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen\*, jungen Frauen\*,
 > inter\*, nicht-binären, trans\* und agender Jugendlichen erarbeitet und österreichweit als Print
-> herausgegeben wird: www.rebellinnen.at
+> herausgegeben wird: www.amazone.or.at/projekte/rebell-innen-kalender
 >
 > Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen:
 > github.com/verein-amazone/rebellinnen-kalender
 >
 > Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen\* gestalten Gesellschaft entstanden.
-> Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.
+> Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union. Ebenfalls gefördert von der Hil-Foundation.
 
 ☑ Beschreibung freigegeben (Fassung von Verein Amazone)
 
@@ -109,8 +109,11 @@ Sieben Screenshots, gleich in beiden Stores, aus der aktuellen Version erzeugt
 Meine Sammlung, Anlaufstellen, Kalender (Monat). Gezeigt werden nur Porträts, die gemeinfrei sind,
 und Wissensbilder von Verein Amazone selbst. Dazu für Google Play eine Titelgrafik (App-Symbol und
 Name „Rebell\*innen“, darunter „Dein feministischer Kalender. Ohne Konto. Alles bleibt bei dir.“)
-und das App-Symbol „Klassisch“. Neu erzeugt mit dem neuen Namen und dem Kalender „Rebell\*innen
-Termine“.
+und das App-Symbol „Cool Cat Nacht“. Neu erzeugt mit dem neuen Namen, dem Kalender „Rebell\*innen
+Termine“ und den neuen App-Symbolen. Inhalte wie per Mail gewünscht: Heute zeigt den Wissensimpuls
+„Heute ist Feministischer Kampftag!“, die Rebell\*in ist Christina Koch, der Wissensimpuls
+#mikrofeminismus, Meine Sammlung enthält außerdem „Ally“ und „Tipps gegen Hass im Netz“, und die
+Anlaufstellen zeigen Vorarlberg mit Verein Amazone an erster Stelle.
 
 ☐ Screenshots und Titelgrafik freigegeben – Änderungen: …
 
@@ -260,7 +263,11 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   Store-Beschreibung, das Emblem „Kofinanziert von der Europäischen Union“ und das Logo von
   ProEuropean Values (CERV), beide von proeuropeanvalues.at/finanzierung. Bitte bei PEVA
   (peva@icnm.net) bestätigen, ob das so passt und ob ein zusätzlicher Haftungsausschluss der EU
-  nötig ist. Ein Logo von Verein Amazone gibt es auf der Website noch nicht, nur den Namen als Link:
+  nötig ist. Daneben steht jetzt auch die Hil-Foundation, die das Projekt mitfinanziert hat: in der
+  Store-Beschreibung der Satz „Ebenfalls gefördert von der Hil-Foundation.“ und auf der Website ihr
+  weißes Logo von hil-foundation.org. Bitte den Wortlaut bestätigen und bei der Hil-Foundation nach
+  einer größeren oder Vektor-Datei des Logos fragen. Ein Logo von Verein Amazone gibt es auf der
+  Website noch nicht, nur den Namen als Link:
   Wenn es eines geben soll, bitte die Datei schicken.
 - ☐ **Store-Adressen nach der Freischaltung.** Sobald die App öffentlich ist, tragen wir die
   Adressen aus App Store und Google Play ein; bis dahin steht dort „Bald verfügbar im App Store und

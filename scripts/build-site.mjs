@@ -58,13 +58,13 @@ const FEATURES = [
     section: 'REBELL*INNEN UND WISSEN',
     title: 'Rebell*innen und Wissen',
     screen: 'rebellin',
-    alt: 'Das Porträt von Ada Lovelace in der App, mit einem Zitat und ihrer Geschichte.',
+    alt: 'Das Porträt der Astronautin Christina Koch in der App, mit einem Zitat und ihrer Geschichte.',
   },
   {
     section: 'ANLAUFSTELLEN',
     title: 'Anlaufstellen',
     screen: 'anlaufstellen',
-    alt: 'Die Anlaufstellen in der App: Rat auf Draht, Telefonseelsorge und Kindernotruf, jeweils mit Knopf zum Anrufen oder Chatten.',
+    alt: 'Die Anlaufstellen in Vorarlberg in der App: Verein Amazone und der Mädchen*treff Dornbirn, jeweils mit Knopf zum Anrufen und Link zur Webseite.',
   },
 ];
 
@@ -131,7 +131,7 @@ function landingPage() {
       ${storeButtons()}
     </div>
     <div class="phone hero-phone">
-      <img src="/assets/screens/heute.webp" width="600" height="1304" alt="Der Heute-Bildschirm der App: ein Gruß, ein Porträt von Clara Zetkin und die Termine des Tages.">
+      <img src="/assets/screens/heute.webp" width="600" height="1304" alt="Der Heute-Bildschirm der App: ein Gruß, der Wissensimpuls „Heute ist Feministischer Kampftag!“ mit einer gezeichneten Katze und die Termine des Tages.">
     </div>
   </section>
 
@@ -168,11 +168,10 @@ ${EXTRAS.map(
       <h2 id="daten">Deine Daten bleiben bei dir</h2>
       <ul class="without">
         <li><span>Ohne</span> Konto</li>
-        <li><span>Ohne</span> Werbung</li>
         <li><span>Ohne</span> Tracking</li>
         <li><span>Auch ohne</span> Internet</li>
       </ul>
-      ${paragraphs(DESCRIPTION.sections.get('DEINE DATEN BLEIBEN BEI DIR'))}
+      ${paragraphs(withoutAdvertisingClaim(DESCRIPTION.sections.get('DEINE DATEN BLEIBEN BEI DIR')))}
       <p class="links">
         <a href="/datenschutz/">Datenschutzerklärung lesen</a>
         <a href="https://github.com/verein-amazone/rebellinnen-kalender">Offener Quellcode auf GitHub</a>
@@ -328,6 +327,7 @@ ${links
       <div class="funding-logos">
         <img src="/assets/logos/eu-kofinanziert-neg.svg" width="1003" height="220" alt="Kofinanziert von der Europäischen Union">
         <img src="/assets/logos/peva-cerv-neg.webp" width="1024" height="274" alt="ProEuropean Values AT – CERV">
+        <img src="/assets/logos/hil-foundation-weiss.webp" width="203" height="88" alt="Hil-Foundation">
       </div>
     </div>
   </div>
@@ -395,6 +395,21 @@ function parseDescription(text) {
   }
 
   return { intro, sections, closing };
+}
+
+/**
+ * The website makes no claim about advertising, although the store description does: Verein Amazone
+ * asked for it to be left out here. Fails the build when the store wording changes, so the two are
+ * reconciled by hand rather than the claim slipping back in.
+ */
+function withoutAdvertisingClaim(texts) {
+  const claim = 'ohne Konto, ohne Werbung und ohne Tracking';
+  if (texts === undefined || !texts.some((text) => text.includes(claim))) {
+    throw new Error(
+      `build-site: the description no longer says "${claim}"; check the privacy band`,
+    );
+  }
+  return texts.map((text) => text.replace(claim, 'ohne Konto und ohne Tracking'));
 }
 
 function paragraphs(texts, { link = false } = {}) {
