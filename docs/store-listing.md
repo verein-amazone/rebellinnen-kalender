@@ -45,7 +45,12 @@ apps/app/fastlane/
 │               ├── icon.png                   512×512, apps/app/scripts/generate-app-icons.mjs
 │               ├── featureGraphic.png         1024×500, no alpha, pnpm store:screenshots
 │               └── phoneScreenshots/*.png     2-8, pnpm store:screenshots
-└── screenshots/de-DE/*.png                    deliver, 1-10 at 1320×2868, pnpm store:screenshots
+├── screenshots/de-DE/
+│   ├── iphone-*.png                           deliver, 1-10 at 1320×2868, pnpm store:screenshots
+│   └── duo-*.png                              deliver, 1-10 at 2007×2853, pnpm store:screenshots
+└── app-store-assets/
+    ├── header.png                             3840×1646, by hand, pnpm store:screenshots
+    └── search-results.png                     1920×1280, by hand, pnpm store:screenshots
 ```
 
 The numbers are each field's limit in characters. `node apps/app/scripts/check-store-listing.mjs` checks all
@@ -58,23 +63,36 @@ up in the listing; `.editorconfig` keeps editors from adding one, and the check 
 The release notes are not in this tree: they come from `docs/release-notes/<version>.md` (see
 [Release notes](./release.md#release-notes)).
 
-## Screenshots and the feature graphic
+## Screenshots and graphics
 
 ```bash
 pnpm store:screenshots
 ```
 
-builds the app and renders every screenshot for both stores and the Play feature graphic, with
+builds the app and renders every screenshot for both stores, the Play feature graphic and the App
+Store header and search results assets, with
 Playwright, from the production web build (`apps/app/playwright.store.config.ts`,
 `apps/app/scripts/store-screenshots/store-screenshots.spec.ts`). It fills the app with German demo data
 through the real forms, pins the clock to Sunday 8 March 2026 so the daily impulse and the calendar
 are always the same, and writes:
 
-- `apps/app/fastlane/screenshots/de-DE/` - 1320×2868, the 6.9" iPhone size; App Store Connect scales it down
-  for every smaller iPhone. The app is iPhone only, so there are no iPad screenshots.
+- `apps/app/fastlane/screenshots/de-DE/iphone-*.png` - 1320×2868, the 6.9" iPhone size; App Store
+  Connect scales it down for every smaller iPhone. The app is iPhone only, so there are no iPad
+  screenshots.
+- `apps/app/fastlane/screenshots/de-DE/duo-*.png` - 2007×2853, iPhone Duo's inner display in
+  portrait (669×951 points at 3x). Duo is not scaled from the 6.9" set, so it has its own, with the
+  same screens in the same order. deliver (fastlane 2.241.1 or later) sorts every file in the folder
+  into its display type by pixel size; the prefix only keeps the sets apart, and the check fails on
+  a file that belongs to neither.
 - `apps/app/fastlane/metadata/android/de-DE/images/phoneScreenshots/` - 1080×2160.
 - `apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png` - 1024×500, the app icon and name in
   the bundled fonts.
+- `apps/app/fastlane/app-store-assets/header.png` (3840×1646) and `search-results.png` (1920×1280) -
+  the same graphic, scaled for the App Store's product page header and its search results card.
+  **deliver cannot upload either**, so they sit outside `screenshots/` and `metadata/` and are
+  uploaded by hand: App Store Connect → the version → Product Page Information → Header and Search
+  Results. Without a search results asset the store shows the screenshots there instead. Upload
+  them again after they change.
 
 The PNGs are committed. They are reviewed like any other change, and the release job uploads them
 from the tag without needing a browser on the macOS runner. Regenerate them after any visible change
