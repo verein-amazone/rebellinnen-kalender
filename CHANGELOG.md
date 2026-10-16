@@ -1,3 +1,13 @@
+## [1.0.0-rc.56](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.55...v1.0.0-rc.56) (2026-10-16)
+
+### Features
+
+* **site:** show the rounded app icon on the website ([0336f46](https://github.com/verein-amazone/rebellinnen-kalender/commit/0336f46b79e743d2f6edaeffcb5debbce2966779))
+
+### Bug Fixes
+
+* **site:** stack the privacy promises in one column on desktop ([194a29a](https://github.com/verein-amazone/rebellinnen-kalender/commit/194a29a9ab1c88fea0423b248c79b05b49ff6439))
+
 ## [1.0.0-rc.55](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0-rc.54...v1.0.0-rc.55) (2026-10-16)
 
 ### Bug Fixes
