@@ -14,9 +14,9 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
- * "Datenschutz" (#79): the app's own privacy policy, bundled as `public/legal/datenschutz.md` so it
- * reads offline. The same file is published as a static page for the store listings
- * (`scripts/build-legal-pages.mjs`), so the app and the stores always show the same text.
+ * "Datenschutz" (#79): the app's own privacy policy. The text is `datenschutz.md` in
+ * `@amazone/legal` (packages/legal), bundled with the app so it reads offline. The website publishes
+ * the same file for the store listings, so the app and the stores always show the same text.
  */
 @Component({
   selector: 'app-settings-privacy',

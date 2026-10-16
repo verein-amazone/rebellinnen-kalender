@@ -6,10 +6,10 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
- * "Impressum": Verein Amazone's imprint for the app, bundled as `public/legal/impressum.md` so it
- * reads offline, and published next to the privacy policy and the terms of use as a static page
- * (`scripts/build-legal-pages.mjs`). It used to be a link to the Amazone website, whose imprint
- * does not name the app.
+ * "Impressum": Verein Amazone's imprint for the app. The text is `impressum.md` in `@amazone/legal`
+ * (packages/legal), bundled with the app so it reads offline and published on the website next to
+ * the privacy policy and the terms of use. It used to be a link to the Amazone website, whose
+ * imprint does not name the app.
  */
 @Component({
   selector: 'app-settings-imprint',

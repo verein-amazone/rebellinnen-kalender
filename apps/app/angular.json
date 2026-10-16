@@ -29,6 +29,11 @@
                 "input": "public"
               },
               {
+                "glob": "*.md",
+                "input": "node_modules/@amazone/legal/src",
+                "output": "legal"
+              },
+              {
                 "glob": "NOTICE.md",
                 "input": "node_modules/@amazone/design-system/src/fonts",
                 "output": "fonts"

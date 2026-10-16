@@ -5,7 +5,7 @@
 // page. `.github/workflows/pages.yml` publishes the folder; `pnpm build:site` runs this script.
 //
 // Nothing on the site is written twice. The legal pages are rendered from the Markdown the app
-// bundles (`public/legal/*.md`), and the copy comes from the store listing Verein Amazone approved
+// bundles (`packages/legal/src/*.md`), and the copy comes from the store listing Verein Amazone approved
 // (`fastlane/metadata/de-DE/`), so the app, the stores and the website cannot say different
 // things. The store addresses live in `site/site.config.json`; `null` means the listing is not
 // public yet, and the site then says „Bald verfügbar“ instead of linking to it.
@@ -217,7 +217,9 @@ function downloadPage() {
 
 function legalPage({ file, title, directory }) {
   // The Markdown is this repository's own file, not user input, so it is rendered as is.
-  const html = marked.parse(readText(join(APP, 'public', 'legal', file)), { async: false });
+  const html = marked.parse(readText(join(ROOT, 'packages', 'legal', 'src', file)), {
+    async: false,
+  });
 
   return layout({
     title: `${title} – ${APP_NAME}`,

@@ -1,0 +1,9 @@
+{
+  "name": "@amazone/legal",
+  "description": "The privacy policy, terms of use and imprint as Markdown: one text for the app, the website and the store listings.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*.md": "./src/*.md"
+  }
+}

@@ -23,7 +23,7 @@ on:
     branches: [dev]
     paths:
       - site/**
-      - apps/app/public/legal/**
+      - packages/legal/**
       - apps/app/public/favicon.ico
       - packages/design-system/**
       - apps/app/fastlane/metadata/de-DE/**

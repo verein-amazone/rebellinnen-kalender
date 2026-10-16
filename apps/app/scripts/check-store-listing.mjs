@@ -54,7 +54,7 @@ const DATA_SAFETY_TOP_QUESTION = 'PSL_DATA_COLLECTION_COLLECTS_PERSONAL_DATA';
  * entry the policy does not mention yet.
  */
 const CURATED_CATALOG = join(ROOT, 'public', 'curated-calendars', 'catalog.json');
-const PRIVACY_POLICY = join(ROOT, 'public', 'legal', 'datenschutz.md');
+const PRIVACY_POLICY = join(REPO_ROOT, 'packages', 'legal', 'src', 'datenschutz.md');
 
 /** The 6.9" iPhone size; App Store Connect scales it down for every smaller iPhone. */
 const APP_STORE_SCREENSHOT = { width: 1320, height: 2868, min: 1, max: 10 };

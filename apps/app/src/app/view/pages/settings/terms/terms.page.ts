@@ -14,9 +14,9 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 
 /**
- * "Nutzungsbedingungen" (#79): the app's terms of use, bundled as
- * `public/legal/nutzungsbedingungen.md` so they read offline and published next to the privacy
- * policy as a static page (`scripts/build-legal-pages.mjs`).
+ * "Nutzungsbedingungen" (#79): the app's terms of use. The text is `nutzungsbedingungen.md` in
+ * `@amazone/legal` (packages/legal), bundled with the app so it reads offline and published on the
+ * website next to the privacy policy.
  */
 @Component({
   selector: 'app-settings-terms',
