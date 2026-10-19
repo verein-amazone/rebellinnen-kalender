@@ -1,4 +1,10 @@
 ---
+/**
+ * The footer, laid out after Verein Amazone's draft (October 2026): the legal texts and who made the
+ * app on the left, the project and its funding on the right. The partner logos sit beside their
+ * line once there is room and below it on a phone; a logo next to a line that already names the
+ * organisation is decorative (`alt=""`).
+ */
 import { LEGAL_PAGES } from '../lib/site';
 import NewTabLink from './NewTabLink.astro';
 
@@ -9,57 +15,90 @@ interface Props {
 
 const { currentPath } = Astro.props;
 
-const links = [
-  ...LEGAL_PAGES.map(({ title, path }) => ({ title, href: path })),
-  { title: 'Verein Amazone', href: 'https://www.amazone.or.at/' },
-];
 const year = new Date().getFullYear();
 ---
 
-<footer class="on-navy pt-12 pb-[calc(3rem+env(safe-area-inset-bottom))] text-fine">
-  <div class="wrap grid gap-8 split:grid-cols-2 split:gap-x-[clamp(2rem,6vw,4rem)]">
-    <div>
-      <nav aria-label="Rechtliches und Kontakt">
-        <ul class="flex flex-wrap gap-x-6">
-          {links.map(({ title, href }) => (
-            <li>
-              <NewTabLink
-                href={href}
-                aria-current={href === currentPath ? 'page' : undefined}
-                class="inline-flex min-h-touch items-center font-semibold aria-[current=page]:text-rebel-text-muted aria-[current=page]:no-underline"
-              >
-                {title}
-              </NewTabLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <p class="text-rebel-text-muted">© {year} Verein Amazone · Entwickelt von Independo GmbH</p>
+<footer class="on-navy pt-12 pb-[calc(3rem+env(safe-area-inset-bottom))]">
+  <div class="wrap grid gap-12 split:grid-cols-2 split:gap-x-[clamp(2rem,6vw,4rem)]">
+    <div class="@container grid content-start gap-10">
+      <div>
+        <nav aria-label="Rechtliches und Kontakt">
+          <ul class="flex flex-wrap gap-x-6">
+            {LEGAL_PAGES.map(({ title, path }) => (
+              <li>
+                <NewTabLink
+                  href={path}
+                  aria-current={path === currentPath ? 'page' : undefined}
+                  class="inline-flex min-h-touch items-center font-semibold aria-[current=page]:text-rebel-text-muted aria-[current=page]:no-underline"
+                >
+                  {title}
+                </NewTabLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <p class="text-rebel-text-muted">© {year} Verein Amazone</p>
+      </div>
+      <div class="grid grid-cols-1 justify-items-start gap-y-3 @md:grid-cols-[minmax(0,1fr)_auto] @md:items-center @md:gap-x-8 @md:gap-y-6 [&>img]:mb-5 @md:[&>img]:mb-0">
+        <p>
+          Herausgeberin:{' '}
+          <NewTabLink class="font-semibold" href="https://www.amazone.or.at/">
+            Verein Amazone
+          </NewTabLink>
+        </p>
+        <img
+          src="/assets/logos/amazone-weiss.webp"
+          width="277"
+          height="180"
+          alt=""
+          class="h-14 w-auto"
+        />
+        <p>
+          Entwickelt von{' '}
+          <NewTabLink class="font-semibold" href="https://www.independo.app/">
+            Independo GmbH
+          </NewTabLink>
+        </p>
+        <img
+          src="/assets/logos/independo-weiss.svg"
+          width="318"
+          height="62"
+          alt=""
+          class="h-7 w-auto"
+        />
+        <p>In Kooperation mit dem Mädchenbeirat der Hil-Foundation</p>
+        <img
+          src="/assets/logos/maedchenbeirat-weiss.webp"
+          width="297"
+          height="216"
+          alt=""
+          class="h-18 w-auto"
+        />
+      </div>
     </div>
-    <div class="grid max-w-160 gap-4 text-rebel-text-muted">
+    <div class="grid max-w-160 content-start gap-4 text-rebel-text-muted">
       <p>
-        Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft
-        entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.
-        Ebenfalls gefördert von der Hil-Foundation.
+        Die App ist 2026 im Rahmen des Projekts{' '}
+        <NewTabLink href="https://www.amazone.or.at/projekte/grlpwr-madchen-gestalten-gesellschaft">
+          #grlpwr – Mädchen* gestalten Gesellschaft
+        </NewTabLink>{' '}
+        entstanden.
       </p>
-      <div class="flex flex-wrap items-center gap-x-8 gap-y-5 [&_img]:h-11 [&_img]:w-auto">
+      <p>Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.</p>
+      <div class="mt-4 grid justify-items-start gap-6">
         <img
-          src="/assets/logos/eu-kofinanziert-neg.svg"
-          width="1003"
-          height="220"
+          src="/assets/logos/eu-kofinanziert-weiss.webp"
+          width="683"
+          height="150"
           alt="Kofinanziert von der Europäischen Union"
+          class="h-14 w-auto"
         />
         <img
-          src="/assets/logos/peva-cerv-neg.webp"
-          width="1024"
-          height="274"
-          alt="ProEuropean Values AT – CERV"
-        />
-        <img
-          src="/assets/logos/hil-foundation-weiss.webp"
-          width="203"
-          height="88"
-          alt="Hil-Foundation"
+          src="/assets/logos/proeuropean-values-at.webp"
+          width="607"
+          height="120"
+          alt="ProEuropean Values AT"
+          class="h-10 w-auto"
         />
       </div>
     </div>
