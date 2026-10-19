@@ -64,4 +64,4 @@ here, each with its issue.
   with it is installed, the app needs no change of its own: `NativeCalendarGateway` already passes
   the reported value through.
 - **No web version.** The browser build of the app is not published; the website at
-  kalender.amazone.or.at only introduces the app and links the stores.
+  rebellinnen.amazone.or.at only introduces the app and links the stores.

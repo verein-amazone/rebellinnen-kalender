@@ -1,0 +1,20 @@
+---
+/**
+ * A link that opens in a new tab, as Verein Amazone asked for every link that leaves the page. A
+ * plain `<a>` with a screen-reader hint after its content (NEW_TAB_HINT). Links back to the start
+ * page, the skip link and the section links of a legal text stay in the same tab; links inside a
+ * legal text get the same treatment in LegalLayout.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+import { NEW_TAB_HINT } from '../lib/site';
+
+type Props = Omit<HTMLAttributes<'a'>, 'target' | 'rel'> & { href: string };
+
+const props = Astro.props;
+// Trimmed, so a label written over several lines does not underline a trailing space.
+const label = (await Astro.slots.render('default')).trim();
+---
+
+<!-- prettier-ignore -->
+<a {...props} target="_blank" rel="noopener"><Fragment set:html={label} /><span class="sr-only">{NEW_TAB_HINT}</span></a>

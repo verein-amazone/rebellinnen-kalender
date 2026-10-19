@@ -364,7 +364,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: node apps/app/scripts/build-third-party-licenses.mjs --check
 
-  # The website at kalender.amazone.or.at (apps/site, Astro): static pages, so no app build is
+  # The website at rebellinnen.amazone.or.at (apps/site, Astro): static pages, so no app build is
   # needed. The built site is uploaded so a reviewer can open it locally; nothing is
   # published from a pull request.
   site:

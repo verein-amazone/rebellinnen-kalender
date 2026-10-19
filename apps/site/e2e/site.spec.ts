@@ -142,6 +142,21 @@ test.describe('website', () => {
     }
   });
 
+  test('opens every link that leaves the page in a new tab, and says so', async ({ page }) => {
+    for (const path of PAGES) {
+      await page.goto(path);
+      // Staying put: the skip link, section links, the way back to the start page, and email
+      // addresses, which open the mail app rather than a page.
+      const links = page.locator('a[href]:not([href^="#"]):not([href="/"]):not([href^="mailto:"])');
+      expect(await links.count()).toBeGreaterThan(0);
+      for (const link of await links.all()) {
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAttribute('rel', /noopener/);
+        await expect(link).toHaveAccessibleName(/\(öffnet in neuem Tab\)$/);
+      }
+    }
+  });
+
   test('renders the legal texts from the app’s Markdown', async ({ page }) => {
     await page.goto('/impressum/');
 

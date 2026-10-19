@@ -1,4 +1,5 @@
 ---
+import NewTabLink from '../components/NewTabLink.astro';
 import Phone from '../components/Phone.astro';
 import StoreButtons from '../components/StoreButtons.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -6,16 +7,18 @@ import { APP_NAME, PROMOTIONAL, SOURCE_CODE_URL, SUBTITLE } from '../lib/site';
 
 /*
  * The copy follows the store description Verein Amazone approved
- * (apps/app/fastlane/metadata/de-DE/description.txt), with one deliberate difference: the website
- * makes no claim about advertising (Verein Amazone asked for it to be left out here), so the privacy
- * band says „ohne Konto und ohne Tracking“ where the store text adds „ohne Werbung“.
+ * (apps/app/fastlane/metadata/de-DE/description.txt), with the changes Verein Amazone asked for on
+ * the website itself (October 2026): no claim about advertising, so the privacy band lists „Ohne
+ * Konto“ and „Ohne Tracking“ where the store text adds „ohne Werbung“; a shorter line under the
+ * subtitle; and the personalisation that the store text lists separately folded into the
+ * introduction.
  */
 const features = [
   {
     title: 'Dein Kalender',
     text: 'Du kannst Termine anlegen mit Wiederholungen und Erinnerungen in praktischer Wochen- oder Monatsansicht. Du kannst die App mit dem Kalender deines Handys verbinden und auch andere Kalender abonnieren, zum Beispiel von deinem Verein oder deiner Schule. Wenn du magst, kannst du dir andere Termine anzeigen lassen, zum Beispiel Feier- und Aktionstage oder Veranstaltungen.',
     screen: 'kalender',
-    alt: 'Die Wochenansicht der App: der Internationale Frauentag aus den Rebell*innen Terminen, darunter eigene Termine aus „Mein Kalender“.',
+    alt: 'Die Wochenansicht der App: der Weltfrauen*tag aus den Rebell*innen Terminen, darunter eigene Termine aus „Mein Kalender“.',
   },
   {
     title: 'Rebell*innen und Wissen',
@@ -30,22 +33,6 @@ const features = [
     alt: 'Die Anlaufstellen in Vorarlberg in der App: Verein Amazone und der Mädchen*treff Dornbirn, jeweils mit Knopf zum Anrufen und Link zur Webseite.',
   },
 ] as const;
-
-const extras = [
-  {
-    title: 'Nicht vergessen',
-    text: 'Mach dir eine To-do-Liste für alles, was du nicht vergessen darfst.',
-  },
-  {
-    title: 'Mach dir die App, wie sie dir gefällt',
-    text: 'Gestalte die App mit Farben, Schriftgrößen, App-Symbolen und Animationen. Die App funktioniert mit VoiceOver.',
-  },
-];
-
-// The promotional text, without the subtitle it starts with, as the line under the subtitle.
-const promise = PROMOTIONAL.startsWith(SUBTITLE)
-  ? PROMOTIONAL.slice(SUBTITLE.length).trim()
-  : PROMOTIONAL;
 ---
 
 <BaseLayout title={`${APP_NAME} – ${SUBTITLE}`} description={PROMOTIONAL} path="/">
@@ -72,7 +59,10 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
         <p class="-mt-1.5 font-display text-[clamp(1.5rem,5.5vw,2.25rem)] leading-tight font-medium split:text-[clamp(1.5rem,3.2vw,2.25rem)]">
           {SUBTITLE}
         </p>
-        <p class="max-w-[32ch] text-lead">{promise}</p>
+        <p class="max-w-[32ch] text-lead">
+          Termine, To-do-Liste & viele Infos – ohne Konto, ohne Tracking, alles bleibt auf deinem
+          Gerät.
+        </p>
         <StoreButtons class="mt-2" />
       </div>
       {/* Cropped by the fold on a phone: the screen reads as "there is more below". */}
@@ -85,7 +75,7 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
     </section>
 
     <section
-      class="wrap pt-36 pb-8 split:grid split:grid-cols-2 split:items-end split:gap-x-[clamp(2rem,6vw,4rem)] split:pt-24"
+      class="wrap pt-36 pb-8 split:grid split:grid-cols-2 split:items-center split:gap-x-[clamp(2rem,6vw,4rem)] split:pt-24"
       aria-labelledby="mehr"
     >
       <h2
@@ -97,9 +87,10 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
       <p class="mt-5 max-w-152 text-lead split:mt-0">
         Sie begleitet dich durch den Alltag und hilft, auch in stressigen Zeiten den Überblick zu
         bewahren. Neben Terminen und To-dos findest du viele Funktionen, wie du die App nach deinen
-        Wünschen und Bedürfnissen gestalten kannst – so wie’s dir gefällt! Außerdem erwarten dich
-        jede Menge spannende Infos und Inspo zu verschiedensten Themen, Anlaufstellen und
-        Unterstützungsangebote in Österreich und alles, was dein feministisches Herz begehrt!
+        Wünschen und Bedürfnissen gestalten kannst. Wähle Farben, Schriftgröße, App-Symbole und
+        Animationen – so wie’s dir gefällt! Die App funktioniert auch mit VoiceOver. Außerdem
+        erwarten dich jede Menge spannende Infos und Inspo zu verschiedensten Themen, Anlaufstellen
+        und Unterstützungsangebote in Österreich und alles, was dein feministisches Herz begehrt!
       </p>
     </section>
 
@@ -135,19 +126,10 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
       })}
     </div>
 
-    <div class="wrap grid gap-10 pb-[clamp(4rem,12vw,7rem)] split:grid-cols-2 split:gap-x-[clamp(2rem,6vw,4rem)]">
-      {extras.map((extra) => (
-        <section>
-          <h3 class="mb-3 text-[clamp(1.5rem,5vw,2rem)]">{extra.title}</h3>
-          <p class="max-w-136">{extra.text}</p>
-        </section>
-      ))}
-    </div>
-
     <section class="on-navy py-[clamp(4rem,12vw,7rem)]" aria-labelledby="daten">
       <div class="wrap">
         <h2 id="daten" class="max-w-[14ch] text-[clamp(2.25rem,8vw,4rem)]">
-          Deine Daten bleiben bei dir
+          Deine Daten bleiben bei dir.
         </h2>
         <ul class="my-9 grid gap-1 font-display text-[clamp(2rem,9vw,3.75rem)] leading-[1.1] font-semibold">
           <li>
@@ -160,17 +142,13 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
             <span class="text-accent">Auch ohne</span> Internet
           </li>
         </ul>
-        <p class="max-w-144 text-lead text-rebel-text-muted">
-          Die App funktioniert ohne Konto und ohne Tracking. Alle Inhalte sind nur auf deinem Gerät.
-          Die App funktioniert auch ohne Internet.
-        </p>
         <p class="mt-6 flex flex-wrap gap-x-7 gap-y-2 font-semibold">
-          <a class="inline-flex min-h-touch items-center" href="/datenschutz/">
+          <NewTabLink class="inline-flex min-h-touch items-center" href="/datenschutz/">
             Datenschutzerklärung lesen
-          </a>
-          <a class="inline-flex min-h-touch items-center" href={SOURCE_CODE_URL}>
+          </NewTabLink>
+          <NewTabLink class="inline-flex min-h-touch items-center" href={SOURCE_CODE_URL}>
             Offener Quellcode auf GitHub
-          </a>
+          </NewTabLink>
         </p>
       </div>
     </section>
@@ -184,7 +162,7 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
           id="wer"
           class="max-w-[16ch] text-[clamp(2rem,7vw,3.25rem)] split:text-[clamp(2rem,4.5vw,3.25rem)]"
         >
-          Gemeinsam mit Jugendlichen erarbeitet
+          Gemeinsam mit Jugendlichen entwickelt
         </h2>
         <p>
           Die App wurde von Mädchen*, jungen Frauen*, inter*, nicht-binären, trans* und agender
@@ -196,18 +174,20 @@ const promise = PROMOTIONAL.startsWith(SUBTITLE)
           Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*,
           jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und
           österreichweit als Print herausgegeben wird:{' '}
-          <a href="https://www.amazone.or.at/projekte/rebell-innen-kalender">
+          <NewTabLink href="https://www.amazone.or.at/projekte/rebell-innen-kalender">
             www.amazone.or.at/projekte/rebell-innen-kalender
-          </a>
+          </NewTabLink>
         </p>
         <p>
           Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen:{' '}
-          <a href={SOURCE_CODE_URL}>github.com/verein-amazone/rebellinnen-kalender</a>
+          <NewTabLink href={SOURCE_CODE_URL}>
+            github.com/verein-amazone/rebellinnen-kalender
+          </NewTabLink>
         </p>
       </div>
       <div class="mt-10 grid justify-items-start gap-5 rounded-lg bg-card p-[clamp(1.75rem,6vw,3rem)] split:sticky split:top-8 split:mt-0">
         <h2 class="text-[clamp(1.875rem,6vw,2.75rem)] split:text-[clamp(1.875rem,3.5vw,2.75rem)]">
-          Hol dir die App
+          Hol dir die {APP_NAME} App
         </h2>
         <StoreButtons />
       </div>

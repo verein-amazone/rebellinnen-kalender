@@ -5,7 +5,7 @@ primary_target: 'apps/site/src/pages/index.astro'
 related_targets: ['apps/site/src/pages/download.astro', 'apps/site/src/layouts/BaseLayout.astro']
 ---
 
-# Surface brief: kalender.amazone.or.at (public website)
+# Surface brief: rebellinnen.amazone.or.at (public website)
 
 Scope: the one-page landing (`/`), the QR target `/download`, and the legal pages (`/datenschutz/`, `/nutzungsbedingungen/`, `/impressum/`), all built by Astro from `apps/site` into `apps/site/dist/`. Visitor mode: Persuade (landing, download); Read (legal pages).
 

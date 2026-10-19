@@ -120,9 +120,9 @@ website texts do not describe the app. Each has one source in `packages/legal/sr
 - **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`,
   `ImprintPage`), read from the bundled file so it works offline.
 - **On the web**, as part of the website (below):
-  <https://kalender.amazone.or.at/datenschutz/>,
-  <https://kalender.amazone.or.at/nutzungsbedingungen/> and
-  <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
+  <https://rebellinnen.amazone.or.at/datenschutz/>,
+  <https://rebellinnen.amazone.or.at/nutzungsbedingungen/> and
+  <https://rebellinnen.amazone.or.at/impressum/>. The privacy URL is in
   `apps/app/fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
   Console (App content → Privacy policy).
 
@@ -138,9 +138,18 @@ minimum terms for one.
 
 ## Website
 
-`https://kalender.amazone.or.at/` is the app's website: an introduction with the store links,
+`https://rebellinnen.amazone.or.at/` is the app's website: an introduction with the store links,
 `/download`, the three legal texts and a 404 page. The domain is a DNS `CNAME` to
 `verein-amazone.github.io` that Verein Amazone maintains.
+
+Until October 2026 the website lived at `kalender.amazone.or.at`, and 1.0.0 went to the stores with
+those addresses (privacy policy, marketing URL, the bundled privacy policy, printed QR codes). That
+domain stays a DNS `CNAME` to `verein-amazone.github.io` too and is served by a second, tiny Pages
+site, `apps/site-redirect/`, which forwards every address to the same path here
+(`/datenschutz/` → `https://rebellinnen.amazone.or.at/datenschutz/`). Change the privacy and
+marketing URLs in App Store Connect and the Play Console to the new domain with the next submission
+(`apps/app/fastlane/metadata/de-DE/` already has them); keep the redirect for as long as an old
+address can still be out there.
 
 - **Built by** [Astro](https://astro.build/) from `apps/site` (`pnpm build:site`) into
   `apps/site/dist/`. The pages are in `apps/site/src/pages/`, styled with Tailwind on the tokens of
@@ -157,7 +166,7 @@ minimum terms for one.
   store goes live.
 - **`/download`** is the address for QR codes. On an iPhone or iPad it forwards to the App Store, on
   Android to Google Play; anywhere else, without JavaScript or before release, it shows the store
-  buttons it has. Print `https://kalender.amazone.or.at/download` - never a store URL - so the code
+  buttons it has. Print `https://rebellinnen.amazone.or.at/download` - never a store URL - so the code
   keeps working whatever the stores change.
 - **Nothing third-party**: fonts, images and the one script are served from the site itself, there
   are no cookies and no tracking, and a Content-Security-Policy says so. The privacy policy

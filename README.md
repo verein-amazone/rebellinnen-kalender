@@ -53,7 +53,7 @@ synchronization.
 
 ### Website
 
-The app has a small website on Verein Amazone's domain, `https://kalender.amazone.or.at/`: an
+The app has a small website on Verein Amazone's domain, `https://rebellinnen.amazone.or.at/`: an
 introduction with the store links, `/download` (the target of the printed QR codes, which sends a
 phone straight to its store) and the privacy policy, terms of use and imprint. It is a static
 [Astro](https://astro.build/) site in [`apps/site`](./apps/site/), styled with Tailwind on the app's
@@ -80,6 +80,7 @@ delegate to the right package.
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [`apps/app`](./apps/app/)                             | `@amazone/app` - the Angular + Capacitor app with its native projects, fastlane and store assets, and scripts |
 | [`apps/site`](./apps/site/)                           | `@amazone/site` - the website (Astro + Tailwind)                                                              |
+| [`apps/site-redirect`](./apps/site-redirect/)         | The Pages site that forwards the former domain `kalender.amazone.or.at` to the website                        |
 | [`packages/design-system`](./packages/design-system/) | `@amazone/design-system` - design tokens, colour themes, custom variants and the webfonts                     |
 | [`packages/legal`](./packages/legal/)                 | `@amazone/legal` - privacy policy, terms of use and imprint as Markdown                                       |
 | [`docs`](./docs/)                                     | Architecture, release, store and content documentation for the whole repository                               |
