@@ -1,6 +1,6 @@
 # Website (`@amazone/site`)
 
-The website at kalender.amazone.or.at: the landing page, `/download` (the QR-code target) and the
+The website at rebellinnen.amazone.or.at: the landing page, `/download` (the QR-code target) and the
 legal pages. Astro with static output, styled with Tailwind on the app's own tokens. Read the
 repository's [AGENTS.md](../../AGENTS.md) first; its touch-first and accessibility rules apply here
 unchanged.

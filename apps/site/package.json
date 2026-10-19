@@ -1,6 +1,6 @@
 {
   "name": "@amazone/site",
-  "description": "The website at kalender.amazone.or.at: landing page, /download (the QR-code target) and the legal pages. Astro, static output.",
+  "description": "The website at rebellinnen.amazone.or.at: landing page, /download (the QR-code target) and the legal pages. Astro, static output.",
   "private": true,
   "type": "module",
   "engines": {

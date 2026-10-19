@@ -53,7 +53,7 @@ synchronization.
 
 ### Website
 
-The app has a small website on Verein Amazone's domain, `https://kalender.amazone.or.at/`: an
+The app has a small website on Verein Amazone's domain, `https://rebellinnen.amazone.or.at/`: an
 introduction with the store links, `/download` (the target of the printed QR codes, which sends a
 phone straight to its store) and the privacy policy, terms of use and imprint. It is a static
 [Astro](https://astro.build/) site in [`apps/site`](./apps/site/), styled with Tailwind on the app's

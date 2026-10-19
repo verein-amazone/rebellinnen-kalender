@@ -355,7 +355,7 @@ control's accessible name flips to the opposite action.
 
 ## Website (`apps/site`)
 
-The website at kalender.amazone.or.at wears the same Amazone theme at page scale, from the same
+The website at rebellinnen.amazone.or.at wears the same Amazone theme at page scale, from the same
 tokens (`@amazone/design-system`); it adds no colour of its own. What differs is scale and layout,
 because a page is read at arm's length and on screens of every width:
 

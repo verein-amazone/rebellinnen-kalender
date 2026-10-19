@@ -1,4 +1,4 @@
-# Publishes the website at https://kalender.amazone.or.at to GitHub Pages: the introduction with
+# Publishes the website at https://rebellinnen.amazone.or.at to GitHub Pages: the introduction with
 # the store links, /download (the QR-code target), and the privacy policy, terms of use and imprint
 # (`apps/site`, an Astro site, see docs/store-listing.md).
 #
@@ -6,11 +6,12 @@
 # `main` is the release branch, switch the trigger below to `main`: the legal texts should then
 # describe the app in the stores, not the next one.
 #
-# `kalender.amazone.or.at` is a DNS `CNAME` to `verein-amazone.github.io` that Verein Amazone
+# `rebellinnen.amazone.or.at` is a DNS `CNAME` to `verein-amazone.github.io` that Verein Amazone
 # maintains. With a branch as the publishing source, the `CNAME` file in the branch root - written
 # by the build - is what keeps Pages answering for the domain; every github.io address of this
 # repository redirects there. The repository's Pages source has to be "Deploy from a branch" ->
-# `gh-pages` / root.
+# `gh-pages` / root. The former domain, `kalender.amazone.or.at`, is served by a separate Pages site
+# that forwards to the same path here (`apps/site-redirect/`).
 #
 # The branch is rewritten as a single orphan commit holding only the site. Its content is
 # disposable - the build is reproducible from `dev` - and nothing else lives there. Pull requests

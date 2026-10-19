@@ -1,4 +1,4 @@
-**Stand: 16. Oktober 2026**
+**Stand: 19. Oktober 2026**
 
 ## 1. Deine Privatsphäre ist uns wichtig
 
@@ -212,7 +212,7 @@ Der Schutz lokal gespeicherter Informationen hängt darüber hinaus auch von den
 
 ## 9. Website der App
 
-Unter https://kalender.amazone.or.at/ gibt es eine Website zur App. Dort findest du Informationen über die App, die Links in die App-Stores sowie diese Datenschutzerklärung, die Nutzungsbedingungen und das Impressum.
+Unter https://rebellinnen.amazone.or.at/ gibt es eine Website zur App. Dort findest du Informationen über die App, die Links in die App-Stores sowie diese Datenschutzerklärung, die Nutzungsbedingungen und das Impressum.
 
 Die Website wird über **GitHub Pages** bereitgestellt. Beim Aufruf werden technisch notwendige Verbindungsdaten, beispielsweise deine IP-Adresse, an die Infrastruktur von GitHub übermittelt.
 
@@ -222,7 +222,7 @@ https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-s
 
 Die Website setzt keine Cookies, verwendet keine Analyse- oder Trackingdienste und lädt keine Inhalte von anderen Anbietern. Sie speichert nichts in deinem Browser.
 
-Die Seite https://kalender.amazone.or.at/download leitet dich direkt in den passenden App-Store weiter. Dafür erkennt sie in deinem Browser, ob du ein iPhone, ein iPad oder ein Android-Gerät verwendest. Diese Information wird weder gespeichert noch an uns übermittelt. Im App Store und bei Google Play gelten die Datenschutzbestimmungen von Apple beziehungsweise Google.
+Die Seite https://rebellinnen.amazone.or.at/download leitet dich direkt in den passenden App-Store weiter. Dafür erkennt sie in deinem Browser, ob du ein iPhone, ein iPad oder ein Android-Gerät verwendest. Diese Information wird weder gespeichert noch an uns übermittelt. Im App Store und bei Google Play gelten die Datenschutzbestimmungen von Apple beziehungsweise Google.
 
 ## 10. Wenn du uns kontaktierst
 
