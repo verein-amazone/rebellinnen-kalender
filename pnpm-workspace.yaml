@@ -6,13 +6,13 @@ packages:
 # Versions that more than one workspace package depends on, pinned once. A package asks for one with
 # `"<name>": "catalog:"`, so the app and the website can never drift onto different majors.
 catalog:
-  '@axe-core/playwright': ^4.13.0
+  '@axe-core/playwright': ^4.14.0
   '@eslint/js': ^10.0.1
   '@playwright/test': ^1.64.1
   '@tailwindcss/postcss': ^4.3.3
   '@tailwindcss/vite': ^4.3.3
   '@types/node': ^26.6.5
-  eslint: ^10.12.0
+  eslint: ^10.13.0
   prettier: ^3.9.10
   serve: ^14.2.6
   tailwindcss: ^4.3.3
