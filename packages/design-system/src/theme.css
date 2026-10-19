@@ -73,6 +73,7 @@
   --color-switch-background: var(--rk-switch-background);
   --color-ring: var(--rk-ring);
   --color-nav-bg: var(--rk-nav-bg);
+  --color-nav-indicator: var(--rk-nav-indicator);
   --color-rebel-bg: var(--rk-rebel-bg);
   --color-rebel-text: var(--rk-rebel-text);
   --color-rebel-text-muted: var(--rk-rebel-text-muted);
@@ -173,6 +174,8 @@
   --rk-switch-background: #a8c8c7;
   --rk-ring: #e92f2a;
   --rk-nav-bg: #15195f;
+  /* Red rather than the orange accent, as Verein Amazone asked: the theme's signal colour. */
+  --rk-nav-indicator: #e92f2a;
   --rk-rebel-bg: #15195f;
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #a8d4d3;
@@ -210,6 +213,7 @@
   --rk-switch-background: #c4b9aa;
   --rk-ring: #c85d3b;
   --rk-nav-bg: #2a1f14;
+  --rk-nav-indicator: var(--rk-accent);
   --rk-rebel-bg: #c85d3b;
   --rk-rebel-text: #fffdf9;
   --rk-rebel-text-muted: #f0d8c8;
@@ -242,6 +246,7 @@
   --rk-switch-background: #2a3580;
   --rk-ring: #7dbdbb;
   --rk-nav-bg: #080b30;
+  --rk-nav-indicator: var(--rk-accent);
   --rk-rebel-bg: #080b30;
   --rk-rebel-text: #d8e8ec;
   --rk-rebel-text-muted: #7dbdbb;
@@ -276,6 +281,7 @@
   --rk-switch-background: #c8b0e0;
   --rk-ring: #7b3fa8;
   --rk-nav-bg: #2d1b69;
+  --rk-nav-indicator: var(--rk-accent);
   --rk-rebel-bg: #2d1b69;
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #d4b8e8;
