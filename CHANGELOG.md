@@ -1,3 +1,13 @@
+## [1.0.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.1-rc.1...v1.0.1-rc.2) (2026-10-19)
+
+### Chores
+
+* **deps:** weekly app dependency update ([be717cc](https://github.com/verein-amazone/rebellinnen-kalender/commit/be717cc06325a988d7f1187e9a37d407bf6f2c15))
+
+### Delivery
+
+* **deps:** bump ruby/setup-ruby ([5ead76c](https://github.com/verein-amazone/rebellinnen-kalender/commit/5ead76c911714856480e45a04ddf8988a25073ba))
+
 ## [1.0.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0...v1.0.1-rc.1) (2026-10-16)
 
 ### Bug Fixes
