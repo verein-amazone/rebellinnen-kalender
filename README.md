@@ -80,6 +80,7 @@ delegate to the right package.
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [`apps/app`](./apps/app/)                             | `@amazone/app` - the Angular + Capacitor app with its native projects, fastlane and store assets, and scripts |
 | [`apps/site`](./apps/site/)                           | `@amazone/site` - the website (Astro + Tailwind)                                                              |
+| [`apps/site-redirect`](./apps/site-redirect/)         | The Pages site that forwards the former domain `kalender.amazone.or.at` to the website                        |
 | [`packages/design-system`](./packages/design-system/) | `@amazone/design-system` - design tokens, colour themes, custom variants and the webfonts                     |
 | [`packages/legal`](./packages/legal/)                 | `@amazone/legal` - privacy policy, terms of use and imprint as Markdown                                       |
 | [`docs`](./docs/)                                     | Architecture, release, store and content documentation for the whole repository                               |
