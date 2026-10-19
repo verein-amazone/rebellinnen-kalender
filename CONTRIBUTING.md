@@ -50,9 +50,10 @@ commit of a pull request, so this is a required check rather than a style prefer
 
 The convention is not cosmetic: semantic-release reads the commit types to decide the next version.
 `feat` bumps the minor version, `fix` the patch version, and a `BREAKING CHANGE:` footer the major
-version. `build`, `chore`, `ci`, `refactor` and `revert` also produce a patch, so that every merge
-into `dev` gets its own distinct, sortable version to hand to testers. `docs`, `style` and `test`
-release nothing - a typo fix does not need a new build.
+version. `improvement` is this repository's addition for a change users notice that is too small to
+call a feature, and it releases a patch. `build`, `chore`, `ci`, `refactor` and `revert` also
+produce a patch, so that every merge into `dev` gets its own distinct, sortable version to hand to
+testers. `docs`, `style` and `test` release nothing - a typo fix does not need a new build.
 
 Merge commits are exempt, which is why pull requests are merged rather than squashed: the individual
 commits are the record.

@@ -39,8 +39,9 @@ Before the first release from `main`, two things outside this repository still n
 
 1. `.github/workflows/release.yml` runs `semantic-release`.
 2. It reads the commit types since the last tag and decides the next version. `feat` bumps the
-   minor, `fix` the patch, a `BREAKING CHANGE:` footer the major; `build`, `chore`, `ci`, `refactor`
-   and `revert` also produce a patch, so every merge gets a distinct version to hand to testers.
+   minor, `fix` and `improvement` (a noticeable change too small to call a feature) the patch, a
+   `BREAKING CHANGE:` footer the major; `build`, `chore`, `ci`, `refactor` and `revert` also produce
+   a patch, so every merge gets a distinct version to hand to testers.
    `docs`, `style` and `test` release nothing.
 3. It writes the version into `package.json`, `CHANGELOG.md`,
    `apps/app/src/app/cross-cutting/infrastructure/app-version.ts` (the „Über die App" screen) and both native
