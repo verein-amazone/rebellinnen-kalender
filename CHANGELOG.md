@@ -1,3 +1,26 @@
+## [1.0.1-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.1-rc.2...v1.0.1-rc.3) (2026-10-19)
+
+### Improvements
+
+* **site:** open links in a new tab ([a3d55fd](https://github.com/verein-amazone/rebellinnen-kalender/commit/a3d55fd06ad787e5c08267fd55059cdccb87c19d))
+
+### Chores
+
+* **site:** forward kalender.amazone.or.at to the new domain ([fed4ee0](https://github.com/verein-amazone/rebellinnen-kalender/commit/fed4ee073e5b686cb70cdf6bafca8bfbb5ab7bb7))
+* **site:** move the website to rebellinnen.amazone.or.at ([5898281](https://github.com/verein-amazone/rebellinnen-kalender/commit/58982810e83e6e6323617d4ed052ceca1dfd14ec))
+* **site:** show the 2027 app screens ([44b766e](https://github.com/verein-amazone/rebellinnen-kalender/commit/44b766e2f0f93ee74cc04f2e7978ffb13b9c6033))
+* **store:** date the screenshots 2027 and rename the demo appointments ([84f557b](https://github.com/verein-amazone/rebellinnen-kalender/commit/84f557b0ecca46f771eab692c366f37d548cbd3b))
+
+### Delivery
+
+* **release:** accept improvement as a commit type that releases a patch ([f1a6d4f](https://github.com/verein-amazone/rebellinnen-kalender/commit/f1a6d4fcb062e3d2578e64f73f068990f55d5859))
+
+### Refactoring
+
+* **site:** apply Verein Amazone's copy and layout feedback ([a89cd0e](https://github.com/verein-amazone/rebellinnen-kalender/commit/a89cd0e06eed6524ede505fe82d05fa13d899b7f))
+* **site:** rebuild the footer after Verein Amazone's draft ([339b563](https://github.com/verein-amazone/rebellinnen-kalender/commit/339b563cd6bde6c54f4bee4c93fc96f45008e681)), closes [#grlpwr](https://github.com/verein-amazone/rebellinnen-kalender/issues/grlpwr)
+* **store:** show the next Weltfrauentag in the screenshots ([e636a40](https://github.com/verein-amazone/rebellinnen-kalender/commit/e636a4094e5f6a6682b667aad32f2b849fca124e))
+
 ## [1.0.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.1-rc.1...v1.0.1-rc.2) (2026-10-19)
 
 ### Chores
