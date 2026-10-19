@@ -14,7 +14,7 @@ import {
  * assets, rendered from the production web build (see
  * playwright.store.config.ts and docs/store-listing.md).
  *
- * Everything that would make two runs differ is pinned: the clock (a fixed Sunday, Weltfrauentag,
+ * Everything that would make two runs differ is pinned: the clock (a fixed day, Weltfrauentag,
  * so Heute's impulse is always the same one), the zone and locale, the demo data, and the fonts,
  * which the app bundles. Run it, look at every PNG, and commit them.
  */
@@ -46,9 +46,9 @@ const PLAY_IMAGES = join(ROOT, 'fastlane', 'metadata', 'android', 'de-DE', 'imag
  */
 const APP_STORE_ASSETS = join(ROOT, 'fastlane', 'app-store-assets');
 
-/** Sunday, 8 March 2026, 9:30 in Vienna. */
-const NOW = new Date('2026-03-08T09:30:00+01:00');
-const TODAY = '2026-03-08';
+/** Monday, 8 March 2027, 9:30 in Vienna. */
+const NOW = new Date('2027-03-08T09:30:00+01:00');
+const TODAY = '2027-03-08';
 
 /**
  * The content the screenshots show, as Verein Amazone chose it: a Rebell*in of today whose portrait
@@ -105,19 +105,19 @@ async function addAppointment(
   await expect(page).toHaveURL(/\/calendar\?day=/);
 }
 
-/** The demo data every screenshot shows: a believable Sunday in March. */
+/** The demo data every screenshot shows: a believable day in March. */
 async function seedDemoData(page: Page): Promise<void> {
   await seedAppCalendar(page, 'Mein Kalender');
   await seedOccurrence(page, {
     sourceType: 'ics',
-    title: 'Internationaler Frauentag',
+    title: 'Weltfrauen*tag',
     day: TODAY,
     calendarName: 'Rebell*innen Termine',
     color: '#7B3FA8',
   });
 
   await addAppointment(page, {
-    title: 'Demo zum Frauentag',
+    title: 'Demo!',
     day: TODAY,
     start: '14:00',
     end: '16:00',
@@ -130,17 +130,17 @@ async function seedDemoData(page: Page): Promise<void> {
     end: '18:30',
   });
   for (const [title, day, start, end] of [
-    ['Chorprobe', '2026-03-03', '19:00', '21:00'],
-    ['Zahnarzt', '2026-03-05', '08:30', '09:00'],
-    ['Lesekreis', '2026-03-12', '19:00', '20:30'],
-    ['Konzert mit Jule', '2026-03-20', '20:00', '22:30'],
-    ['Oma besuchen', '2026-03-22', '15:00', '18:00'],
+    ['Chorprobe', '2027-03-03', '19:00', '21:00'],
+    ['Zahnarzt', '2027-03-05', '08:30', '09:00'],
+    ['Lesekreis', '2027-03-12', '19:00', '20:30'],
+    ['Konzert mit Jule', '2027-03-20', '20:00', '22:30'],
+    ['Oma besuchen', '2027-03-22', '15:00', '18:00'],
   ]) {
     await addAppointment(page, { title, day, start, end });
   }
   await addAppointment(page, {
     title: 'Workshop Rebell*innen Kalender',
-    day: '2026-03-10',
+    day: '2027-03-10',
     start: '16:00',
     end: '18:00',
     location: 'Verein Amazone',
@@ -210,7 +210,7 @@ test.describe('store screenshots', () => {
       {
         name: 'kalender',
         path: `/calendar?day=${TODAY}`,
-        ready: (p) => expect(p.getByRole('link', { name: /Demo zum Frauentag/ })).toBeVisible(),
+        ready: (p) => expect(p.getByRole('link', { name: /Demo!/ })).toBeVisible(),
       },
       {
         name: 'rebellin',
@@ -239,7 +239,7 @@ test.describe('store screenshots', () => {
         path: `/calendar?view=month&day=${TODAY}`,
         // The month in another colour theme, to show that the app can look different.
         ready: async (p) => {
-          await expect(p.getByText('März 2026').first()).toBeVisible();
+          await expect(p.getByText('März 2027').first()).toBeVisible();
           await expect(p.locator('html')).toHaveAttribute('data-theme', 'nacht');
         },
         before: async (p) => {
