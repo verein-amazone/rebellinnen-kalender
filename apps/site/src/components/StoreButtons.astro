@@ -4,6 +4,7 @@
  * (site.config.json). The badges are the stores' own, unaltered, as their guidelines ask.
  */
 import { APP_NAME, STORES } from '../lib/site';
+import NewTabLink from './NewTabLink.astro';
 
 interface Props {
   class?: string;
@@ -19,7 +20,7 @@ const missing = [
 
 <div class:list={['flex flex-wrap items-center gap-x-4 gap-y-3', className]}>
   {STORES.appStore && (
-    <a
+    <NewTabLink
       class="inline-flex rounded-[0.6rem] transition-transform duration-160 ease-(--ease-out) hoverable:-translate-y-0.5 active:scale-97"
       href={STORES.appStore}
     >
@@ -32,10 +33,10 @@ const missing = [
         alt={`${APP_NAME} im App Store laden`}
         class="h-13 w-auto"
       />
-    </a>
+    </NewTabLink>
   )}
   {STORES.playStore && (
-    <a
+    <NewTabLink
       class="inline-flex rounded-[0.6rem] transition-transform duration-160 ease-(--ease-out) hoverable:-translate-y-0.5 active:scale-97"
       href={STORES.playStore}
     >
@@ -46,7 +47,7 @@ const missing = [
         alt={`${APP_NAME} bei Google Play laden`}
         class="-my-[0.49rem] h-[4.23rem] w-auto"
       />
-    </a>
+    </NewTabLink>
   )}
   {/* A status, not a control: no button shape, so nobody taps it expecting a store. */}
   {missing.length > 0 && (

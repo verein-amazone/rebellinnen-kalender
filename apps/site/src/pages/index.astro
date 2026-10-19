@@ -1,4 +1,5 @@
 ---
+import NewTabLink from '../components/NewTabLink.astro';
 import Phone from '../components/Phone.astro';
 import StoreButtons from '../components/StoreButtons.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -142,12 +143,12 @@ const features = [
           </li>
         </ul>
         <p class="mt-6 flex flex-wrap gap-x-7 gap-y-2 font-semibold">
-          <a class="inline-flex min-h-touch items-center" href="/datenschutz/">
+          <NewTabLink class="inline-flex min-h-touch items-center" href="/datenschutz/">
             Datenschutzerklärung lesen
-          </a>
-          <a class="inline-flex min-h-touch items-center" href={SOURCE_CODE_URL}>
+          </NewTabLink>
+          <NewTabLink class="inline-flex min-h-touch items-center" href={SOURCE_CODE_URL}>
             Offener Quellcode auf GitHub
-          </a>
+          </NewTabLink>
         </p>
       </div>
     </section>
@@ -173,13 +174,15 @@ const features = [
           Kooperation mit dem Mädchenbeirat der Hil-Foundation seit 2020 jährlich mit Mädchen*,
           jungen Frauen*, inter*, nicht-binären, trans* und agender Jugendlichen erarbeitet und
           österreichweit als Print herausgegeben wird:{' '}
-          <a href="https://www.amazone.or.at/projekte/rebell-innen-kalender">
+          <NewTabLink href="https://www.amazone.or.at/projekte/rebell-innen-kalender">
             www.amazone.or.at/projekte/rebell-innen-kalender
-          </a>
+          </NewTabLink>
         </p>
         <p>
           Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen:{' '}
-          <a href={SOURCE_CODE_URL}>github.com/verein-amazone/rebellinnen-kalender</a>
+          <NewTabLink href={SOURCE_CODE_URL}>
+            github.com/verein-amazone/rebellinnen-kalender
+          </NewTabLink>
         </p>
       </div>
       <div class="mt-10 grid justify-items-start gap-5 rounded-lg bg-card p-[clamp(1.75rem,6vw,3rem)] split:sticky split:top-8 split:mt-0">

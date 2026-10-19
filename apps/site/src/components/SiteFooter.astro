@@ -1,5 +1,6 @@
 ---
 import { LEGAL_PAGES } from '../lib/site';
+import NewTabLink from './NewTabLink.astro';
 
 interface Props {
   /** The page the footer is on, so its own link says so (`aria-current`). */
@@ -22,13 +23,13 @@ const year = new Date().getFullYear();
         <ul class="flex flex-wrap gap-x-6">
           {links.map(({ title, href }) => (
             <li>
-              <a
+              <NewTabLink
                 href={href}
                 aria-current={href === currentPath ? 'page' : undefined}
                 class="inline-flex min-h-touch items-center font-semibold aria-[current=page]:text-rebel-text-muted aria-[current=page]:no-underline"
               >
                 {title}
-              </a>
+              </NewTabLink>
             </li>
           ))}
         </ul>
