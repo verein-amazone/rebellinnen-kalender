@@ -24,6 +24,8 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -34,7 +36,7 @@ class FakeContentItemDao {
    * stable pick up by id regardless of whether it is still in today's eligible pool. */
   private readonly all = new Map<string, ContentItemRecord>();
 
-  listEligibleForDay(): Promise<ContentItemRecord[]> {
+  listEligibleForDaily(): Promise<ContentItemRecord[]> {
     for (const record of this.eligible) {
       this.all.set(record.id, record);
     }
@@ -113,6 +115,17 @@ describe('DailyImpulseInteractor', () => {
       day: '2027-02-05',
       itemId: picked?.id,
     });
+  });
+
+  it('only picks among items whose window includes today, yearly windows in any year', async () => {
+    dao.eligible = [
+      item({ id: 'past', validFrom: '2027-02-01', validTo: '2027-02-10' }),
+      item({ id: 'idahobit', validFrom: '--05-17', validTo: '--05-17' }),
+      item({ id: 'june', validFrom: '--06-01', validTo: '--06-30' }),
+    ];
+    const interactor = TestBed.inject(DailyImpulseInteractor);
+
+    await expect(interactor.featuredItem('2031-05-17')).resolves.toMatchObject({ id: 'idahobit' });
   });
 
   it('returns the same stable item on repeated calls for the same day even if the pool changes', async () => {

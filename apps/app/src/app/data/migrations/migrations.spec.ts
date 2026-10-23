@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { InMemorySqliteDatabase } from '../gateways/sqlite-database.testing';
 import { CREATE_SCHEMA } from './019-create-schema';
 import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
+import { CREATE_SEARCH_INDEX } from './021-search-index';
+import { ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS } from './022-content-video-and-support-links';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -229,6 +231,77 @@ describe('MIGRATIONS', () => {
       expect(
         await database.query<{ readonly table: string }>(`PRAGMA foreign_key_list(bookmarks)`),
       ).toEqual([expect.objectContaining({ table: 'content_items' })]);
+      await expect(async () =>
+        database.run(`INSERT INTO bookmarks (content_item_id, created_at) VALUES ('gone', 'x')`),
+      ).rejects.toThrow('FOREIGN KEY');
+
+      database.close();
+    });
+  });
+
+  describe('version 22 over a version 21 database', () => {
+    /** A 1.1.0 database with a content item and a bookmark on it. */
+    async function versionTwentyOneDatabase(): Promise<InMemorySqliteDatabase> {
+      const database = new InMemorySqliteDatabase();
+      await database.run('PRAGMA foreign_keys = ON;');
+      database.migrate([CREATE_SCHEMA, REBUILD_CONTENT_ITEMS, CREATE_SEARCH_INDEX]);
+      await database.run(
+        `INSERT INTO content_items (id, kind, title, teaser, body_markdown, hero_image_id,
+          valid_from, valid_to, eligible_for_daily, related_sources)
+         VALUES ('wi-08', 'wissensimpulse', 'Kampftag', 'Teaser', 'Text', 'kampftag',
+          '2027-03-08', '2027-03-08', 1, NULL)`,
+      );
+      await database.run(
+        `INSERT INTO bookmarks (content_item_id, created_at) VALUES ('wi-08', '2026-10-01')`,
+      );
+      return database;
+    }
+
+    it('adds the video and Anlaufstellen columns, empty until the catalog sync fills them', async () => {
+      const database = await versionTwentyOneDatabase();
+      database.migrate([ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS]);
+      database.migrate([ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS]);
+
+      expect(await columnNames(database, 'content_items')).toEqual([
+        'id',
+        'kind',
+        'title',
+        'teaser',
+        'body_markdown',
+        'hero_image_id',
+        'source_label',
+        'source_url',
+        'valid_from',
+        'valid_to',
+        'eligible_for_daily',
+        'related_sources',
+        'video',
+        'support_service_ids',
+      ]);
+      expect(
+        await database.query(
+          `SELECT id, hero_image_id, valid_from, video, support_service_ids FROM content_items`,
+        ),
+      ).toEqual([
+        {
+          id: 'wi-08',
+          hero_image_id: 'kampftag',
+          valid_from: '2027-03-08',
+          video: null,
+          support_service_ids: null,
+        },
+      ]);
+
+      database.close();
+    });
+
+    it('keeps the bookmarks, still bound to their item', async () => {
+      const database = await versionTwentyOneDatabase();
+      database.migrate([ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS]);
+
+      expect(await database.query(`SELECT * FROM bookmarks`)).toEqual([
+        { content_item_id: 'wi-08', created_at: '2026-10-01' },
+      ]);
       await expect(async () =>
         database.run(`INSERT INTO bookmarks (content_item_id, created_at) VALUES ('gone', 'x')`),
       ).rejects.toThrow('FOREIGN KEY');

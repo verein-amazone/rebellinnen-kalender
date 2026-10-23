@@ -9,6 +9,7 @@ import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.st
 
 import type { ContentItemView } from './content-item.vm';
 import { toContentItemView } from './content-item-view';
+import { isWithinWindow } from './content-window';
 import { selectDailyImpulse } from './select-daily-impulse';
 
 /**
@@ -41,7 +42,9 @@ export class DailyImpulseInteractor {
       return record === null ? null : toContentItemView(record, this.images);
     }
 
-    const eligible = await this.contentItems.listEligibleForDay(today);
+    const eligible = (await this.contentItems.listEligibleForDaily()).filter((item) =>
+      isWithinWindow(item, today),
+    );
     // The last impulse featured, however many days ago: it is the one the user saw before today's.
     const previous = stable === null ? null : await this.contentItems.findById(stable.itemId);
     const picked = selectDailyImpulse({
