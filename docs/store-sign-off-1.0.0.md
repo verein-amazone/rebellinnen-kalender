@@ -273,9 +273,10 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   einer größeren oder Vektor-Datei des Logos fragen. Ein Logo von Verein Amazone gibt es auf der
   Website noch nicht, nur den Namen als Link:
   Wenn es eines geben soll, bitte die Datei schicken.
-- ☐ **Store-Adressen nach der Freischaltung.** Sobald die App öffentlich ist, tragen wir die
-  Adressen aus App Store und Google Play ein; bis dahin steht dort „Bald verfügbar im App Store und
-  bei Google Play“. QR-Codes immer auf https://kalender.amazone.or.at/download zeigen lassen, nie
+- ☑ **Store-Adressen nach der Freischaltung.** Die Website verlinkt beide Stores:
+  https://apps.apple.com/at/app/rebell-innen/id6806218483 (Vorbestellung) und
+  https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender. Unter den Knöpfen
+  steht bis nach dem Start „Ab 9. November 2026 verfügbar“. QR-Codes immer auf https://kalender.amazone.or.at/download zeigen lassen, nie
   direkt auf einen Store.
 - ☐ **Google-Kalender umbenennen.** Der Kalender von Verein Amazone heißt in der App jetzt
   „Rebell\*innen Termine“. In Google Kalender heißt er noch „Rebell\*innen Kalender“, und diesen

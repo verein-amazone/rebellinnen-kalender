@@ -14,9 +14,11 @@ const PLAY_STORE =
  * address is filled in when its listing goes public, so the tests on SITE follow it instead of
  * assuming one release state; the `dist-stores` build on SITE_WITH_STORES always has both.
  */
-const LIVE: { appStoreUrl: string | null; playStoreUrl: string | null } = JSON.parse(
-  readFileSync(new URL('../site.config.json', import.meta.url), 'utf8'),
-);
+const LIVE: {
+  appStoreUrl: string | null;
+  playStoreUrl: string | null;
+  releaseDate: string | null;
+} = JSON.parse(readFileSync(new URL('../site.config.json', import.meta.url), 'utf8'));
 
 const IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
@@ -130,6 +132,20 @@ test.describe('website', () => {
       page.getByRole('link', { name: 'Rebell*innen bei Google Play laden' }).first(),
     ).toHaveAttribute('href', PLAY_STORE);
     await expect(page.getByText('Bald verfügbar')).toHaveCount(0);
+    await expect(page.getByText(/^Ab .* verfügbar$/)).toHaveCount(0);
+  });
+
+  test('gives the release date under the store buttons while it is set', async ({ page }) => {
+    for (const path of ['/', '/download/']) {
+      await page.goto(path);
+      const line = page.getByText(/^Ab .* verfügbar$/);
+      if (LIVE.releaseDate) {
+        await expect(line.first()).toBeVisible();
+        await expect(line.first().locator('time')).toHaveAttribute('datetime', LIVE.releaseDate);
+      } else {
+        await expect(line).toHaveCount(0);
+      }
+    }
   });
 
   test('links the three legal texts from every page', async ({ page }) => {
