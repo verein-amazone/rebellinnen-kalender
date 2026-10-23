@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "items": [
     {
       "id": "wi-01",
@@ -977,6 +977,1534 @@
       "teaser": "Autorin, Moderatorin, Schauspielerin",
       "bodyMarkdown": "> Ich wünsche mir eine Gesellschaft, in der wir Körper nicht mehr unaufgefordert Kommentieren und ein diverses Bild von Körpern zeigen.\n\nNinia setzt sich aktiv für feministische und inklusive Themen ein. Inklusion bedeutet, dass alle Menschen – egal wie sie aussehen, welche Sprache sie sprechen oder ob sie eine Behinderung haben – dazugehören. \n\nIn ihren Texten erzählt Ninia unter anderem aus ihrem Leben als kleinwüchsige Frau und Mama und wie sich Feminismus mit ihrem Alltag vereinbaren lässt. \n\nAls Mitbegründerin der Online-Kampagne #ausnahmslos, die sich gegen sexualisierte Gewalt stark macht, erhält Ninia 2016 den Clara-Zetkin-Frauenpreis für politische Intervention.",
       "heroImageId": "ninia-lagrande-binias",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-23",
+      "kind": "wissensimpulse",
+      "title": "Was tut dir gut?",
+      "teaser": "Wir haben ein paar Ideen für dich!",
+      "bodyMarkdown": "- An Lavendel riechen\n- Gedanken aufschreiben\n- Schlafen\n- Zeichnen\n- Lieblingsserie schauen\n- …\n\nEs gibt ein Thema, das dich beschäftigt? Reden kann hilfreich sein! Schau‘ mal zu den Anlaufstellen. Vielleicht ist ein passendes Angebot für dich dabei! <3",
+      "heroImageId": "was-tut-dir-gut-23",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": []
+    },
+    {
+      "id": "wi-24",
+      "kind": "wissensimpulse",
+      "title": "#mikrofeminismus",
+      "teaser": "Mikrofeminismus – das sind kleine, alltägliche Gesten und Aktionen für Geschlechtergerechtigkeit. Wir haben da mal ein paar Ideen für dich!",
+      "bodyMarkdown": "- Halte Jungen\\* die Tür auf oder frag, ob du beim Tragen der Tasche helfen kannst!\n- Brich Tabus: Versteck Periodenprodukte nicht länger!\n- Konsumiere gezielt Bücher, Musik und Filme von Frauen\\*!\n\nUnd jetzt bist du an der Reihe! Probier’s einfach mal aus!",
+      "heroImageId": "mikrofeminismus-24",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-25",
+      "kind": "wissensimpulse",
+      "title": "Am 8. März ist Feministischer Kampftag!",
+      "teaser": "Frauen*rechte wurden von mutigen und starken Frauen* hart erkämpft und müssen auch heute noch verteidigt werden.",
+      "bodyMarkdown": "Wusstest du das…\n\n… Frauen\\* in Österreich erst seit 1975 ohne Erlaubnis des Mannes\\* arbeiten dürfen?\n\nBis dahin hat meist der Ehemann oder Vater entschieden, ob eine Frau\\* arbeiten darf und welchen Beruf sie ausübt.",
+      "heroImageId": "feministischer-kampftag",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--03-01",
+      "validTo": "--03-08",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-26",
+      "kind": "wissensimpulse",
+      "title": "Dieses Handzeichen kann Leben retten.",
+      "teaser": "Es nennt sich Signal for Help. Wenn du das Handzeichen siehst, hol Hilfe oder informier die Polizei!",
+      "bodyMarkdown": "Wenn du von Gewalt betroffen bist und unbemerkt um Hilfe bitten möchtest, kannst du dieses Handzeichen verwenden:\n\n- Handfläche zeigen\n- Daumen nach innen klappen\n- Hand zur Faust schließen",
+      "heroImageId": "dieses-handzeichen-kann-leben-retten",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-27",
+      "kind": "wissensimpulse",
+      "title": "Female Rage!",
+      "teaser": "",
+      "bodyMarkdown": "Hör rein in Naomis Poetry Slam über weibliche Wut!\n\nFemale Rage (auf Deutsch: weibliche Wut) beschreibt die tiefe, oft tabuisierte Wut von Frauen\\* und Mädchen\\*, weil sie in der Gesellschaft benachteiligt und ungerecht behandelt werden.",
+      "heroImageId": "female-rage",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "wSgQaRveo1Y",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-28",
+      "kind": "wissensimpulse",
+      "title": "Welche Pronomen verwendest du?",
+      "teaser": "",
+      "bodyMarkdown": "Menschen können ihre Pronomen ändern. Das heißt nicht, dass wir einfach ein Pronomen auswählen. Pronomen sind Teil der persönlichen Identität.\n\nManche nicht-binäre Personen verwenden keine Pronomen. Dann können wir einfach den Namen der Person benutzen. Andere nicht-binäre Personen verwenden die Pronomen sie oder er. Sie sind deswegen nicht weniger nicht-binär.\n\nNeopronomen sind Wortneuschöpfungen, die zum Beispiel nicht-binäre Personen verwenden können: hen/hin, xier/xiem etc.\n\nWenn du unsicher bist, wie du eine Person ansprechen oder über sie sprechen sollst, kannst du nach ihren Pronomen fragen. <3",
+      "heroImageId": "welche-pronomen-verwendest-du",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "-3hn1unD7Dk",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-29",
+      "kind": "wissensimpulse",
+      "title": "Schluss mit wiegen, messen und normieren!",
+      "teaser": "",
+      "bodyMarkdown": "Du denkst viel übers Essen nach? Sprich drüber!\n\nHotline für Essstörungen: 0800 20 11 20 oder hilfe@essstoerungshotline.at",
+      "heroImageId": "schluss-mit-wiegen-messen-und-normieren",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "hotline-fuer-essstoerungen"
+      ]
+    },
+    {
+      "id": "wi-30",
+      "kind": "wissensimpulse",
+      "title": "Ab wann spricht man von Mobbing?",
+      "teaser": "",
+      "bodyMarkdown": "Mobbing kann sein: Ausgrenzung, Beschimpfungen, Angriffe, Drohungen – egal ob online oder offline. Mobbing findet immer über einen längeren Zeitraum statt und ist kein einmaliger Streit oder eine Beschimpfung.\n\nWusstest du, dass Mobbing in vielen Fällen strafbar ist? Lass dich beraten! Anlaufstellen findest du hier in der App – schau mal rein!",
+      "heroImageId": "ab-wann-spricht-man-von-mobbing",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": []
+    },
+    {
+      "id": "wi-31",
+      "kind": "wissensimpulse",
+      "title": "Das musst du über Mobbing wissen!",
+      "teaser": "",
+      "bodyMarkdown": "- Du bist nicht schuld und musst dich nicht dafür schämen.\n- Mobbing ist Gewalt und niemand muss das aushalten. Hol dir Unterstützung!\n- Sprich mit einer Person, der du vertraust. Verbündete tun gut! Gemeinsam könnt ihr überlegen, was ihr unternehmen könnt.\n- Das kann dir helfen: Führ ein Mobbing-Tagebuch und schreib genau auf, was dir passiert, um geeignete Gegenmaßnahmen für diese Situationen zu entwickeln.\n\nWusstest du, dass Mobbing in vielen Fällen strafbar ist? Lass dich beraten! Anlaufstellen findest du hier in der App – schau mal rein!",
+      "heroImageId": "das-musst-du-ueber-mobbing-wissen",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": []
+    },
+    {
+      "id": "wi-32",
+      "kind": "wissensimpulse",
+      "title": "Schau nicht weg!",
+      "teaser": "Egal, wo und in welchem Zusammenhang dir auffällt, dass Mobbing passiert: Schau nicht weg, wenn andere ungerecht behandelt werden!",
+      "bodyMarkdown": "Der erste Schritt ist oft schwer – dennoch ist er notwendig, um den Kreislauf von Mobbing zu durchbrechen. Denn Mobbing funktioniert nur, wenn viele schweigen. Das kannst du tun:\n\n- Sprich es an und verurteile das Verhalten der Täter\\*innen.\n- Such dir Verbündete, die sich ebenfalls einmischen.\n- Unternimm nichts, das dich selbst in Gefahr bringen könnte.\n- Hol dir Unterstützung: Dein Ausbildungs- oder Arbeitsplatz ist verpflichtet, aktiv zu werden und etwas zu unternehmen. Fordere das ein!\n\nAnlaufstellen, die dich unterstützen und beraten können, findest du hier in der App – schau mal rein!",
+      "heroImageId": "schau-nicht-weg",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": []
+    },
+    {
+      "id": "wi-33",
+      "kind": "wissensimpulse",
+      "title": "Was ist dir in deinem zukünftigen Beruf wichtig?",
+      "teaser": "",
+      "bodyMarkdown": "… nettes Team?\n\n… viel Freizeit?\n\n… Kontakt mit Menschen?\n\n… selbstständig arbeiten?\n\n… viel verdienen?\n\n… flexible Arbeitszeiten?\n\n… Kreativität?",
+      "heroImageId": "was-ist-dir-in-deinem-zukuenftigen-beruf-wichtig",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-34",
+      "kind": "wissensimpulse",
+      "title": "März ist Women’s History Month!",
+      "teaser": "",
+      "bodyMarkdown": "Geschichte wurde von Männern über Männer geschrieben. Frauen\\* sind kaum sichtbar und spielen häufig nur eine Nebenrolle – dabei haben sie wesentlich zu Wandel und Errungenschaften beigetragen! Welche bekannten Frauen\\* oder queere Personen aus der Geschichte fallen dir ein?",
+      "heroImageId": "womens-history-month",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Duelle",
+          "subtitle": "Videotipp · ARTE",
+          "url": "https://www.arte.tv/de/videos/RC-024146/duelle/"
+        }
+      ],
+      "validFrom": "--03-01",
+      "validTo": "--03-31",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-35",
+      "kind": "wissensimpulse",
+      "title": "Selbst ist die Frau!",
+      "teaser": "Unsere Tipps für mehr finanzielle Unabhängigkeit.",
+      "bodyMarkdown": "- Verdiene dein eigenes Geld, hab dein eigenes Konto.\n- Leg Geld für den Notfall zur Seite.\n- Unterstütz Initiativen, die die finanzielle Unabhängigkeit von Frauen\\* fördern.\n- Tausch dich mit Freundinnen\\* aus und lernt voneinander.\n- Hol dir Infos zu Verträgen, damit du sie lesen und verstehen kannst.\n- Teilt Care-Arbeit in der Beziehung gerecht auf.",
+      "heroImageId": "selbst-ist-die-frau",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-36",
+      "kind": "wissensimpulse",
+      "title": "Teste dein Wissen!",
+      "teaser": "",
+      "bodyMarkdown": "Was haben dein Smartphone, Netflix & Co. mit dem Klimawandel zu tun? Wie kannst du mit deiner Handynutzung zum Klimaschutz beitragen und welche Einstellungen können helfen?",
+      "heroImageId": "teste-dein-wissen",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Teste dein Wissen",
+          "subtitle": "Quiz auf riddle.com",
+          "url": "https://www.riddle.com/view/ZZIK1B62"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-37",
+      "kind": "wissensimpulse",
+      "title": "Warst du schon einmal auf einer Demo?",
+      "teaser": "",
+      "bodyMarkdown": "Demonstrationen…\n\n… sind ein wichtiges demokratisches Grundrecht.\n\n… dienen dazu, (politische) Meinungen zu äußern, soziale Ungerechtigkeiten aufzuzeigen, Aufmerksamkeit auf ein bestimmtes Thema zu lenken und Veränderungen zu fordern.",
+      "heroImageId": "warst-du-schon-einmal-auf-einer-demo",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-38",
+      "kind": "wissensimpulse",
+      "title": "In stressigen Zeiten ...",
+      "teaser": "",
+      "bodyMarkdown": "Prüfungen, Aufgaben in der Familie, viel zu organisieren – das Leben ist manchmal ganz schön stressig. Es klingt vielleicht komisch, aber: Gerade wenn du das Gefühl hast, dass du eigentlich für gar nichts Zeit hast, solltest du dir bewusst Zeit für dich selbst nehmen.\n\nDiese kleine Übung kann dir dabei helfen: [Freischreiben (PDF)](https://cms.amazone.or.at/media/pages/projekte/rebell-innen-kalender/fcf37415b4-1747038829/freischreiben.pdf)",
+      "heroImageId": "in-stressigen-zeiten",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-39",
+      "kind": "wissensimpulse",
+      "title": "Nicht witzig!",
+      "teaser": "",
+      "bodyMarkdown": "Sexismus ist die Diskriminierung von Menschen aufgrund ihres Geschlechts. Mädchen\\*, Frauen\\*, inter\\*, nicht-binäre, trans\\* und agender Personen sind von Sexismus betroffen.\n\nSexismus in Ausbildung und Beruf ist für viele Frauen\\* Teil ihres Alltags. Beispiele sind ungleiche Bewertung, geringere Bezahlung bei gleicher Arbeit und Qualifikation, fehlende Aufstiegsmöglichkeiten etc.",
+      "heroImageId": "nicht-witzig",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-40",
+      "kind": "wissensimpulse",
+      "title": "Chemikalien in Tampons?!",
+      "teaser": "",
+      "bodyMarkdown": "In Tampons, Binden und Slipeinlagen werden immer wieder schädliche Stoffe gefunden. In der EU gelten sie nicht als Medizinprodukte und unterliegen deshalb keinen so strengen Kontrollen. Material und Inhaltsstoffe müssen nicht mal auf der Verpackung angegeben werden.\n\nWas ist die Alternative?\n\nBioprodukte bestehen zu 100 Prozent aus zertifizierter Bio-Baumwolle. Diese enthält keine Pestizide, ist gentechnikfrei und kommt ohne Kunststoffe aus. Sie sind besser für Körper und Umwelt, jedoch um einiges teurer und für viele nicht leistbar. Wie ungerecht!",
+      "heroImageId": "chemikalien-in-tampons",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-41",
+      "kind": "wissensimpulse",
+      "title": "Hast du schon mal von Periodenarmut gehört?",
+      "teaser": "",
+      "bodyMarkdown": "Periodenarmut bedeutet, dass Menschen sich Binden oder Tampons nicht leisten können. Das ist ein weltweites Problem. Gibt es bei dir an der Schule gratis Periodenprodukte? Nein? Das sollte sich ändern!",
+      "heroImageId": "periodenarmut",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-42",
+      "kind": "wissensimpulse",
+      "title": "Warum ist gendern wichtig?",
+      "teaser": "",
+      "bodyMarkdown": "Sprache schafft Wirklichkeit! Wenn ein Begriff immer nur in der männlichen oder weiblichen Form vorkommt, dann wird auch eher an einen Mann\\* oder eine Frau\\* gedacht – das ist durch Studien belegt.\n\nDurch die Verwendung des generischen Maskulinums (wenn immer nur die männliche Form verwendet wird) werden Frauen\\* und Personen mit anderen Geschlechtsidentitäten nicht direkt angesprochen und in Sprache und Schrift unsichtbar gemacht.\n\nDas kann sich zum Beispiel darauf auswirken, welche Berufe Mädchen\\* und Jungen\\* ergreifen, ob sie sich von Stellenbeschreibungen angesprochen fühlen oder einen Beruf erst gar nicht für sich in Betracht ziehen – obwohl sie Interesse daran hätten.",
+      "heroImageId": "gendern-42",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-43",
+      "kind": "wissensimpulse",
+      "title": "Pride Flags und ihre Bedeutung",
+      "teaser": "",
+      "bodyMarkdown": "Die Regenbogenfahne, auch LGBT+ Pride Flag genannt, wurde 1978 in San Francisco entworfen, um ein positives Symbol für die queere Community zu gestalten.\n\nDie Progress Pride Flag wurde 2017 entworfen und basiert auf der Regenbogenflagge. Ein Keil mit den Farben der Trans-Pride-Flagge sowie Braun und Schwarz lenkt den Fokus auf trans\\* Menschen, Schwarze und People of Color sowie auf Menschen, die von AIDS betroffen sind.\n\nSpäter wurde die Flagge um die Farben und den lila Kreis der Inter\\*-Pride-Flagge erweitert, um auch intergeschlechtliche Menschen sichtbarer zu machen.",
+      "heroImageId": "pride-flags",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--06-01",
+      "validTo": "--06-30",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-44",
+      "kind": "wissensimpulse",
+      "title": "Nonbinary Pride Flag",
+      "teaser": "Heute ist Internationaler Tag der Nichtbinarität!",
+      "bodyMarkdown": "Die nicht-binäre Pride-Flagge soll Menschen repräsentieren, die sich als nicht-binär identifizieren.\n\nNicht-binär bedeutet, dass jemand sich nicht in das Zwei-Geschlechter-System (Mann und Frau) einordnen kann oder will. Nicht-binäre Menschen waren schon immer da. Und trotzdem werden ihre Lebensrealitäten noch immer zu oft in Frage gestellt oder unsichtbar gemacht.",
+      "heroImageId": "nonbinary",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--07-14",
+      "validTo": "--07-14",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-45",
+      "kind": "wissensimpulse",
+      "title": "Trans Pride Flag",
+      "teaser": "",
+      "bodyMarkdown": "Menschen, die sich als trans\\* identifizieren, fühlen sich anders als ihr bei der Geburt zugewiesenes Geschlecht.\n\nDie blauen Streifen der Trans-Pride-Flagge symbolisieren Männlichkeit, die rosa Streifen Weiblichkeit und der weiße Streifen steht für nicht-binäre, intergeschlechtliche und transitionierende Menschen.",
+      "heroImageId": "trans",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--11-13",
+      "validTo": "--11-19",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-46",
+      "kind": "wissensimpulse",
+      "title": "Heute ist Internationaler Tag der Asexualität!",
+      "teaser": "",
+      "bodyMarkdown": "Asexuelle Menschen verspüren keine oder wenig sexuelle Anziehung zu anderen Menschen.\n\nAsexuelle Menschen können sich verlieben, romantische Anziehung verspüren und Sex haben.",
+      "heroImageId": "asexualitaet",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--04-06",
+      "validTo": "--04-06",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-47",
+      "kind": "wissensimpulse",
+      "title": "Pansexual Pride Flag",
+      "teaser": "",
+      "bodyMarkdown": "Die Pride Flag für Pansexuelle Menschen wurde 2010 entworfen, um für die pansexuelle Community auch eine eigene Flagge zu haben. Die Fahne besteht aus drei Streifen: Magenta, Gelb und Cyan. Magenta steht für sexuelle Anziehung zu jenen, die auf dem weiblichen Spektrum liegen; Cyan für Anziehung zu jenen auf dem männlichen Spektrum und Gelb steht für sexuelle Anziehung zu nicht-binären Menschen.",
+      "heroImageId": "pansexual",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--06-01",
+      "validTo": "--06-30",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-48",
+      "kind": "wissensimpulse",
+      "title": "Heute ist Lesbian Visibility Day!",
+      "teaser": "",
+      "bodyMarkdown": "Der Lesbian Visibility Day (Tag der lesbischen Sichtbarkeit) macht auf die Lebensrealitäten von lesbischen Frauen\\* aufmerksam.\n\nDie lesbische Flagge wurde 2018 neu entworfen und steht für alle Lesben, also auch trans\\* Lesben, nicht-binäre Lesben und Lesben, die nicht sie/ihr-Pronomen verwenden.",
+      "heroImageId": "lesbian-visibility-day",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--04-26",
+      "validTo": "--04-26",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-49",
+      "kind": "wissensimpulse",
+      "title": "Intersex Pride Flag",
+      "teaser": "",
+      "bodyMarkdown": "Menschen, die inter\\* sind, haben Geschlechtsmerkmale, die nicht den engen Vorstellungen eines „männlichen“ oder „weiblichen“ Körpers entsprechen. Hier gibt es eine riesengroße Vielfalt – und das ist gut so!\n\nDie Intersex Pride Flag steht für alle inter\\* Menschen. Die inter\\*-Bewegung kämpft noch immer für ihr Recht auf körperliche und genitale Unversehrtheit.",
+      "heroImageId": "intersex-pride-flag",
+      "sourceLabel": "Queer Lexikon – Pride Flags",
+      "sourceUrl": "https://queer-lexikon.net/lexikon/pride-flags/",
+      "validFrom": "--11-14",
+      "validTo": "--11-14",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-50",
+      "kind": "wissensimpulse",
+      "title": "Was bedeutet eigentlich ...?",
+      "teaser": "",
+      "bodyMarkdown": "**cis**\n\nSo bezeichnet man Menschen, die sich mit ihrem bei der Geburt zugewiesenen Geschlecht identifizieren. Zum Beispiel: Ein cis Mann bekommt bei der Geburt das männliche Geschlecht zugewiesen und identifiziert sich auch damit.",
+      "heroImageId": "was-bedeutet-cis",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-51",
+      "kind": "wissensimpulse",
+      "title": "Heute ist IDAHOBIT!",
+      "teaser": "",
+      "bodyMarkdown": "IDAHOBIT ist der internationale Tag gegen Homo-, Bi-, Inter- und Transfeindlichkeit (englisch International Day Against Homophobia, Biphobia, Interphobia and Transphobia).\n\nWeltweit demonstrieren an diesem Tag Aktivist\\*innen und ihre Allies gegen die Diskriminierung und Ausgrenzung von Menschen aufgrund ihrer sexuellen oder geschlechtlichen Identität.",
+      "heroImageId": "idahobit",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--05-17",
+      "validTo": "--05-17",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-52",
+      "kind": "wissensimpulse",
+      "title": "Jeder Zyklus ist anders.",
+      "teaser": "Hormone haben großen Einfluss darauf, wie du dich während deines Zyklus fühlst.",
+      "bodyMarkdown": "Viele fühlen sich zu Beginn der Blutung oder die Tage davor so richtig schlapp. Das hat viel mit den Hormonen zu tun: Östrogen und Progesteron erreichen während der Blutung ihren Tiefpunkt, was müde und energielos machen kann.\n\nGleich nach der Blutung erhöht sich das Östrogenlevel wieder und damit meist auch die Energie. Gleichzeitig steigt auch das Glückshormon Serotonin an, was sich positiv auf die Stimmung auswirken kann.\n\nAuch der Schlaf hängt ganz eng damit zusammen, wie fit wir uns fühlen. Und gerade der ändert sich häufig im Laufe des monatlichen Zyklus – viele schlafen um den Eisprung herum am besten und gegen Ende des Zyklus weniger gut.\n\nHast du schon mal von PMS (prämenstruelles Syndrom) gehört? Das sind verschiedene zyklusbedingte Beschwerden wie Kopfschmerzen, Schlappheit, Blähbauch oder unreine Haut, die vor allem in den Tagen vor der Blutung auftreten können.",
+      "heroImageId": "zyklus",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-53",
+      "kind": "wissensimpulse",
+      "title": "Menstruation, Periode, Regel, Erdbeerwoche, rote Tante…",
+      "teaser": "... egal wie, aber ganz sicher kein Tabu! Sprechen wir darüber!",
+      "bodyMarkdown": "Der Zyklus schwankt meist zwischen 23 und 35 Tagen und auch die Blutung an sich ist bei allen Personen unterschiedlich.\n\nDie Regelblutung dauert 3 bis 7 Tage und kann sich beispielsweise durch Stress, Gewichtsschwankungen oder Krankheiten von Monat zu Monat unterscheiden.\n\nJede Frau\\* hat durchschnittlich 520 Zyklen in ihrem Leben. Das sind ca. 2.600 Tage oder 7 Jahre durchgehende Blutung.",
+      "heroImageId": "menstruation-53",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-54",
+      "kind": "wissensimpulse",
+      "title": "Menstruation, Periode, Regel, Erdbeerwoche, rote Tante…",
+      "teaser": "... egal wie, aber ganz sicher kein Tabu! Sprechen wir darüber!",
+      "bodyMarkdown": "Es gibt über 100 Arten prämenstrueller Symptome (PMS) wie Krämpfe, Brust- oder Rückenschmerzen und Akne... Je nach Beschwerden gibt es verschiedene Tipps und Unterstützung – du darfst dir Hilfe holen!\n\nDas Schmerzlevel bei der Regel kann hoch sein, kann aber auch auf Endometriose hinweisen. Nimm die Schmerzen ernst und kläre sie ab!",
+      "heroImageId": "menstruation-54",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-55",
+      "kind": "wissensimpulse",
+      "title": "Menstruation, Periode, Regel, Erdbeerwoche, rote Tante…",
+      "teaser": "... egal wie, aber ganz sicher kein Tabu! Sprechen wir darüber!",
+      "bodyMarkdown": "Statistisch gesehen hat gerade jede 7. Frau\\* ihre Tage.\n\nNicht jede Frau\\* menstruiert und nicht jede menstruierende Person ist eine Frau\\*.\n\nWenn es um menstruierende Frauen\\* geht, sind sich die Religionen einig: Ob Christentum, Judentum, Islam oder Hinduismus, für sie alle ist die Frau\\* an diesen Tagen unrein. Das finden wir gar nicht cool!",
+      "heroImageId": "menstruation-55",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-56",
+      "kind": "wissensimpulse",
+      "title": "Menstruation, Periode, Regel, Erdbeerwoche, rote Tante…",
+      "teaser": "... egal wie, aber ganz sicher kein Tabu! Sprechen wir darüber!",
+      "bodyMarkdown": "Progesteron – das Hormon, das potenziell die Libido senkt – ist während der Periode auf dem niedrigsten Stand. Das heißt: Es kann sein, dass gerade während der Tage die Lust auf Sex besonders groß ist.\n\nAuch während der Periode kannst du schwanger werden.\n\nSchon 2 Wochen nach der Geburt eines Kindes kann eine Frau\\* wieder die Periode bekommen.",
+      "heroImageId": "menstruation-56",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-57",
+      "kind": "wissensimpulse",
+      "title": "Menstruation, Periode, Regel, Erdbeerwoche, rote Tante…",
+      "teaser": "... egal wie, aber ganz sicher kein Tabu! Sprechen wir darüber!",
+      "bodyMarkdown": "Durchschnittlich bekommen die meisten ihre erste Periode zwischen 10 und 16 Jahren. Nach ca. 40 Jahren setzt dann die Menopause ein.\n\n60 % der Mädchen\\* geben an, eine negative Einstellung zu ihrer Periode zu haben und 70 % der Jungen\\* finden das Thema Periode unwichtig und peinlich. Das wollen wir ändern!",
+      "heroImageId": "menstruation-57",
+      "sourceLabel": "Der Standard",
+      "sourceUrl": "https://www.derstandard.at/story/2000060749383/oesterreichs-jugend-findet-menstruation-peinlich-und-unwichtig",
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-58",
+      "kind": "wissensimpulse",
+      "title": "Gender Visibility Gap – what’s that?!",
+      "teaser": "",
+      "bodyMarkdown": "Der Gender Visibility Gap macht darauf aufmerksam, dass Frauen\\* und Mädchen\\* in vielen Lebensbereichen nicht sichtbar sind: in Sprache, Medizin, Kunst, Wissenschaft, Politik und Medien!\n\nDas wollen wir ändern! Darum stellen wir hier in der App immer mal wieder weibliche und queere Persönlichkeiten vor – aber auch Filme, Serien, Bücher und Podcasts, in denen FLINTA\\* (weibliche, lesbische, inter\\*, nicht-binäre, trans\\* und agender) Personen im Mittelpunkt stehen.\n\nViel Spaß beim Entdecken!",
+      "heroImageId": "gender-visibilty-gap",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-59",
+      "kind": "wissensimpulse",
+      "title": "Buchtipps für Wissbegierige!",
+      "teaser": "",
+      "bodyMarkdown": "- Gender ist ziemlich strange – Teddy G. Goetz, Sophie Standing\n- Sex Education. Das ultimative Aufklärungsbuch – Laurie Nunn, Max Pemberton, Nadine Thornhill, Charlotte Hart, Ulrike Köbele, Fionna Fernandes\n- No more Bullshit. Das Handbuch gegen sexistische Stammtischweisheiten – Verein Sorority\n- Exit Racism – Tupoka Ogette",
+      "heroImageId": "buchtipps-59",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-60",
+      "kind": "wissensimpulse",
+      "title": "Serientipps für den nächsten Serienmarathon!",
+      "teaser": "",
+      "bodyMarkdown": "- Becoming Charlie\n- Noch nie in meinem Leben\n- Black-ish\n- Stadtgeschichten\n- Unser Planet",
+      "heroImageId": "serientipps-60",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-61",
+      "kind": "wissensimpulse",
+      "title": "Filmtipps für den nächsten Filmeabend",
+      "teaser": "",
+      "bodyMarkdown": "- Raya und der letzte Drache\n- Rafiki\n- The Hate U Give\n- The Edge of Seventeen\n- Die schöne Rebellin",
+      "heroImageId": "filmtipps-61",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-62",
+      "kind": "wissensimpulse",
+      "title": "Buchtipps für Leseratten",
+      "teaser": "",
+      "bodyMarkdown": "- Wie Wellen im Sturm – Alicia Zett\n- Als die Welt uns gehörte – Liz Kessler\n- Die Sonne so strahlend und schwarz – Chantal-Fleur Sandjon\n- It’s okay not to be okay – Scarlett Curtis\n- Genauso, nur anders – Andrea Arežina, Salome Müller",
+      "heroImageId": "buchtipps-62",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-63",
+      "kind": "wissensimpulse",
+      "title": "Podcasts, die du dir anhören solltest!",
+      "teaser": "",
+      "bodyMarkdown": "- G-Spot mit Stefanie Giesinger\n- we be like mit Maria Ziffy\n- Willkommen im Club – der queere Podcast von PULS\n- Sunsch no was.",
+      "heroImageId": "podcasts-63",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-64",
+      "kind": "wissensimpulse",
+      "title": "Podcasts, die du dir anhören solltest!",
+      "teaser": "",
+      "bodyMarkdown": "- X und Y – Der Podcast über Medien und Feminismus\n- Wie wir fühlen\n- #aufstehn laut",
+      "heroImageId": "podcasts-64",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-65",
+      "kind": "wissensimpulse",
+      "title": "Wie geht’s dir heute?",
+      "teaser": "Wir haben ein paar Inspirationen für nicht ganz so tolle Tage für dich zusammengestellt.",
+      "bodyMarkdown": "„Ich mach mir gern eine Tasse Tee, wenn ich mich schlecht fühle.“ (Romea)\n\n„Am Ende vom Tag zähle ich drei Dinge auf, die eigentlich ganz gut waren oder für die ich dankbar bin.“ (Stella)\n\n„Ablenken, um auf schöne Gedanken zu kommen – am besten mit dem Lieblingsfilm, der Lieblingsserie oder einem spannenden Buch!“ (Leo)",
+      "heroImageId": "wie-gehts-dir-heute",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-66",
+      "kind": "wissensimpulse",
+      "title": "Wie geht’s dir heute?",
+      "teaser": "Wir haben ein paar Inspirationen für nicht ganz so tolle Tage für dich zusammengestellt.",
+      "bodyMarkdown": "„Ich koche gern, wenn ich schlecht drauf bin.“ (Anna-Lena)\n\n„Mir hilft oft ein Spaziergang an der frischen Luft – alleine oder mit einer Freundin\\*.“ (Clara)\n\n„Früh ins Bett gehen und eine Nacht drüber schlafen wirkt bei mir manchmal Wunder!“ (Leo)\n\n„Zeichnen, malen, kreativ sein… das tut mir gut!“ (Stella)",
+      "heroImageId": "wie-gehts-dir-heute",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-67",
+      "kind": "wissensimpulse",
+      "title": "Catcalling ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Als Catcalling werden Pfiffe, Anmachen, beleidigende Sprüche oder Kussgeräusche im öffentlichen Raum bezeichnet. Sie können nerven, bedrohlich sein und Angst machen. Für viele Mädchen\\* und Frauen\\* ist Catcalling tägliche Realität.\n\nDas kannst du tun:\n\n- Irritier die Person, indem du beispielsweise zurückpfeifst. Du kannst die Person aber auch ignorieren – je nachdem, was für dich in der Situation am leichtesten ist.\n- Wenn du dich traust: Sprich die Person direkt an und sag, dass es sich um sexuelle Belästigung handelt. Lass dich nicht auf ein Gespräch ein.\n- Such dir Unterstützung von Passant\\*innen.",
+      "heroImageId": "catcalling",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-68",
+      "kind": "wissensimpulse",
+      "title": "Körperliche Gewalt ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Körperliche Gewalt – etwa schmerzhaftes Festhalten, Schlagen, Treten, Schubsen oder das Kaputtmachen von Gegenständen – betrifft jede dritte Frau\\* in Österreich und passiert meistens in Partnerschaften.\n\nDas kannst du tun:\n\n- Sprich mit jemandem darüber.\n- Informier dich über Rechte und Möglichkeiten, etwa bei einer Trennung.\n- Mach dir einen Notfallplan: Kennst du wichtige Telefonnummern und die Adresse des nächsten Frauenhauses? Hast du deine wichtigsten Dokumente wie Geburtsurkunde, Reisepass etc. griffbereit? Hast du Bargeld?",
+      "heroImageId": "koerperliche-gewalt",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-69",
+      "kind": "wissensimpulse",
+      "title": "Psychische Gewalt ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Psychische Gewalt sind Beschimpfungen, Demütigungen, Verbote, Drohungen, Kontrolle, Anschreien oder Abwertung. Psychische Gewalt passiert oft in Partnerschaften – meist sehr subtil und sich wiederholend.\n\nDas kannst du tun:\n\n- Vertrau deinem Bauchgefühl und mach dir bewusst: Liebe demütigt und kontrolliert nicht.\n- Informier dich über Rechte und Möglichkeiten, etwa bei einer Trennung.\n- Sprich mit einer Vertrauensperson oder wende dich an eine Beratungsstelle.",
+      "heroImageId": "psychische-gewalt-69",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-70",
+      "kind": "wissensimpulse",
+      "title": "Sexualisierte Gewalt ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Mehr als ein Viertel der Frauen\\* in Österreich erlebt sexuelle Belästigung am Arbeitsplatz – darunter fallen etwa Anstarren, anzügliche Witze, sexualisierte Kommentare, Nacktbilder, ungewollte Berührungen sowie erzwungene sexuelle Handlungen. Sexualisierte Gewalt passiert in vielen Kontexten, auch in Partnerschaften.\n\nDas kannst du tun:\n\n- Zeig, dass du das nicht willst.\n- Dokumentiere, was passiert ist und sammle Beweise.\n- Sprich mit einer Vertrauensperson, wende dich an die Personalabteilung oder eine Beratungsstelle.",
+      "heroImageId": "sexualisierte-gewalt",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-71",
+      "kind": "wissensimpulse",
+      "title": "Gewalt im Netz ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Gewalt im Netz ist vielfältig: Unerlaubtes Veröffentlichen oder Versenden von (sexualisierten) Bildern, Fake-Profile, ungewollte Nachrichten und Anrufe, Kontrolle technischer Geräte, Cyber-Grooming, Hatespeech oder Drohungen. Ein Drittel aller Frauen\\* erfährt einmal im Jahr Gewalt im Netz, bei 15- bis 18-Jährigen sind es zwei Drittel.\n\nDas kannst du tun:\n\n- Hol dir Informationen und Unterstützung, zum Beispiel bei der Internet Ombudsstelle.\n- Melde Postings oder Bilder bei der betreffenden Plattform oder bei @zara.zivilcourage\n- Sprich mit einer Vertrauensperson oder wende dich an eine Beratungsstelle",
+      "heroImageId": "gewalt-im-netz",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "zara"
+      ]
+    },
+    {
+      "id": "wi-72",
+      "kind": "wissensimpulse",
+      "title": "Ökonomische Gewalt ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Ökonomische Gewalt beschreibt den ungleichen Zugriff auf finanzielle Mittel und das Ausnutzen finanzieller Überlegenheit, meist in einer Paarbeziehung oder Ehe. Zum Beispiel: Ein eigenes Konto verbieten, Geld oder Wertsachen wegnehmen oder gar verkaufen, Ausbildung oder Arbeitsstelle verbieten.\n\nDas kannst du tun:\n\n- Sichere dich mit einem eigenen Konto ab.\n- Hol dir juristische Unterstützung.\n- Sprich mit einer Vertrauensperson oder wende dich an eine Beratungsstelle.",
+      "heroImageId": "oekonomische-gewalt",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-73",
+      "kind": "wissensimpulse",
+      "title": "Gewalt im Nachtleben ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "K.O.-Tropfen schmecken meistens nach nichts und sind farblos. Sie werden unbemerkt in Getränke gemischt, um Personen, in den allermeisten Fällen Frauen\\*, zu betäuben. Auch Belästigung, Begrapschen und andere Formen sexualisierter Gewalt passieren im Nachtleben.\n\nDas kannst du tun:\n\n- Lass dein Getränk nie unbeaufsichtigt.\n- Nimm keine offenen Getränke von fremden Personen an.\n- Wende dich bei plötzlichem Schwindel, Übelkeit oder Benommenheit an eine Person, der du vertraust. Bitte sie, bei dir zu bleiben.",
+      "heroImageId": "gewalt-im-nachtleben",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-74",
+      "kind": "wissensimpulse",
+      "title": "Stalking ist nicht okay.",
+      "teaser": "",
+      "bodyMarkdown": "Stalking beschreibt das wiederholte Nachstellen, Verfolgen, Belästigen oder Bedrohen von Personen. Meist passiert Stalking durch Auflauern, Nachspionieren (auch durch Spyware), unerwünschte Anrufe oder Nachrichten. In Österreich hat jede fünfte Frau\\* zwischen 18 und 74 Jahren bereits Stalking erlebt – über die Hälfte von ihnen durch Männer\\*.\n\nDas kannst du tun:\n\n- Mach der Person ein einziges Mal klar, dass du keinen Kontakt möchtest. Ignorier weitere Kontaktaufnahmen danach konsequent.\n- Dokumentiere alle Arten von Belästigungen, speichere Nachrichten ab und mach Notizen. So hast du Beweismittel, wenn du eine Anzeige machen möchtest.\n- Hol dir Unterstützung.",
+      "heroImageId": "stalking-74",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Sicherheitstipps",
+          "subtitle": "Social-Media-Initiative des Landes Vorarlberg und des Vereins Amazone",
+          "url": "https://www.amazone.or.at/projekte/sicherheitstipps"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-75",
+      "kind": "wissensimpulse",
+      "title": "Du hast Rechte!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du schon die Kinder- und Jugendanwaltschaften? Es gibt sie in jedem Bundesland. Sie bieten Kindern und Jugendlichen Beratung und Unterstützung in schwierigen Situationen. Du kannst dich an sie wenden, wenn du rechtliche Hilfe brauchst oder Fragen hast.\n\nHier findest du jede Menge weitere Infos zu den Rechten von Kindern und Jugendlichen: [rechte-u18.at](https://rechte-u18.at/)",
+      "heroImageId": "du-hast-rechte",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "kinder-jugendanwaltschaften-oesterreichs"
+      ]
+    },
+    {
+      "id": "wi-76",
+      "kind": "wissensimpulse",
+      "title": "Lust auf was Süßes?",
+      "teaser": "Wir haben ein supereinfaches Rezept für dich!",
+      "bodyMarkdown": "Brownies mit nur 4 Zutaten:\n\n- 3 Eier mit einem Mixer schaumig schlagen.\n- Anschließend mit 230 g Nuss-Nougat-Creme und 100 g Weizenmehl zu einem cremigen Teig verrühren.\n- Die Masse in eine eingefettete Auflaufform geben.\n- Tiefkühlbeeren darüber verteilen.\n- Für 15-20 Minuten bei 180°C Ober-/Unterhitze backen.\n- Auskühlen lassen, schneiden und reinbeißen!",
+      "heroImageId": "brownies",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-77",
+      "kind": "wissensimpulse",
+      "title": "Supereinfach und supergut!",
+      "teaser": "",
+      "bodyMarkdown": "Veganer Apple Crumble:\n\n- 140 g Weizenmehl, 80 g Haferflocken, 110 g Zucker, 1 Prise Salz und 120 g warme vegane Butter zu einem krümeligen Teig verkneten.\n- 4 Äpfel in kleine Würfel schneiden und mit 20 g Zucker, 2 EL Zitronensaft und ½ TL Zimt vermischen.\n- Eine Auflaufform einfetten, Äpfel hineingeben und darauf die Streusel verteilen.\n- Circa 35 Minuten bei 180°C Ober-/Unterhitze backen, bis sich die Streusel leicht goldbraun verfärben.\n- Am besten warm genießen!",
+      "heroImageId": "apple-crumble",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-78",
+      "kind": "wissensimpulse",
+      "title": "Heute ist Weltmädchen*tag!",
+      "teaser": "",
+      "bodyMarkdown": "Der Weltmädchen\\*tag am 11. Oktober lenkt jedes Jahr den Blick auf die Benachteiligungen, mit denen Mädchen\\* weltweit konfrontiert sind. Im Mittelpunkt stehen zentrale Forderungen wie das Recht auf Bildung, Schutz vor jeglicher Form von Gewalt und gleiche Chancen für alle.\n\nSchau mal in einem Mädchen\\*treff in deiner Nähe vorbei – hier finden immer wieder coole Aktionen statt!",
+      "heroImageId": "weltmaedchentag",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--10-11",
+      "validTo": "--10-11",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-79",
+      "kind": "wissensimpulse",
+      "title": "Schluss mit Geschlechterklischees!",
+      "teaser": "",
+      "bodyMarkdown": "Mädchen\\* sind technisch wenig begabt und Jungen\\* können sich nicht gut um andere kümmern? Stimmt das wirklich?\n\nWir sagen Nein!\n\nUnd dennoch: Diese Rollenbilder beeinflussen uns oft ganz unbewusst und können sich zum Beispiel auf die Berufswahl auswirken.\n\nWusstest du, dass …\n\n… Berufe, in denen mehr Männer\\* arbeiten, oft besser bewertet und bezahlt werden als jene Bereiche, in denen mehr Frauen\\* arbeiten?\n\nEin Beispiel: Zu Beginn war Programmieren ein Beruf, in dem hauptsächlich Frauen\\* arbeiteten. Erst als mehr Männer\\* in die Branche drängten, stiegen Gehalt und Ansehen.",
+      "heroImageId": "geschlechterklischees",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Mehr Infos",
+          "subtitle": "Instagram",
+          "url": "https://www.instagram.com/p/C3NeptFvMkD/"
+        }
+      ],
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-80",
+      "kind": "wissensimpulse",
+      "title": "Lies mich!",
+      "teaser": "Buchtipps aus dem Rebell*innen Kalender",
+      "bodyMarkdown": "- Not My Problem – Ciara Smyth\n- Sanctuary. Flucht in die Freiheit – Paola Mendoza, Abby Sher\n- Home Body – Theo Parish\n- Der Ursprung der Welt – Liv Strömquist\n- Entdecke über 200 starke Frauen und wie sie die Welt verändert haben – Renzo Barsotti\n- Wilde Mädchen – Kate T. Parker",
+      "heroImageId": "lies-mich-80",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-81",
+      "kind": "wissensimpulse",
+      "title": "Serien- und Filmtipps für dich!",
+      "teaser": "",
+      "bodyMarkdown": "- Self Made\n- Kleo\n- Derry Girls\n- Verschwenden wir Periodenblut?\n- Alles steht Kopf",
+      "heroImageId": "filmtipps-81",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-82",
+      "kind": "wissensimpulse",
+      "title": "Podcast-Tipps nur für dich!",
+      "teaser": "",
+      "bodyMarkdown": "- JugendWelten\n- Papas ganzer Stolz\n- Neurodiverdings\n- Internet Girl – der Popkultur Podcast mit Valentina Vapaux\n- Mädelsabende",
+      "heroImageId": "podcast-tipps",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-83",
+      "kind": "wissensimpulse",
+      "title": "Was ist eigentlich Fast Fashion?",
+      "teaser": "",
+      "bodyMarkdown": "Die Kleidung, die Menschen täglich kaufen – am besten so billig wie möglich – landet oft ganz schnell wieder in der Altkleidersammlung oder im Restmüll. Unternehmen machen Riesengewinne und das Ganze hat auch einen Namen: Fast Fashion.\n\nWusstest du, dass...\n\n...3.500 krebserregende und andere giftige Chemikalien bei der Produktion von Kleidung zum Einsatz kommen? Diese Giftstoffe sind inzwischen überall auf der Welt zu finden – in Flüssen, im Trinkwasser, in der Leber von Eisbären und im menschlichen Körper.\n\n...jede Sekunde weltweit eine ganze LKW-Ladung Kleidung verbrannt oder auf riesigen Müllhalden entsorgt wird, um Platz für neue Produkte zu schaffen?\n\nQuellen: [Greenpeace Österreich, Mode als Wegwerfware](https://greenpeace.at/assets/uploads/publications/presse/1906_FactSheet_Umfrage_Kleiderkonsum.pdf), S. 1, und [Greenpeace Österreich, Mode zum Wegwerfen gemacht](https://greenpeace.at/news/blog-mode-zum-wegwerfen-gemacht) (letzter Aufruf 5.4.2023).",
+      "heroImageId": "fast-fashion",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-84",
+      "kind": "wissensimpulse",
+      "title": "Fair Fashion statt Wegwerfmode!",
+      "teaser": "",
+      "bodyMarkdown": "Was du machen kannst, statt ständig neue Kleidung zu kaufen, die unsere Umwelt belastet:\n\n- Kleidung tauschen oder ausleihen.\n- Secondhand kaufen. Zum Beispiel über willhaben, sellpy, vinted,...\n- Weniger und bewusst kaufen.\n- Kleidung schonend behandeln.\n- Kleidung reparieren oder upcyceln",
+      "heroImageId": "fair-fashion-84",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-85",
+      "kind": "wissensimpulse",
+      "title": "Ab geht’s ins neue Jahr!",
+      "teaser": "",
+      "bodyMarkdown": "Wusstest du, dass es in Dänemark Brauch ist, um Punkt Mitternacht von einem Stuhl oder auch von einem Tisch ins neue Jahr zu springen? Let’s go!",
+      "heroImageId": "neues-jahr",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--12-31",
+      "validTo": "--12-31",
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-86",
+      "kind": "wissensimpulse",
+      "title": "Filmtipps für den nächsten Filmabend!",
+      "teaser": "",
+      "bodyMarkdown": "- ROT\n- Suffragette – Taten statt Worte\n- Die Schwimmerinnen\n- Chihiros Reise ins Zauberland\n- Die Misswahl – Der Beginn einer Revolution\n- Enola Holmes\n- Little Women",
+      "heroImageId": "filmtipps-86",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-87",
+      "kind": "wissensimpulse",
+      "title": "Serientipps für Regentage!",
+      "teaser": "",
+      "bodyMarkdown": "- Anne with an E\n- Ginny & Georgia\n- Wednesday\n- Heartbreak High",
+      "heroImageId": "serientipps-87",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-88",
+      "kind": "wissensimpulse",
+      "title": "Gendern, aber wie?",
+      "teaser": "",
+      "bodyMarkdown": "Wir leben in einer zweigeschlechtlichen Welt. Das heißt, meist wird nur von Mann und Frau, Mädchen und Junge gesprochen. Es gibt aber noch viele andere Geschlechtsidentitäten! Zum Beispiel trans\\*, nicht-binär, agender…\n\nGendern bedeutet, alle Geschlechter in der geschriebenen und gesprochenen Sprache sichtbar zu machen, also eine geschlechter-gerechte Sprache. Dafür gibt es verschiedene Varianten.\n\nDer Stern ist eine Möglichkeit, diese Geschlechtsidentitäten sichtbar zu machen. Wir sprechen dann von Schüler\\*innen, Mädchen\\*, Jungen\\*, Freund\\*innen...\n\nBeim Sprechen macht man vor dem „innen“ eine ganz, ganz kurze Pause: [Schüler_innen]",
+      "heroImageId": "gendern-88",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-89",
+      "kind": "wissensimpulse",
+      "title": "Was ist dir in deinem (zukünftigen) Beruf wichtig?",
+      "teaser": "Wähle deine Top 3!",
+      "bodyMarkdown": "- Es ist mir wichtig, dass mein Beruf bei anderen gut ankommt.\n- Mir ist wichtig, meine Talente zu verwirklichen.\n- Mir ist es wichtig, einen sicheren Arbeitsplatz zu haben.\n- Ich brauche nette Kolleg\\*innen um mich herum.\n- Ich arbeite gerne selbständig.\n- Ich mag Menschen und ich möchte mit ihnen zu tun haben.\n- Am liebsten sitze ich am Computer.\n- Viel Geld verdienen, das ist mir wichtig.\n- Neben meinem Beruf möchte ich Zeit für anderes haben. Ich will die Welt sehen.\n- Eine gute Ausbildung möchte ich auf jeden Fall.\n- Vereinbarkeit von Familie und Beruf ist mir wichtig.",
+      "heroImageId": "beruf-top-3",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-90",
+      "kind": "wissensimpulse",
+      "title": "Beerengarten Smoothie, mmmh!",
+      "teaser": "",
+      "bodyMarkdown": "Alle Zutaten mit einem Standmixer oder Pürierstab mixen – und fertig ist das beerige Vitaminerlebnis!\n\n- 4 cl Erdbeersirup\n- 16 cl Erdbeersaft\n- 1 Glas Wasser\n- 12 cl (Pflanzen)Milch\n- 250 g Beerenmix (tiefgefroren)",
+      "heroImageId": "beerengarten-smoothie",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-91",
+      "kind": "wissensimpulse",
+      "title": "Snackattack! Wie wär’s mit Pizzaschnecken?",
+      "teaser": "",
+      "bodyMarkdown": "Du brauchst:\n\n- Mozzarella\n- Gewürze\n- Pizzateig aus dem Supermarkt\n- Tomatenmark oder -sauce\n\nTeig ausrollen, mit Tomatenmark oder -sauce bestreichen und mit würfelig geschnittenem Mozzarella belegen. Je nach Belieben, kannst du deine Pizzaschnecken auch noch mit anderen Zutaten aufpeppen: zum Beispiel Mais, Paprika oder frische Tomaten. Mit Salz, Pfeffer und Oregano würzen und den Teig vorsichtig einrollen. Anschließend ca. 2 cm dicke Scheiben von der Rolle abschneiden, auf ein mit Backpapier belegtes Blech geben und für ca. 15 Minuten bei 180° Heißluft backen.",
+      "heroImageId": "pizzaschnecken",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-92",
+      "kind": "wissensimpulse",
+      "title": "Sweet Energy Balls für zwischendurch!",
+      "teaser": "",
+      "bodyMarkdown": "Du brauchst:\n\n- 200 g Datteln\n- 100 g gemahlene Mandeln oder Haselnüsse\n- 5 grooooße EL Kakaopulver\n- zum Verzieren: etwas Sesam, Kokosraspeln oder Kakaopulver\n\nAlle Zutaten mit Standmixer oder Pürierstab mixen bis alles gut püriert ist und der Teig klumpt. Wenn die Masse zu trocken ist, einen Schuss Wasser zugeben. Aus der Masse kleine Kugeln formen und in Sesam, Kokosraspeln oder Kakaopulver wälzen.",
+      "heroImageId": "energy-balls",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-93",
+      "kind": "wissensimpulse",
+      "title": "Podcast-Tipps für dich!",
+      "teaser": "",
+      "bodyMarkdown": "- NA LOGO!\n- RAUS – Ab durch Europa!\n- HerStory – Geschichte(n) von Frauen und Queers\n- UNSHARED – der Social Media Podcast mit masha",
+      "heroImageId": "podcasts-93",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-94",
+      "kind": "wissensimpulse",
+      "title": "Wie wär’s mit einem Podcast?",
+      "teaser": "",
+      "bodyMarkdown": "Unsere Podcast Tipps:\n\n- FM4 Anfang 20\n- alles stabil\n- Y-Kollektiv – Der Podcast\n- PISSY – der Missy Magazine Podcast",
+      "heroImageId": "podcast",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-95",
+      "kind": "wissensimpulse",
+      "title": "Hör mal rein!",
+      "teaser": "",
+      "bodyMarkdown": "Podcast Tipps für dich:\n\n- Climate Crime – mit Louisa Dellert und Markus Ehrlich\n- Die Frage\n- Was die Woche wichtig war – Der funk-Podcast\n- Frag mal Agi\n- Heimatmysterium – Der Migra-Identitätspodcast",
+      "heroImageId": "hoer-mal-rein",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-96",
+      "kind": "wissensimpulse",
+      "title": "Lies mal rein!",
+      "teaser": "",
+      "bodyMarkdown": "Drei Buchtipps für dich:\n\n- Es kann nur eine geben – Carolin Kebekus\n- Pirouetten – Tillie Walden\n- Youth to Power: Eine Anleitung zum Handeln – Jamie Margolin",
+      "heroImageId": "lies-mal-rein",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-97",
+      "kind": "wissensimpulse",
+      "title": "Buchtipps für dich!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du diese drei Bücher schon?\n\n- War das jetzt rassistisch? 22 Antirassismus-Tipps für den Alltag – Black Voices\n- Immer mehr ganz du. Das Handbuch zu allen Lebensfragen – Astrid Nylander Almaas, Kirsten Holtmon Resaland\n- Good Night Stories for Rebel Girls – 100 Migrantinnen, die die Welt verändern – Elena Favilli",
+      "heroImageId": "buchtipps-97",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-98",
+      "kind": "wissensimpulse",
+      "title": "Bücher, die wir lesen",
+      "teaser": "",
+      "bodyMarkdown": "Buchempfehlungen für dich:\n\n- How to be a girl: stark, frei und ganz du selbst – Julia Korbik\n- Behindert und stolz: Warum meine Identität politisch ist und Ableismus uns alle etwas angeht – Luisa L‘Audace\n- Was ist eigentlich dieses LGBTIQ\\*? – Linda Becker, Julian Wenzel",
+      "heroImageId": "buecher",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-99",
+      "kind": "wissensimpulse",
+      "title": "Kurze Texte statt dicke Bücher!",
+      "teaser": "",
+      "bodyMarkdown": "Kurze, spannende Artikel und Recherchen zum Reinlesen:\n\n- Andererseits. Journalismus für alle\n- Die Chefredaktion\n- fluter.\n- Mater Magazin",
+      "heroImageId": "kurze-texte-statt-dicke-buecher",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-300",
+      "kind": "wissensimpulse",
+      "title": "Wir bestimmen selbst, wie wir sein wollen!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du das? Du siehst eine Werbung für ein Produkt – und denkst, das will ich auch und zack gekauft! Zuhause probierst du’s an und… hä?! In der Werbung sah es doch ganz anders aus!? Liegt das an mir?\n\nWir sagen NEIN! Gerade wenn’s ums Aussehen geht, gibt es scheinbar unzählige Makel und noch mehr Produkte, um diese zu beheben. Denk nur mal an Diätdrinks, Superfoods, Kosmetik, Shaping Unterwäsche und, und, und.\n\nWir finden, wenn wir nicht dauernd solche Werbung sehen würden, wäre unser Bedürfnis, dünn zu sein und dem gängigen Schönheitsideal entsprechend auszusehen, vielleicht gar nicht so groß.",
+      "heroImageId": "wir-bestimmen-selbst",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-301",
+      "kind": "wissensimpulse",
+      "title": "body rEVOLution!",
+      "teaser": "",
+      "bodyMarkdown": "Schon mal überlegt, was wir ständig auf Bildern, in Videos und Postings sehen?\n\nDon’t worry. Wir sind alle (un)perfekt!",
+      "heroImageId": "body-revolution",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "teTZq72DAlM",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-302",
+      "kind": "wissensimpulse",
+      "title": "Vor(ur)teil?!",
+      "teaser": "",
+      "bodyMarkdown": "Welche Vorurteile prasseln auf Mädchen\\* und junge Frauen\\* ein, wenn sie einen scheinbar „untypischen“ Beruf ergreifen wollen?",
+      "heroImageId": "vorurteil",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "khcx_LtsXBs",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-303",
+      "kind": "wissensimpulse",
+      "title": "Volls Programm!",
+      "teaser": "",
+      "bodyMarkdown": "Sie kann’s! Du auch?",
+      "heroImageId": "volls-programm",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "9Lbbq1xfIlA",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-304",
+      "kind": "wissensimpulse",
+      "title": "Voll unter Druck!",
+      "teaser": "",
+      "bodyMarkdown": "Sie kann’s! Du auch?",
+      "heroImageId": "voll-unter-druck",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "k_ed4cUByhA",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-306",
+      "kind": "wissensimpulse",
+      "title": "Street Harassment",
+      "teaser": "",
+      "bodyMarkdown": "Anmachsprüche, aufdringliche Blicke oder ungefragte Kommentare über den Körper: Street Harassment hat viele Gesichter. Gemeinsam sprechen Mädchen\\* über ihre Erfahrungen, hinterfragen die Sexualisierung weiblicher Körper und setzen ein Zeichen gegen Belästigung im öffentlichen Raum.",
+      "heroImageId": "street-harassment",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "sBDUwx6X9Mw",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-307",
+      "kind": "wissensimpulse",
+      "title": "Zwangsheirat – STOPiT!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du das Signal for Help?",
+      "heroImageId": "zwangsheirat",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "tf4alUKkng4",
+        "orientation": "landscape"
+      },
+      "supportServiceIds": [
+        "orient-express"
+      ]
+    },
+    {
+      "id": "wi-308",
+      "kind": "wissensimpulse",
+      "title": "Psychische Gewalt – STOPiT!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du das Signal for Help?",
+      "heroImageId": "psychische-gewalt-308",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--11-25",
+      "validTo": "--12-10",
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "_hx4Jl9UngQ",
+        "orientation": "landscape"
+      },
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-309",
+      "kind": "wissensimpulse",
+      "title": "Physische Gewalt – STOPiT!",
+      "teaser": "",
+      "bodyMarkdown": "Kennst du das Signal for Help?",
+      "heroImageId": "physische-gewalt",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": "--11-25",
+      "validTo": "--12-10",
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "nboZHGFL3i8",
+        "orientation": "landscape"
+      },
+      "supportServiceIds": [
+        "frauenhelpline-gegen-gewalt",
+        "helpchat"
+      ]
+    },
+    {
+      "id": "wi-310",
+      "kind": "wissensimpulse",
+      "title": "Scheiß auf Klischees!",
+      "teaser": "",
+      "bodyMarkdown": "Welche Klischees und Rollenbilder möchtest du gerne runterspülen?",
+      "heroImageId": "klischees",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "KLppAbd0SKE",
+        "orientation": "landscape"
+      }
+    },
+    {
+      "id": "wi-311",
+      "kind": "wissensimpulse",
+      "title": "Let’s get real!",
+      "teaser": "",
+      "bodyMarkdown": "Groß, klein, dick, dünn und alles dazwischen – egal, jeder Körper ist anders! Kommentare zu deinem Körper sind nicht okay, denn du bist so viel mehr als nur dein Aussehen, also lass dich nicht verunsichern. Wir sind perfekt so, wie wir sind!",
+      "heroImageId": "lets-get-real",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "8mzUhlDdDUg",
+        "orientation": "portrait"
+      }
+    },
+    {
+      "id": "wi-312",
+      "kind": "wissensimpulse",
+      "title": "So ein Fake!",
+      "teaser": "",
+      "bodyMarkdown": "Das ist Mia. Mia miaut zu #FakeNews, #Deepfakes, #Rassismus und #Sexismus und wird wütend.",
+      "heroImageId": "so-ein-fake",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "b3AHiJgoldA",
+        "orientation": "portrait"
+      }
+    },
+    {
+      "id": "wi-313",
+      "kind": "wissensimpulse",
+      "title": "Hass im Netz. Kennst du?",
+      "teaser": "",
+      "bodyMarkdown": "Das ist Mia. Mia miaut zu Beleidigungen und Hass im Netz und geht mit Screenshots von Hasskommentaren zur Polizei.",
+      "heroImageId": "hass-im-netz",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "E67LmAfrivQ",
+        "orientation": "portrait"
+      },
+      "supportServiceIds": [
+        "zara"
+      ]
+    },
+    {
+      "id": "wi-314",
+      "kind": "wissensimpulse",
+      "title": "Rabattcodes, Influencer*innen und andere Dinge",
+      "teaser": "",
+      "bodyMarkdown": "Das ist Mia. Mia miaut laut zu #Lifestyle, #Rabattcodes und #Sport und wird dabei ganz müde.",
+      "heroImageId": "rabattcodes",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-315",
+      "kind": "wissensimpulse",
+      "title": "Stalking und Gewalt im Netz?",
+      "teaser": "",
+      "bodyMarkdown": "Das ist Mia. Mia miaut zu #Stalking und #GewaltImNetz und muss dringend die Einstellungen ihres Handys ändern.",
+      "heroImageId": "stalking-315",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "video": {
+        "provider": "youtube",
+        "id": "lTnhdJkeols",
+        "orientation": "portrait"
+      }
+    },
+    {
+      "id": "wi-316",
+      "kind": "wissensimpulse",
+      "title": "Schluss mit wiegen, messen und normieren!",
+      "teaser": "",
+      "bodyMarkdown": "Um in die „Norm“ eines gesunden und schönen Körpers zu passen, machen Menschen extrem viel. Diäten, Fitness, Schönheitsoperationen – jedes Mittel ist recht! Und trotzdem: Die meisten von uns werden diese „Norm“ nie erreichen, ja können das gar nicht! Aber was ist eigentlich diese „Norm“? Wer bestimmt zum Beispiel, ab wann eine Person Plus Size – also Übergröße – hat?\n\nErschreckend ist, dass Models mit Größe 38 in der Modebranche als Plus Size gelten. Zum Vergleich: In Österreich trägt fast die Hälfte der Frauen\\* Größe 40. Wie passt das zusammen?",
+      "heroImageId": "schluss-mit-wiegen",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-317",
+      "kind": "wissensimpulse",
+      "title": "Stop racism!",
+      "teaser": "",
+      "bodyMarkdown": "Menschen, die von Rassismus betroffen sind, erleben Abwertung, Diskriminierung und Gewalt. Sie machen auch oft die Erfahrung, dass sie aufgrund ihrer Hautfarbe, Herkunft oder Religion in eine Schublade gesteckt und ihnen dann bestimmte Eigenschaften zugeschrieben werden. Aber: Nicht alle Jugendlichen sind gleich, nicht alle Schwarzen Menschen sind gleich und nicht alle Frauen\\* mit Hijab sind gleich – sie bilden keine einheitliche Gruppe mit gleichen Ansichten, Bedürfnissen und Eigenschaften. Punkt.",
+      "heroImageId": "stop-racism",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true,
+      "supportServiceIds": [
+        "zara"
+      ]
+    },
+    {
+      "id": "wi-318",
+      "kind": "wissensimpulse",
+      "title": "Gleiche Rechte für alle!",
+      "teaser": "",
+      "bodyMarkdown": "Viele Aktivist\\*innen kämpfen gegen diese Ungerechtigkeiten an. Hast du schon einmal etwas von Lolo Cynthia, Martha Clara Nakato und Karin Watson Ferrer gehört?",
+      "heroImageId": "gleiche-rechte",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-319",
+      "kind": "wissensimpulse",
+      "title": "Fair Fashion statt Wegwerfmode!",
+      "teaser": "",
+      "bodyMarkdown": "Wusstest du, dass diese Kleidung von Textilarbeiter\\*innen, meist in Asien, unter extrem schlechten Arbeitsbedingungen produziert wird? Dass die Arbeiter\\*innen, meist Frauen\\*, kaum Rechte haben und so unfassbar wenig verdienen, dass sie kaum davon leben können? Und was bedeutet das alles für unsere Umwelt?",
+      "heroImageId": "fair-fashion-319",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-320",
+      "kind": "wissensimpulse",
+      "title": "EveryBODY’s perfect!",
+      "teaser": "",
+      "bodyMarkdown": "Wir alle haben einen Körper, der uns durchs Leben trägt. Und das ist gut! Viele Menschen finden ihren Körper aber zu groß, zu klein, zu dick, zu dünn... Das ist weniger gut. Denn: Was ist denn schon normal und schön und gesund? Wer entscheidet und bestimmt das?\n\nSchau dir mal Bilder von Frauen\\* aus anderen Epochen an: Schönheitsideale haben sich durchaus verändert. Aber eines zieht sich durch die Jahrhunderte: Frauen\\* werden als Objekte männlicher Lust von Männern\\* für Männer\\* beschrieben, gemalt und fotografiert.",
+      "heroImageId": "everybodys-perfect",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-321",
+      "kind": "wissensimpulse",
+      "title": "Mehr perfekt unperfekte Bilder!",
+      "teaser": "Was ist Schönheit für dich? Warum werden uns dauernd so unrealistische Bilder gezeigt? Wie könnte es gelingen, auf Filter und Retusche zu verzichten und unsere Körper so zu akzeptieren, wie sie sind?",
+      "bodyMarkdown": "Haare stylen, Make-up rauf und im Scheinwerferlicht in Pose werfen – das Foto sieht aber immer noch nicht perfekt aus. Da muss ein Filter her! Am besten einer, der die Haut glättet, Pickel und Sommersprossen einfach verschwinden lässt und die Augen vergrößert. Sogar eine Haarverlängerung ist drin!\n\nOb in Sozialen Medien oder in der Werbung – ständig und überall sehen wir Bilder von „makellosen“ Körpern. Sie beeinflussen unsere Vorstellungen davon, was schön ist. Und sie setzen uns unter Druck, auch so auszusehen. Wie viel Stress uns das macht, ist uns oft gar nicht bewusst.",
+      "heroImageId": "unperfekte-bilder",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-322",
+      "kind": "wissensimpulse",
+      "title": "Rosarot und Himmelblau…",
+      "teaser": "… nicht typisch Mann, nicht typisch Frau!",
+      "bodyMarkdown": "Wusstest du das? Nach der Kampagne #HuelgaDeJuguetes gibt es in Spanien seit 2022 nur noch geschlechtsneutrale Werbung für Spielsachen – ohne „typisch“ Mädchen\\* und „typisch“ Jungen\\* und nicht nur in hellblau und rosa!",
+      "heroImageId": "rosarot",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-323",
+      "kind": "wissensimpulse",
+      "title": "Ein Regenbogen für alle!",
+      "teaser": "",
+      "bodyMarkdown": "Viele Menschen gehen davon aus, dass es nur zwei Geschlechter gibt und, dass das Geschlecht allein vom Körper abhängt. Aber: Geschlecht ist mehr!\n\nKörperliche Geschlechtsmerkmale – also zum Beispiel Genitalien oder Chromosomen – sind vielfältig. Geschlechtsteile sehen bei jeder Person anders aus, egal ob die Person inter\\*, weiblich oder männlich ist. Bei inter\\* Menschen entspricht das körperliche Geschlecht nicht der medizinischen Norm von „männlich“ und „weiblich“. Trans\\* Menschen fühlen sich dem Geschlecht, das ihnen bei der Geburt zugewiesen wurde, nicht zugehörig. Nicht-binäre und agender Menschen können oder wollen sich nicht als männlich oder weiblich einordnen oder fühlen sich keinem Geschlecht zugehörig.\n\nAuch wen wir lieben, hat manchmal gar nicht so viel mit dem Geschlecht zu tun, wie uns vielleicht beigebracht wird. Geschlecht und Liebe sind so vielfältig wie ein bunter Regenbogen.",
+      "heroImageId": "regenbogen",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-324",
+      "kind": "wissensimpulse",
+      "title": "Weg mit Barrieren!",
+      "teaser": "",
+      "bodyMarkdown": "Menschen sind nicht nur behindert, sie werden auch behindert. Und zwar durch Vorurteile, gesellschaftliche Normen, Gesetze und Barrieren, die wir in unserer Umgebung schaffen. Dazu zählen Stufen, schwer zu öffnende Türen, Busse mit hohem Einstieg, schwer verständliche Formulare oder fehlende Untertitel bei Videos. Menschen mit Behinderung werden damit ausgegrenzt, abgewertet und unsichtbar gemacht.",
+      "heroImageId": "weg-mit-barrieren",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "validFrom": null,
+      "validTo": null,
+      "eligibleForDaily": true
+    },
+    {
+      "id": "wi-325",
+      "kind": "wissensimpulse",
+      "title": "Menstruation AND Education!",
+      "teaser": "",
+      "bodyMarkdown": "Überall auf der Welt gibt es Menschen, die sich Menstruationsartikel wie Binden oder Tampons nicht leisten können – das nennt man Periodenarmut. Davon sind vor allem Mädchen\\* und Frauen\\* betroffen – wie ungerecht!\n\nDas dachte sich auch Amika George aus England und startete die Kampagne #FreePeriods. Damit hat sie unter anderem erreicht, dass Binden und Tampons an Schulen in Großbritannien mittlerweile kostenlos zur Verfügung stehen. In Namibia setzen sich die Aktivistinnen\\* Terry Farrell und Tjova Raulinda Fololindo ebenso gegen Periodenarmut ein. Sie nähen wieder verwendbare Stoffbinden und verteilen sie in Schulen.",
+      "heroImageId": "menstruation-325",
       "sourceLabel": null,
       "sourceUrl": null,
       "validFrom": null,
