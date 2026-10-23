@@ -1,9 +1,10 @@
 ---
 /**
  * Both store badges, or „Bald verfügbar …“ for a store whose listing is not public yet
- * (site.config.json). The badges are the stores' own, unaltered, as their guidelines ask.
+ * (site.config.json). The badges are the stores' own, unaltered, as their guidelines ask. Before the
+ * launch, the release date sits underneath.
  */
-import { APP_NAME, STORES } from '../lib/site';
+import { APP_NAME, RELEASE_DATE, STORES } from '../lib/site';
 import NewTabLink from './NewTabLink.astro';
 
 interface Props {
@@ -16,6 +17,16 @@ const missing = [
   STORES.appStore ? null : 'im App Store',
   STORES.playStore ? null : 'bei Google Play',
 ].filter((store) => store !== null);
+
+// The date is a calendar day, not an instant: formatted in UTC so no time zone can shift it.
+const releaseDay =
+  RELEASE_DATE &&
+  new Intl.DateTimeFormat('de-AT', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(RELEASE_DATE));
 ---
 
 <div class:list={['flex flex-wrap items-center gap-x-4 gap-y-3', className]}>
@@ -69,6 +80,11 @@ const missing = [
         <span class="block text-xl font-semibold">Bald verfügbar</span>{' '}
         <span class="block text-lead font-medium">{missing.join(' und ')}</span>
       </span>
+    </p>
+  )}
+  {RELEASE_DATE && (
+    <p class="basis-full font-display text-xl leading-snug font-semibold">
+      Ab <time datetime={RELEASE_DATE}>{releaseDay}</time> verfügbar
     </p>
   )}
 </div>

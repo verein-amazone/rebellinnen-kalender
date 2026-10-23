@@ -10,6 +10,12 @@ export const PROMOTIONAL =
 
 export const STORES = __STORES__;
 
+/**
+ * The launch day, shown as „Ab … verfügbar“ under the store buttons. Set it to `null` in
+ * site.config.json once the app is out and the date is no longer news.
+ */
+export const RELEASE_DATE = __RELEASE_DATE__;
+
 export const SOURCE_CODE_URL = 'https://github.com/verein-amazone/rebellinnen-kalender';
 
 /**

@@ -11,8 +11,9 @@ import { defineConfig } from 'astro/config';
  * public yet, and the pages say „Bald verfügbar“ instead of linking it. `SITE_CONFIG` swaps in
  * another file: `pnpm test:site` builds a second copy with test store addresses to cover the store
  * buttons and the `/download` redirect, and `SITE_OUT` writes that copy somewhere else.
+ * `releaseDate` (`YYYY-MM-DD`) adds „Ab … verfügbar“ under the store buttons; `null` leaves it out.
  *
- * @type {{ domain: string, appStoreUrl: string | null, playStoreUrl: string | null }}
+ * @type {{ domain: string, appStoreUrl: string | null, playStoreUrl: string | null, releaseDate: string | null }}
  */
 const config = JSON.parse(readFileSync(process.env['SITE_CONFIG'] ?? 'site.config.json', 'utf8'));
 
@@ -80,6 +81,7 @@ export default defineConfig({
         appStore: config.appStoreUrl,
         playStore: config.playStoreUrl,
       }),
+      __RELEASE_DATE__: JSON.stringify(config.releaseDate ?? null),
     },
     build: {
       // Never as a `data:` URL: the policy allows images and fonts from this origin only.

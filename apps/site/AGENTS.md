@@ -14,7 +14,8 @@ unchanged.
   allows this origin only, so no inline `<script>` or `<style>`, no `style=` attributes and no
   `data:` URLs. A script goes in `public/` and is loaded with `<script is:inline src=… defer>`.
   The e2e suite fails on any policy violation and any foreign request.
-- **Store addresses** live in `site.config.json`; `null` shows „Bald verfügbar“.
+- **Store addresses** live in `site.config.json`; `null` shows „Bald verfügbar“. Its `releaseDate`
+  adds „Ab … verfügbar“ under the store buttons; set it to `null` once the app is out.
 - **No advertising claim** on the landing or download page (Verein Amazone's request); the e2e
   suite checks it.
 - Run `pnpm test:site` from the repository root: it builds the site twice (real config and test
