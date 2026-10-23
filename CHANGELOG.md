@@ -1,3 +1,9 @@
+## [1.1.0-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.1-rc.3...v1.1.0-rc.1) (2026-10-23)
+
+### Features
+
+* **site:** link the App Store and announce the 9 November launch ([f417d24](https://github.com/verein-amazone/rebellinnen-kalender/commit/f417d245f2c8818f1e44111decc5d3efeb3e4059))
+
 ## [1.0.1-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.1-rc.2...v1.0.1-rc.3) (2026-10-19)
 
 ### Improvements
