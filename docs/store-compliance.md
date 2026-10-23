@@ -31,13 +31,21 @@ Evidence:
   `apps/app/src/app/data/calendar/curated/curated-calendar-sync.ts`,
   `apps/app/src/app/data/gateways/legal-content.gateway.ts`).
 
-The only network requests the app makes are calendar downloads:
+The app makes network requests to two kinds of places: calendar downloads, and a content item's video
+once the user plays it.
 
 - **Subscribed calendar links** (ICS/webcal), which the user adds, are fetched directly from the
   address the user entered (`apps/app/src/app/data/gateways/ics-http.gateway.ts`).
 - **Curated calendars** that the user switches on are fetched directly from their provider
   (`apps/app/public/curated-calendars/catalog.json` - currently Google Calendar for the Amazone calendar and
   wien.gv.at for the Austrian public holidays).
+
+- **A content item's YouTube video**, only after the user taps „Video abspielen“ under a notice that
+  says data goes to Google. On Android and iOS a native player view
+  (`@capawesome/capacitor-youtube-player`, wrapped by
+  `apps/app/src/app/cross-cutting/infrastructure/native-video-player.ts`) loads YouTube's standard
+  player from youtube.com; the browser build frames youtube-nocookie.com. Until the tap the cover
+  is the item's own bundled picture, and nothing reaches YouTube. Privacy policy §6.2.
 
 That provider sees the device's IP address, as with any download. This is not collection by the
 developer - nothing is sent to Verein Amazone or Independo - but the privacy policy has to say it
@@ -57,6 +65,15 @@ App Store Connect → App → App Privacy.
 | Privacy policy URL                                              | `https://rebellinnen.amazone.or.at/datenschutz/` | The app's own policy, see [store-listing.md](./store-listing.md#privacy-policy).                                                                                       |
 
 The result is the "Data Not Collected" label.
+
+**Proposed - to decide with Verein Amazone before the release that ships videos:** whether the
+YouTube player changes this answer. The player is a third-party library inside the app, and once
+the user plays a video Google receives the IP address and device information and may set cookies -
+data neither Verein Amazone nor Independo can access, but Google, arguably a "third-party partner",
+can. The cautious reading declares it ("Data Linked to You": none; "Data Not Linked to You":
+Identifiers / Usage Data, purpose "App Functionality", collected by a third party); the narrow
+reading keeps "Data Not Collected" because the user opens the video from a third-party service on
+their own initiative, like an external link. Neither is entered yet.
 
 The calendar permission is not part of this questionnaire. Its purpose string is in
 `apps/app/ios/App/App/Info.plist:48-55` („Die App möchte auf deinen Gerätekalender zugreifen, um seine Termine
@@ -79,6 +96,12 @@ Export to CSV), set the same answers and commit it in its place.
 | Do you provide a way for users to request that their data is deleted? | Not asked | Only asked when data is collected. Uninstalling the app deletes everything.                                                        |
 
 The resulting section says "No data collected" and "No data shared with third parties".
+
+**Proposed:** the same open question as for Apple. Play counts data collected by third-party
+libraries in the app, and the YouTube player is one (`android-youtube-player`, through the plugin).
+If Verein Amazone takes the cautious reading, the CSV needs the collected types (device or other
+IDs, app interactions) marked as collected for "App functionality", processed ephemerally, not
+shared, and optional ("users can choose": a video only loads when tapped).
 
 ## Google Play: App content
 
@@ -157,7 +180,7 @@ repository says. **All proposed**, to be agreed with Verein Amazone:
 | Mature or suggestive themes                               | Infrequent/mild | Sexual violence and abuse are named in several biographies, as facts, not described. |
 | Medical or treatment information                          | Infrequent/mild | The menstruation entry and the eating-disorder and crisis helplines.                 |
 | Health or wellness topics                                 | Yes             | Same entries.                                                                        |
-| Realistic violence                                        | None            | Violence is mentioned in biographies, never depicted.                                |
+| Realistic violence                                        | None            | Violence is mentioned in biographies, never depicted. **Re-check with the videos.**  |
 | Alcohol, tobacco or drug use or references                | None            | One passing mention in a podcast recommendation.                                     |
 | Sexual content or nudity, graphic or not                  | None            | Education about sexuality and gender identity is not sexual content.                 |
 | Profanity, horror, weapons, gambling, contests            | None            | -                                                                                    |
@@ -196,8 +219,8 @@ Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire 
 
 - **Apple, Content Rights:** "Does your app contain, show, or access third-party content?" -
   **Yes**: portrait photos and texts about real people, under the licences documented in
-  `apps/app/public/content/images.json`. Answering "and you have the necessary rights" depends on the
-  image review in #11.
+  `apps/app/public/content/images.json`, and Verein Amazone's own videos, played from YouTube.
+  Answering "and you have the necessary rights" depends on the image review in #11.
 - **Apple, EU Digital Services Act trader status:** depends on which legal entity holds the Apple
   developer account (Verein Amazone or Independo GmbH). A trader has to publish an address, phone
   number and email in the EU storefronts.
