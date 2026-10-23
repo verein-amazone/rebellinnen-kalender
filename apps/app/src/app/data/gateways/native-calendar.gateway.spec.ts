@@ -29,7 +29,7 @@ describe('NativeCalendarGateway', () => {
     await expect(gateway.checkReadPermission()).resolves.toBe('prompt');
   });
 
-  it('maps native calendars to plugin-free shapes, read-only when writability is unknown as on Android', async () => {
+  it('maps native calendars to plugin-free shapes, read-only when writability is unknown', async () => {
     const gateway = setup({
       listCalendars: async () => ({
         result: [
@@ -65,6 +65,39 @@ describe('NativeCalendarGateway', () => {
     expect(calendars.map(({ id, writable }) => ({ id, writable }))).toEqual([
       { id: 'cal-1', writable: true },
       { id: 'cal-2', writable: false },
+    ]);
+  });
+
+  it('offers an Android calendar for writing by the access level the plugin reports', async () => {
+    const gateway = setup(
+      {
+        listCalendars: async () => ({
+          result: [
+            {
+              id: '1',
+              title: 'Familie',
+              accountName: 'user@gmail.com',
+              allowsContentModifications: true,
+            },
+            {
+              id: '2',
+              title: 'Feiertage in Österreich',
+              accountName: 'user@gmail.com',
+              allowsContentModifications: false,
+            },
+            { id: '3', title: 'Lokal', accountName: 'local', allowsContentModifications: null },
+          ] as never,
+        }),
+      },
+      'android',
+    );
+
+    const calendars = await gateway.listCalendars();
+
+    expect(calendars.map(({ id, writable }) => ({ id, writable }))).toEqual([
+      { id: '1', writable: true },
+      { id: '2', writable: false },
+      { id: '3', writable: false },
     ]);
   });
 
