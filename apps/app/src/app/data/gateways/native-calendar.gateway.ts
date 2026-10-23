@@ -113,9 +113,9 @@ export class NativeCalendarGateway {
       // internal name, then to the account it belongs to, and only then to the raw id.
       name: calendar.title ?? calendar.internalTitle ?? calendar.accountName ?? calendar.id,
       color: calendar.color ?? null,
-      // Unknown counts as read-only: a save into a holiday or shared calendar would fail. The plugin
-      // reports `null` for every Android calendar up to 8.9.0, so Android device calendars stay
-      // read-only until it reads the provider's access level (ebarooni/capacitor-calendar#305).
+      // Unknown counts as read-only: a save into a holiday or shared calendar would fail. Since 8.10.0
+      // the plugin derives the value on Android from the provider's access level (contributor and up
+      // is writable) and reports `null` only when the provider has no level for the calendar.
       writable: calendar.allowsContentModifications ?? false,
       // `source` is iOS-only; Android has no separate id and reports `accountName` instead.
       sourceId: calendar.source?.id ?? calendar.accountName ?? null,

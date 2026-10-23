@@ -198,7 +198,7 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   Store-Beschreibung: Sie sagt nur noch „Du kannst die App mit dem Kalender deines Handys
   verbinden“ und verspricht kein Speichern in Gerätekalender. Die Korrektur im Kalender-Plugin
   ([ebarooni/capacitor-calendar#306](https://github.com/ebarooni/capacitor-calendar/pull/306))
-  läuft unabhängig davon weiter (#133).
+  ist seit Version 8.10.0 ausgeliefert (#133).
 
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
   Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen.“, darunter den
