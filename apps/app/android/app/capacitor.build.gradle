@@ -18,6 +18,7 @@ dependencies {
     implementation project(':capawesome-capacitor-app-icon')
     implementation project(':capawesome-capacitor-haptics')
     implementation project(':capawesome-capacitor-shake')
+    implementation project(':capawesome-capacitor-youtube-player')
     implementation project(':ebarooni-capacitor-calendar')
     implementation project(':independo-capacitor-emoji-picker')
     implementation project(':capacitor-native-settings')

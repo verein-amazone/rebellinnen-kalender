@@ -1,0 +1,56 @@
+@if (playable()) {
+  <!-- One native button for the whole picture. Its name starts with the visible label, so a Voice
+       Control user can say what they see; the picture is decoration, its description read after. -->
+  <button
+    type="button"
+    class="rk-video-poster"
+    [attr.aria-describedby]="noticeId"
+    (click)="requestPlay()"
+  >
+    @if (posterPath(); as poster) {
+      <img [src]="poster" alt="" class="w-full" />
+    }
+    <span class="rk-video-play">
+      <svg lucidePlay class="rk-icon" aria-hidden="true"></svg>
+      <span
+        >Video abspielen<span class="sr-only">: {{ title() }}</span></span
+      >
+    </span>
+  </button>
+} @else if (posterPath(); as poster) {
+  <img [src]="poster" [alt]="posterAlt() ?? ''" class="w-full rounded-lg" />
+}
+
+<div class="mt-2 space-y-2">
+  <p role="status" class="rk-error empty:hidden">
+    @if (offline()) {
+      Du bist offline – das Video braucht eine Internetverbindung.
+    }
+  </p>
+
+  @if (playable()) {
+    <p [id]="noticeId" class="text-muted-foreground text-sm">
+      @if (posterAlt(); as alt) {
+        <span class="sr-only">Standbild: {{ alt }}. </span>
+      }
+      Beim Abspielen lädt YouTube das Video, dabei werden Daten an Google übertragen.
+      <a
+        routerLink="/settings/privacy"
+        [queryParams]="{ returnTo: returnTo() }"
+        class="underline underline-offset-2"
+        >Mehr zum Datenschutz</a
+      >
+    </p>
+  }
+
+  <a
+    [href]="watchUrl()"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="min-h-touch inline-flex items-center gap-2 font-semibold underline underline-offset-2"
+  >
+    <svg lucideSquarePlay class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+    <span>Auf YouTube ansehen</span>
+    <span class="sr-only">, öffnet in einem neuen Fenster</span>
+  </a>
+</div>

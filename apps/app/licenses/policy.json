@@ -27,6 +27,11 @@
       "notice": "texts/Apache-Cordova-Android-NOTICE.txt",
       "reason": "Apache-2.0 requires passing on the NOTICE of the work; the AAR does not contain it. Taken from github.com/apache/cordova-android."
     },
+    "com.pierfrancescosoffritti.androidyoutubeplayer:core": {
+      "license": "MIT",
+      "text": "texts/android-youtube-player-MIT.txt",
+      "reason": "The POM names only the LICENSE file on GitHub, which is the MIT text, and the AAR ships no licence file. Taken from github.com/PierfrancescoSoffritti/android-youtube-player."
+    },
     "capacitor-swift-pm": {
       "license": "MIT",
       "reason": "GitHub cannot classify LICENSE.md because of a sentence appended to the MIT text."

@@ -5,6 +5,8 @@ import { of, type Observable } from 'rxjs';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
+import type { SupportServiceView } from '@app/interactors/support-services/support-service.vm';
+import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 
 import { ContentDetailPage } from './detail.page';
@@ -54,6 +56,20 @@ class FakeBookmarksInteractor {
   }
 }
 
+class FakeSupportServicesInteractor {
+  services: SupportServiceView[] = [];
+
+  listByIds(ids: readonly string[]): Promise<SupportServiceView[]> {
+    return Promise.resolve(
+      ids.flatMap((id) => this.services.find((entry) => entry.id === id) ?? []),
+    );
+  }
+}
+
+function service(id: string, name: string): SupportServiceView {
+  return { id, region: 'online', name, teaser: `${name} berät dich`, icon: '🧠', actions: [] };
+}
+
 /** Answers sheet opens in the order they are configured; the sheet chrome has its own spec. */
 class StubSheetService {
   readonly opens: { heading: string; data: unknown }[] = [];
@@ -74,6 +90,7 @@ async function setup(
     bookmarked?: boolean;
     returnTo?: string;
     confirmations?: unknown[];
+    services?: SupportServiceView[];
   } = {},
 ) {
   const contentItems = new FakeContentItemsInteractor();
@@ -87,6 +104,9 @@ async function setup(
   const sheets = new StubSheetService();
   sheets.results = config.confirmations ?? [];
 
+  const supportServices = new FakeSupportServicesInteractor();
+  supportServices.services = config.services ?? [];
+
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
@@ -94,9 +114,12 @@ async function setup(
       { provide: ContentItemsInteractor, useValue: contentItems },
       { provide: BookmarksInteractor, useValue: bookmarks },
       { provide: SheetService, useValue: sheets },
+      { provide: SupportServicesInteractor, useValue: supportServices },
     ],
   });
 
+  const navigate = vi.fn().mockResolvedValue(true);
+  TestBed.inject(Router).navigate = navigate;
   const navigateByUrl = vi.fn().mockResolvedValue(true);
   TestBed.inject(Router).navigateByUrl = navigateByUrl;
 
@@ -111,6 +134,7 @@ async function setup(
 
   return {
     element,
+    navigate,
     navigateByUrl,
     bookmarks,
     sheets,
@@ -313,5 +337,78 @@ describe('ContentDetailPage', () => {
     const { element } = await setup({ item: item({ relatedSources: [] }) });
 
     expect(element.textContent).not.toContain('Mehr zum Thema');
+  });
+
+  describe('with a video', () => {
+    const video = { provider: 'youtube', id: 'teTZq72DAlM', orientation: 'landscape' } as const;
+
+    it('shows the cover in the picture’s place and labels the item as a video', async () => {
+      const { element } = await setup({
+        item: item({ video, imagePath: '/content/images/body.webp', imageAlt: 'Standbild' }),
+      });
+
+      expect(element.querySelector('app-video-cover')).not.toBeNull();
+      expect(element.querySelector('img[alt="Standbild"]')).toBeNull();
+      expect(
+        [...element.querySelectorAll('.rk-pill')].map((pill) => pill.textContent?.trim()),
+      ).toContain('Video');
+    });
+
+    it('opens the video on its own screen, which comes back here', async () => {
+      const { element, navigate, settle } = await setup({
+        item: item({ video }),
+        returnTo: '/today',
+      });
+
+      element.querySelector<HTMLButtonElement>('.rk-video-poster')!.click();
+      await settle();
+
+      expect(navigate).toHaveBeenCalledWith(['/content', 'wi-01', 'video'], {
+        queryParams: { returnTo: '/content/wi-01?returnTo=%2Ftoday' },
+      });
+    });
+  });
+
+  describe('pointing to Anlaufstellen', () => {
+    function rows(element: HTMLElement): { text: string; href: string | null }[] {
+      return [
+        ...element.querySelectorAll<HTMLAnchorElement>(
+          'section[aria-labelledby="support-services-heading"] a',
+        ),
+      ].map(
+        // The name: the emoji is decoration, and the teaser is the row's second line.
+        (link) => ({
+          text: (link.querySelector('.font-semibold') ?? link).textContent?.trim() ?? '',
+          href: link.getAttribute('href'),
+        }),
+      );
+    }
+
+    it('shows no card for an item that points nowhere', async () => {
+      const { element } = await setup({ item: item({ supportServiceIds: null }) });
+
+      expect(element.querySelector('#support-services-heading')).toBeNull();
+    });
+
+    it('links the whole Anlaufstellen page for an empty list', async () => {
+      const { element } = await setup({ item: item({ supportServiceIds: [] }) });
+
+      expect(rows(element)).toEqual([
+        { text: 'Anlaufstellen ansehen', href: '/content?area=services' },
+      ]);
+    });
+
+    it('lists the named entries, each opening on its own card, then all of them', async () => {
+      const { element } = await setup({
+        item: item({ supportServiceIds: ['hotline', 'gone', 'rat-auf-draht'] }),
+        services: [service('rat-auf-draht', 'Rat auf Draht'), service('hotline', 'Hotline')],
+      });
+
+      expect(rows(element)).toEqual([
+        { text: 'Hotline', href: '/content?area=services&service=hotline' },
+        { text: 'Rat auf Draht', href: '/content?area=services&service=rat-auf-draht' },
+        { text: 'Alle Anlaufstellen', href: '/content?area=services' },
+      ]);
+    });
   });
 });

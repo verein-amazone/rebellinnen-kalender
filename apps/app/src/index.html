@@ -11,12 +11,15 @@
       - `style-src 'unsafe-inline'`: the CDK and the emoji picker insert `<style>` elements.
       - `connect-src blob:`: the web emoji picker loads its bundled data from a blob URL (no CDN
         since `@independo/capacitor-emoji-picker` 1.3.4). The native pickers load nothing.
+      - `frame-src`: in the browser build only, a content item's video, framed from YouTube's
+        cookie-less domain after the user taps play (`ContentVideoPage`). On the phones the player is
+        a native view outside this page (`NativeVideoPlayer`). No other page may be framed.
       Keep the page free of inline scripts: the production build inlines no critical CSS for that
       reason (`inlineCritical: false` in angular.json), whose loader would be one.
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' blob:; worker-src 'self'; manifest-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <title>Rebell*innen</title>
     <base href="/" />

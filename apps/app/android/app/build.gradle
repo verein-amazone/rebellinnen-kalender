@@ -11,6 +11,9 @@ licensee {
     allowUrl('https://www.zetetic.net/sqlcipher/license/') {
         because 'SQLCipher Community Edition, BSD-3-Clause - see the override in licenses/policy.json'
     }
+    allowUrl('https://github.com/PierfrancescoSoffritti/android-youtube-player/blob/master/LICENSE') {
+        because 'android-youtube-player (inside the YouTube player plugin), MIT - see the override in licenses/policy.json'
+    }
     // The allowlist is shared with npm and iOS, so some of it is always unused here.
     unusedAction(app.cash.licensee.UnusedAction.IGNORE)
 }

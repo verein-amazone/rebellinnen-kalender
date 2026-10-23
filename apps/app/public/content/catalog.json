@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "items": [
     {
       "id": "wi-01",
@@ -25,7 +25,8 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true
+      "eligibleForDaily": true,
+      "supportServiceIds": []
     },
     {
       "id": "wi-03",
@@ -62,8 +63,8 @@
       "heroImageId": "februar-ist-black-history-month",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-02-01",
-      "validTo": "2027-02-10",
+      "validFrom": "--02-01",
+      "validTo": "--02-10",
       "eligibleForDaily": true
     },
     {
@@ -101,8 +102,8 @@
       "heroImageId": "heute-ist-feministischer-kampftag",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-03-08",
-      "validTo": "2027-03-08",
+      "validFrom": "--03-08",
+      "validTo": "--03-08",
       "eligibleForDaily": true
     },
     {
@@ -140,8 +141,8 @@
       "heroImageId": "happy-new-year",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-01-01",
-      "validTo": "2027-01-01",
+      "validFrom": "--01-01",
+      "validTo": "--01-01",
       "eligibleForDaily": true
     },
     {
@@ -205,8 +206,8 @@
       "heroImageId": "juni-ist-pride-month",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-06-01",
-      "validTo": "2027-06-01",
+      "validFrom": "--06-01",
+      "validTo": "--06-01",
       "eligibleForDaily": true
     },
     {
@@ -218,8 +219,8 @@
       "heroImageId": "ein-regenbogen-fuer-alle",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-06-01",
-      "validTo": "2027-06-30",
+      "validFrom": "--06-01",
+      "validTo": "--06-30",
       "eligibleForDaily": true
     },
     {
@@ -231,8 +232,8 @@
       "heroImageId": "ally",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-06-01",
-      "validTo": "2027-06-30",
+      "validFrom": "--06-01",
+      "validTo": "--06-30",
       "eligibleForDaily": true
     },
     {
@@ -244,8 +245,8 @@
       "heroImageId": "juli-ist-disability-pride-month",
       "sourceLabel": null,
       "sourceUrl": null,
-      "validFrom": "2027-07-01",
-      "validTo": "2027-07-01",
+      "validFrom": "--07-01",
+      "validTo": "--07-01",
       "eligibleForDaily": true
     },
     {

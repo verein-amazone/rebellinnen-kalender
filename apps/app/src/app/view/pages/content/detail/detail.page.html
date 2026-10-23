@@ -34,6 +34,12 @@
           }
           <span>{{ typeLabel() }}</span>
         </span>
+        @if (content.video) {
+          <span class="rk-pill text-xs">
+            <svg lucideClapperboard class="rk-icon-sm" aria-hidden="true"></svg>
+            <span>Video</span>
+          </span>
+        }
       </div>
 
       <!-- The teaser leads: it is the one sentence that says what this item is about, and it read
@@ -42,7 +48,17 @@
         <p class="text-lg">{{ content.teaser }}</p>
       }
 
-      @if (content.imagePath; as imagePath) {
+      @if (content.video; as video) {
+        <!-- A video takes the picture's place, and the picture becomes its cover. -->
+        <app-video-cover
+          [video]="video"
+          [title]="content.title"
+          [posterPath]="content.imagePath"
+          [posterAlt]="content.imageAlt"
+          [returnTo]="currentUrl()"
+          (playRequested)="playVideo()"
+        />
+      } @else if (content.imagePath; as imagePath) {
         <!-- `imageAlt` describes the picture. The credit is not a description and stays where it
              belongs, in the visible caption further down. -->
         <img [src]="imagePath" [alt]="content.imageAlt ?? ''" class="w-full rounded-lg" />
@@ -52,6 +68,55 @@
         <div class="rk-card px-4 py-5">
           <app-markdown-content [markdown]="content.bodyMarkdown" />
         </div>
+      }
+
+      @if (pointsToSupportServices()) {
+        <!-- Chosen by hand per item: the Anlaufstellen it names, each opening on its own card, and
+             always the whole list as the last row. Rows stay inside the app, so a chevron rather
+             than the external-link icon. -->
+        <section class="rk-card px-4 py-4" aria-labelledby="support-services-heading">
+          <h2 id="support-services-heading" class="text-muted-foreground text-sm font-semibold">
+            Hier findest du Unterstützung
+          </h2>
+          <ul class="divide-border mt-1 divide-y">
+            @for (service of supportServiceRows(); track service.id) {
+              <li>
+                <a
+                  routerLink="/content"
+                  [queryParams]="{ area: 'services', service: service.id }"
+                  class="min-h-touch flex items-center justify-between gap-3 py-3"
+                >
+                  <span class="flex min-w-0 items-center gap-3">
+                    <span class="shrink-0 text-2xl leading-none" aria-hidden="true">{{
+                      service.icon
+                    }}</span>
+                    <span class="min-w-0">
+                      <span class="block font-semibold break-words">{{ service.name }}</span>
+                      <span class="text-muted-foreground block text-sm break-words">{{
+                        service.teaser
+                      }}</span>
+                    </span>
+                  </span>
+                  <svg lucideChevronRight class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+                </a>
+              </li>
+            }
+            <li>
+              <a
+                routerLink="/content"
+                [queryParams]="{ area: 'services' }"
+                class="min-h-touch flex items-center justify-between gap-3 py-3 font-semibold"
+              >
+                <span class="min-w-0 break-words">
+                  {{
+                    supportServiceRows().length > 0 ? 'Alle Anlaufstellen' : 'Anlaufstellen ansehen'
+                  }}
+                </span>
+                <svg lucideChevronRight class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+              </a>
+            </li>
+          </ul>
+        </section>
       }
 
       @if (relatedSources().length > 0) {
