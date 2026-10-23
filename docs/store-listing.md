@@ -146,10 +146,10 @@ Until October 2026 the website lived at `kalender.amazone.or.at`, and 1.0.0 went
 those addresses (privacy policy, marketing URL, the bundled privacy policy, printed QR codes). That
 domain stays a DNS `CNAME` to `verein-amazone.github.io` too and is served by a second, tiny Pages
 site, `apps/site-redirect/`, which forwards every address to the same path here
-(`/datenschutz/` → `https://rebellinnen.amazone.or.at/datenschutz/`). Change the privacy and
-marketing URLs in App Store Connect and the Play Console to the new domain with the next submission
-(`apps/app/fastlane/metadata/de-DE/` already has them); keep the redirect for as long as an old
-address can still be out there.
+(`/datenschutz/` → `https://rebellinnen.amazone.or.at/datenschutz/`). The Play Console privacy
+policy URL moved to the new domain on 23 October 2026. Change the remaining URLs in App Store
+Connect and the Play Console with the next submission (`apps/app/fastlane/metadata/de-DE/` already
+has them); keep the redirect for as long as an old address can still be out there.
 
 - **Built by** [Astro](https://astro.build/) from `apps/site` (`pnpm build:site`) into
   `apps/site/dist/`. The pages are in `apps/site/src/pages/`, styled with Tailwind on the tokens of
