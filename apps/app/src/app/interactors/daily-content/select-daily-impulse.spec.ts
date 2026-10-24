@@ -18,6 +18,8 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -82,6 +84,20 @@ describe('selectDailyImpulse', () => {
     });
 
     expect(picked?.id).toBe('narrow');
+  });
+
+  it('weighs a yearly window by its length, like a one-off window', () => {
+    const evergreen = item({ id: 'evergreen' });
+    const yearlyDay = item({ id: 'yearly-day', validFrom: '--05-17', validTo: '--05-17' });
+
+    const picked = selectDailyImpulse({
+      eligible: [evergreen, yearlyDay],
+      recentIds: [],
+      previous: null,
+      today: '2031-05-17',
+    });
+
+    expect(picked?.id).toBe('yearly-day');
   });
 
   it('excludes ids in recentIds when other eligible items remain', () => {
@@ -161,6 +177,21 @@ describe('selectDailyImpulse', () => {
       // One trait shared weighs a tenth, so about 1 day in 11 repeats the kind.
       expect(repeats).toBeGreaterThan(0);
       expect(repeats).toBeLessThan(YEAR.length * 0.2);
+    });
+
+    it('makes a video after a video unlikely, even within the same kind', () => {
+      const video = { provider: 'youtube', id: 'teTZq72DAlM', orientation: 'landscape' } as const;
+      const previous = item({ id: 'wi-01', video });
+      const eligible = [item({ id: 'wi-02', video }), item({ id: 'wi-03' })];
+
+      const picks = YEAR.map(
+        (today) => selectDailyImpulse({ eligible, recentIds: [], previous, today })?.id,
+      );
+      const videos = picks.filter((id) => id === 'wi-02').length;
+
+      // Both share the kind; only the video sets them apart, so a tenth of the odds remain.
+      expect(videos).toBeGreaterThan(0);
+      expect(videos).toBeLessThan(YEAR.length * 0.2);
     });
 
     it('leaves the odds alone without a previous impulse', () => {

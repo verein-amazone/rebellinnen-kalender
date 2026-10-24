@@ -28,6 +28,8 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -201,6 +203,25 @@ describe('TodayImpulseBlock', () => {
     const { element } = await setup();
 
     expect(element.textContent).toContain('Mehr lesen');
+  });
+
+  it('marks a video on its picture and invites to watch it', async () => {
+    const { element } = await setup({
+      item: item({
+        imagePath: '/content/images/body.webp',
+        video: { provider: 'youtube', id: 'teTZq72DAlM', orientation: 'landscape' },
+      }),
+    });
+
+    expect(element.querySelector('.rk-pill-solid.absolute')?.textContent?.trim()).toBe('Video');
+    expect(element.textContent).toContain('Video ansehen');
+    expect(element.textContent).not.toContain('Mehr lesen');
+  });
+
+  it('leaves out the teaser line of an item without a teaser', async () => {
+    const { element } = await setup({ item: item({ imagePath: null, teaser: '' }) });
+
+    expect(element.querySelector('.line-clamp-2')).toBeNull();
   });
 
   it('is one link covering the whole card, into the item detail route', async () => {

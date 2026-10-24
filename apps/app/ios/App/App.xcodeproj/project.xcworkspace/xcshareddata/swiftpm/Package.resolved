@@ -1,5 +1,5 @@
 {
-  "originHash" : "95835674c8a9f6114181000f3d80f429e02724d14991d8494c135fabc8b85d6a",
+  "originHash" : "99742316ec66275c3956249a8fe87c8f881440080146a817098fb454c8f3bb74",
   "pins" : [
     {
       "identity" : "capacitor-swift-pm",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "205df55271aa1ba512a9bfe3fd1813bc9ac52a19",
         "version" : "4.17.0"
+      }
+    },
+    {
+      "identity" : "youtubeplayerview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mukeshydv/YoutubePlayerView.git",
+      "state" : {
+        "revision" : "8a085819f9adaf32648caa27ce1ef19a363e441a",
+        "version" : "1.2.2"
       }
     },
     {

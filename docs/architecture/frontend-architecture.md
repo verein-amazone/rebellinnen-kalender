@@ -405,7 +405,8 @@ Only create cross-cutting code when it is actually shared.
 
 - `infrastructure/` - stateless wrappers around technical UI/device capabilities: the launcher icon,
   haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard
-  (visibility and the inset it covers), the OS text scale, the app lifecycle, local notifications, page focus, change notifications. Interactors and presenters
+  (visibility and the inset it covers), the OS text scale, the app lifecycle, local notifications,
+  the native YouTube player, page focus, change notifications. Interactors and presenters
   both use them. The dividing line against `data/gateways/` is whether the thing is a **data
   source**: the device calendar is queryable data and therefore a gateway, while haptics are not.
   `app-lifecycle.ts` is the single owner of "the app came back to the foreground"; nothing else
@@ -414,6 +415,13 @@ Only create cross-cutting code when it is actually shared.
   to look again, and exposes the local day as a `YYYY-MM-DD` signal. A key rather than a `Date`, so it
   emits once per day change instead of on every check - a screen can make it a `resource` parameter
   and be reloaded at midnight without watching for it.
+  `native-video-player.ts` is the one capability that draws: it lays a native player view over the
+  WebView at a frame the caller keeps in sync with a placeholder element. Such a view does not scroll
+  with the page and floats over the sticky header, the tab bar and every sheet, so it is only ever
+  shown on a screen built for it - `ContentVideoPage`, which has nothing to scroll past - and is
+  removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
+  `capacitor://localhost` (YouTube's "Error 153", no referrer); the browser build frames the
+  cookie-less embed itself (`frame-src` in `index.html`).
 - `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,
   and the folder is only created when one does. A context may be injected only into
   components/presenters; interactors and data-layer classes must not inject them. Prefer local

@@ -27,6 +27,8 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -149,9 +151,13 @@ async function setup(
   TestBed.inject(Router).navigate = navigate;
 
   const fixture = TestBed.createComponent(ContentOverviewPage);
-  // `area` is bound from the query parameter by `withComponentInputBinding()` in the real app.
+  // `area` and `service` are bound from the query parameters by `withComponentInputBinding()` in
+  // the real app.
   fixture.componentRef.setInput('area', options.queryParams?.['area']);
+  fixture.componentRef.setInput('service', options.queryParams?.['service']);
   await fixture.whenStable();
+  // The card is revealed after the render that follows loading the entries.
+  await new Promise((resolve) => setTimeout(resolve));
 
   return {
     element: fixture.nativeElement as HTMLElement,
@@ -223,6 +229,52 @@ describe('ContentOverviewPage', () => {
 
     expect(element.textContent).toContain('Verein Amazone');
     expect(element.textContent).not.toContain('Rat auf Draht');
+  });
+
+  describe('opened for one Anlaufstelle (?service=)', () => {
+    const regions = [
+      { id: 'online', label: 'Online & Telefon' },
+      { id: 'vorarlberg', label: 'Vorarlberg' },
+    ];
+    const services = [
+      service({ id: 'rat-auf-draht', region: 'online', name: 'Rat auf Draht' }),
+      service({ id: 'verein-amazone', region: 'vorarlberg', name: 'Verein Amazone' }),
+    ];
+
+    // jsdom does not lay out, so it has no `scrollIntoView` of its own.
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    afterEach(() => {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+    });
+
+    it('selects its region, then scrolls its card into view and focuses it', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+
+      const { element } = await setup({
+        queryParams: { area: 'services', service: 'verein-amazone' },
+        regions,
+        services,
+      });
+
+      const card = element.querySelector<HTMLElement>('#support-service-verein-amazone');
+      expect(element.textContent).not.toContain('Rat auf Draht');
+      expect(card).not.toBeNull();
+      expect(document.activeElement).toBe(card);
+      expect(card?.getAttribute('tabindex')).toBe('-1');
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' });
+    });
+
+    it('leaves the screen as it is for an unknown entry', async () => {
+      const { element } = await setup({
+        queryParams: { area: 'services', service: 'gone' },
+        regions,
+        services,
+      });
+
+      expect(element.textContent).toContain('Rat auf Draht');
+      expect(document.activeElement?.id ?? '').not.toMatch(/^support-service-/);
+    });
   });
 
   it('ticks when another region is picked, and not when the selected one is tapped again', async () => {

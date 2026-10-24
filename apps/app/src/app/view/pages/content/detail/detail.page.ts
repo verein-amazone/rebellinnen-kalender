@@ -12,6 +12,8 @@ import {
   LucideBookmarkCheck,
   LucideBriefcase,
   LucideCamera,
+  LucideChevronRight,
+  LucideClapperboard,
   LucideExternalLink,
   LucideGhost,
   LucideMusic,
@@ -20,7 +22,7 @@ import {
   LucideSquarePlay,
   LucideUsers,
 } from '@lucide/angular';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import {
   contentKindLabel,
@@ -29,10 +31,13 @@ import {
 } from '@app/interactors/daily-content/content-item.vm';
 import { safeInAppUrl } from '@app/cross-cutting/helpers/in-app-url';
 import { ContentItemsInteractor } from '@app/interactors/daily-content/content-items.interactor';
+import type { SupportServiceView } from '@app/interactors/support-services/support-service.vm';
+import { SupportServicesInteractor } from '@app/interactors/support-services/support-services.interactor';
 import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
+import { VideoCover } from '@app/view/components/video-cover/video-cover';
 import {
   ConfirmationDialog,
   type ConfirmationDialogData,
@@ -63,10 +68,14 @@ interface RelatedSourceRow extends RelatedSourceView {
   imports: [
     FocusedScreenScaffold,
     MarkdownContentComponent,
+    RouterLink,
+    VideoCover,
     LucideBookmark,
     LucideBookmarkCheck,
     LucideBriefcase,
     LucideCamera,
+    LucideChevronRight,
+    LucideClapperboard,
     LucideExternalLink,
     LucideGhost,
     LucideMusic,
@@ -80,6 +89,7 @@ interface RelatedSourceRow extends RelatedSourceView {
 })
 export class ContentDetailPage {
   private readonly contentItems = inject(ContentItemsInteractor);
+  private readonly supportServices = inject(SupportServicesInteractor);
   private readonly bookmarks = inject(BookmarksInteractor);
   private readonly haptics = inject(HapticsInteractor);
   private readonly sheets = inject(SheetService);
@@ -105,7 +115,8 @@ export class ContentDetailPage {
     loader: async ({ params: id }) => {
       const item = await this.contentItems.findById(id);
       const bookmarked = item === null ? false : await this.bookmarks.isBookmarked(item.id);
-      return { item, bookmarked };
+      const services = await this.supportServices.listByIds(item?.supportServiceIds ?? []);
+      return { item, bookmarked, services };
     },
   });
 
@@ -114,6 +125,25 @@ export class ContentDetailPage {
   );
   protected readonly bookmarked = computed(
     () => valueOr(this.data, undefined)?.bookmarked ?? false,
+  );
+
+  /** The Anlaufstellen the item names, resolved; see `pointsToSupportServices` for the link itself. */
+  protected readonly supportServiceRows = computed<readonly SupportServiceView[]>(
+    () => valueOr(this.data, undefined)?.services ?? [],
+  );
+
+  /** Whether the item points to the Anlaufstellen at all - `[]` is a link to the whole page. */
+  protected readonly pointsToSupportServices = computed(
+    () => (this.item()?.supportServiceIds ?? null) !== null,
+  );
+
+  /** This screen, query included, for the back action of a screen opened from here. */
+  protected readonly currentUrl = computed(() =>
+    this.router.serializeUrl(
+      this.router.createUrlTree(['/content', this.id()], {
+        queryParams: { returnTo: this.safeReturnTo() },
+      }),
+    ),
   );
 
   protected readonly loadFailed = computed(() => this.data.error() !== undefined);
@@ -138,6 +168,13 @@ export class ContentDetailPage {
   protected readonly bookmarkActionLabel = computed(() =>
     this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
   );
+
+  /** Opens the video on its own screen, coming back here - with this screen's own way back. */
+  protected async playVideo(): Promise<void> {
+    await this.router.navigate(['/content', this.id(), 'video'], {
+      queryParams: { returnTo: this.currentUrl() },
+    });
+  }
 
   protected reload(): void {
     this.data.reload();

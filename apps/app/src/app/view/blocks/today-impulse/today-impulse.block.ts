@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideChevronRight, LucideRotateCw, LucideSparkle } from '@lucide/angular';
+import {
+  LucideChevronRight,
+  LucideClapperboard,
+  LucideRotateCw,
+  LucideSparkle,
+} from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import type { ContentItemView } from '@app/interactors/daily-content/content-item.vm';
@@ -50,7 +55,14 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 @Component({
   selector: 'app-today-impulse',
   host: { class: 'block' },
-  imports: [LucideChevronRight, LucideRotateCw, LucideSparkle, NgTemplateOutlet, RouterLink],
+  imports: [
+    LucideChevronRight,
+    LucideClapperboard,
+    LucideRotateCw,
+    LucideSparkle,
+    NgTemplateOutlet,
+    RouterLink,
+  ],
   templateUrl: './today-impulse.block.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,4 +1,4 @@
-**Stand: 19. Oktober 2026**
+**Stand: 23. Oktober 2026**
 
 ## 1. Deine Privatsphäre ist uns wichtig
 
@@ -8,7 +8,7 @@ Deshalb funktioniert die App ohne Benutzerkonto, ohne eigene Server zur Speicher
 
 Deine Termine, To-dos, Einstellungen und gespeicherten Inhalte bleiben auf deinem Gerät. Wir verwenden keine Analyse- oder Trackingdienste und zeigen keine Werbung.
 
-Für einige freiwillige Funktionen, insbesondere die Einbindung von Online-Kalendern oder das Öffnen externer Links, ist eine Verbindung zu anderen Anbietern notwendig. Was dabei passiert, erklären wir dir in dieser Datenschutzerklärung.
+Für einige freiwillige Funktionen, insbesondere die Einbindung von Online-Kalendern, das Abspielen von Videos oder das Öffnen externer Links, ist eine Verbindung zu anderen Anbietern notwendig. Was dabei passiert, erklären wir dir in dieser Datenschutzerklärung.
 
 ## 2. Wer ist verantwortlich?
 
@@ -62,6 +62,8 @@ Bitte beachte, dass die App keinen zusätzlichen Passwortschutz und keine eigene
 Die App enthält unter anderem Informationen über Rebell\*innen, Wissen und Hinweise auf Beratungs- und Unterstützungsangebote.
 
 Diese Inhalte sind Bestandteil der App und werden lokal bereitgestellt. Wenn du sie liest oder in deiner Sammlung speicherst, wird diese Nutzung nicht an uns übermittelt.
+
+Manche Inhalte enthalten ein Video. Das Video selbst ist nicht in der App gespeichert, sondern wird erst geladen, wenn du es abspielst – siehe Abschnitt 6.2.
 
 Wir erfassen nicht, welche Beiträge du liest, welche Themen dich interessieren oder welche Inhalte du speicherst.
 
@@ -155,7 +157,9 @@ Bewahre private Kalenderlinks deshalb sorgfältig auf und gib sie nur an vertrau
 
 Die App verwendet für neue Kalenderabonnements grundsätzlich HTTPS-Verbindungen. Dadurch wird die Übertragung zwischen deinem Gerät und dem jeweiligen Kalenderanbieter geschützt.
 
-## 6. Externe Links und Unterstützungsangebote
+## 6. Externe Links, Videos und Unterstützungsangebote
+
+### 6.1 Externe Links und Unterstützungsangebote
 
 Die Rebell\*innen App enthält Verweise auf externe Websites, Beratungsstellen, Hilfsangebote und andere Organisationen.
 
@@ -169,6 +173,20 @@ Der Verein Amazone erhält durch das Öffnen eines solchen Links oder einer Tele
 
 Für die Datenverarbeitung durch externe Websites, Telefonanbieter und Kommunikationsdienste gelten deren jeweilige Datenschutzbestimmungen.
 
+### 6.2 Videos von YouTube
+
+Einige Inhalte enthalten ein Video, das auf YouTube veröffentlicht ist. Anbieter von YouTube ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland („Google“).
+
+Solange du ein Video nicht abspielst, zeigt die App nur ein Vorschaubild, das in der App selbst gespeichert ist. Dabei wird keine Verbindung zu YouTube oder Google hergestellt.
+
+Erst wenn du auf „Video abspielen“ tippst, lädt die App den Videoplayer von YouTube. Direkt neben der Schaltfläche weisen wir dich darauf hin. Dabei werden insbesondere deine IP-Adresse, Informationen über dein Gerät und dein Betriebssystem sowie das aufgerufene Video an Google übertragen. Google kann außerdem Cookies oder ähnliche Technologien auf deinem Gerät speichern und die Nutzung des Players auswerten. Wenn du auf deinem Gerät bei Google angemeldet bist, kann Google das Abspielen deinem Konto zuordnen.
+
+Der Verein Amazone erhält keine Informationen darüber, welche Videos du abspielst.
+
+Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO und § 165 Abs. 3 TKG 2021), die du durch das Tippen auf „Video abspielen“ erteilst. Du kannst sie für die Zukunft widerrufen, indem du keine Videos mehr abspielst. Statt in der App kannst du ein Video auch über den Link „Auf YouTube ansehen“ direkt bei YouTube öffnen.
+
+Google verarbeitet Daten auch in den USA. Die Google LLC ist nach dem EU-US Data Privacy Framework zertifiziert, für das ein Angemessenheitsbeschluss der Europäischen Kommission besteht. Weitere Informationen findest du in der Datenschutzerklärung von Google: https://policies.google.com/privacy
+
 ## 7. Tracking, Werbung und Analyse
 
 Wir verwenden in der mobilen App keine Dienste zur Analyse deines Nutzungsverhaltens, keine Werbetracker und keine Technologien zur Erstellung personenbezogener Nutzungsprofile.
@@ -177,7 +195,7 @@ Insbesondere:
 
 - gibt es keine personalisierte Werbung;
 - verkaufen wir keine personenbezogenen Nutzungsdaten;
-- erfassen wir keine Statistiken darüber, welche persönlichen Termine du anlegst oder welche Inhalte du liest;
+- erfassen wir keine Statistiken darüber, welche persönlichen Termine du anlegst, welche Inhalte du liest oder welche Videos du abspielst;
 - setzen wir keinen eigenen Dienst zur automatischen Übermittlung von Absturzberichten oder Nutzungsdaten an uns ein.
 
 Unabhängig davon können Apple, Google und andere Anbieter deines Betriebssystems oder App-Stores technische Informationen im Zusammenhang mit dem Herunterladen, Installieren oder Betreiben von Apps verarbeiten. Diese Vorgänge richten sich nach den Datenschutzbestimmungen des jeweiligen Anbieters.
@@ -251,13 +269,14 @@ Die rein lokale Verarbeitung deiner Kalenderdaten, To-dos und Einstellungen füh
 
 Soweit personenbezogene Daten im Zusammenhang mit dem Betrieb der App durch uns verarbeitet werden und die DSGVO darauf Anwendung findet, kommen insbesondere folgende Rechtsgrundlagen in Betracht:
 
+- **Art. 6 Abs. 1 lit. a DSGVO:** soweit du in eine Verarbeitung eingewilligt hast, insbesondere beim Abspielen eines YouTube-Videos (Abschnitt 6.2).
 - **Art. 6 Abs. 1 lit. b DSGVO:** soweit eine Verarbeitung zur Bereitstellung der von dir genutzten Funktionen oder zur Erfüllung eines Nutzungsverhältnisses erforderlich ist.
 - **Art. 6 Abs. 1 lit. f DSGVO:** soweit wir ein berechtigtes Interesse daran haben, die App technisch bereitzustellen, Anfragen zu beantworten oder ihre Sicherheit und Funktionsfähigkeit zu gewährleisten, und deine Interessen oder Grundrechte nicht überwiegen.
 - **Art. 6 Abs. 1 lit. c DSGVO:** soweit eine Verarbeitung zur Erfüllung gesetzlicher Verpflichtungen erforderlich ist.
 
 Beim Aufruf externer Kalender, Websites oder Dienste können die jeweiligen Anbieter eigene personenbezogene Daten verarbeiten. Für deren Verarbeitungen und Rechtsgrundlagen sind die jeweiligen Datenschutzinformationen maßgeblich.
 
-Eine gesonderte Einwilligung in eine Datenverarbeitung, die für die grundlegende lokale Nutzung der App nicht erforderlich ist, verlangen wir nicht.
+Für die grundlegende lokale Nutzung der App ist keine Einwilligung erforderlich. Eine Einwilligung betrifft nur das freiwillige Abspielen von Videos (Abschnitt 6.2).
 
 ## 12. Empfänger und Datenübermittlungen in andere Länder
 
@@ -265,7 +284,7 @@ Der Verein Amazone übermittelt deine persönlichen App-Kalenderdaten nicht an e
 
 Eine Übermittlung persönlicher App-Daten zu Werbe- oder Analysezwecken findet nicht statt.
 
-Bei der Nutzung externer Online-Kalender, Websites, App-Stores oder Kalenderkonten können Daten jedoch von den jeweiligen Anbietern verarbeitet werden.
+Bei der Nutzung externer Online-Kalender, Websites, App-Stores oder Kalenderkonten und beim Abspielen von YouTube-Videos können Daten jedoch von den jeweiligen Anbietern verarbeitet werden.
 
 Abhängig vom Anbieter kann dabei auch eine Verarbeitung außerhalb des Europäischen Wirtschaftsraums stattfinden. Das betrifft beispielsweise Dienste internationaler Technologieunternehmen.
 

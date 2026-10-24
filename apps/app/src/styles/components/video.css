@@ -1,0 +1,56 @@
+/*
+ * A content item's video: its cover on the item (`app-video-cover`), and the stage the player
+ * plays on, on its own screen (`ContentVideoPage`).
+ */
+
+@layer components {
+  /*
+   * The picture as one button. It keeps the picture's own proportions, like the plain picture on
+   * an item without a video, so the page does not jump when the item opens. `isolate` keeps the
+   * play label above the picture without a z-index that could rise over the sticky header.
+   */
+  .rk-video-poster {
+    @apply relative isolate block w-full overflow-hidden rounded-lg;
+    @apply bg-muted min-h-touch;
+    /* Promoted for the reason `.rk-card-bleed` gives: a clean rounded clip of the picture. */
+    transform: translateZ(0);
+
+    & > img {
+      @apply transition-[filter] duration-150;
+    }
+
+    &:active > img {
+      @apply brightness-90;
+    }
+  }
+
+  /*
+   * The play label, centred on the picture. A solid primary fill, never a scrim or a blur: it has
+   * to stay legible on any picture, and its contrast does not depend on what is behind it. It wraps
+   * at large text sizes rather than overflowing the picture.
+   */
+  .rk-video-play {
+    @apply bg-primary text-primary-foreground min-h-touch absolute inset-x-4 top-1/2 mx-auto;
+    @apply flex w-fit -translate-y-1/2 items-center justify-center gap-2 rounded-full px-5 py-2;
+    @apply text-center font-semibold;
+  }
+
+  /*
+   * The stage, in the video's own proportions: wide, or upright for a Short. Never below 200px in
+   * either direction, a fixed size like any decoration: the native player refuses a smaller frame.
+   */
+  .rk-video-frame {
+    @apply bg-muted aspect-video w-full overflow-hidden rounded-lg;
+    min-block-size: 200px;
+    min-inline-size: 200px;
+  }
+
+  /*
+   * An upright video at full width would be taller than the screen; capped to most of the
+   * viewport's height, it keeps its controls and the text around it in reach, centred.
+   */
+  .rk-video-frame-portrait {
+    @apply mx-auto aspect-[9/16] w-auto;
+    block-size: min(70dvh, calc(100cqi * 16 / 9));
+  }
+}

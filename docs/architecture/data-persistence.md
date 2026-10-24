@@ -179,6 +179,11 @@ Version 20 is the first change on top of it: `content_items` names its picture b
 second run, and puts `bookmarks` aside around the rebuild, because dropping the table its foreign key points
 at fails while a bookmark is still on it.
 
+Version 22 adds two catalog fields to `content_items`, the item's `video` and the
+`support_service_ids` it points to, both JSON. It is the same rebuild, for the same reason: a second
+`ADD COLUMN` would fail. Both start empty and are filled by the content catalog version shipping with
+it, as every catalog column is.
+
 Applying them is the plugin's job, not ours: the gateway hands the registry to
 `addUpgradeStatement()` and asks `createConnection()` for `DATABASE_VERSION`. That mechanism is
 supported on every platform, applies each upgrade in a transaction (with a backup on native), and

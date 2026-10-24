@@ -172,6 +172,12 @@ behaviour.
 - When an image is the only content of a control, its alternative names the _function_.
 - Markdown content is rendered through `marked` and sanitised with DOMPurify; heading levels in
   authored content must continue the page's outline and not skip.
+- A video is never only a picture with a play icon: its cover is one native `<button>` whose name
+  starts with the visible „Video abspielen“, the picture is `alt=""` and its description is read
+  with the notice beside it (`aria-describedby`). The YouTube player's controls are YouTube's; ask
+  for captions (`cc_load_policy`) and keep „Auf YouTube ansehen“ as a second path to the same video.
+  Whether a video has captions is the content's job (WCAG 1.2.2): ask the producer when a video is
+  added.
 - Tables are for tabular data, with `<caption>` and `<th scope>`. A static table is never an ARIA
   grid.
 

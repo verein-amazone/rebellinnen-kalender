@@ -197,6 +197,26 @@ describe('SupportServicesInteractor', () => {
     });
   });
 
+  describe('listByIds', () => {
+    it('lists the entries in the order the ids name them, leaving out unknown ids', async () => {
+      gateway.items = [
+        service('rat-auf-draht', 'online', 'Rat auf Draht'),
+        service('kindernotruf', 'online', 'Kindernotruf'),
+        service('ifs-kinderschutz', 'vorarlberg', 'ifs Kinderschutz'),
+      ];
+
+      const listed = await interactor.listByIds(['ifs-kinderschutz', 'gone', 'rat-auf-draht']);
+
+      expect(listed.map((entry) => entry.id)).toEqual(['ifs-kinderschutz', 'rat-auf-draht']);
+    });
+
+    it('is empty for no ids', async () => {
+      gateway.items = [service('rat-auf-draht', 'online', 'Rat auf Draht')];
+
+      await expect(interactor.listByIds([])).resolves.toEqual([]);
+    });
+  });
+
   describe('listRegions', () => {
     it('is empty when the catalog is empty', async () => {
       await expect(interactor.listRegions()).resolves.toEqual([]);

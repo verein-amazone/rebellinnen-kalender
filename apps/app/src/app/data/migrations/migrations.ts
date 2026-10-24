@@ -1,6 +1,7 @@
 import { CREATE_SCHEMA } from './019-create-schema';
 import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
 import { CREATE_SEARCH_INDEX } from './021-search-index';
+import { ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS } from './022-content-video-and-support-links';
 import type { Migration } from './migration';
 
 /**
@@ -17,6 +18,7 @@ export const MIGRATIONS: readonly Migration[] = [
   CREATE_SCHEMA,
   REBUILD_CONTENT_ITEMS,
   CREATE_SEARCH_INDEX,
+  ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

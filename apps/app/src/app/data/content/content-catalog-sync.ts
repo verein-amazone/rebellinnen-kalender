@@ -6,7 +6,11 @@ import { MarkdownRenderer } from '@app/cross-cutting/markdown/markdown-renderer'
 import { BookmarkDao } from '../daos/bookmark.dao';
 import { ContentItemDao } from '../daos/content-item.dao';
 import { ContentSearchDao, type ContentSearchEntry } from '../daos/content-search.dao';
-import type { ContentItemKind, ContentItemRecord } from '../entities/content-item.record';
+import type {
+  ContentItemKind,
+  ContentItemRecord,
+  VideoRecord,
+} from '../entities/content-item.record';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
 import { foldForSearch } from '../search/search-text';
 import { ContentCatalogStore } from '../stores/content-catalog.store';
@@ -40,9 +44,17 @@ export interface CatalogEntry {
   readonly sourceUrl: string | null;
   /** "More on this topic" links (#22). Optional - omitted on entries that ship without any. */
   readonly relatedSources?: readonly CatalogRelatedSource[];
+  /** `YYYY-MM-DD` for one particular year, `--MM-DD` for every year; see `isWithinWindow`. */
   readonly validFrom: string | null;
   readonly validTo: string | null;
   readonly eligibleForDaily: boolean;
+  /** The item's embedded video. Optional - omitted on entries without one. */
+  readonly video?: VideoRecord;
+  /**
+   * The Anlaufstellen the item points to. Omitted or `null`: none. `[]`: the Anlaufstellen page as
+   * a whole. A list of ids: those entries.
+   */
+  readonly supportServiceIds?: readonly string[] | null;
 }
 
 export interface Catalog {
@@ -212,5 +224,7 @@ function toRecord(entry: CatalogEntry): ContentItemRecord {
       subtitle: source.subtitle ?? null,
       url: source.url,
     })),
+    video: entry.video ?? null,
+    supportServiceIds: entry.supportServiceIds ?? null,
   };
 }

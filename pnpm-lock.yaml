@@ -154,6 +154,9 @@ importers:
       '@capawesome/capacitor-shake':
         specifier: ^0.1.2
         version: 0.1.2(@capacitor/core@8.5.3)
+      '@capawesome/capacitor-youtube-player':
+        specifier: ^0.1.1
+        version: 0.1.1(@capacitor/core@8.5.3)
       '@ebarooni/capacitor-calendar':
         specifier: ^8.10.0
         version: 8.10.0(@capacitor/core@8.5.3)
@@ -946,6 +949,11 @@ packages:
 
   '@capawesome/capacitor-shake@0.1.2':
     resolution: {integrity: sha512-qdp/nrwqQyIehiMJ+w9BJk4t4vjtNYdoCqVo84vBBCF5NtWCntuMXJ2xuajZ+eYCxw+3k6Wla1InYCmGwjDWVg==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
+  '@capawesome/capacitor-youtube-player@0.1.1':
+    resolution: {integrity: sha512-ZqQdAD5tgl0haXUhMocioIja0BjaeBLWP8jJqIp59toddRAVzGP0ERnCI6uCvQ573BzJWVfsc73KKa471P3axg==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -7306,6 +7314,10 @@ snapshots:
       '@capacitor/core': 8.5.3
 
   '@capawesome/capacitor-shake@0.1.2(@capacitor/core@8.5.3)':
+    dependencies:
+      '@capacitor/core': 8.5.3
+
+  '@capawesome/capacitor-youtube-player@0.1.1(@capacitor/core@8.5.3)':
     dependencies:
       '@capacitor/core': 8.5.3
 

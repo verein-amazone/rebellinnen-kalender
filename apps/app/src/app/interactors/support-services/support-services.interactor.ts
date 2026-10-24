@@ -36,6 +36,20 @@ export class SupportServicesInteractor {
     return (await this.supportServices.listAll()).map(toView);
   }
 
+  /**
+   * The entries a content item points to, in the order the item lists them. An id the catalog no
+   * longer knows is left out rather than failing the item: `content-catalog.content.spec.ts` keeps
+   * shipped ids valid, so only a stale database could still hold one.
+   */
+  async listByIds(ids: readonly string[]): Promise<SupportServiceView[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const byId = new Map((await this.listAll()).map((service) => [service.id, service]));
+    return ids.flatMap((id) => byId.get(id) ?? []);
+  }
+
   /** Only regions with at least one approved entry, in the recommended display order. */
   async listRegions(): Promise<SupportServiceRegion[]> {
     await this.catalogSync.ensureSynced();
