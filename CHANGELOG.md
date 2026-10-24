@@ -1,3 +1,11 @@
+## [1.1.0-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.2...v1.1.0-rc.3) (2026-10-24)
+
+### Features
+
+* **content:** add 102 Wissen items from Verein Amazone (wi-23 - wi-99, wi-300 - wi-325) ([63f6414](https://github.com/verein-amazone/rebellinnen-kalender/commit/63f641431ec8b60a0457249d5e98e7a0818aba6b))
+* **content:** play an item's video in the app, and link the Anlaufstellen it names ([e16f4af](https://github.com/verein-amazone/rebellinnen-kalender/commit/e16f4afb740267bcc6090f1f8725c55512e9e12c))
+* **content:** yearly windows, video and Anlaufstellen fields in the content model ([5b49aff](https://github.com/verein-amazone/rebellinnen-kalender/commit/5b49affcb0fb1b9f08be5acea42a64f6739c0e75))
+
 ## [1.1.0-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.1...v1.1.0-rc.2) (2026-10-23)
 
 ### Bug Fixes
