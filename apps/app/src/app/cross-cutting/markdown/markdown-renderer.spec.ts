@@ -38,6 +38,27 @@ describe('MarkdownRenderer', () => {
       expect(html).toContain('quoted line');
     });
 
+    it('renders a callout as a highlighted block rather than a quotation', () => {
+      const html = renderer.render('> [!NOTE]\n> **Mitmachen!**\n> Melde dich an.\n\nWeiter.');
+      expect(html).toContain('<div><p><strong>Mitmachen!</strong>\nMelde dich an.</p>\n</div>');
+      expect(html).not.toContain('<blockquote>');
+      expect(html).not.toContain('[!NOTE]');
+      expect(html).toContain('<p>Weiter.</p>');
+    });
+
+    it('still renders a plain block quote after a callout', () => {
+      const html = renderer.render('> [!NOTE]\n> Wichtig.\n\n> Zitat.');
+      expect(html).toContain('<div><p>Wichtig.</p>\n</div>');
+      expect(html).toContain('<blockquote>');
+    });
+
+    it('renders mailto links, subject and body included', () => {
+      const html = renderer.render('[schreib uns](mailto:hallo@example.org?subject=Hallo%20du)');
+      expect(html).toContain(
+        '<a href="mailto:hallo@example.org?subject=Hallo%20du">schreib uns</a>',
+      );
+    });
+
     it('renders https and http links', () => {
       const https = renderer.render('[secure](https://example.org/path)');
       expect(https).toContain('<a href="https://example.org/path">secure</a>');
@@ -66,6 +87,12 @@ describe('MarkdownRenderer', () => {
       const html = renderer.render('A <b>bold</b> word');
       expect(html).not.toContain('<b>');
       expect(html).toContain('bold');
+    });
+
+    it('drops a raw div, so only a callout can produce one', () => {
+      const html = renderer.render('<div>not a callout</div>\n\nA <div>inline</div> div');
+      expect(html).not.toContain('<div>');
+      expect(html).toContain('inline');
     });
 
     it('removes script tags entirely', () => {

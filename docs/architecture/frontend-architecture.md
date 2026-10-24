@@ -599,19 +599,24 @@ binding as a second, independent layer.
 
 Allowed and rendered as semantic HTML: paragraphs, emphasis (`em`) and strong emphasis (`strong`),
 ordered and unordered lists, block quotes, links, and **level-two and level-three headings only**.
+One extension adds callouts: GitHub's alert syntax `> [!NOTE]` renders as a plain `<div>`, styled as
+a highlighted box (see [content authoring](../content-authoring.md#3-markdown-conventions)).
 
 Rejected: raw/embedded HTML, images, tables, code blocks and inline code, and any other element
-outside the allow-list. Their disallowed tags are stripped while their text content is kept, so
-level-one and level-four-plus headings, for example, survive as plain text rather than headings.
+outside the allow-list. Raw HTML is dropped by `marked` itself, before sanitizing, so the allowed
+`div` can only come from a callout. Other disallowed tags are stripped while their text content is
+kept, so level-one and level-four-plus headings, for example, survive as plain text rather than
+headings.
 
 ### Sanitization and URL safety
 
 - The rendered HTML always passes through DOMPurify's allow-list in the renderer, and again through
   Angular's `[innerHTML]` binding in the component. `bypassSecurityTrustHtml` is never used.
-- Links keep their `href` only for the allow-listed schemes `https:` and `http:` (relative and
-  anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
-  `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
-  `href` removed, leaving only the link text.
+- Links keep their `href` only for the allow-listed schemes `https:`, `http:` and `mailto:`
+  (relative and anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
+  `ALLOWED_URI_REGEXP`. A `mailto:` link goes to the OS, which opens the mail app. Any other
+  scheme - for example `javascript:` or `data:` - has its `href` removed, leaving only the link
+  text.
 - A Content-Security-Policy in `apps/app/src/index.html` is the last layer: only the app's own scripts run,
   and `index.html` carries no inline script - the production build inlines no critical CSS, whose
   loader would be one. The policy's comment explains each exception. A new script, style, image, font or
