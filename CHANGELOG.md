@@ -1,3 +1,17 @@
+## [1.1.0-rc.5](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.4...v1.1.0-rc.5) (2026-10-24)
+
+### Features
+
+* **content:** link the recommended podcasts to their official pages ([12f12ef](https://github.com/verein-amazone/rebellinnen-kalender/commit/12f12ef959308f88a935bcf96e4f5beb9950140c))
+* **content:** render callouts and mailto links in Markdown ([6408598](https://github.com/verein-amazone/rebellinnen-kalender/commit/640859822a85505afcdfd3fa4ca01303fb8ef622))
+* **settings:** offer the dynamic colour themes as pairs below the palettes ([4b92f09](https://github.com/verein-amazone/rebellinnen-kalender/commit/4b92f096cd5f743adcbea61bb50ea09c6edc7ca6))
+* **video:** play videos in place and move the notice behind an info button ([62ffd90](https://github.com/verein-amazone/rebellinnen-kalender/commit/62ffd90d28c3fc929d5fe1272d7b4f8dbe55b323))
+
+### Bug Fixes
+
+* **content:** shorten the sign-up item's title and link its e-mail addresses ([50cdada](https://github.com/verein-amazone/rebellinnen-kalender/commit/50cdada711e828813afbcdfee118ac4ee18b73c6))
+* **onboarding:** keep only the terms link on the welcome step ([37a3c22](https://github.com/verein-amazone/rebellinnen-kalender/commit/37a3c22c4375e51dfb700adc413b505d74095a10))
+
 ## [1.1.0-rc.4](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.3...v1.1.0-rc.4) (2026-10-24)
 
 ### Bug Fixes
