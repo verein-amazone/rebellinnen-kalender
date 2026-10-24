@@ -1,5 +1,5 @@
 {
-  "version": 14,
+  "version": 15,
   "items": [
     {
       "id": "wi-01",
@@ -44,12 +44,19 @@
     {
       "id": "wi-04",
       "kind": "wissensimpulse",
-      "title": "Gestalte gemeinsam mit uns den Rebell*innen Kalender 2027/28!",
+      "title": "Gestalte den Kalender mit!",
       "teaser": "Du bist gerne kreativ und hast Ideen? Du möchtest mitentscheiden, wie der nächste Kalender aussieht? Du hast Wünsche oder Verbesserungsvorschläge?",
-      "bodyMarkdown": "**Wo?** \n3 Online-Treffen im März 2027 mit Nina vom Verein Amazone.\n\n**Wer?** \nMitmachen können alle Mädchen\\*, inter\\*, nicht-binären, trans\\* und agender Jugendlichen von 12 bis 25 Jahren aus ganz Österreich.\n\n**Wie?** \nMelde dich bis 14. Februar 2027 an. Klick auf den Link oder schreib ein E-Mail an n.kaufmann@amazone.or.at",
+      "bodyMarkdown": "> [!NOTE]\n> **Gestalte gemeinsam mit uns den Rebell\\*innen Kalender 2027/28!**\n\n**Wo?** \n3 Online-Treffen im März 2027 mit Nina vom Verein Amazone.\n\n**Wer?** \nMitmachen können alle Mädchen\\*, inter\\*, nicht-binären, trans\\* und agender Jugendlichen von 12 bis 25 Jahren aus ganz Österreich.\n\n**Wie?** \nMelde dich bis 14. Februar 2027 an. Klick unten auf „Jetzt anmelden“ oder schreib ein E-Mail an [n.kaufmann@amazone.or.at](mailto:n.kaufmann@amazone.or.at?subject=Anmeldung%3A%20Rebell%2Ainnen%20Kalender%202027%2F28%20mitgestalten&body=Hallo%20Nina%2C%0A%0Aich%20m%C3%B6chte%20den%20Rebell%2Ainnen%20Kalender%202027%2F28%20mitgestalten%20und%20melde%20mich%20f%C3%BCr%20die%20Online-Treffen%20im%20M%C3%A4rz%202027%20an.%0A%0AMein%20Name%3A%0A%0AViele%20Gr%C3%BC%C3%9Fe%0A)",
       "heroImageId": "gestalte-gemeinsam-mit-uns-den-rebell-innen-kalender-2027-28",
-      "sourceLabel": "Jetzt anmelden",
-      "sourceUrl": "https://forms.gle/Y5UxyyAa1Y7qS2Gg7",
+      "sourceLabel": null,
+      "sourceUrl": null,
+      "relatedSources": [
+        {
+          "title": "Jetzt anmelden",
+          "subtitle": "Anmeldeformular · Google Forms",
+          "url": "https://forms.gle/Y5UxyyAa1Y7qS2Gg7"
+        }
+      ],
       "validFrom": "2027-01-02",
       "validTo": "2027-04-14",
       "eligibleForDaily": true
@@ -267,7 +274,7 @@
       "kind": "wissensimpulse",
       "title": "Alle unsere Lieblingssongs in einer Playlist",
       "teaser": "",
-      "bodyMarkdown": "[Hier klicken und reinhören!](https://youtube.com/playlist?list=PLqZphAV3xNkhpr_WjSXd-Jk1f8HUwjIQI&si=pLhDS__Bm8iFSrWc) \n\nDie Liste wird jedes Jahr im Zuge der Erarbeitung des neuen Rebell\\*innen Kalenders erweitert und sammelt die tollsten Songs unserer liebsten Musikerinnen\\*. \n\nDu möchtest einen Song hinzufügen? Schreib ein Mail an Nina vom Verein Amazone: n.kaufmann@amazone.or.at",
+      "bodyMarkdown": "[Hier klicken und reinhören!](https://youtube.com/playlist?list=PLqZphAV3xNkhpr_WjSXd-Jk1f8HUwjIQI) \n\nDie Liste wird jedes Jahr im Zuge der Erarbeitung des neuen Rebell\\*innen Kalenders erweitert und sammelt die tollsten Songs unserer liebsten Musikerinnen\\*. \n\nDu möchtest einen Song hinzufügen? Schreib ein Mail an Nina vom Verein Amazone: [n.kaufmann@amazone.or.at](mailto:n.kaufmann@amazone.or.at?subject=Songvorschlag%20f%C3%BCr%20die%20Rebell%2Ainnen-Playlist&body=Hallo%20Nina%2C%0A%0Aich%20habe%20einen%20Song%20f%C3%BCr%20eure%20Playlist%20mit%20den%20Lieblingssongs%3A%0A%0ASong%3A%0AMusikerin%2A%3A%0ALink%20%28falls%20vorhanden%29%3A%0A%0AViele%20Gr%C3%BC%C3%9Fe%0A)",
       "heroImageId": "alle-unsere-lieblingssongs-in-einer-playlist",
       "sourceLabel": null,
       "sourceUrl": null,
