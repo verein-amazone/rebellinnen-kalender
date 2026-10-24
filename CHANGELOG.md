@@ -1,3 +1,9 @@
+## [1.1.0-rc.4](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.3...v1.1.0-rc.4) (2026-10-24)
+
+### Bug Fixes
+
+* **site:** link Google Play again now that pre-registration is live ([afbd64a](https://github.com/verein-amazone/rebellinnen-kalender/commit/afbd64adf0089a0ed37b5b3bf2e9ffdf8eb6a95b))
+
 ## [1.1.0-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.2...v1.1.0-rc.3) (2026-10-24)
 
 ### Features
