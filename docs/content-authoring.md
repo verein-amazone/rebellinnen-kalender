@@ -71,7 +71,7 @@ that names what the picture shows, usually the person or the topic.
 ## 3. Markdown conventions
 
 `bodyMarkdown` renders through `MarkdownContentComponent` (`cross-cutting/markdown/`), which allows
-paragraphs, lists, headings, links and blockquotes - see `apps/app/src/styles/components/markdown-content.css`
+paragraphs, lists, headings, links, blockquotes and callouts - see `apps/app/src/styles/components/markdown-content.css`
 for how each renders.
 
 - **A Rebell\*in's own quoted words**, transcribed as their own standalone paragraph, should be a
@@ -79,7 +79,27 @@ for how each renders.
   (bordered, larger, semibold) rather than relying on the quote marks alone. Only convert a
   standalone quoted paragraph; leave quoted terms inside running prose (e.g. a nickname like „Godmother
   of Punk“) as plain text.
-- Links (`[text](url)`) render as underlined inline links; no other markup needed.
+- **What a reader must not miss** - a call to action, a deadline - goes in a callout at the top
+  of the body, written as a GitHub alert. It renders as a semibold box tinted in the theme's primary colour, not as a quote:
+
+  ```markdown
+  > [!NOTE]
+  > **Gestalte gemeinsam mit uns den Rebell\*innen Kalender 2027/28!**
+  ```
+
+  Only `[!NOTE]` is supported, and only once or twice per item - a body full of callouts
+  highlights nothing. A long title is a good candidate: shorten the title and put the full
+  wording in the callout.
+
+- Links (`[text](url)`) render as underlined inline links; no other markup needed. `https:` and
+  `mailto:` links work; every other scheme is removed. A sign-up form or other page the item
+  points to belongs in `relatedSources`, not in `sourceUrl`, which is only for the source of the
+  text.
+- **An e-mail address** the reader is invited to write to becomes a `mailto:` link with a subject
+  and a short template body that fit the item, URL-encoded (`%20` for spaces, `%0A` for line
+  breaks), e.g. `[n.kaufmann@amazone.or.at](mailto:n.kaufmann@amazone.or.at?subject=Song%20f%C3%BCr%20die%20Playlist)`.
+  Keep the address itself as the link text, so it can still be read and copied.
+- Raw HTML is dropped, tags and all; write Markdown only.
 - Never import `marked` outside `cross-cutting/markdown/` - always go through
   `MarkdownContentComponent`, per the frontend architecture rules.
 
@@ -149,10 +169,10 @@ Notes from doing this for the first 41 items:
 
 ## 5. Videos
 
-An item with `video` shows its picture as a cover with „Video abspielen“ and a notice that playing
-sends data to Google; nothing reaches YouTube before the tap (privacy policy §6.2). The video then
-plays on a screen of its own: a native player on Android and iOS, the youtube-nocookie embed in the
-browser. „Auf YouTube ansehen“ sits under both as a second way in.
+An item with `video` shows its picture as a cover with „Video abspielen“; nothing reaches YouTube
+before the tap (privacy policy §6.2). The video then plays in the picture's place: a native player
+on Android and iOS, the youtube-nocookie embed in the browser. Under it sit „Auf YouTube ansehen“,
+a second way in, and an info button that says playing sends data to Google.
 
 When a video is added, ask the producer whether it has German captions, and say in the pull request
 if it does not - the app asks YouTube to show captions, but cannot add any (WCAG 1.2.2).

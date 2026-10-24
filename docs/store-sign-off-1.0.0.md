@@ -201,8 +201,9 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   ist seit Version 8.10.0 ausgeliefert (#133).
 
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
-  Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen.“, darunter den
-  Link „Nutzungsbedingungen lesen“. Diesen Schritt sehen alle, auch wer die Einführung überspringt.
+  Einführung zeigt den Link „Nutzungsbedingungen lesen“; den Satz „Mit der Nutzung der App gelten
+  die Nutzungsbedingungen.“ darüber haben wir als zu viel Text für den ersten Bildschirm wieder
+  entfernt. Diesen Schritt sehen alle, auch wer die Einführung überspringt.
   Der Schritt „Deine Daten bleiben bei dir“ verlinkt die Datenschutzerklärung. Beide öffnen sich
   in der App und funktionieren ohne Internet. Ein Häkchen zum Akzeptieren gibt es bewusst nicht:
   - Die Datenschutzerklärung ist eine Information (Art. 13 DSGVO), keine Einwilligung. Die App

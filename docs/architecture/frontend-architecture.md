@@ -417,9 +417,12 @@ Only create cross-cutting code when it is actually shared.
   and be reloaded at midnight without watching for it.
   `native-video-player.ts` is the one capability that draws: it lays a native player view over the
   WebView at a frame the caller keeps in sync with a placeholder element. Such a view does not scroll
-  with the page and floats over the sticky header, the tab bar and every sheet, so it is only ever
-  shown on a screen built for it - `ContentVideoPage`, which has nothing to scroll past - and is
-  removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
+  with the page and floats over the sticky header, the tab bar and every sheet. So its one caller,
+  `view/components/video-player/` on the item screen, checks the placeholder on every frame while
+  the video plays: it moves the view along with the page, and parks it - paused and out of sight -
+  wherever the page covers the placeholder, found by hit-testing its corners
+  (`elementFromPoint`), which catches the header and any sheet without knowing about them. The
+  view is removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
   `capacitor://localhost` (YouTube's "Error 153", no referrer); the browser build frames the
   cookie-less embed itself (`frame-src` in `index.html`).
 - `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,
@@ -554,9 +557,10 @@ The selection follows the normal layer direction:
   and exposes the current selection, plus `motionReduced` - the app setting resolved against the
   device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
   know in code rather than in CSS.
-- The colour theme is resolved in the interactor too, not in CSS. The `system` theme has no
-  `[data-theme]` block of its own: `palette` maps it to Amazone or Mitternacht from the device's dark
-  mode (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
+- The colour theme is resolved in the interactor too, not in CSS. The dynamic themes (Amazone /
+  Mitternacht, Lavendel / Mitternacht) have no `[data-theme]` block of their own: `palette` maps each
+  to its light or dark half from the device's dark mode
+  (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
   `data-theme`. Unlike text size and motion, the theme defaults to an explicit palette (Amazone), so
   a first start always shows the app's own face.
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
@@ -598,19 +602,24 @@ binding as a second, independent layer.
 
 Allowed and rendered as semantic HTML: paragraphs, emphasis (`em`) and strong emphasis (`strong`),
 ordered and unordered lists, block quotes, links, and **level-two and level-three headings only**.
+One extension adds callouts: GitHub's alert syntax `> [!NOTE]` renders as a plain `<div>`, styled as
+a highlighted box (see [content authoring](../content-authoring.md#3-markdown-conventions)).
 
 Rejected: raw/embedded HTML, images, tables, code blocks and inline code, and any other element
-outside the allow-list. Their disallowed tags are stripped while their text content is kept, so
-level-one and level-four-plus headings, for example, survive as plain text rather than headings.
+outside the allow-list. Raw HTML is dropped by `marked` itself, before sanitizing, so the allowed
+`div` can only come from a callout. Other disallowed tags are stripped while their text content is
+kept, so level-one and level-four-plus headings, for example, survive as plain text rather than
+headings.
 
 ### Sanitization and URL safety
 
 - The rendered HTML always passes through DOMPurify's allow-list in the renderer, and again through
   Angular's `[innerHTML]` binding in the component. `bypassSecurityTrustHtml` is never used.
-- Links keep their `href` only for the allow-listed schemes `https:` and `http:` (relative and
-  anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
-  `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
-  `href` removed, leaving only the link text.
+- Links keep their `href` only for the allow-listed schemes `https:`, `http:` and `mailto:`
+  (relative and anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
+  `ALLOWED_URI_REGEXP`. A `mailto:` link goes to the OS, which opens the mail app. Any other
+  scheme - for example `javascript:` or `data:` - has its `href` removed, leaving only the link
+  text.
 - A Content-Security-Policy in `apps/app/src/index.html` is the last layer: only the app's own scripts run,
   and `index.html` carries no inline script - the production build inlines no critical CSS, whose
   loader would be one. The policy's comment explains each exception. A new script, style, image, font or

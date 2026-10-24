@@ -13,7 +13,10 @@ export interface VideoPlayerFrame {
 
 /** A playing video: moved with its placeholder, and closed when the screen goes. */
 export interface VideoPlayerHandle {
+  /** Lays the player over `frame`, bringing it back if it was parked. */
   setFrame(frame: VideoPlayerFrame): void;
+  /** Pauses the video and moves the player out of sight, until the next `setFrame`. */
+  park(): void;
   close(): void;
 }
 
@@ -26,6 +29,14 @@ export type VideoPlayerError = 'unavailable' | 'failed';
 /** The plugin rejects a frame below this size, in either direction. */
 export const MIN_PLAYER_SIZE = 200;
 
+/** Where a parked player waits: far outside any screen, at the smallest size the plugin takes. */
+const PARKED_FRAME: VideoPlayerFrame = {
+  x: -10_000,
+  y: -10_000,
+  width: MIN_PLAYER_SIZE,
+  height: MIN_PLAYER_SIZE,
+};
+
 let nextId = 0;
 
 /**
@@ -35,8 +46,9 @@ let nextId = 0;
  * Native because the WebView cannot frame YouTube itself on iOS: from `capacitor://localhost` it
  * sends no referrer, and YouTube refuses to play with "Error 153". The plugin's view loads the player
  * from an https origin instead. It is laid *over* the WebView at a frame the caller keeps in sync
- * with a placeholder element, and does not scroll with the page - which is why only the dedicated
- * video screen, which does not scroll, shows it.
+ * with a placeholder element, and does not scroll with the page: the caller moves it along with
+ * every scroll, and parks it while anything of the page - the sticky header - covers the
+ * placeholder, since the native view would otherwise be drawn on top of it.
  *
  * Android and iOS only. On the web `available` is false and the caller frames the player itself,
  * where an http(s) origin works.
@@ -72,7 +84,7 @@ export class NativeVideoPlayer {
         id,
         videoId,
         frame: toPluginFrame(frame),
-        // The tap that opened the screen asked for the video, so it starts at once. Only the same
+        // The tap on the cover asked for the video, so it starts at once. Only the same
         // channel's videos are suggested at the end, and captions show where the video has them.
         options: { autoplay: true, rel: false, ccLoadPolicy: true },
       });
@@ -82,13 +94,23 @@ export class NativeVideoPlayer {
     }
 
     let closed = false;
+    let parked = false;
+    const moveTo = (frame: VideoPlayerFrame) =>
+      void this.plugin.setPlayerFrame({ id, frame: toPluginFrame(frame) }).catch(() => undefined);
     return {
       setFrame: (next) => {
         if (!closed) {
-          void this.plugin
-            .setPlayerFrame({ id, frame: toPluginFrame(next) })
-            .catch(() => undefined);
+          parked = false;
+          moveTo(next);
         }
+      },
+      park: () => {
+        if (closed || parked) {
+          return;
+        }
+        parked = true;
+        void this.plugin.pause({ id }).catch(() => undefined);
+        moveTo(PARKED_FRAME);
       },
       close: () => {
         if (closed) {

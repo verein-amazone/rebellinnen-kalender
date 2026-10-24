@@ -7,6 +7,7 @@ import {
   TEXT_SIZE_IDS,
   VIBRATION_IDS,
   type AppearancePreferences,
+  type ThemeId,
   type VibrationId,
 } from './appearance-preferences';
 
@@ -53,7 +54,7 @@ export class AppearanceStore {
 
     const candidate = parsed as Partial<Record<keyof AppearancePreferences, unknown>>;
     return {
-      theme: pick(candidate.theme, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme),
+      theme: readTheme(candidate.theme),
       textSize: pick(candidate.textSize, TEXT_SIZE_IDS, DEFAULT_APPEARANCE_PREFERENCES.textSize),
       motion: pick(candidate.motion, MOTION_IDS, DEFAULT_APPEARANCE_PREFERENCES.motion),
       vibration: readVibration(candidate),
@@ -80,6 +81,16 @@ export class AppearanceStore {
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+/**
+ * The single „Systemeinstellung“ theme became the first of the dynamic pairs, Amazone / Mitternacht,
+ * which switches between the same two palettes.
+ */
+function readTheme(value: unknown): ThemeId {
+  return value === 'system'
+    ? 'amazone-nacht'
+    : pick(value, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme);
 }
 
 /**

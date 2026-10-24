@@ -1,6 +1,6 @@
 /*
- * A content item's video: its cover on the item (`app-video-cover`), and the stage the player
- * plays on, on its own screen (`ContentVideoPage`).
+ * A content item's video (`app-video-player`): its cover, and the stage that takes the cover's
+ * place when it plays.
  */
 
 @layer components {

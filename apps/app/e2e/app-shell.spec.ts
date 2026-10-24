@@ -171,27 +171,26 @@ test.describe('application shell', () => {
 
   test('keeps the selected colour theme after a reload', async ({ page }) => {
     await page.goto('/settings/theme');
-    await page.getByRole('radio', { name: 'Mitternacht' }).check();
+    await page.getByRole('radio', { name: 'Mitternacht', exact: true }).check();
 
     await page.reload();
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
-    await expect(page.getByRole('radio', { name: 'Mitternacht' })).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Mitternacht', exact: true })).toBeChecked();
   });
 
-  test('follows the device between light and dark on the system theme', async ({ page }) => {
+  test('follows the device between light and dark on a dynamic theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/settings/theme');
-    await page.getByRole('radio', { name: 'Systemeinstellung', exact: false }).check();
+    const lavendelMitternacht = page.getByRole('radio', { name: 'Lavendel / Mitternacht' });
+    await lavendelMitternacht.check();
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
 
     // No reload: flipping the device setting while the app is open recolours it at once.
     await page.emulateMedia({ colorScheme: 'light' });
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'amazone');
-    await expect(
-      page.getByRole('radio', { name: 'Systemeinstellung', exact: false }),
-    ).toBeChecked();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'lila');
+    await expect(lavendelMitternacht).toBeChecked();
   });
 
   test('offers every approved settings entry', async ({ page }) => {

@@ -37,7 +37,7 @@ import { BookmarksInteractor } from '@app/interactors/saved-content/bookmarks.in
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { MarkdownContentComponent } from '@app/view/components/markdown-content/markdown-content';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
-import { VideoCover } from '@app/view/components/video-cover/video-cover';
+import { VideoPlayer } from '@app/view/components/video-player/video-player';
 import {
   ConfirmationDialog,
   type ConfirmationDialogData,
@@ -69,7 +69,7 @@ interface RelatedSourceRow extends RelatedSourceView {
     FocusedScreenScaffold,
     MarkdownContentComponent,
     RouterLink,
-    VideoCover,
+    VideoPlayer,
     LucideBookmark,
     LucideBookmarkCheck,
     LucideBriefcase,
@@ -168,13 +168,6 @@ export class ContentDetailPage {
   protected readonly bookmarkActionLabel = computed(() =>
     this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
   );
-
-  /** Opens the video on its own screen, coming back here - with this screen's own way back. */
-  protected async playVideo(): Promise<void> {
-    await this.router.navigate(['/content', this.id(), 'video'], {
-      queryParams: { returnTo: this.currentUrl() },
-    });
-  }
 
   protected reload(): void {
     this.data.reload();
