@@ -3,6 +3,7 @@ import {
   YoutubePlayer,
   type CreatePlayerOptions,
   type CreatePlayerResult,
+  type PauseOptions,
   type PlayerErrorEvent,
   type RemovePlayerOptions,
   type SetPlayerFrameOptions,
@@ -17,6 +18,7 @@ export interface YoutubePlayerListenerHandle {
 export interface YoutubePlayerPlugin {
   createPlayer(options: CreatePlayerOptions): Promise<CreatePlayerResult>;
   setPlayerFrame(options: SetPlayerFrameOptions): Promise<void>;
+  pause(options: PauseOptions): Promise<void>;
   removePlayer(options: RemovePlayerOptions): Promise<void>;
   addPlayerErrorListener(
     listener: (event: PlayerErrorEvent) => void,
@@ -34,6 +36,7 @@ export const YOUTUBE_PLAYER_PLUGIN = new InjectionToken<YoutubePlayerPlugin>(
     factory: () => ({
       createPlayer: (options) => YoutubePlayer.createPlayer(options),
       setPlayerFrame: (options) => YoutubePlayer.setPlayerFrame(options),
+      pause: (options) => YoutubePlayer.pause(options),
       removePlayer: (options) => YoutubePlayer.removePlayer(options),
       addPlayerErrorListener: (listener) => YoutubePlayer.addListener('playerError', listener),
     }),

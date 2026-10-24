@@ -49,14 +49,14 @@
       }
 
       @if (content.video; as video) {
-        <!-- A video takes the picture's place, and the picture becomes its cover. -->
-        <app-video-cover
+        <!-- A video takes the picture's place, the picture becomes its cover, and it plays right
+             there. -->
+        <app-video-player
           [video]="video"
           [title]="content.title"
           [posterPath]="content.imagePath"
           [posterAlt]="content.imageAlt"
           [returnTo]="currentUrl()"
-          (playRequested)="playVideo()"
         />
       } @else if (content.imagePath; as imagePath) {
         <!-- `imageAlt` describes the picture. The credit is not a description and stays where it

@@ -417,9 +417,12 @@ Only create cross-cutting code when it is actually shared.
   and be reloaded at midnight without watching for it.
   `native-video-player.ts` is the one capability that draws: it lays a native player view over the
   WebView at a frame the caller keeps in sync with a placeholder element. Such a view does not scroll
-  with the page and floats over the sticky header, the tab bar and every sheet, so it is only ever
-  shown on a screen built for it - `ContentVideoPage`, which has nothing to scroll past - and is
-  removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
+  with the page and floats over the sticky header, the tab bar and every sheet. So its one caller,
+  `view/components/video-player/` on the item screen, checks the placeholder on every frame while
+  the video plays: it moves the view along with the page, and parks it - paused and out of sight -
+  wherever the page covers the placeholder, found by hit-testing its corners
+  (`elementFromPoint`), which catches the header and any sheet without knowing about them. The
+  view is removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
   `capacitor://localhost` (YouTube's "Error 153", no referrer); the browser build frames the
   cookie-less embed itself (`frame-src` in `index.html`).
 - `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,

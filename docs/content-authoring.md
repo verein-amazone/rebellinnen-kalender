@@ -169,10 +169,10 @@ Notes from doing this for the first 41 items:
 
 ## 5. Videos
 
-An item with `video` shows its picture as a cover with „Video abspielen“ and a notice that playing
-sends data to Google; nothing reaches YouTube before the tap (privacy policy §6.2). The video then
-plays on a screen of its own: a native player on Android and iOS, the youtube-nocookie embed in the
-browser. „Auf YouTube ansehen“ sits under both as a second way in.
+An item with `video` shows its picture as a cover with „Video abspielen“; nothing reaches YouTube
+before the tap (privacy policy §6.2). The video then plays in the picture's place: a native player
+on Android and iOS, the youtube-nocookie embed in the browser. Under it sit „Auf YouTube ansehen“,
+a second way in, and an info button that says playing sends data to Google.
 
 When a video is added, ask the producer whether it has German captions, and say in the pull request
 if it does not - the app asks YouTube to show captions, but cannot add any (WCAG 1.2.2).

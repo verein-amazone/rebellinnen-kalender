@@ -14,6 +14,7 @@ class StubYoutubePlayerPlugin {
   created: { id: string; videoId?: string; frame: unknown; options?: unknown }[] = [];
   frames: { id: string; frame: unknown }[] = [];
   removed: string[] = [];
+  paused: string[] = [];
   listenersRemoved = 0;
   failCreate = false;
   private listener: ((event: PlayerErrorEvent) => void) | null = null;
@@ -28,6 +29,11 @@ class StubYoutubePlayerPlugin {
 
   setPlayerFrame(options: { id: string; frame: unknown }): Promise<void> {
     this.frames.push(options);
+    return Promise.resolve();
+  }
+
+  pause(options: { id: string }): Promise<void> {
+    this.paused.push(options.id);
     return Promise.resolve();
   }
 
@@ -113,6 +119,24 @@ describe('NativeVideoPlayer', () => {
     expect(plugin.frames).toEqual([{ id, frame: { x: 16, y: 300, width: 358, height: 201 } }]);
     expect(plugin.removed).toEqual([id]);
     expect(plugin.listenersRemoved).toBe(1);
+  });
+
+  it('parks the player paused and out of sight once, until the next frame brings it back', async () => {
+    const { player, plugin } = setup();
+
+    const handle = await player.open('teTZq72DAlM', FRAME, () => undefined);
+    const id = plugin.created[0].id;
+    handle.park();
+    handle.park();
+    handle.setFrame({ x: 16, y: 300, width: 358, height: 201 });
+    handle.close();
+    handle.park();
+
+    expect(plugin.paused).toEqual([id]);
+    expect(plugin.frames).toEqual([
+      { id, frame: { x: -10_000, y: -10_000, width: 200, height: 200 } },
+      { id, frame: { x: 16, y: 300, width: 358, height: 201 } },
+    ]);
   });
 
   it('reports a missing or non-embeddable video as unavailable, and anything else as failed', async () => {

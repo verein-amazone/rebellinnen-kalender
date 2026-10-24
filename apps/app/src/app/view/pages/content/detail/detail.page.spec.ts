@@ -347,15 +347,15 @@ describe('ContentDetailPage', () => {
         item: item({ video, imagePath: '/content/images/body.webp', imageAlt: 'Standbild' }),
       });
 
-      expect(element.querySelector('app-video-cover')).not.toBeNull();
+      expect(element.querySelector('app-video-player')).not.toBeNull();
       expect(element.querySelector('img[alt="Standbild"]')).toBeNull();
       expect(
         [...element.querySelectorAll('.rk-pill')].map((pill) => pill.textContent?.trim()),
       ).toContain('Video');
     });
 
-    it('opens the video on its own screen, which comes back here', async () => {
-      const { element, navigate, settle } = await setup({
+    it('plays the video in the picture’s place, without leaving the item', async () => {
+      const { element, navigate, navigateByUrl, settle } = await setup({
         item: item({ video }),
         returnTo: '/today',
       });
@@ -363,9 +363,9 @@ describe('ContentDetailPage', () => {
       element.querySelector<HTMLButtonElement>('.rk-video-poster')!.click();
       await settle();
 
-      expect(navigate).toHaveBeenCalledWith(['/content', 'wi-01', 'video'], {
-        queryParams: { returnTo: '/content/wi-01?returnTo=%2Ftoday' },
-      });
+      expect(element.querySelector('app-video-player iframe')).not.toBeNull();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalled();
     });
   });
 

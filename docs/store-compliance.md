@@ -40,8 +40,8 @@ once the user plays it.
   (`apps/app/public/curated-calendars/catalog.json` - currently Google Calendar for the Amazone calendar and
   wien.gv.at for the Austrian public holidays).
 
-- **A content item's YouTube video**, only after the user taps „Video abspielen“ under a notice that
-  says data goes to Google. On Android and iOS a native player view
+- **A content item's YouTube video**, only after the user taps „Video abspielen“. The info button
+  under the video says data goes to Google. On Android and iOS a native player view
   (`@capawesome/capacitor-youtube-player`, wrapped by
   `apps/app/src/app/cross-cutting/infrastructure/native-video-player.ts`) loads YouTube's standard
   player from youtube.com; the browser build frames youtube-nocookie.com. Until the tap the cover

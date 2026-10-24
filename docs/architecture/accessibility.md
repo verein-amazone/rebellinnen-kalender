@@ -174,7 +174,8 @@ behaviour.
   authored content must continue the page's outline and not skip.
 - A video is never only a picture with a play icon: its cover is one native `<button>` whose name
   starts with the visible „Video abspielen“, the picture is `alt=""` and its description is read
-  with the notice beside it (`aria-describedby`). The YouTube player's controls are YouTube's; ask
+  after the name (`aria-describedby`). The video then plays in the cover's place, and focus moves
+  from the vanished button to the player's stage, which is named „YouTube-Video: …“. The YouTube player's controls are YouTube's; ask
   for captions (`cc_load_policy`) and keep „Auf YouTube ansehen“ as a second path to the same video.
   Whether a video has captions is the content's job (WCAG 1.2.2): ask the producer when a video is
   added.
