@@ -2,7 +2,7 @@
   <fieldset class="space-y-2">
     <legend class="sr-only">Farbthema wählen</legend>
 
-    @for (option of appearance.themeOptions; track option.id) {
+    @for (option of appearance.paletteOptions; track option.id) {
       <app-choice-row
         name="theme"
         [value]="option.id"
@@ -14,5 +14,30 @@
         <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
       </app-choice-row>
     }
+
+    <!-- Still the same radio group (one `name`), set apart by a rule and its own legend, which says
+         once what every pair does. The rule sits on a wrapper: on the fieldset itself the legend
+         would cut into it. -->
+    <div class="border-border mt-4 border-t pt-4">
+      <fieldset class="space-y-2" aria-describedby="theme-dynamic-hint">
+        <legend class="rk-label">Dynamische Farbthemen</legend>
+        <p id="theme-dynamic-hint" class="rk-hint">
+          Wechseln mit deinem Gerät zwischen hell und dunkel.
+        </p>
+
+        @for (option of appearance.dynamicThemeOptions; track option.id) {
+          <app-choice-row
+            name="theme"
+            [value]="option.id"
+            [label]="option.label"
+            [description]="option.description"
+            [checked]="appearance.theme() === option.id"
+            (selected)="select($event)"
+          >
+            <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
+          </app-choice-row>
+        }
+      </fieldset>
+    </div>
   </fieldset>
 </app-focused-screen>

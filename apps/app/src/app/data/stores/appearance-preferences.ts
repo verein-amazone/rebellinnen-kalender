@@ -14,10 +14,14 @@ export const PALETTE_IDS = ['amazone', 'warm', 'nacht', 'lila'] as const;
 export type PaletteId = (typeof PALETTE_IDS)[number];
 
 /**
- * The selectable colour themes: every palette, plus `system`, which follows the device's dark mode
- * and resolves to a palette before it reaches the document (see `AppearanceInteractor`).
+ * The dynamic themes: each pairs a light palette with a dark one and follows the device's dark mode.
+ * They resolve to a palette before they reach the document (see `AppearanceInteractor`).
  */
-export const THEME_IDS = ['system', ...PALETTE_IDS] as const;
+export const DYNAMIC_THEME_IDS = ['amazone-nacht', 'lila-nacht'] as const;
+export type DynamicThemeId = (typeof DYNAMIC_THEME_IDS)[number];
+
+/** The selectable colour themes: every palette on its own, then the dynamic pairs. */
+export const THEME_IDS = [...PALETTE_IDS, ...DYNAMIC_THEME_IDS] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
 /**

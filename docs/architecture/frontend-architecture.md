@@ -554,9 +554,10 @@ The selection follows the normal layer direction:
   and exposes the current selection, plus `motionReduced` - the app setting resolved against the
   device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
   know in code rather than in CSS.
-- The colour theme is resolved in the interactor too, not in CSS. The `system` theme has no
-  `[data-theme]` block of its own: `palette` maps it to Amazone or Mitternacht from the device's dark
-  mode (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
+- The colour theme is resolved in the interactor too, not in CSS. The dynamic themes (Amazone /
+  Mitternacht, Lavendel / Mitternacht) have no `[data-theme]` block of their own: `palette` maps each
+  to its light or dark half from the device's dark mode
+  (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
   `data-theme`. Unlike text size and motion, the theme defaults to an explicit palette (Amazone), so
   a first start always shows the app's own face.
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and

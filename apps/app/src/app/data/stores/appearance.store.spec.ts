@@ -76,10 +76,16 @@ describe('AppearanceStore', () => {
     }
   });
 
-  it('should restore the system theme', () => {
+  it('should restore a dynamic theme', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'lila-nacht' }));
+
+    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('lila-nacht');
+  });
+
+  it('should carry the former system theme over to Amazone / Mitternacht', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'system' }));
 
-    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('system');
+    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('amazone-nacht');
   });
 
   it('should accept every step of the text-size ladder, including the pre-existing ones', () => {

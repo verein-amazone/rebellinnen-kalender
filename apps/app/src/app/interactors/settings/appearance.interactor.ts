@@ -4,6 +4,7 @@ import { SystemDarkMode } from '@app/cross-cutting/infrastructure/system-dark-mo
 import { SystemReducedMotion } from '@app/cross-cutting/infrastructure/system-reduced-motion';
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 import type {
+  DynamicThemeId,
   MotionId,
   PaletteId,
   TextSizeId,
@@ -12,11 +13,15 @@ import type {
 } from '@app/data/stores/appearance-preferences';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
-export type { MotionId, PaletteId, TextSizeId, ThemeId, VibrationId };
+export type { DynamicThemeId, MotionId, PaletteId, TextSizeId, ThemeId, VibrationId };
 
-/** The palettes the `system` theme switches between with the device's dark mode. */
-const SYSTEM_LIGHT_PALETTE: PaletteId = 'amazone';
-const SYSTEM_DARK_PALETTE: PaletteId = 'nacht';
+/** The palettes each dynamic theme switches between with the device's dark mode. */
+const DYNAMIC_THEME_PALETTES: Readonly<
+  Record<DynamicThemeId, { readonly light: PaletteId; readonly dark: PaletteId }>
+> = {
+  'amazone-nacht': { light: 'amazone', dark: 'nacht' },
+  'lila-nacht': { light: 'lila', dark: 'nacht' },
+};
 
 /** A selectable appearance option. The shape is shared with the other settings screens. */
 export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
@@ -42,16 +47,16 @@ export class AppearanceInteractor {
   readonly vibration = computed(() => this.store.preferences().vibration);
 
   /**
-   * The palette on screen right now: the selected one, or - while the theme follows the device -
-   * the light or dark one the device's appearance calls for. This, not `theme`, is what reaches
-   * `data-theme`.
+   * The palette on screen right now: the selected one, or - for a dynamic theme - the light or
+   * dark half the device's appearance calls for. This, not `theme`, is what reaches `data-theme`.
    */
   readonly palette = computed<PaletteId>(() => {
     const theme = this.theme();
-    if (theme !== 'system') {
+    if (!isDynamicTheme(theme)) {
       return theme;
     }
-    return this.systemDarkMode.dark() ? SYSTEM_DARK_PALETTE : SYSTEM_LIGHT_PALETTE;
+    const pair = DYNAMIC_THEME_PALETTES[theme];
+    return this.systemDarkMode.dark() ? pair.dark : pair.light;
   });
 
   /**
@@ -63,16 +68,26 @@ export class AppearanceInteractor {
     return motion === 'reduced' || (motion === 'system' && this.systemReducedMotion.reduced());
   });
 
-  readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
-    {
-      id: 'system',
-      label: 'Systemeinstellung',
-      description: 'Wechselt mit deinem Gerät zwischen hell und dunkel.',
-    },
+  /** The palettes on their own. */
+  readonly paletteOptions: readonly AppearanceOption<PaletteId>[] = [
     { id: 'amazone', label: 'Amazone', description: null },
     { id: 'warm', label: 'Sonnenuntergang', description: null },
     { id: 'nacht', label: 'Mitternacht', description: null },
     { id: 'lila', label: 'Lavendel', description: null },
+  ];
+
+  /**
+   * The dynamic pairs, named light half first. What they have in common - following the device -
+   * is said once, by the group they are listed under, rather than repeated on every option.
+   */
+  readonly dynamicThemeOptions: readonly AppearanceOption<DynamicThemeId>[] = [
+    { id: 'amazone-nacht', label: 'Amazone / Mitternacht', description: null },
+    { id: 'lila-nacht', label: 'Lavendel / Mitternacht', description: null },
+  ];
+
+  readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
+    ...this.paletteOptions,
+    ...this.dynamicThemeOptions,
   ];
 
   readonly textSizeOptions: readonly AppearanceOption<TextSizeId>[] = [
@@ -117,11 +132,15 @@ export class AppearanceInteractor {
   ];
 
   /**
-   * The palettes a theme option previews: its own, or both that `system` switches between, so the
-   * option shows what it does rather than whichever half applies at the moment.
+   * The palettes a theme option previews: its own, or both halves of a dynamic theme, so the option
+   * shows what it does rather than whichever half applies at the moment.
    */
   palettesOf(theme: ThemeId): readonly PaletteId[] {
-    return theme === 'system' ? [SYSTEM_LIGHT_PALETTE, SYSTEM_DARK_PALETTE] : [theme];
+    if (!isDynamicTheme(theme)) {
+      return [theme];
+    }
+    const pair = DYNAMIC_THEME_PALETTES[theme];
+    return [pair.light, pair.dark];
   }
 
   /** The label of the currently selected theme, for the settings overview. */
@@ -145,6 +164,10 @@ export class AppearanceInteractor {
   selectVibration(vibration: VibrationId): void {
     this.store.update({ vibration });
   }
+}
+
+function isDynamicTheme(theme: ThemeId): theme is DynamicThemeId {
+  return Object.hasOwn(DYNAMIC_THEME_PALETTES, theme);
 }
 
 function labelOf<TId extends string>(options: readonly AppearanceOption<TId>[], id: TId): string {
