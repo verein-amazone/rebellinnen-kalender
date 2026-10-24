@@ -39,11 +39,8 @@
               Dein Kalender für jeden Tag – mit Rebell*innen und Wissensimpulsen von Verein Amazone.
             </p>
           </div>
+          <!-- Only the link: a sentence about the terms was too much text for the first screen. -->
           <div>
-            <p class="text-sm text-pretty">
-              Mit der Nutzung der App gelten die Nutzungsbedingungen.
-            </p>
-            <!-- Its own touch target rather than a word inside the sentence. -->
             <a
               routerLink="/settings/terms"
               [queryParams]="{ returnTo: legalReturnTo() }"
