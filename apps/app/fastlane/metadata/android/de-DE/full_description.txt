@@ -27,4 +27,4 @@ Die App baut inhaltlich auf dem Rebell*innen Kalender auf, der vom Verein Amazon
 
 Entwickelt von Independo GmbH im Auftrag vom Verein Amazone. Der Quellcode ist offen: github.com/verein-amazone/rebellinnen-kalender
 
-Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union. Ebenfalls gefördert von der Hil-Foundation.
+Die App ist 2026 im Rahmen des Projekts #grlpwr – Mädchen* gestalten Gesellschaft in Kooperation mit dem Mädchenbeirat der Hil-Foundation entstanden. Gefördert von ProEuropean Values AT und kofinanziert von der Europäischen Union.

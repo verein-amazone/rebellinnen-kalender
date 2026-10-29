@@ -161,7 +161,8 @@ has them); keep the redirect for as long as an old address can still be out ther
   asked for it to be left out there, and the e2e suite checks it.
 - **Store links** come from `apps/site/site.config.json`. While a listing is not public its URL stays
   `null`, and the site says „Bald verfügbar im App Store …“ instead of showing that badge. Fill in
-  the App Store URL (`https://apps.apple.com/at/app/…/id<number>`) and the Play URL
+  the App Store URL without a country (`https://apps.apple.com/app/…/id<number>`, so every visitor
+  lands in their own storefront) and the Play URL
   (`https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender`) when each
   store goes live.
 - **`/download`** is the address for QR codes. On an iPhone or iPad it forwards to the App Store, on
@@ -182,8 +183,9 @@ has them); keep the redirect for as long as an old address can still be out ther
 
 ## Availability
 
-Austria only, free. Set in App Store Connect (Pricing and Availability) and on Play's production
-track (Countries / regions); neither comes from this repository.
+Austria, Germany, Switzerland and Liechtenstein, free. Set in App Store Connect (Pricing and
+Availability) and on Play's production track (Countries / regions) and its pre-registration;
+none of it comes from this repository.
 
 ## Changing the listing
 
@@ -233,4 +235,4 @@ replaces it - re-run the replaced one if it was an upload.
   email and website. They are personal data and do not belong in a public repository. `deliver`
   updates only the review fields it has a file for, so the console values stay.
 - **Play app category and tags**, which `supply` does not manage.
-- **Pricing and availability** - free, in all countries the account allows.
+- **Pricing and availability** - see [Availability](#availability).
