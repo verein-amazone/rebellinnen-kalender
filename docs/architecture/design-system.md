@@ -111,7 +111,8 @@ foreground when used as a fill.
 menu item, a delete icon in a row. Those only ever sit on `card` or a field surface, so `danger` is
 only guaranteed legible there. `error` is the text colour of validation messages and the border of
 an invalid field, which sit directly on `background` as well. On most themes the two are the same
-value; on Amazone they differ.
+value; on Amazone, Summer and Candy, whose backgrounds are mid-tone or saturated, `error` is a
+darker red than `danger`.
 
 Constraints worth knowing before changing them:
 

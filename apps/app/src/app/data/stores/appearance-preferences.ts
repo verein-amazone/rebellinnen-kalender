@@ -11,7 +11,7 @@
  * `packages/design-system/src/theme.css`, and never change: they are what an install has stored.
  * The labels users see („Strong“, „Dark“, …) live in `AppearanceInteractor`.
  */
-export const THEME_IDS = ['amazone', 'nacht', 'lila'] as const;
+export const THEME_IDS = ['amazone', 'nacht', 'lila', 'summer', 'candy'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
 /**

@@ -44,13 +44,16 @@ export class AppearanceInteractor {
   });
 
   /**
-   * The colour themes, under the names Verein Amazone gave them. Sonnenuntergang and the dynamic
-   * themes that followed the device's dark mode were dropped as more confusing than useful.
+   * The colour themes, under the names Verein Amazone gave them, with Summer and Candy as their own
+   * additions. Sonnenuntergang and the dynamic themes that followed the device's dark mode were
+   * dropped as more confusing than useful.
    */
   readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
     { id: 'amazone', label: 'Strong', description: null },
     { id: 'nacht', label: 'Dark', description: null },
     { id: 'lila', label: 'Soft', description: null },
+    { id: 'summer', label: 'Summer', description: null },
+    { id: 'candy', label: 'Candy', description: null },
   ];
 
   readonly textSizeOptions: readonly AppearanceOption<TextSizeId>[] = [

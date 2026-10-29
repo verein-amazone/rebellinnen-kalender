@@ -15,8 +15,9 @@
  * `interactors/settings/appearance.interactor.ts` and its id in `e2e/theme-contrast.spec.ts`.
  *
  * The ids are stored on every install and never change; the labels do. Verein Amazone named them
- * in October 2026: amazone („Strong“), nacht („Dark“), lila („Soft“). Sonnenuntergang (`warm`)
- * and the dynamic themes that followed the device's dark mode were dropped then.
+ * in October 2026: amazone („Strong“), nacht („Dark“), lila („Soft“), and added summer and candy.
+ * Sonnenuntergang (`warm`) and the dynamic themes that followed the device's dark mode were dropped
+ * then.
  *
  * The theme blocks below all have the same specificity, so their source order is what decides
  * which one wins. Keep `:root, [data-theme='amazone']` first and never append a block that sets
@@ -261,6 +262,76 @@
   --rk-success-foreground: #fffdf6;
   --rk-warning: #7a4a12;
   --rk-warning-foreground: #fffdf6;
+}
+
+/* Summer. Verein Amazone's colours: #facf4e (background), #0d60d3 (primary) and #f07b27 (accent,
+   the active tab). The orange never carries text on the yellow (1.9:1); it fills the secondary
+   button and marks the tab, with the navy text both need. */
+[data-theme='summer'] {
+  --rk-background: #facf4e;
+  --rk-foreground: #132a55;
+  --rk-card: #fffbea;
+  --rk-card-foreground: #132a55;
+  --rk-primary: #0d60d3;
+  --rk-primary-foreground: #fffbea;
+  --rk-secondary: #f07b27;
+  --rk-secondary-foreground: #132a55;
+  --rk-muted: #fdf3d0;
+  --rk-muted-foreground: #3f4a66;
+  --rk-accent: #f07b27;
+  --rk-accent-foreground: #132a55;
+  --rk-border: rgb(19 42 85 / 0.15);
+  --rk-input-background: #fff6d6;
+  --rk-switch-background: #e6cf86;
+  --rk-ring: #0d60d3;
+  --rk-nav-bg: #132a55;
+  --rk-nav-indicator: #f07b27;
+  --rk-rebel-bg: #132a55;
+  --rk-rebel-text: #fffbea;
+  --rk-rebel-text-muted: #facf4e;
+  --rk-dot-color: rgb(19 42 85 / 0.12);
+  --rk-danger: #c8102e;
+  --rk-danger-foreground: #fffbea;
+  --rk-error: #9b1020;
+  --rk-success: #0a4434;
+  --rk-success-foreground: #fffbea;
+  --rk-warning: #563400;
+  --rk-warning-foreground: #fffbea;
+}
+
+/* Candy. Verein Amazone's colours: #fbdce2 (background), #f8879e (accent, the active tab) and
+   #5a84e6, which carries white text only at 3.6:1 - so the primary is the same blue a shade
+   darker (#3a5fc2, 5.8:1), and text is a navy from the same family. */
+[data-theme='candy'] {
+  --rk-background: #fbdce2;
+  --rk-foreground: #1e2a5a;
+  --rk-card: #fff7f9;
+  --rk-card-foreground: #1e2a5a;
+  --rk-primary: #3a5fc2;
+  --rk-primary-foreground: #fff7f9;
+  --rk-secondary: #f8879e;
+  --rk-secondary-foreground: #1e2a5a;
+  --rk-muted: #fdebef;
+  --rk-muted-foreground: #5c4466;
+  --rk-accent: #f8879e;
+  --rk-accent-foreground: #1e2a5a;
+  --rk-border: rgb(30 42 90 / 0.15);
+  --rk-input-background: #fdeef1;
+  --rk-switch-background: #e9b8c3;
+  --rk-ring: #3a5fc2;
+  --rk-nav-bg: #1e2a5a;
+  --rk-nav-indicator: #f8879e;
+  --rk-rebel-bg: #1e2a5a;
+  --rk-rebel-text: #fff7f9;
+  --rk-rebel-text-muted: #fbdce2;
+  --rk-dot-color: rgb(30 42 90 / 0.12);
+  --rk-danger: #c8102e;
+  --rk-danger-foreground: #fff7f9;
+  --rk-error: #a30e26;
+  --rk-success: #0a4434;
+  --rk-success-foreground: #fff7f9;
+  --rk-warning: #563400;
+  --rk-warning-foreground: #fff7f9;
 }
 
 /*

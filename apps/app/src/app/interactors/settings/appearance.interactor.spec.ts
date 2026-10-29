@@ -23,6 +23,8 @@ describe('AppearanceInteractor', () => {
       ['amazone', 'Strong'],
       ['nacht', 'Dark'],
       ['lila', 'Soft'],
+      ['summer', 'Summer'],
+      ['candy', 'Candy'],
     ]);
   });
 

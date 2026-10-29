@@ -109,7 +109,7 @@ Anlaufstellen) needed it, and the component set stays deliberately small: button
 fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.
 
 The system is a set of swappable palettes (`amazone`/„Strong“ default, `nacht`/„Dark“,
-`lila`/„Soft“) over one shared shape, type and spacing language - recoloring the app is a
+`lila`/„Soft“, `summer`/„Summer“, `candy`/„Candy“) over one shared shape, type and spacing language - recoloring the app is a
 `data-theme` attribute swap, never a second set of components. No theme follows the device's dark
 mode; each is picked explicitly. Everything is built for a thumb
 on glass: no bare `hover:` anywhere in the codebase, `min-h-touch` (48px) on every interactive
