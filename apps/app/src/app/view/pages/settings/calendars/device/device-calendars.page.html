@@ -55,7 +55,7 @@
           @if (snapshot.groups.length > 0) {
             @for (group of snapshot.groups; track group.nativeSourceId ?? '') {
               <div class="space-y-2">
-                <h2 class="text-muted-foreground text-sm">
+                <h2>
                   {{ group.nativeSourceName ?? 'Weitere Kalender' }}
                 </h2>
 
