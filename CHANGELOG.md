@@ -1,3 +1,9 @@
+## [1.1.0-rc.8](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.7...v1.1.0-rc.8) (2026-10-29)
+
+### Chores
+
+* **deps:** weekly app dependency update ([b369f93](https://github.com/verein-amazone/rebellinnen-kalender/commit/b369f93cdc38e6c6de03be49af1ec0a887d8b611))
+
 ## [1.1.0-rc.7](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.6...v1.1.0-rc.7) (2026-10-29)
 
 ### Chores
