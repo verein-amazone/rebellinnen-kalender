@@ -1,3 +1,23 @@
+## [1.1.0-rc.6](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.5...v1.1.0-rc.6) (2026-10-29)
+
+### Features
+
+* **calendar:** rename the partner calendars and give them calmer default colours ([f51cf6c](https://github.com/verein-amazone/rebellinnen-kalender/commit/f51cf6cca282e1ac0f67853f37da17bb1a32a165))
+* **onboarding:** adopt Verein Amazone's revised wording ([dc080d9](https://github.com/verein-amazone/rebellinnen-kalender/commit/dc080d9a0acdb1706977225eed14b9119b175496))
+* **settings:** adopt Verein Amazone's revised wording ([0c985d5](https://github.com/verein-amazone/rebellinnen-kalender/commit/0c985d504060a24d3a5754ea37357757119ee3c9))
+* **theme:** add Summer and Candy ([495092c](https://github.com/verein-amazone/rebellinnen-kalender/commit/495092c8db93e4393a61fc98e7fbd044943ce380)), closes [#facf4e](https://github.com/verein-amazone/rebellinnen-kalender/issues/facf4e) [#0d60d3](https://github.com/verein-amazone/rebellinnen-kalender/issues/0d60d3) [#f07b27](https://github.com/verein-amazone/rebellinnen-kalender/issues/f07b27) [#fbdce2](https://github.com/verein-amazone/rebellinnen-kalender/issues/fbdce2) [#f8879e](https://github.com/verein-amazone/rebellinnen-kalender/issues/f8879e) [#5a84e6](https://github.com/verein-amazone/rebellinnen-kalender/issues/5a84e6) [#3a5fc2](https://github.com/verein-amazone/rebellinnen-kalender/issues/3a5fc2)
+* **theme:** rename the themes and drop Sonnenuntergang and the dynamic themes ([9de1dd5](https://github.com/verein-amazone/rebellinnen-kalender/commit/9de1dd5d3fb96fc44c26841b1ed6c6153a1910dd))
+* **today:** drop the closing footer ([2d969d1](https://github.com/verein-amazone/rebellinnen-kalender/commit/2d969d184d5c857f797e295256bf8e92003afd46))
+* **today:** drop the Tagesimpuls setting; the greeting follows Animationen ([eb8fb76](https://github.com/verein-amazone/rebellinnen-kalender/commit/eb8fb7667809d8128e4ddfd782ae9ae62bfe59da))
+
+### Bug Fixes
+
+* **content:** shorten the collection tab to „Sammlung“ ([a86fa47](https://github.com/verein-amazone/rebellinnen-kalender/commit/a86fa4773bf9186df61c68046c12ef8df6859ccb))
+* **legal:** name the partner calendar „Rebell*innen Kalender“ in the privacy policy ([5112e58](https://github.com/verein-amazone/rebellinnen-kalender/commit/5112e58531ac0125138109b1cf0eecb3f1894161))
+* **settings:** give section headings the same size as on Heute ([5fe6834](https://github.com/verein-amazone/rebellinnen-kalender/commit/5fe6834000fea37423dfbac96babbf8d2fd0515c))
+* **theme:** mark the active tab and destructive actions in each theme's own colours ([6ab244f](https://github.com/verein-amazone/rebellinnen-kalender/commit/6ab244fd75b09faf6a89fefec636e736da0f5dd5))
+* **video:** stop forcing YouTube's captions on ([9c7eaa0](https://github.com/verein-amazone/rebellinnen-kalender/commit/9c7eaa0127f625e6f85e77e1686aa6c8d11fb2a7))
+
 ## [1.1.0-rc.5](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.4...v1.1.0-rc.5) (2026-10-24)
 
 ### Features
