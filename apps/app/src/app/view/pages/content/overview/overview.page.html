@@ -28,7 +28,9 @@
         (selectedTabChange)="onAreaChange($event)"
         class="rk-segmented list-none gap-0.5"
       >
-        <li ngTab value="collection" class="rk-segmented-item">Meine Sammlung</li>
+        <!-- „Sammlung“ rather than „Meine Sammlung“: the longer label wrapped onto two lines on a
+             small phone. The rest of the app still calls the area „Meine Sammlung“. -->
+        <li ngTab value="collection" class="rk-segmented-item">Sammlung</li>
         <li ngTab value="services" class="rk-segmented-item">Anlaufstellen</li>
       </ul>
     </div>

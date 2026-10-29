@@ -190,7 +190,7 @@ describe('ContentOverviewPage', () => {
 
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     const servicesTab = tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'));
-    const collectionTab = tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'));
+    const collectionTab = tabs.find((tab) => tab.textContent?.trim() === 'Sammlung');
     expect(collectionTab?.getAttribute('aria-selected')).toBe('true');
     expect(servicesTab?.getAttribute('aria-selected')).toBe('false');
 
@@ -399,9 +399,7 @@ describe('ContentOverviewPage', () => {
 
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     expect(
-      tabs
-        .find((tab) => tab.textContent?.includes('Meine Sammlung'))
-        ?.getAttribute('aria-selected'),
+      tabs.find((tab) => tab.textContent?.trim() === 'Sammlung')?.getAttribute('aria-selected'),
     ).toBe('true');
     expect(element.textContent).toContain('Eine Rebellin');
     expect(element.textContent).not.toContain('Wissensimpuls');
