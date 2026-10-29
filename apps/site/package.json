@@ -19,11 +19,11 @@
     "@amazone/design-system": "workspace:*",
     "@amazone/legal": "workspace:*",
     "@tailwindcss/vite": "catalog:",
-    "astro": "^7.4.0",
+    "astro": "^7.4.2",
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@axe-core/playwright": "catalog:",
     "@eslint/js": "catalog:",
     "@playwright/test": "catalog:",
