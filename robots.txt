@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rebellinnen.amazone.or.at/sitemap.xml
