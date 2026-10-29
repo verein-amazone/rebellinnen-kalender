@@ -130,8 +130,8 @@ async function seedDemoData(page: Page): Promise<void> {
     sourceType: 'ics',
     title: 'Weltfrauen*tag',
     day: TODAY,
-    calendarName: 'Rebell*innen Termine',
-    color: '#7B3FA8',
+    calendarName: 'Rebell*innen Kalender',
+    color: '#7DBDBB',
   });
 
   await addAppointment(page, {
