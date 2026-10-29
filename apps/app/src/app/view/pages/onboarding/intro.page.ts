@@ -176,7 +176,7 @@ export class IntroPage {
     void this.haptics.selection();
   }
 
-  /** Same as Settings → Amazone & Partnerkalender, minus the colour and symbol. */
+  /** Same as Settings → Rebell*innen & mehr, minus the colour and symbol. */
   protected async toggleCalendar(sourceId: string, enabled: boolean): Promise<void> {
     this.calendarError.set(null);
     try {

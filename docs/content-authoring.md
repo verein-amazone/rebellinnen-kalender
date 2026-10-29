@@ -252,11 +252,11 @@ digits are the digits the `uri` dials. It runs as part of `pnpm test:ci`. Both e
 it - `SHARED_EMOJI_BY_DESIGN` and `HTTP_ONLY_BY_NECESSITY` - name the entry and the reason; add to
 them deliberately, never to silence a failure.
 
-## Adding a curated calendar (Amazone & Partnerkalender)
+## Adding a curated calendar (Rebell*innen & mehr)
 
 `apps/app/public/curated-calendars/catalog.json` is the one place a curated online calendar is listed (#2).
 Everything in the app follows from it: the introduction's „Welche Kalender willst du sehen?“ step,
-Settings → Kalender verwalten → Amazone & Partnerkalender, and the seeded calendar itself. No
+Settings → Kalender verwalten → Rebell*innen & mehr, and the seeded calendar itself. No
 screen names a calendar in code.
 
 1. Add an entry: `id` (stable, kebab-case, never reused), `name`, `description` (one sentence,

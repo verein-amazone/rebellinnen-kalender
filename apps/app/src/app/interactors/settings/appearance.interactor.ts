@@ -105,19 +105,19 @@ export class AppearanceInteractor {
 
   readonly motionOptions: readonly AppearanceOption<MotionId>[] = [
     {
-      id: 'system',
-      label: 'Systemeinstellung',
-      description: 'Übernimmt die Einstellung deines Geräts.',
+      id: 'standard',
+      label: 'Standard',
+      description: 'Alle Animationen werden dargestellt.',
     },
     {
       id: 'reduced',
-      label: 'Reduziert',
-      description: 'Reduziert Bewegungen und Übergänge in der App.',
+      label: 'Wenig',
+      description: 'Es werden wenige Animationen in der App dargestellt.',
     },
     {
-      id: 'standard',
-      label: 'Standard',
-      description: 'Zeigt die regulären Animationen der App.',
+      id: 'system',
+      label: 'Systemeinstellung',
+      description: 'Übernimmt die Einstellung deines Geräts.',
     },
   ];
 
@@ -125,8 +125,7 @@ export class AppearanceInteractor {
     {
       id: 'on',
       label: 'Ein',
-      description:
-        'Kurze Vibrationen bestätigen, was du getan hast, und der Tagesimpuls begrüßt dich damit.',
+      description: 'Die App vibriert kurz zur Begrüßung und wenn du Änderungen vornimmst.',
     },
     { id: 'off', label: 'Aus', description: 'Die App vibriert nie.' },
   ];

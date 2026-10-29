@@ -5,7 +5,7 @@
         <span class="rk-choice-text">
           Erinnerungen an Termine
           <span class="rk-choice-description">
-            Eine Mitteilung vor deinen Terminen - auch wenn die App geschlossen ist.
+            Du bekommst vor einem Termin eine Mitteilung, auch wenn die App geschlossen ist.
           </span>
         </span>
         <input
@@ -43,12 +43,12 @@
         <app-notifications-blocked />
 
         <section class="space-y-4">
-          <div class="space-y-1">
-            <h2 class="text-lg">Standard-Erinnerungen</h2>
-            <p class="text-muted-foreground text-sm">
-              Damit startet jeder neue Termin. Im Termin selbst kannst du sie ändern.
-            </p>
-          </div>
+          <!-- No heading of its own: Verein Amazone asked to drop „Standard-Erinnerungen“; the two
+               lists say what they are for. -->
+          <p class="text-muted-foreground text-sm">
+            Wähle aus, wie viel vor einem Termin du erinnert werden möchtest. Das kannst du beim
+            Erstellen eines Termins immer noch ändern.
+          </p>
 
           <app-reminder-list-field
             id="notifications-timed"

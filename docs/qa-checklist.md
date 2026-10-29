@@ -135,7 +135,7 @@ The workflow:
 - [ ] **All-day device events on Android** are written and read on the right day (#98).
 - [ ] **App icon:** each of the six cat icons can be selected and shows on the home screen.
 - [ ] **App icon after the upgrade:** on a device whose tester build had „Pixel“ or „Nacht“
-      selected, the app still has a home-screen icon after the update (the default, Cool Cat Nacht).
+      selected, the app still has a home-screen icon after the update (the default, Leo dunkel).
 - [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
       Impressum) open in the browser or the phone app, and the back path into the app works.
 - [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.

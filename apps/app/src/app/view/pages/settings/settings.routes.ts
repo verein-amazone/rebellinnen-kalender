@@ -43,7 +43,7 @@ export const SETTINGS_ROUTES: Routes = [
   {
     path: 'calendars/curated',
     component: CuratedCalendarsPage,
-    title: 'Amazone & Partnerkalender',
+    title: 'Rebell*innen & mehr',
   },
   { path: 'calendars/device', component: DeviceCalendarsPage, title: 'Gerätekalender' },
   { path: 'calendars/order', component: CalendarOrderPage, title: 'Reihenfolge' },

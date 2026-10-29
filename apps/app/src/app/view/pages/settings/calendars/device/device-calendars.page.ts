@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, resource, signal } from '@angular/core';
 import { LucideExternalLink, LucideLink, LucideRotateCw, LucideUnlink } from '@lucide/angular';
 
@@ -37,6 +38,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
     LucideLink,
     LucideRotateCw,
     LucideUnlink,
+    NgTemplateOutlet,
   ],
   templateUrl: './device-calendars.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

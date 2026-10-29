@@ -220,12 +220,12 @@ test.describe('application shell', () => {
 
   test('keeps the selected motion preference after a reload', async ({ page }) => {
     await page.goto('/settings/motion');
-    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+    await page.getByRole('radio', { name: 'Wenig', exact: false }).check();
 
     await page.reload();
 
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
-    await expect(page.getByRole('radio', { name: 'Reduziert', exact: false })).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Wenig', exact: false })).toBeChecked();
   });
 
   test('greets with the Tagesimpuls on every opening, but not on a tab switch', async ({
@@ -265,7 +265,7 @@ test.describe('application shell', () => {
     page,
   }) => {
     await page.goto('/settings/motion');
-    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+    await page.getByRole('radio', { name: 'Wenig', exact: false }).check();
 
     await page.goto('/settings/impulse');
 
@@ -324,11 +324,11 @@ test.describe('application shell', () => {
 
     await page.getByRole('tab', { name: 'Anlaufstellen' }).click();
     await page.getByRole('button', { name: 'Info zu Anlaufstellen' }).click();
-    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeVisible();
+    await expect(page.getByText('Hier findest du verschiedene Angebote')).toBeVisible();
 
     // A tap anywhere else closes it.
     await page.locator('main').click({ position: { x: 20, y: 400 } });
-    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeHidden();
+    await expect(page.getByText('Hier findest du verschiedene Angebote')).toBeHidden();
   });
 
   test('has no serious or critical accessibility violations on Today', async ({ page }) => {
