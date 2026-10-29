@@ -124,7 +124,12 @@ Constraints worth knowing before changing them:
   orange; Lila uses the same crimson. Orange is unavailable - it collides with `--rk-accent`.
 - Never use `danger` for text on `background`; use `error`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
-  how `--rk-primary` already behaves there.
+  how `--rk-primary` already behaves there. No red carries white text and also reads as text on the
+  navy card, so `nacht`'s `danger` is a light crimson (`#ff6680`) of the same hue as everywhere
+  else; an earlier salmon read as a different colour next to the other themes.
+- The active tab's marker (`--rk-nav-indicator`) is always a colour of the theme's own palette and
+  at least 3:1 against `--rk-nav-bg`: red on Strong, teal on Dark, orchid on Soft, orange on Summer,
+  pink on Candy. Verein Amazone noticed an orange marker on Soft as foreign to it.
 
 **Destructive actions are never signalled by colour alone.** Pair `danger` with an explicit verb, an
 icon, and a confirmation step.

@@ -214,16 +214,20 @@
   --rk-switch-background: #2a3580;
   --rk-ring: #7dbdbb;
   --rk-nav-bg: #080b30;
-  --rk-nav-indicator: var(--rk-accent);
+  /* The teal of the theme's primary: red is no colour of this palette's swatch. */
+  --rk-nav-indicator: #7dbdbb;
   --rk-rebel-bg: #080b30;
   --rk-rebel-text: #d8e8ec;
   --rk-rebel-text-muted: #7dbdbb;
   --rk-dot-color: rgb(125 189 187 / 0.15);
   /* Polarity inverts on the dark theme: the status colour is light and its foreground is dark,
-     the same way `--rk-primary` / `--rk-primary-foreground` already behave here. */
-  --rk-danger: #ff9b96;
+     the same way `--rk-primary` / `--rk-primary-foreground` already behave here. No red carries
+     white text and also reads as text on the navy card, so danger is a light crimson - the same
+     hue as the other themes' #c8102e, not the salmon it used to be, which read as a different
+     colour. */
+  --rk-danger: #ff6680;
   --rk-danger-foreground: #0e1240;
-  --rk-error: #ff9b96;
+  --rk-error: #ff6680;
   --rk-success: #7fd6b3;
   --rk-success-foreground: #0e1240;
   --rk-warning: #f2b25c;
@@ -249,7 +253,9 @@
   --rk-switch-background: #c8b0e0;
   --rk-ring: #7b3fa8;
   --rk-nav-bg: #2d1b69;
-  --rk-nav-indicator: var(--rk-accent);
+  /* The orchid of the theme's secondary: the orange accent is no colour of this palette's
+     swatch. */
+  --rk-nav-indicator: #c084d4;
   --rk-rebel-bg: #2d1b69;
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #d4b8e8;

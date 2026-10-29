@@ -59,8 +59,8 @@
      on an Anlaufstellen card next to a filled „Anrufen“. Testers did not recognise the ghost
      variant there as tappable at all. `bg-card` rather than `bg-input-background` on purpose: the
      button sits on a card, and only the card surface keeps the primary text above 4.5:1 in every
-     theme (Amazone 4.6, Lavendel 6.6, Mitternacht 6.8 - the field surface drops Amazone below
-     it). `brightness` rather than `bg-muted` for the
+     theme (Strong 4.6, Soft 6.6, Dark 6.8, Summer 5.6, Candy 5.5 - the field surface drops Strong
+     below it). `brightness` rather than `bg-muted` for the
      pressed state for the same reason. */
   .rk-button-outline-primary {
     @apply border-primary text-primary bg-card border-2;
