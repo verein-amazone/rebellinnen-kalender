@@ -18,6 +18,7 @@ import {
   LucideBookOpen,
   LucideCalendarDays,
   LucideChevronsRight,
+  LucideSettings,
   LucideShieldCheck,
   LucideSun,
 } from '@lucide/angular';
@@ -27,7 +28,6 @@ import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-
 import { CuratedCalendarsInteractor } from '@app/interactors/calendar/curated-calendars.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
-import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { IntroInteractor } from '@app/interactors/onboarding/intro.interactor';
 import {
   AppearanceInteractor,
@@ -49,14 +49,17 @@ interface IntroStep {
 
 const WELCOME_STEP: IntroStep = { id: 'welcome', heading: 'Schön, dass du da bist!' };
 const AREAS_STEP: IntroStep = { id: 'areas', heading: 'Was kann die App?' };
-const PERSONAL_STEP: IntroStep = { id: 'personal', heading: 'Mach die App zu deiner' };
-const PRIVACY_STEP: IntroStep = { id: 'privacy', heading: 'Deine Daten bleiben bei dir' };
+const PERSONAL_STEP: IntroStep = { id: 'personal', heading: 'Mach deine App einzigartig!' };
+const PRIVACY_STEP: IntroStep = { id: 'privacy', heading: 'Deine Daten bleiben bei dir.' };
 
 /** Only the apps can download a calendar feed, so the browser build skips this step. */
 const CALENDARS_STEP: IntroStep = { id: 'calendars', heading: 'Welche Kalender willst du sehen?' };
 
 /** Only the apps can deliver a reminder, so the browser build skips this step. */
-const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinnern?' };
+const REMINDERS_STEP: IntroStep = {
+  id: 'reminders',
+  heading: 'Willst du an Termine erinnert werden?',
+};
 
 /**
  * The first-launch introduction (#82): a few short screens before the app opens on Heute, and
@@ -70,7 +73,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
  * back through it; „Zurück“ is a visible button instead. The step reached is remembered, so an
  * introduction interrupted by closing the app continues where it was left on the next launch.
  *
- * The „Mach die App zu deiner“ step offers the two settings that make the app feel like one's own -
+ * The „Mach deine App einzigartig!“ step offers the two settings that make the app feel like one's own -
  * the name Heute greets with and the colour theme - through the same interactors as their settings
  * screens. Both are optional; „Weiter“ works with neither touched.
  *
@@ -103,6 +106,7 @@ const REMINDERS_STEP: IntroStep = { id: 'reminders', heading: 'An Termine erinne
     LucideBookOpen,
     LucideCalendarDays,
     LucideChevronsRight,
+    LucideSettings,
     LucideShieldCheck,
     LucideSun,
     RouterLink,
@@ -148,26 +152,9 @@ export class IntroPage {
   /** Reminders already on (e.g. reopened from the settings) need no question. */
   protected readonly heading = computed(() =>
     this.current().id === 'reminders' && this.notificationPreferences.enabled()
-      ? 'Erinnerungen sind an'
+      ? 'Erinnerungen sind an.'
       : this.current().heading,
   );
-
-  /**
-   * „15 Minuten vorher, ganztägig 1 Tag vorher um 09:00“ - what saying yes turns on, as one
-   * sentence. Empty when neither kind has a default.
-   */
-  protected readonly defaultReminders = computed(() => {
-    const timed = this.notificationPreferences
-      .timedDefaults()
-      .map((minutes) => reminderLabel(minutes, false))
-      .join(', ');
-    const allDay = this.notificationPreferences
-      .allDayDefaults()
-      .map((minutes) => reminderLabel(minutes, true))
-      .join(', ');
-    const sentence = [timed, allDay && `ganztägig ${allDay}`].filter(Boolean).join(', ');
-    return sentence.charAt(0).toUpperCase() + sentence.slice(1);
-  });
 
   /** Loaded only on the calendars step, so the earlier steps never touch the database. */
   protected readonly calendars = resource({

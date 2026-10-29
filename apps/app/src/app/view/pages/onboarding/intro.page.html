@@ -24,20 +24,18 @@
     <div class="rk-screen-body mx-auto w-full max-w-md space-y-6 text-center">
       @switch (current().id) {
         @case ('welcome') {
-          <div class="rk-card rk-card-bleed">
-            <img
-              src="content/images/alle-unsere-lieblingssongs-in-einer-playlist.webp"
-              alt=""
-              width="1280"
-              height="758"
-              class="max-h-56 w-full object-contain"
-            />
-          </div>
+          <!-- The default app icon, so the first screen shows what the user just tapped. Decoration:
+               the heading says who is greeting. -->
+          <img
+            src="app-icons/cool-cat-nacht.webp"
+            alt=""
+            width="192"
+            height="192"
+            class="mx-auto size-32 rounded-3xl shadow-sm"
+          />
           <div class="space-y-2">
             <h1 class="text-2xl text-balance">{{ heading() }}</h1>
-            <p class="text-pretty">
-              Dein Kalender für jeden Tag – mit Rebell*innen und Wissensimpulsen von Verein Amazone.
-            </p>
+            <p class="text-pretty">Bevor du loslegst, lern die Rebell*innen App kennen!</p>
           </div>
           <!-- Only the link: a sentence about the terms was too much text for the first screen. -->
           <div>
@@ -56,7 +54,7 @@
               <svg lucideSun class="rk-icon text-primary shrink-0" aria-hidden="true"></svg>
               <p class="min-w-0">
                 <span class="font-semibold">Heute</span><br />
-                Termine, „Nicht vergessen“ und dein Tagesimpuls.
+                Termine, To-do-Liste und täglich neue Infos.
               </p>
             </li>
             <li class="flex items-start gap-3 px-4 py-3">
@@ -77,10 +75,22 @@
                 Rebell*innen, Wissen und Anlaufstellen.
               </p>
             </li>
+            <li class="flex items-start gap-3 px-4 py-3">
+              <svg lucideSettings class="rk-icon text-primary shrink-0" aria-hidden="true"></svg>
+              <p class="min-w-0">
+                <span class="font-semibold">Einstellungen</span><br />
+                Gestalte die App, wie sie dir gefällt.
+              </p>
+            </li>
           </ul>
         }
         @case ('personal') {
-          <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+          <div class="space-y-2">
+            <h1 class="text-2xl text-balance">{{ heading() }}</h1>
+            <p class="text-pretty">
+              Alles, was du jetzt auswählst, kannst du später in den Einstellungen ändern.
+            </p>
+          </div>
           <div class="space-y-6 text-left">
             <div>
               <label class="rk-label" for="intro-name">Dein Name</label>
@@ -97,11 +107,11 @@
                   (input)="updateName($any($event.target).value)"
                 />
               </div>
-              <p id="intro-name-hint" class="rk-hint">Freiwillig. Damit begrüßt dich „Heute“.</p>
+              <p id="intro-name-hint" class="rk-hint">So begrüßt dich die App.</p>
             </div>
 
             <fieldset class="space-y-2">
-              <legend class="rk-label">Farbthema</legend>
+              <legend class="rk-label">Farben</legend>
               @for (option of appearance.paletteOptions; track option.id) {
                 <app-choice-row
                   name="intro-theme"
@@ -146,8 +156,7 @@
           <div class="space-y-2">
             <h1 class="text-2xl text-balance">{{ heading() }}</h1>
             <p class="text-pretty">
-              Die App lädt diese Kalender aus dem Internet, direkt beim jeweiligen Anbieter.
-              Änderbar in den Einstellungen.
+              Neben deinen eigenen Terminen kannst du dir weitere Kalender anzeigen lassen.
             </p>
           </div>
           @if (calendarError(); as message) {
@@ -187,8 +196,8 @@
             <h1 class="text-2xl text-balance">{{ heading() }}</h1>
             @if (isNativePlatform) {
               <p class="text-pretty">
-                Alles wird nur auf deinem Gerät gespeichert. Löschst du die App, sind auch deine
-                Daten weg.
+                Alles, was du in der App einträgst, wird nur auf deinem Gerät gespeichert. Löschst
+                du die App, sind auch deine Daten weg.
               </p>
             } @else {
               <p class="text-pretty">Alles wird nur in diesem Browser gespeichert.</p>
@@ -207,13 +216,17 @@
           </div>
           <div class="space-y-2">
             <h1 class="text-2xl text-balance">{{ heading() }}</h1>
-            <p class="text-pretty">Du bekommst vor jedem Termin eine Mitteilung.</p>
-            <p class="text-sm text-pretty">
-              @if (defaultReminders(); as defaults) {
-                {{ defaults }}.
-              }
-              Änderbar in den Einstellungen.
-            </p>
+            <!-- One paragraph at one size: Verein Amazone asked for both sentences to read alike. -->
+            @if (notificationPreferences.enabled()) {
+              <p class="text-pretty">
+                Du bekommst vor jedem Termin eine Mitteilung. Das kannst du jederzeit in den
+                Einstellungen ändern und für dich passend einrichten.
+              </p>
+            } @else {
+              <p class="text-pretty">
+                Du kannst das jederzeit in den Einstellungen ändern und für dich passend einrichten.
+              </p>
+            }
           </div>
         }
       }
