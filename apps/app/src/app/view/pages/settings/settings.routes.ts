@@ -30,7 +30,7 @@ import { VibrationPage } from './vibration/vibration.page';
 export const SETTINGS_ROUTES: Routes = [
   { path: '', component: SettingsOverviewPage, title: 'Einstellungen' },
   { path: 'profile', component: ProfilePage, title: 'Profil' },
-  { path: 'theme', component: ThemePage, title: 'Farbthema' },
+  { path: 'theme', component: ThemePage, title: 'Farben' },
   { path: 'text-size', component: TextSizePage, title: 'Textgröße' },
   { path: 'app-icon', component: AppIconPage, title: 'App-Symbol' },
   { path: 'motion', component: MotionPage, title: 'Animationen' },

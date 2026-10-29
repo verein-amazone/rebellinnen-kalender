@@ -84,13 +84,21 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 }
 
 /**
- * The single „Systemeinstellung“ theme became the first of the dynamic pairs, Amazone / Mitternacht,
- * which switches between the same two palettes.
+ * Themes that no longer exist, mapped to the one closest to what the user saw. The dynamic pairs
+ * (and the single „Systemeinstellung“ theme before them) keep their light half; Sonnenuntergang
+ * (`warm`) has no close relative and falls back to the default.
  */
+const REMOVED_THEMES: Readonly<Record<string, ThemeId>> = {
+  system: 'amazone',
+  'amazone-nacht': 'amazone',
+  'lila-nacht': 'lila',
+};
+
 function readTheme(value: unknown): ThemeId {
-  return value === 'system'
-    ? 'amazone-nacht'
-    : pick(value, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme);
+  if (typeof value === 'string' && Object.hasOwn(REMOVED_THEMES, value)) {
+    return REMOVED_THEMES[value];
+  }
+  return pick(value, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme);
 }
 
 /**

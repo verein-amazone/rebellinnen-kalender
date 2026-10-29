@@ -21,7 +21,7 @@ have to be reported again.
   „Meine Sammlung“ for the entries a person wants to keep.
 - **„Nicht vergessen“** - a simple checklist for the things that are not appointments.
 - **Anlaufstellen** - support services with direct call and web links.
-- **Made to fit** - four colour themes, text size, three app icons, reduced animations and
+- **Made to fit** - several colour themes, text size, three app icons, reduced animations and
   vibration, all in the settings; an introduction on first launch.
 - **Private by construction** - fully offline after installation, no account, no server, no
   analytics, no tracking, no ads. Everything stays on the phone (see „Über die App → Deine Daten

@@ -105,11 +105,9 @@ The workflow:
       sheets - no clipping, no overlap, no sideways scrolling, no lost control.
 - [ ] **Reduced motion:** the OS setting and the app's own „Animationen“ setting both remove
       non-essential motion, and nothing that carried information disappears with it.
-- [ ] **Every colour theme** - Amazone, Sonnenuntergang, Mitternacht, Lavendel: text readable,
-      focus visible and not hidden behind the header, the tab bar or an open sheet.
-- [ ] **Dynamic colour themes (all devices):** with „Farbthema → Amazone / Mitternacht“, switching
-      the device to dark mode while the app is open turns it to Mitternacht at once, and back to
-      Amazone in light mode; „Lavendel / Mitternacht“ the same with Lavendel. A cold start in dark mode shows no white flash before the app paints.
+- [ ] **Every colour theme** under Einstellungen → Farben: text readable, focus visible and not
+      hidden behind the header, the tab bar or an open sheet, and the active tab marked in a colour
+      of that theme.
 - [ ] **Tap only:** every action is reachable by a plain tap - nothing needs a long press, a swipe,
       a drag or a double tap.
 

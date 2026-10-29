@@ -171,26 +171,23 @@ test.describe('application shell', () => {
 
   test('keeps the selected colour theme after a reload', async ({ page }) => {
     await page.goto('/settings/theme');
-    await page.getByRole('radio', { name: 'Mitternacht', exact: true }).check();
+    await page.getByRole('radio', { name: 'Dark', exact: true }).check();
 
     await page.reload();
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
-    await expect(page.getByRole('radio', { name: 'Mitternacht', exact: true })).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Dark', exact: true })).toBeChecked();
   });
 
-  test('follows the device between light and dark on a dynamic theme', async ({ page }) => {
+  test('moves a removed dynamic theme to its light half', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('rk.appearance', JSON.stringify({ theme: 'lila-nacht' }));
+    });
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/settings/theme');
-    const lavendelMitternacht = page.getByRole('radio', { name: 'Lavendel / Mitternacht' });
-    await lavendelMitternacht.check();
 
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
-
-    // No reload: flipping the device setting while the app is open recolours it at once.
-    await page.emulateMedia({ colorScheme: 'light' });
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'lila');
-    await expect(lavendelMitternacht).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Soft', exact: true })).toBeChecked();
   });
 
   test('offers every approved settings entry', async ({ page }) => {
@@ -198,7 +195,7 @@ test.describe('application shell', () => {
 
     for (const [heading, entries] of [
       ['Persönlich', ['Profil']],
-      ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
+      ['Darstellung & Bedienung', ['Farben', 'Textgröße', 'Animationen', 'Vibration']],
       ['Heute', ['Nicht vergessen']],
       ['Kalender', ['Kalender verwalten', 'Benachrichtigungen']],
       ['App & Rechtliches', ['Über die App', 'Einführung ansehen', 'Datenschutz', 'Impressum']],
@@ -206,16 +203,14 @@ test.describe('application shell', () => {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
       for (const entry of entries) {
         // Substring match: entries that show their current value carry it in their accessible
-        // name ("Farbthema Amazone").
+        // name ("Farben Strong").
         await expect(page.getByRole('link', { name: entry, exact: false })).toBeVisible();
       }
     }
 
     // The entries that carry a value show it, so the current selection is readable without
     // opening the screen.
-    await expect(page.getByRole('link', { name: 'Farbthema', exact: false })).toContainText(
-      'Amazone',
-    );
+    await expect(page.getByRole('link', { name: 'Farben', exact: false })).toContainText('Strong');
   });
 
   test('keeps the selected motion preference after a reload', async ({ page }) => {
@@ -279,7 +274,7 @@ test.describe('application shell', () => {
       ['/calendar/event/new', 'Neuer Termin'],
       ['/content', 'Inhalte'],
       ['/settings', 'Einstellungen'],
-      ['/settings/theme', 'Farbthema'],
+      ['/settings/theme', 'Farben'],
       ['/settings/text-size', 'Textgröße'],
       ['/settings/motion', 'Animationen'],
       ['/settings/vibration', 'Vibration'],

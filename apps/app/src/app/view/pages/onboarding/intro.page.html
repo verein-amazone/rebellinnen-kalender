@@ -112,7 +112,7 @@
 
             <fieldset class="space-y-2">
               <legend class="rk-label">Farben</legend>
-              @for (option of appearance.paletteOptions; track option.id) {
+              @for (option of appearance.themeOptions; track option.id) {
                 <app-choice-row
                   name="intro-theme"
                   [value]="option.id"
@@ -121,31 +121,9 @@
                   [checked]="appearance.theme() === option.id"
                   (selected)="selectTheme($event)"
                 >
-                  <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
+                  <app-theme-swatch [theme]="option.id" />
                 </app-choice-row>
               }
-
-              <!-- The same split as the Farbthema settings screen. -->
-              <div class="border-border mt-4 border-t pt-4">
-                <fieldset class="space-y-2" aria-describedby="intro-theme-dynamic-hint">
-                  <legend class="rk-label">Dynamische Farbthemen</legend>
-                  <p id="intro-theme-dynamic-hint" class="rk-hint">
-                    Wechseln mit deinem Gerät zwischen hell und dunkel.
-                  </p>
-                  @for (option of appearance.dynamicThemeOptions; track option.id) {
-                    <app-choice-row
-                      name="intro-theme"
-                      [value]="option.id"
-                      [label]="option.label"
-                      [description]="option.description"
-                      [checked]="appearance.theme() === option.id"
-                      (selected)="selectTheme($event)"
-                    >
-                      <app-theme-swatch [palettes]="appearance.palettesOf(option.id)" />
-                    </app-choice-row>
-                  }
-                </fieldset>
-              </div>
             </fieldset>
           </div>
         }

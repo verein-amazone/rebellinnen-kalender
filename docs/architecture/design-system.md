@@ -103,8 +103,8 @@ Colour values never live in TypeScript.
 
 ### Status colours
 
-`danger`, `success` and `warning`, each with a `-foreground`, plus `error`, defined in all four
-themes. `success` and `warning` are legible as text on both `card` and `background` and carry their
+`danger`, `success` and `warning`, each with a `-foreground`, plus `error`, defined in every
+theme. `success` and `warning` are legible as text on both `card` and `background` and carry their
 foreground when used as a fill.
 
 `danger` is the colour of destructive actions: the filled and outline delete buttons, a destructive
@@ -129,7 +129,7 @@ Constraints worth knowing before changing them:
 icon, and a confirmation step.
 
 Contrast is checked per theme by the Playwright suite, because each theme is a separate palette and
-one pass proves nothing about the other three.
+one pass proves nothing about the others.
 
 ### Breakpoints and custom variants
 
@@ -255,7 +255,7 @@ for square label-less actions, with `.rk-icon-button-primary` as its filled vari
 a compact row exists to perform. `rk-control-base` is the shared `@utility` they build on and is not
 for direct use.
 
-`.rk-button-secondary` currently fails AA contrast in amazone, warm and lila (its foreground on the
+`.rk-button-secondary` currently fails AA contrast in amazone and lila (its foreground on the
 secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
 secondary action; the Playwright contrast loop will catch a regression either way.
 

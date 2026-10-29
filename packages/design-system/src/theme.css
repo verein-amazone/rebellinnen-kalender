@@ -11,12 +11,12 @@
  *      `data-theme` at runtime recolour everything.
  *
  * No colour value may live in TypeScript. Adding a theme means adding one block here plus its id
- * in `PALETTE_IDS` (the app's `data/stores/appearance-preferences.ts`) and
- * `interactors/settings/appearance.interactor.ts`. The `system` theme has no block: it resolves to
- * `amazone` or `nacht` before it reaches `data-theme`.
+ * in `THEME_IDS` (the app's `data/stores/appearance-preferences.ts`), its label in
+ * `interactors/settings/appearance.interactor.ts` and its id in `e2e/theme-contrast.spec.ts`.
  *
- * The four themes are the ones approved in the settings rework handover: amazone, warm
- * (Sonnenuntergang), nacht (Mitternacht), lila (Lavendel).
+ * The ids are stored on every install and never change; the labels do. Verein Amazone named them
+ * in October 2026: amazone („Strong“), nacht („Dark“), lila („Soft“). Sonnenuntergang (`warm`)
+ * and the dynamic themes that followed the device's dark mode were dropped then.
  *
  * The theme blocks below all have the same specificity, so their source order is what decides
  * which one wins. Keep `:root, [data-theme='amazone']` first and never append a block that sets
@@ -153,7 +153,7 @@
   --rk-radius: 0.625rem;
 }
 
-/* Amazone - the default. Also bound to :root so the app renders correctly before the stored
+/* Amazone („Strong“) - the default. Also bound to :root so the app renders correctly before the stored
    preference has been applied to <html>. */
 :root,
 [data-theme='amazone'] {
@@ -194,40 +194,7 @@
   --rk-warning-foreground: #fffdf6;
 }
 
-/* Warm - "Sonnenuntergang". */
-[data-theme='warm'] {
-  --rk-background: #f7f3ee;
-  --rk-foreground: #2a1f14;
-  --rk-card: #fffdf9;
-  --rk-card-foreground: #2a1f14;
-  --rk-primary: #b85536;
-  --rk-primary-foreground: #fffdf9;
-  --rk-secondary: #7b9e87;
-  --rk-secondary-foreground: #fffdf9;
-  --rk-muted: #ede7dc;
-  --rk-muted-foreground: #756a5d;
-  --rk-accent: #bfa8d4;
-  --rk-accent-foreground: #2a1f14;
-  --rk-border: rgb(90 65 40 / 0.12);
-  --rk-input-background: #ede7dc;
-  --rk-switch-background: #c4b9aa;
-  --rk-ring: #c85d3b;
-  --rk-nav-bg: #2a1f14;
-  --rk-nav-indicator: var(--rk-accent);
-  --rk-rebel-bg: #c85d3b;
-  --rk-rebel-text: #fffdf9;
-  --rk-rebel-text-muted: #f0d8c8;
-  --rk-dot-color: rgb(90 65 40 / 0.1);
-  --rk-danger: #9c2b18;
-  --rk-danger-foreground: #fffdf9;
-  --rk-error: #9c2b18;
-  --rk-success: #2f6b4f;
-  --rk-success-foreground: #fffdf9;
-  --rk-warning: #7a4e12;
-  --rk-warning-foreground: #fffdf9;
-}
-
-/* Nacht - "Mitternacht". */
+/* Nacht („Dark“). */
 [data-theme='nacht'] {
   --rk-background: #0e1240;
   --rk-foreground: #d8e8ec;
@@ -262,7 +229,7 @@
   --rk-warning-foreground: #0e1240;
 }
 
-/* Lila - "Lavendel". */
+/* Lila („Soft“). */
 [data-theme='lila'] {
   --rk-background: #ede0f8;
   --rk-foreground: #2d1b69;

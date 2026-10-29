@@ -170,7 +170,7 @@ export class IntroPage {
     this.profile.setName(value);
   }
 
-  /** Same as Settings → Farbthema: the screen recolours at once, which is the preview. */
+  /** Same as Settings → Farben: the screen recolours at once, which is the preview. */
   protected selectTheme(theme: ThemeId): void {
     this.appearance.selectTheme(theme);
     void this.haptics.selection();

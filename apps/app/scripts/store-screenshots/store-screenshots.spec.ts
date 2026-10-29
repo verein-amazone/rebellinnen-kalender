@@ -262,7 +262,7 @@ test.describe('store screenshots', () => {
         },
         before: async (p) => {
           await p.goto('/settings/theme');
-          await p.getByRole('radio', { name: 'Mitternacht' }).check();
+          await p.getByRole('radio', { name: 'Dark', exact: true }).check();
         },
       },
     ];

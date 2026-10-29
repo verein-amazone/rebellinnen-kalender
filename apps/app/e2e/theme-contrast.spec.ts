@@ -4,8 +4,8 @@ import { seedAppCalendar, seedOccurrence } from './support/calendar-seed';
 
 type Page = import('@playwright/test').Page;
 
-/** Must match the `[data-theme='…']` blocks in src/styles/theme.css. */
-const THEMES = ['amazone', 'warm', 'nacht', 'lila'] as const;
+/** Must match the `[data-theme='…']` blocks in packages/design-system/src/theme.css. */
+const THEMES = ['amazone', 'nacht', 'lila'] as const;
 
 /**
  * Seeds the stored preference before the app boots, so the theme is already applied on first paint
