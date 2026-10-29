@@ -483,8 +483,8 @@ the specs.
 ## Stores
 
 `data/stores/*.store.ts` hold small persisted values that do not belong in a relational table - the
-appearance preferences including the vibration switch (`appearance.store.ts`), when the Tagesimpuls
-greets (`impulse-preferences.store.ts`), the preferences of the „Nicht vergessen“ list
+appearance preferences including the vibration switch (`appearance.store.ts`), the preferences of
+the „Nicht vergessen“ list
 (`reminders.store.ts`) and how the calendar's filter chips are presented, i.e. which calendars are
 hidden and in which order the chips appear (`calendar-chips.store.ts`), whether the first-launch
 introduction was seen and which step it reached (`intro.store.ts`), and the reminder switch and default reminders
@@ -501,9 +501,9 @@ stays in `calendars.enabled`.
 Stores expose their state as signals and **validate on read**: a stored value may come from an older
 app version or from a manually edited storage entry, so an unrecognised value falls back to the
 documented default instead of reaching the rest of the app. When a preference moves or changes
-shape, the reader carries the old value over rather than dropping it - the Tagesimpuls greeting
-moved out of the appearance preferences that way, and `ImpulsePreferencesStore` writes the carried
-value straight away so it survives the appearance store dropping the old field.
+shape, the reader carries the old value over rather than dropping it - the vibration switch took
+over the older `haptics` and `impulseGreeting` fields that way, and a removed colour theme maps to
+the nearest remaining one.
 
 Not everything in a store is persisted: `DailyImpulseStore` also holds whether the Tagesimpuls has
 greeted since the app was last opened, which has to start over on every cold start and is reset on
@@ -516,8 +516,7 @@ writes are guarded, and a lost preference is preferable to a broken app.
 
 The SQLite database name (`data/gateways/database-name.ts`) and every store's `localStorage` key are
 what an installed app finds its data by. Renaming one starts that part of every existing install
-empty, so a new name needs a migration that reads the old one first, the way
-`ImpulsePreferencesStore` still reads its legacy key. `apps/app/e2e/support/calendar-seed.ts` relies on the
+empty, so a new name needs a migration that reads the old one first. `apps/app/e2e/support/calendar-seed.ts` relies on the
 database name as well.
 
 A store is **not** where a table-backed list belongs. The screen that shows one holds it in a

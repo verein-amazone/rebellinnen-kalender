@@ -13,7 +13,6 @@ import { ContentCatalogPage } from './content-catalog/content-catalog.page';
 import { DevToolsPage } from './dev-tools/dev-tools.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
 import { ImprintPage } from './imprint/imprint.page';
-import { ImpulsePage } from './impulse/impulse.page';
 import { LicensesPage } from './licenses/licenses.page';
 import { MotionPage } from './motion/motion.page';
 import { NotificationsPage } from './notifications/notifications.page';
@@ -36,7 +35,6 @@ export const SETTINGS_ROUTES: Routes = [
   { path: 'app-icon', component: AppIconPage, title: 'App-Symbol' },
   { path: 'motion', component: MotionPage, title: 'Animationen' },
   { path: 'vibration', component: VibrationPage, title: 'Vibration' },
-  { path: 'impulse', component: ImpulsePage, title: 'Tagesimpuls' },
   { path: 'reminders', component: SettingsRemindersPage, title: 'Nicht vergessen' },
   { path: 'calendars', component: CalendarsPage, title: 'Kalender verwalten' },
   { path: 'notifications', component: NotificationsPage, title: 'Benachrichtigungen' },

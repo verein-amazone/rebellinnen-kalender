@@ -36,14 +36,14 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
 
 /**
  * Stands in for the greeting decision: greets until marked, again after `reopen()`, never when
- * `enabled` is off. The real rules (per opening, per day, never) are covered by the interactor's
- * own spec; a signal, like the real store, so the block's effect notices a reopening.
+ * `enabled` is off. The real rules (per opening, not with reduced motion) are covered by the
+ * interactor's own spec; a signal, like the real store, so the block's effect notices a reopening.
  */
 class FakeDailyImpulseInteractor {
   item: ContentItemView | null = null;
   enabled = true;
   readonly greeted = signal(false);
-  greetedDays: string[] = [];
+  greetings = 0;
 
   featuredItem(): Promise<ContentItemView | null> {
     return Promise.resolve(this.item);
@@ -57,9 +57,9 @@ class FakeDailyImpulseInteractor {
     return this.enabled;
   }
 
-  markGreeted(day: string): void {
+  markGreeted(): void {
     this.greeted.set(true);
-    this.greetedDays.push(day);
+    this.greetings++;
   }
 
   reopen(): void {
@@ -234,13 +234,13 @@ describe('TodayImpulseBlock', () => {
     expect(links[0].textContent).toContain('Mehr lesen');
   });
 
-  it('greets when the interactor says so, then records the greeting for the day', async () => {
+  it('greets when the interactor says so, then records the greeting', async () => {
     const { element, daily } = await setup();
 
     // jsdom never runs CSS animations, so the class is what there is to assert - the keyframes
     // themselves live in styles/components/arrived.css.
     expect(element.querySelector('.rk-arrived')).not.toBeNull();
-    expect(daily.greetedDays).toEqual([TODAY]);
+    expect(daily.greetings).toBe(1);
   });
 
   it('stays still once it has already greeted', async () => {
@@ -274,10 +274,10 @@ describe('TodayImpulseBlock', () => {
     expect(element.querySelector('.rk-arrived')).not.toBeNull();
     expect(element.querySelector('.rk-arrived-stretched')).toBeNull();
     expect(haptics.plays).toBe(2);
-    expect(daily.greetedDays).toEqual([TODAY, TODAY]);
+    expect(daily.greetings).toBe(2);
   });
 
-  it('does not answer a shake when the greeting is switched off', async () => {
+  it('does not answer a shake when animations are reduced', async () => {
     const { element, shake, haptics, settle } = await setup({ greetingOff: true });
 
     shake.shake?.();

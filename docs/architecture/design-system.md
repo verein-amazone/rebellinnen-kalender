@@ -495,11 +495,11 @@ alert, and the only thing wearing this class is today's Tagesimpuls saying hello
 never opacity, for the same contrast reason the reorderable list records above.
 
 The card pairs it with a haptic pattern on the same envelope (`HapticsInteractor`): four taps whose
-intensity and sharpness fall away across the same 1.2s. _When_ it greets is the Tagesimpuls
-screen's call - „Bei jedem Öffnen“ (the default: a cold start or a return from the background, not
-a tab switch), „Einmal am Tag“ or „Ohne Animation“. _Whether_ the phone vibrates along is the
-app-wide „Vibration“ setting, and the app-wide „Animationen“ setting still silences the wave under
-„Reduziert“ whichever greeting is picked; the Tagesimpuls screen says so when that is the case.
+intensity and sharpness fall away across the same 1.2s. It greets on every opening of the app (a
+cold start or a return from the background, not a tab switch), and not at all - neither wave nor
+buzz - while „Animationen“ is on „Wenig“, or on „Systemeinstellung“ with the device reducing motion.
+Verein Amazone folded the former Tagesimpuls setting into „Animationen“ for that. _Whether_ the
+phone vibrates along is the app-wide „Vibration“ setting.
 Neither channel ever carries information on its own: the card is fully readable with both off.
 
 ### Haptics

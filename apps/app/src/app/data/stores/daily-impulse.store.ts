@@ -19,11 +19,9 @@ interface StoredState {
   readonly day: string | null;
   readonly itemId: string | null;
   readonly recentIds: readonly string[];
-  /** The day whose impulse the user has already been shown, so it is only announced once. */
-  readonly seenDay: string | null;
 }
 
-const EMPTY_STATE: StoredState = { day: null, itemId: null, recentIds: [], seenDay: null };
+const EMPTY_STATE: StoredState = { day: null, itemId: null, recentIds: [] };
 
 /**
  * Persists which content item is featured on the Today page for the day it was picked, so the item
@@ -42,7 +40,7 @@ export class DailyImpulseStore {
   /**
    * Whether the impulse has greeted since the app was last opened. Deliberately not persisted: a
    * cold start begins with `false`, and `DailyImpulseInteractor` resets it whenever the app returns
-   * from the background - that is what „Bei jedem Öffnen“ counts as an opening.
+   * from the background - that is what counts as an opening of the app.
    */
   private readonly greetedThisSessionState = signal(false);
 
@@ -55,9 +53,6 @@ export class DailyImpulseStore {
 
   readonly recentIds = () => this.state().recentIds;
 
-  /** Whether today's impulse has already been shown to the user at least once. */
-  readonly hasSeen = (day: string) => this.state().seenDay === day;
-
   /** Records today's pick and rolls it into the recent-ids window. */
   setPick(day: string, itemId: string): void {
     const nextRecentIds = [...this.state().recentIds, itemId].slice(-HIGHLIGHT_COOLDOWN_DAYS);
@@ -69,11 +64,11 @@ export class DailyImpulseStore {
   /**
    * Forces the day's pick to a specific item, for the debug catalog. Unlike `setPick` it leaves the
    * recent-ids cooldown alone - a hand-picked impulse is not a real selection and must not push a
-   * genuine one out of the window - and clears `seenDay` and the session flag, so Today announces
-   * the new pick the same way it announces a fresh one.
+   * genuine one out of the window - and clears the session flag, so Today announces the new pick
+   * the same way it announces a fresh one.
    */
   overridePick(day: string, itemId: string): void {
-    const next: StoredState = { ...this.state(), day, itemId, seenDay: null };
+    const next: StoredState = { ...this.state(), day, itemId };
     this.state.set(next);
     this.write(next);
     this.greetedThisSessionState.set(false);
@@ -87,17 +82,6 @@ export class DailyImpulseStore {
   /** Starts a new opening of the app: the next time Today shows the impulse, it may greet again. */
   startSession(): void {
     this.greetedThisSessionState.set(false);
-  }
-
-  /** Records that the user has seen the given day's impulse. */
-  markSeen(day: string): void {
-    if (this.state().seenDay === day) {
-      return;
-    }
-
-    const next: StoredState = { ...this.state(), seenDay: day };
-    this.state.set(next);
-    this.write(next);
   }
 
   private read(): StoredState {
@@ -123,13 +107,12 @@ export class DailyImpulseStore {
     const recentIds = Array.isArray(candidate.recentIds)
       ? candidate.recentIds.filter((id): id is string => typeof id === 'string')
       : [];
-    const seenDay = typeof candidate.seenDay === 'string' ? candidate.seenDay : null;
 
     if (day === null || itemId === null) {
-      return { day: null, itemId: null, recentIds, seenDay };
+      return { day: null, itemId: null, recentIds };
     }
 
-    return { day, itemId, recentIds, seenDay };
+    return { day, itemId, recentIds };
   }
 
   private write(state: StoredState): void {

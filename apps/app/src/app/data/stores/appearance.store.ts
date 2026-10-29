@@ -97,8 +97,8 @@ function readTheme(value: unknown): ThemeId {
  * The vibration switch replaced two older preferences that also decided whether the phone buzzed:
  * an on/off `haptics` switch, and after it the three-way `impulseGreeting` whose „Nur Animation“
  * (`motion`) meant the wave without the buzz. An install that had turned the vibration off either
- * way keeps it off. `impulseGreeting: 'none'` is not carried over here - it meant no greeting at
- * all, which the Tagesimpuls preference now holds (see `ImpulsePreferencesStore`).
+ * way keeps it off. `impulseGreeting: 'none'` is not carried over - it meant no greeting at all,
+ * which reduced motion („Wenig“) now stands for.
  */
 function readVibration(
   candidate: Partial<Record<keyof AppearancePreferences | 'haptics' | 'impulseGreeting', unknown>>,

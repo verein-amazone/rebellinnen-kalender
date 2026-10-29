@@ -199,7 +199,7 @@ test.describe('application shell', () => {
     for (const [heading, entries] of [
       ['Persönlich', ['Profil']],
       ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
-      ['Heute', ['Tagesimpuls', 'Nicht vergessen']],
+      ['Heute', ['Nicht vergessen']],
       ['Kalender', ['Kalender verwalten', 'Benachrichtigungen']],
       ['App & Rechtliches', ['Über die App', 'Einführung ansehen', 'Datenschutz', 'Impressum']],
     ] as const) {
@@ -247,30 +247,23 @@ test.describe('application shell', () => {
     await expect(greeting).toHaveCount(1);
   });
 
-  test('keeps the Tagesimpuls and vibration choices after a reload', async ({ page }) => {
-    await page.goto('/settings/impulse');
-    await page.getByRole('radio', { name: 'Einmal am Tag', exact: false }).check();
+  test('keeps the vibration choice after a reload', async ({ page }) => {
     await page.goto('/settings/vibration');
     await page.getByRole('radio', { name: 'Aus', exact: false }).check();
 
     await page.goto('/settings');
 
-    await expect(page.getByRole('link', { name: 'Tagesimpuls', exact: false })).toContainText(
-      'Einmal am Tag',
-    );
     await expect(page.getByRole('link', { name: 'Vibration', exact: false })).toContainText('Aus');
   });
 
-  test('explains on the Tagesimpuls screen why it holds still under reduced animations', async ({
-    page,
-  }) => {
+  test('does not greet with the Tagesimpuls while animations are on „Wenig“', async ({ page }) => {
     await page.goto('/settings/motion');
     await page.getByRole('radio', { name: 'Wenig', exact: false }).check();
 
-    await page.goto('/settings/impulse');
+    await page.goto('/today');
 
-    await expect(page.getByText('Animationen sind reduziert', { exact: false })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Animationen ändern' })).toBeVisible();
+    await expect(page.locator('app-today-impulse')).toBeVisible();
+    await expect(page.locator('app-today-impulse .rk-arrived')).toHaveCount(0);
   });
 
   /**
@@ -290,7 +283,6 @@ test.describe('application shell', () => {
       ['/settings/text-size', 'Textgröße'],
       ['/settings/motion', 'Animationen'],
       ['/settings/vibration', 'Vibration'],
-      ['/settings/impulse', 'Tagesimpuls'],
       ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/notifications', 'Benachrichtigungen'],
@@ -347,14 +339,6 @@ test.describe('application shell', () => {
     page,
   }) => {
     await page.goto('/settings/theme');
-
-    await expectNoBlockingViolations(page);
-  });
-
-  test('has no serious or critical accessibility violations on the Tagesimpuls settings', async ({
-    page,
-  }) => {
-    await page.goto('/settings/impulse');
 
     await expectNoBlockingViolations(page);
   });
