@@ -34,7 +34,7 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
  * reader, as testers asked; the feature behind it keeps the name „Tagesimpuls“ in this card's
  * empty and error states. The card leads with the item's picture and its title,
  * as Verein Amazone asked; the teaser is left for the detail screen. Loaded and resolved to view state
- * here, the same split `TodayClosingBlock` uses, so `today.page.html` stays a thin shell.
+ * here, like the other Today blocks, so `today.page.html` stays a thin shell.
  *
  * No bookmark toggle here - bookmarking lives on the detail view only, so this card has exactly
  * one action (open the item) rather than two competing tap targets.

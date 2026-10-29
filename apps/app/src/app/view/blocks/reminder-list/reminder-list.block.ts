@@ -31,7 +31,6 @@ import {
 } from '@lucide/angular';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
-import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
@@ -100,7 +99,6 @@ export class ReminderListBlock {
   private readonly sheets = inject(SheetService);
   private readonly announcer = inject(LiveAnnouncer);
   private readonly currentDay = inject(LocalDay);
-  private readonly reminderChanges = inject(ReminderChanges);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
 
@@ -383,11 +381,6 @@ export class ReminderListBlock {
   }
 
   /**
-   * Every reload drops the hand-made order: the list that arrives is the one to show. Also the one
-   * place every write funnels through, so it doubles as the notification the Today page's closing
-   * message - a sibling block with no other view of this list - reacts to.
-   */
-  /**
    * Runs one change to the list and reloads it either way, so the rows always show what the
    * database holds. A failure is reported in the block's alert rather than as an unhandled
    * rejection. Resolves to whether the change went through.
@@ -408,10 +401,10 @@ export class ReminderListBlock {
     }
   }
 
+  /** Every reload drops the hand-made order: the list that arrives is the one to show. */
   protected reload(): void {
     this.ordered.set(null);
     this.items.reload();
-    this.reminderChanges.notify();
   }
 }
 
