@@ -1,25 +1,27 @@
 # App icon
 
-The app ships six interchangeable home-screen icons, two cats in three colourings each. „Cool Cat
-Nacht“ is the default; the others can be picked at runtime under **Einstellungen → Darstellung &
+The app ships six interchangeable home-screen icons, two cats in three colourings each. „Leo
+dunkel“ is the default; the others can be picked at runtime under **Einstellungen → Darstellung &
 Bedienung → App-Symbol**. More can be added later without changing anything but data, generated
 assets and the native registration (see [Adding another icon](#adding-another-icon)).
 
 ## Where the artwork comes from
 
 <p align="center">
-  <img src="./images/app-icon.png" alt="The default icon, Cool Cat Nacht, with rounded corners" width="240">
+  <img src="./images/app-icon.png" alt="The default icon, Leo dunkel, with rounded corners" width="240">
 </p>
 
 Verein Amazone supplied the six icons in October 2026. They replace „Klassisch“, „Pixel“ and
 „Nacht“ from release candidate 52 and earlier.
 
-- **Cool Cat** - a cat with a headscarf, sunglasses and a handbag, the same character as in the
+- **Leo** - a cat with a headscarf, sunglasses and a handbag, the same character as in the
   Wissensimpuls illustration „Heute ist Feministischer Kampftag!“. In white and mint on navy
-  („Cool Cat Nacht“), black and white on lilac („Cool Cat Lila“), and red and orange on white
-  („Cool Cat Hell“).
-- **Sam** - a cat in a shirt and tie. In white and purple on orange („Sam Orange“), white and teal on
-  teal („Sam Türkis“), and red on white („Sam Hell“).
+  („Leo dunkel“), black and white on lilac („Leo lila“), and red and orange on white
+  („Leo hell“). Its ids and native names still say `cool-cat`/`CoolCat`, the working name before
+  Verein Amazone named the labels in October 2026; renaming them would orphan the alias a user
+  picked (see below).
+- **Sam** - a cat in a shirt and tie. In white and purple on orange („Sam orange“), white and teal on
+  teal („Sam türkis“), and red on white („Sam hell“).
 
 `docs/images/app-icon.png` is the rounded version of the default icon from the same delivery, for the
 README; the website's `apps/site/public/assets/icon.webp` is the same rounded artwork at 256 px. The earlier icons were based on a sketch workshop participants built from sticky notes
@@ -88,7 +90,7 @@ Both platforms need each icon registered at build time; neither can be given a n
 - **Android** - the launcher `<intent-filter>` sits on one `<activity-alias>` per icon in
   `apps/app/android/app/src/main/AndroidManifest.xml`, not on `MainActivity`. Switching means enabling one
   alias and disabling the others. Exactly one alias may be `android:enabled="true"`: the plugin
-  treats the first enabled launcher component as the default, and that is what „Cool Cat Nacht“
+  treats the first enabled launcher component as the default, and that is what „Leo dunkel“
   returns to. Never bring back a removed alias name: Android keeps the enabled state the plugin set
   for a component across updates, so a revived name could start disabled and leave the app without
   a launcher entry. That is why the cat icons got new alias names rather than taking over

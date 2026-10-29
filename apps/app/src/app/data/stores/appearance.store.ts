@@ -84,21 +84,29 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 }
 
 /**
- * The single „Systemeinstellung“ theme became the first of the dynamic pairs, Amazone / Mitternacht,
- * which switches between the same two palettes.
+ * Themes that no longer exist, mapped to the one closest to what the user saw. The dynamic pairs
+ * (and the single „Systemeinstellung“ theme before them) keep their light half; Sonnenuntergang
+ * (`warm`) has no close relative and falls back to the default.
  */
+const REMOVED_THEMES: Readonly<Record<string, ThemeId>> = {
+  system: 'amazone',
+  'amazone-nacht': 'amazone',
+  'lila-nacht': 'lila',
+};
+
 function readTheme(value: unknown): ThemeId {
-  return value === 'system'
-    ? 'amazone-nacht'
-    : pick(value, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme);
+  if (typeof value === 'string' && Object.hasOwn(REMOVED_THEMES, value)) {
+    return REMOVED_THEMES[value];
+  }
+  return pick(value, THEME_IDS, DEFAULT_APPEARANCE_PREFERENCES.theme);
 }
 
 /**
  * The vibration switch replaced two older preferences that also decided whether the phone buzzed:
  * an on/off `haptics` switch, and after it the three-way `impulseGreeting` whose „Nur Animation“
  * (`motion`) meant the wave without the buzz. An install that had turned the vibration off either
- * way keeps it off. `impulseGreeting: 'none'` is not carried over here - it meant no greeting at
- * all, which the Tagesimpuls preference now holds (see `ImpulsePreferencesStore`).
+ * way keeps it off. `impulseGreeting: 'none'` is not carried over - it meant no greeting at all,
+ * which reduced motion („Wenig“) now stands for.
  */
 function readVibration(
   candidate: Partial<Record<keyof AppearancePreferences | 'haptics' | 'impulseGreeting', unknown>>,

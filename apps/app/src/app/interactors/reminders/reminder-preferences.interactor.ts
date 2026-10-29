@@ -37,10 +37,7 @@ export class ReminderPreferencesInteractor {
     {
       id: 'hide',
       label: 'Ausblenden',
-      // "Gelöscht werden sie nicht" left a tester asking where the entries had gone instead. The
-      // answer is the other option on this very screen, so the description names it.
-      description:
-        'Erledigte Punkte verschwinden am nächsten Tag aus der Liste. Mit „Sichtbar lassen“ holst du sie zurück.',
+      description: 'Erledigte Punkte verschwinden am nächsten Tag aus der Liste.',
     },
     {
       id: 'keep',

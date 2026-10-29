@@ -143,7 +143,7 @@ describe('CalendarsPage, navigation to sub-pages', () => {
     const { element } = await setup({ platform: 'android' });
 
     const link = element.querySelector('a[href="/settings/calendars/curated"]');
-    expect(link?.textContent).toContain('Amazone & Partnerkalender');
+    expect(link?.textContent).toContain('Rebell*innen & mehr');
   });
 
   // Device calendars have no browser equivalent, and both ICS flows download through

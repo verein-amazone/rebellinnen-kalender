@@ -171,26 +171,23 @@ test.describe('application shell', () => {
 
   test('keeps the selected colour theme after a reload', async ({ page }) => {
     await page.goto('/settings/theme');
-    await page.getByRole('radio', { name: 'Mitternacht', exact: true }).check();
+    await page.getByRole('radio', { name: 'Dark', exact: true }).check();
 
     await page.reload();
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
-    await expect(page.getByRole('radio', { name: 'Mitternacht', exact: true })).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Dark', exact: true })).toBeChecked();
   });
 
-  test('follows the device between light and dark on a dynamic theme', async ({ page }) => {
+  test('moves a removed dynamic theme to its light half', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('rk.appearance', JSON.stringify({ theme: 'lila-nacht' }));
+    });
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/settings/theme');
-    const lavendelMitternacht = page.getByRole('radio', { name: 'Lavendel / Mitternacht' });
-    await lavendelMitternacht.check();
 
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
-
-    // No reload: flipping the device setting while the app is open recolours it at once.
-    await page.emulateMedia({ colorScheme: 'light' });
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'lila');
-    await expect(lavendelMitternacht).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Soft', exact: true })).toBeChecked();
   });
 
   test('offers every approved settings entry', async ({ page }) => {
@@ -198,34 +195,32 @@ test.describe('application shell', () => {
 
     for (const [heading, entries] of [
       ['Persönlich', ['Profil']],
-      ['Darstellung & Bedienung', ['Farbthema', 'Textgröße', 'Animationen', 'Vibration']],
-      ['Heute', ['Tagesimpuls', 'Nicht vergessen']],
+      ['Darstellung & Bedienung', ['Farben', 'Textgröße', 'Animationen', 'Vibration']],
+      ['Heute', ['Nicht vergessen']],
       ['Kalender', ['Kalender verwalten', 'Benachrichtigungen']],
       ['App & Rechtliches', ['Über die App', 'Einführung ansehen', 'Datenschutz', 'Impressum']],
     ] as const) {
       await expect(page.getByRole('heading', { name: heading, level: 2 })).toBeVisible();
       for (const entry of entries) {
         // Substring match: entries that show their current value carry it in their accessible
-        // name ("Farbthema Amazone").
+        // name ("Farben Strong").
         await expect(page.getByRole('link', { name: entry, exact: false })).toBeVisible();
       }
     }
 
     // The entries that carry a value show it, so the current selection is readable without
     // opening the screen.
-    await expect(page.getByRole('link', { name: 'Farbthema', exact: false })).toContainText(
-      'Amazone',
-    );
+    await expect(page.getByRole('link', { name: 'Farben', exact: false })).toContainText('Strong');
   });
 
   test('keeps the selected motion preference after a reload', async ({ page }) => {
     await page.goto('/settings/motion');
-    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+    await page.getByRole('radio', { name: 'Wenig', exact: false }).check();
 
     await page.reload();
 
     await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
-    await expect(page.getByRole('radio', { name: 'Reduziert', exact: false })).toBeChecked();
+    await expect(page.getByRole('radio', { name: 'Wenig', exact: false })).toBeChecked();
   });
 
   test('greets with the Tagesimpuls on every opening, but not on a tab switch', async ({
@@ -247,30 +242,23 @@ test.describe('application shell', () => {
     await expect(greeting).toHaveCount(1);
   });
 
-  test('keeps the Tagesimpuls and vibration choices after a reload', async ({ page }) => {
-    await page.goto('/settings/impulse');
-    await page.getByRole('radio', { name: 'Einmal am Tag', exact: false }).check();
+  test('keeps the vibration choice after a reload', async ({ page }) => {
     await page.goto('/settings/vibration');
     await page.getByRole('radio', { name: 'Aus', exact: false }).check();
 
     await page.goto('/settings');
 
-    await expect(page.getByRole('link', { name: 'Tagesimpuls', exact: false })).toContainText(
-      'Einmal am Tag',
-    );
     await expect(page.getByRole('link', { name: 'Vibration', exact: false })).toContainText('Aus');
   });
 
-  test('explains on the Tagesimpuls screen why it holds still under reduced animations', async ({
-    page,
-  }) => {
+  test('does not greet with the Tagesimpuls while animations are on „Wenig“', async ({ page }) => {
     await page.goto('/settings/motion');
-    await page.getByRole('radio', { name: 'Reduziert', exact: false }).check();
+    await page.getByRole('radio', { name: 'Wenig', exact: false }).check();
 
-    await page.goto('/settings/impulse');
+    await page.goto('/today');
 
-    await expect(page.getByText('Animationen sind reduziert', { exact: false })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Animationen ändern' })).toBeVisible();
+    await expect(page.locator('app-today-impulse')).toBeVisible();
+    await expect(page.locator('app-today-impulse .rk-arrived')).toHaveCount(0);
   });
 
   /**
@@ -286,11 +274,10 @@ test.describe('application shell', () => {
       ['/calendar/event/new', 'Neuer Termin'],
       ['/content', 'Inhalte'],
       ['/settings', 'Einstellungen'],
-      ['/settings/theme', 'Farbthema'],
+      ['/settings/theme', 'Farben'],
       ['/settings/text-size', 'Textgröße'],
       ['/settings/motion', 'Animationen'],
       ['/settings/vibration', 'Vibration'],
-      ['/settings/impulse', 'Tagesimpuls'],
       ['/settings/reminders', 'Nicht vergessen'],
       ['/settings/calendars', 'Kalender verwalten'],
       ['/settings/notifications', 'Benachrichtigungen'],
@@ -324,11 +311,11 @@ test.describe('application shell', () => {
 
     await page.getByRole('tab', { name: 'Anlaufstellen' }).click();
     await page.getByRole('button', { name: 'Info zu Anlaufstellen' }).click();
-    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeVisible();
+    await expect(page.getByText('Hier findest du verschiedene Angebote')).toBeVisible();
 
     // A tap anywhere else closes it.
     await page.locator('main').click({ position: { x: 20, y: 400 } });
-    await expect(page.getByText('Hier findest du Mädchen*- und Queer-Treffs')).toBeHidden();
+    await expect(page.getByText('Hier findest du verschiedene Angebote')).toBeHidden();
   });
 
   test('has no serious or critical accessibility violations on Today', async ({ page }) => {
@@ -347,14 +334,6 @@ test.describe('application shell', () => {
     page,
   }) => {
     await page.goto('/settings/theme');
-
-    await expectNoBlockingViolations(page);
-  });
-
-  test('has no serious or critical accessibility violations on the Tagesimpuls settings', async ({
-    page,
-  }) => {
-    await page.goto('/settings/impulse');
 
     await expectNoBlockingViolations(page);
   });

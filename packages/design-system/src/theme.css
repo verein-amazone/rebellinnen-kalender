@@ -11,12 +11,13 @@
  *      `data-theme` at runtime recolour everything.
  *
  * No colour value may live in TypeScript. Adding a theme means adding one block here plus its id
- * in `PALETTE_IDS` (the app's `data/stores/appearance-preferences.ts`) and
- * `interactors/settings/appearance.interactor.ts`. The `system` theme has no block: it resolves to
- * `amazone` or `nacht` before it reaches `data-theme`.
+ * in `THEME_IDS` (the app's `data/stores/appearance-preferences.ts`), its label in
+ * `interactors/settings/appearance.interactor.ts` and its id in `e2e/theme-contrast.spec.ts`.
  *
- * The four themes are the ones approved in the settings rework handover: amazone, warm
- * (Sonnenuntergang), nacht (Mitternacht), lila (Lavendel).
+ * The ids are stored on every install and never change; the labels do. Verein Amazone named them
+ * in October 2026: amazone („Strong“), nacht („Dark“), lila („Soft“), and added summer and candy.
+ * Sonnenuntergang (`warm`) and the dynamic themes that followed the device's dark mode were dropped
+ * then.
  *
  * The theme blocks below all have the same specificity, so their source order is what decides
  * which one wins. Keep `:root, [data-theme='amazone']` first and never append a block that sets
@@ -153,7 +154,7 @@
   --rk-radius: 0.625rem;
 }
 
-/* Amazone - the default. Also bound to :root so the app renders correctly before the stored
+/* Amazone („Strong“) - the default. Also bound to :root so the app renders correctly before the stored
    preference has been applied to <html>. */
 :root,
 [data-theme='amazone'] {
@@ -194,40 +195,7 @@
   --rk-warning-foreground: #fffdf6;
 }
 
-/* Warm - "Sonnenuntergang". */
-[data-theme='warm'] {
-  --rk-background: #f7f3ee;
-  --rk-foreground: #2a1f14;
-  --rk-card: #fffdf9;
-  --rk-card-foreground: #2a1f14;
-  --rk-primary: #b85536;
-  --rk-primary-foreground: #fffdf9;
-  --rk-secondary: #7b9e87;
-  --rk-secondary-foreground: #fffdf9;
-  --rk-muted: #ede7dc;
-  --rk-muted-foreground: #756a5d;
-  --rk-accent: #bfa8d4;
-  --rk-accent-foreground: #2a1f14;
-  --rk-border: rgb(90 65 40 / 0.12);
-  --rk-input-background: #ede7dc;
-  --rk-switch-background: #c4b9aa;
-  --rk-ring: #c85d3b;
-  --rk-nav-bg: #2a1f14;
-  --rk-nav-indicator: var(--rk-accent);
-  --rk-rebel-bg: #c85d3b;
-  --rk-rebel-text: #fffdf9;
-  --rk-rebel-text-muted: #f0d8c8;
-  --rk-dot-color: rgb(90 65 40 / 0.1);
-  --rk-danger: #9c2b18;
-  --rk-danger-foreground: #fffdf9;
-  --rk-error: #9c2b18;
-  --rk-success: #2f6b4f;
-  --rk-success-foreground: #fffdf9;
-  --rk-warning: #7a4e12;
-  --rk-warning-foreground: #fffdf9;
-}
-
-/* Nacht - "Mitternacht". */
+/* Nacht („Dark“). */
 [data-theme='nacht'] {
   --rk-background: #0e1240;
   --rk-foreground: #d8e8ec;
@@ -246,23 +214,27 @@
   --rk-switch-background: #2a3580;
   --rk-ring: #7dbdbb;
   --rk-nav-bg: #080b30;
-  --rk-nav-indicator: var(--rk-accent);
+  /* The teal of the theme's primary: red is no colour of this palette's swatch. */
+  --rk-nav-indicator: #7dbdbb;
   --rk-rebel-bg: #080b30;
   --rk-rebel-text: #d8e8ec;
   --rk-rebel-text-muted: #7dbdbb;
   --rk-dot-color: rgb(125 189 187 / 0.15);
   /* Polarity inverts on the dark theme: the status colour is light and its foreground is dark,
-     the same way `--rk-primary` / `--rk-primary-foreground` already behave here. */
-  --rk-danger: #ff9b96;
+     the same way `--rk-primary` / `--rk-primary-foreground` already behave here. No red carries
+     white text and also reads as text on the navy card, so danger is a light crimson - the same
+     hue as the other themes' #c8102e, not the salmon it used to be, which read as a different
+     colour. */
+  --rk-danger: #ff6680;
   --rk-danger-foreground: #0e1240;
-  --rk-error: #ff9b96;
+  --rk-error: #ff6680;
   --rk-success: #7fd6b3;
   --rk-success-foreground: #0e1240;
   --rk-warning: #f2b25c;
   --rk-warning-foreground: #0e1240;
 }
 
-/* Lila - "Lavendel". */
+/* Lila („Soft“). */
 [data-theme='lila'] {
   --rk-background: #ede0f8;
   --rk-foreground: #2d1b69;
@@ -281,7 +253,9 @@
   --rk-switch-background: #c8b0e0;
   --rk-ring: #7b3fa8;
   --rk-nav-bg: #2d1b69;
-  --rk-nav-indicator: var(--rk-accent);
+  /* The orchid of the theme's secondary: the orange accent is no colour of this palette's
+     swatch. */
+  --rk-nav-indicator: #c084d4;
   --rk-rebel-bg: #2d1b69;
   --rk-rebel-text: #fffdf6;
   --rk-rebel-text-muted: #d4b8e8;
@@ -294,6 +268,76 @@
   --rk-success-foreground: #fffdf6;
   --rk-warning: #7a4a12;
   --rk-warning-foreground: #fffdf6;
+}
+
+/* Summer. Verein Amazone's colours: #facf4e (background), #0d60d3 (primary) and #f07b27 (accent,
+   the active tab). The orange never carries text on the yellow (1.9:1); it fills the secondary
+   button and marks the tab, with the navy text both need. */
+[data-theme='summer'] {
+  --rk-background: #facf4e;
+  --rk-foreground: #132a55;
+  --rk-card: #fffbea;
+  --rk-card-foreground: #132a55;
+  --rk-primary: #0d60d3;
+  --rk-primary-foreground: #fffbea;
+  --rk-secondary: #f07b27;
+  --rk-secondary-foreground: #132a55;
+  --rk-muted: #fdf3d0;
+  --rk-muted-foreground: #3f4a66;
+  --rk-accent: #f07b27;
+  --rk-accent-foreground: #132a55;
+  --rk-border: rgb(19 42 85 / 0.15);
+  --rk-input-background: #fff6d6;
+  --rk-switch-background: #e6cf86;
+  --rk-ring: #0d60d3;
+  --rk-nav-bg: #132a55;
+  --rk-nav-indicator: #f07b27;
+  --rk-rebel-bg: #132a55;
+  --rk-rebel-text: #fffbea;
+  --rk-rebel-text-muted: #facf4e;
+  --rk-dot-color: rgb(19 42 85 / 0.12);
+  --rk-danger: #c8102e;
+  --rk-danger-foreground: #fffbea;
+  --rk-error: #9b1020;
+  --rk-success: #0a4434;
+  --rk-success-foreground: #fffbea;
+  --rk-warning: #563400;
+  --rk-warning-foreground: #fffbea;
+}
+
+/* Candy. Verein Amazone's colours: #fbdce2 (background), #f8879e (accent, the active tab) and
+   #5a84e6, which carries white text only at 3.6:1 - so the primary is the same blue a shade
+   darker (#3a5fc2, 5.8:1), and text is a navy from the same family. */
+[data-theme='candy'] {
+  --rk-background: #fbdce2;
+  --rk-foreground: #1e2a5a;
+  --rk-card: #fff7f9;
+  --rk-card-foreground: #1e2a5a;
+  --rk-primary: #3a5fc2;
+  --rk-primary-foreground: #fff7f9;
+  --rk-secondary: #f8879e;
+  --rk-secondary-foreground: #1e2a5a;
+  --rk-muted: #fdebef;
+  --rk-muted-foreground: #5c4466;
+  --rk-accent: #f8879e;
+  --rk-accent-foreground: #1e2a5a;
+  --rk-border: rgb(30 42 90 / 0.15);
+  --rk-input-background: #fdeef1;
+  --rk-switch-background: #e9b8c3;
+  --rk-ring: #3a5fc2;
+  --rk-nav-bg: #1e2a5a;
+  --rk-nav-indicator: #f8879e;
+  --rk-rebel-bg: #1e2a5a;
+  --rk-rebel-text: #fff7f9;
+  --rk-rebel-text-muted: #fbdce2;
+  --rk-dot-color: rgb(30 42 90 / 0.12);
+  --rk-danger: #c8102e;
+  --rk-danger-foreground: #fff7f9;
+  --rk-error: #a30e26;
+  --rk-success: #0a4434;
+  --rk-success-foreground: #fff7f9;
+  --rk-warning: #563400;
+  --rk-warning-foreground: #fff7f9;
 }
 
 /*

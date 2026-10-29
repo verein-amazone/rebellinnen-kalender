@@ -31,10 +31,10 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
  *
  * The card names itself „Für dich“ and nothing else - the content type is on the detail screen,
  * where it belongs; on Today it competed with the one label that matters. The label addresses the
- * reader, as testers asked; the feature behind it keeps the name „Tagesimpuls“ in Einstellungen
- * and in this card's empty and error states. The card leads with the item's picture and its title,
+ * reader, as testers asked; the feature behind it keeps the name „Tagesimpuls“ in this card's
+ * empty and error states. The card leads with the item's picture and its title,
  * as Verein Amazone asked; the teaser is left for the detail screen. Loaded and resolved to view state
- * here, the same split `TodayClosingBlock` uses, so `today.page.html` stays a thin shell.
+ * here, like the other Today blocks, so `today.page.html` stays a thin shell.
  *
  * No bookmark toggle here - bookmarking lives on the detail view only, so this card has exactly
  * one action (open the item) rather than two competing tap targets.
@@ -42,15 +42,14 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
  * Falls back to the page's original "Heute gibt es noch keinen Tagesimpuls." copy when nothing is
  * eligible, rather than rendering a broken or misleading card.
  *
- * The card greets with a short wave and a haptic pattern in the same rhythm. When is the user's
- * call on the Tagesimpuls settings page, and `DailyImpulseInteractor` decides it: by default every
- * time the app is opened - a cold start or a return from the background, not a switch between
- * tabs - otherwise once a day or never. Shaking the phone replays it, which is an extra on top of a
- * card that is always reachable by tapping, never the only way to anything.
+ * The card greets with a short wave and a haptic pattern in the same rhythm, every time the app is
+ * opened - a cold start or a return from the background, not a switch between tabs - and never
+ * while animations are reduced; `DailyImpulseInteractor` decides it. Shaking the phone replays it,
+ * which is an extra on top of a card that is always reachable by tapping, never the only way to
+ * anything.
  *
- * Both channels are decoration: the card's content never depends on either, a reduced-motion
- * preference neutralises the animation via `base.css`, and the app-wide vibration setting turns the
- * buzz off.
+ * Both channels are decoration: the card's content never depends on either, reduced motion skips
+ * the greeting altogether, and the app-wide vibration setting turns the buzz off.
  */
 @Component({
   selector: 'app-today-impulse',
@@ -101,15 +100,14 @@ export class TodayImpulseBlock {
 
   constructor() {
     // `shouldGreet` reads signals only, so this runs again when the app is reopened while Today is
-    // on screen, or when the day changes - no resume listener of its own needed here.
+    // on screen - no resume listener of its own needed here.
     effect(() => {
-      const today = this.currentDay.day();
-      if (this.item() === null || !this.daily.shouldGreet(today)) {
+      if (this.item() === null || !this.daily.shouldGreet()) {
         return;
       }
 
       untracked(() => {
-        this.daily.markGreeted(today);
+        this.daily.markGreeted();
         this.playGreeting(false);
       });
     });
@@ -117,7 +115,7 @@ export class TodayImpulseBlock {
     void this.watchShakes();
   }
 
-  /** A shake asks for the greeting again - unless the user switched it off. */
+  /** A shake asks for the greeting again - unless animations are reduced. */
   private replayGreeting(): void {
     if (this.item() === null || !this.daily.greetingEnabled()) {
       return;
@@ -130,8 +128,7 @@ export class TodayImpulseBlock {
    * Plays the greeting, restarting it if the class is still on the card from an earlier one. The
    * class has to leave the element and come back for the CSS animation to restart, and the two
    * writes have to land in different frames - hence the `requestAnimationFrame` rather than a plain
-   * reset-then-set. The haptics interactor gates its own channel on the vibration setting, and
-   * `base.css` neutralises the wave under reduced motion.
+   * reset-then-set. The haptics interactor gates its own channel on the vibration setting.
    */
   private playGreeting(replay: boolean): void {
     const start = (): void => {

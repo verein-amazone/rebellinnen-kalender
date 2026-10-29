@@ -108,10 +108,10 @@ own sake - every primitive exists because a real screen (Today, appointments, Ni
 Anlaufstellen) needed it, and the component set stays deliberately small: buttons, cards/rows,
 fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.
 
-The system is four swappable palettes (`amazone` default, `warm`/Sonnenuntergang, `nacht`/
-Mitternacht, `lila`/Lavendel) over one shared shape, type and spacing language - recoloring the app
-is a `data-theme` attribute swap, never a second set of components. A fifth choice, „Systemeinstellung“,
-is not a palette: it follows the device's dark mode between Amazone and Mitternacht. Everything is built for a thumb
+The system is a set of swappable palettes (`amazone`/„Strong“ default, `nacht`/„Dark“,
+`lila`/„Soft“, `summer`/„Summer“, `candy`/„Candy“) over one shared shape, type and spacing language - recoloring the app is a
+`data-theme` attribute swap, never a second set of components. No theme follows the device's dark
+mode; each is picked explicitly. Everything is built for a thumb
 on glass: no bare `hover:` anywhere in the codebase, `min-h-touch` (48px) on every interactive
 target, 16px-minimum form text, and a text-size ladder (`small` 14px through `xxlarge` 32px) that
 reflows components rather than clipping them - container queries, not media queries, drive that
@@ -138,7 +138,7 @@ once as raw `--rk-*` values per `[data-theme='…']` block in `theme.css` and ex
 color values; nothing below restates a hex code** - every color is named by its role token
 (`var(--color-primary)`, `bg-primary`, …), which resolves differently per theme and stays correct
 automatically when a theme's palette changes. Descriptive names below describe `amazone`, the
-default theme, as an example; `warm`, `nacht` and `lila` restate the same role tokens with different
+default theme, as an example; the other themes restate the same role tokens with different
 values rather than being described separately.
 
 ### Primary

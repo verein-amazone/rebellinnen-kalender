@@ -120,8 +120,8 @@ the router; anything that is not a route of this app falls back to the screen's 
 `PageFocus` finds its heading. It is the one such route that does not use `FocusedScreenScaffold`:
 it is the start of the app rather than a subpage, so it has no dismiss action and no title bar, just
 a progress bar, a centered step heading and a footer of „Weiter“/„Zurück“. Only the first step offers
-„Erste Schritte überspringen“. One step („Mach die App zu deiner“) sets the name and the colour
-theme through the same interactors as Settings → Profil and Farbthema, so nothing there needs
+„Erste Schritte überspringen“. One step („Mach deine App einzigartig!“) sets the name and the colour
+theme through the same interactors as Settings → Profil and Farben, so nothing there needs
 saving. Each step is its own URL, which is what moves focus to the new
 heading and announces it - the page manages neither. Steps replace each other in the history, so the
 back gesture leaves the introduction; „Zurück“ is a visible button.
@@ -505,7 +505,7 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 
 Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
 absence of the attribute means "follow the device setting", which is the default. `data-theme` is
-always present: a theme that follows the device is resolved to a palette before it is written (see
+always present: every theme is an explicit choice (see
 [Applying the selection](#applying-the-selection)).
 
 ### OS text scaling
@@ -543,8 +543,8 @@ applying the scale after the first paint would show the app at the wrong size fo
 Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
 scaling this is built to support.
 
-Adding a theme means adding one block to `theme.css` plus its id in `PALETTE_IDS` and
-`AppearanceInteractor`. Theme previews (`view/components/theme-swatch`) are rendered by putting
+Adding a theme means adding one block to `theme.css` plus its id in `THEME_IDS`, its label in
+`AppearanceInteractor` and its id in `e2e/theme-contrast.spec.ts`. Theme previews (`view/components/theme-swatch`) are rendered by putting
 `data-theme` on the preview element itself, so no screen ever needs a colour literal.
 
 ### Applying the selection
@@ -557,12 +557,11 @@ The selection follows the normal layer direction:
   and exposes the current selection, plus `motionReduced` - the app setting resolved against the
   device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
   know in code rather than in CSS.
-- The colour theme is resolved in the interactor too, not in CSS. The dynamic themes (Amazone /
-  Mitternacht, Lavendel / Mitternacht) have no `[data-theme]` block of their own: `palette` maps each
-  to its light or dark half from the device's dark mode
-  (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
-  `data-theme`. Unlike text size and motion, the theme defaults to an explicit palette (Amazone), so
-  a first start always shows the app's own face.
+- The colour theme id goes to `data-theme` as it is. There is no theme that follows the device's
+  dark mode any more - Verein Amazone dropped the dynamic pairs - and unlike text size and motion
+  the theme defaults to an explicit one (Amazone, „Strong“), so a first start always shows the
+  app's own face. A stored id of a removed theme maps to the closest remaining one on read
+  (`appearance.store.ts`).
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
   `--rk-os-scale` onto `<html>`. It is the only code that touches them.
 - `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).

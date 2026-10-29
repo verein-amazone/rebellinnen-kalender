@@ -222,8 +222,8 @@ test.describe('calendar management', () => {
   test.skip('explains the device-calendar connection before one exists', async ({ page }) => {
     await page.goto('/settings/calendars');
 
-    await expect(page.getByText('Verbinde die Kalender deines Geräts')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Gerätekalender verbinden' })).toBeVisible();
+    await expect(page.getByText('nicht mit dem Kalender auf deinem Gerät verbunden')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Verbinden', exact: true })).toBeVisible();
   });
 
   test.skip('lists a connected device calendar and hides its appointments once disabled', async ({
@@ -265,7 +265,7 @@ test.describe('calendar management', () => {
     await confirmation.getByRole('button', { name: 'Trennen' }).click();
 
     await expect(confirmation).toBeHidden();
-    await expect(page.getByText('Der Gerätekalender ist getrennt')).toBeVisible();
+    await expect(page.getByText('nicht mit dem Kalender auf deinem Gerät verbunden')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Verbinden' })).toBeVisible();
   });
 });

@@ -1,4 +1,4 @@
-**Stand: 24. Oktober 2026**
+**Stand: 29. Oktober 2026**
 
 ## 1. Deine Privatsphäre ist uns wichtig
 
@@ -135,7 +135,7 @@ Bereits eingerichtete Kalender können bei geöffneter oder erneut aktivierter A
 
 In der aktuellen Version sind folgende Online-Kalender vorgesehen:
 
-- **Rebell\*innen Termine:** Aktionstage und Veranstaltungen des Vereins Amazone, technisch über Google Calendar bereitgestellt.
+- **Rebell\*innen Kalender:** Aktionstage und Veranstaltungen des Vereins Amazone, technisch über Google Calendar bereitgestellt.
 - **Feiertage Österreich:** Kalenderdaten der Stadt Wien über wien.gv.at.
 
 Diese Kalender sind im Katalog der App hinterlegt und können beim erstmaligen Verwenden der Kalenderfunktionen abgerufen werden. Du kannst ihre Anzeige über die Kalenderverwaltung anpassen.

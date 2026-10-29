@@ -91,11 +91,7 @@ describe('public/content/images.json', () => {
   });
 
   it('only holds images that a content item shows', () => {
-    // The onboarding shows one picture from the catalog too, outside any content item.
-    const shown = new Set([
-      ...catalog.items.map((item) => item.heroImageId),
-      'alle-unsere-lieblingssongs-in-einer-playlist',
-    ]);
+    const shown = new Set(catalog.items.map((item) => item.heroImageId));
 
     expect(images.map((image) => image.id).filter((id) => !shown.has(id))).toEqual([]);
   });

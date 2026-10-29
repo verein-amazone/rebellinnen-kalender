@@ -34,10 +34,10 @@ test.describe('first-launch introduction', () => {
     await page.getByRole('button', { name: 'Weiter' }).click();
 
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Mach die App zu deiner' }),
+      page.getByRole('heading', { level: 1, name: 'Mach deine App einzigartig!' }),
     ).toBeFocused();
     await page.getByLabel('Dein Name').fill('Alex');
-    await page.getByRole('radio', { name: 'Mitternacht', exact: true }).check();
+    await page.getByRole('radio', { name: 'Dark', exact: true }).check();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'nacht');
     await expectNoBlockingViolations(page);
     await page.getByRole('button', { name: 'Weiter' }).click();

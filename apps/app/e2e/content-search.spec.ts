@@ -78,7 +78,7 @@ test.describe('searching Inhalte', () => {
       .getByRole('searchbox', { name: 'In Anlaufstellen suchen' })
       .pressSequentially('frauenberatung', { delay: 250 });
     await expect(page.getByRole('status')).toHaveText(/\d+ Treffer/);
-    await page.getByRole('tab', { name: 'Meine Sammlung' }).click();
+    await page.getByRole('tab', { name: 'Sammlung' }).click();
 
     // The Anlaufstellen were synced when the list loaded. The content catalog may be read once,
     // for the first search of the collection - never once per keystroke.

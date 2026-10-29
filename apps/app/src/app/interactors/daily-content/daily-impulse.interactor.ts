@@ -5,7 +5,7 @@ import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
 import { ImageCatalogGateway } from '@app/data/gateways/image-catalog.gateway';
 import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
-import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
+import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 
 import type { ContentItemView } from './content-item.vm';
 import { toContentItemView } from './content-item-view';
@@ -23,11 +23,11 @@ export class DailyImpulseInteractor {
   private readonly contentItems = inject(ContentItemDao);
   private readonly store = inject(DailyImpulseStore);
   private readonly catalogSync = inject(ContentCatalogSync);
-  private readonly preferences = inject(ImpulsePreferencesStore);
+  private readonly appearance = inject(AppearanceInteractor);
   private readonly images = inject(ImageCatalogGateway);
 
   constructor() {
-    // A return from the background is an opening of the app, so „Bei jedem Öffnen“ may greet again.
+    // A return from the background is an opening of the app, so the impulse may greet again.
     // Registered here rather than in the Today block, so an opening counts even when the app comes
     // back on another tab and Today is only visited afterwards.
     const stop = inject(AppLifecycle).onResume(() => this.store.startSession());
@@ -62,30 +62,23 @@ export class DailyImpulseInteractor {
   }
 
   /**
-   * Whether the impulse should greet with its wave now, per the user's Tagesimpuls preference: once
-   * per opening of the app, once per day, or never. Reads signals only, so an effect that calls it
-   * runs again when the app is reopened or the day changes.
+   * Whether the impulse should greet with its wave now: once per opening of the app, unless
+   * animations are reduced („Wenig“, or the device's setting while the app follows it). Verein
+   * Amazone folded the former Tagesimpuls setting into Animationen. Reads signals only, so an effect
+   * that calls it runs again when the app is reopened.
    */
-  shouldGreet(day: string): boolean {
-    switch (this.preferences.preferences().greeting) {
-      case 'every-open':
-        return !this.store.greetedThisSession();
-      case 'daily':
-        return !this.store.hasSeen(day);
-      case 'off':
-        return false;
-    }
+  shouldGreet(): boolean {
+    return this.greetingEnabled() && !this.store.greetedThisSession();
   }
 
-  /** Whether the impulse may greet at all - a shake asks for it again, but not when it is off. */
+  /** Whether the impulse may greet at all - a shake asks for it again, but not with reduced motion. */
   greetingEnabled(): boolean {
-    return this.preferences.preferences().greeting !== 'off';
+    return !this.appearance.motionReduced();
   }
 
-  /** Records that the impulse has just greeted, for both the per-opening and the per-day rule. */
-  markGreeted(day: string): void {
+  /** Records that the impulse has just greeted in this opening of the app. */
+  markGreeted(): void {
     this.store.markGreetedThisSession();
-    this.store.markSeen(day);
   }
 
   /** Which item is featured today, if a pick was already made - for the debug catalog. */

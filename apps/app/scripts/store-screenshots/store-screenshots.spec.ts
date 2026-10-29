@@ -130,8 +130,8 @@ async function seedDemoData(page: Page): Promise<void> {
     sourceType: 'ics',
     title: 'Weltfrauen*tag',
     day: TODAY,
-    calendarName: 'Rebell*innen Termine',
-    color: '#7B3FA8',
+    calendarName: 'Rebell*innen Kalender',
+    color: '#7DBDBB',
   });
 
   await addAppointment(page, {
@@ -262,7 +262,7 @@ test.describe('store screenshots', () => {
         },
         before: async (p) => {
           await p.goto('/settings/theme');
-          await p.getByRole('radio', { name: 'Mitternacht' }).check();
+          await p.getByRole('radio', { name: 'Dark', exact: true }).check();
         },
       },
     ];

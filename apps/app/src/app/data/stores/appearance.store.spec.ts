@@ -76,16 +76,18 @@ describe('AppearanceStore', () => {
     }
   });
 
-  it('should restore a dynamic theme', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'lila-nacht' }));
+  it('should carry a removed theme over to the closest remaining one', () => {
+    for (const [removed, kept] of [
+      ['amazone-nacht', 'amazone'],
+      ['lila-nacht', 'lila'],
+      ['system', 'amazone'],
+      ['warm', 'amazone'],
+    ] as const) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: removed }));
+      TestBed.resetTestingModule();
 
-    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('lila-nacht');
-  });
-
-  it('should carry the former system theme over to Amazone / Mitternacht', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: 'system' }));
-
-    expect(TestBed.inject(AppearanceStore).preferences().theme).toBe('amazone-nacht');
+      expect(TestBed.inject(AppearanceStore).preferences().theme).toBe(kept);
+    }
   });
 
   it('should accept every step of the text-size ladder, including the pre-existing ones', () => {

@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { APP_VERSION } from '@app/cross-cutting/infrastructure/app-version';
 import { DEVELOPER_TOOLS_ENABLED } from '@app/cross-cutting/infrastructure/developer-tools';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
-import { ImpulsePreferencesInteractor } from '@app/interactors/daily-content/impulse-preferences.interactor';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
@@ -20,7 +19,6 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 })
 export class SettingsOverviewPage {
   protected readonly appearance = inject(AppearanceInteractor);
-  protected readonly impulse = inject(ImpulsePreferencesInteractor);
   private readonly notifications = inject(NotificationPreferencesInteractor);
 
   /** On the web there is nothing to switch, so the row says so rather than showing „Aus“. */

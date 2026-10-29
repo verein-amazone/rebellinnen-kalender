@@ -103,15 +103,16 @@ Colour values never live in TypeScript.
 
 ### Status colours
 
-`danger`, `success` and `warning`, each with a `-foreground`, plus `error`, defined in all four
-themes. `success` and `warning` are legible as text on both `card` and `background` and carry their
+`danger`, `success` and `warning`, each with a `-foreground`, plus `error`, defined in every
+theme. `success` and `warning` are legible as text on both `card` and `background` and carry their
 foreground when used as a fill.
 
 `danger` is the colour of destructive actions: the filled and outline delete buttons, a destructive
 menu item, a delete icon in a row. Those only ever sit on `card` or a field surface, so `danger` is
 only guaranteed legible there. `error` is the text colour of validation messages and the border of
 an invalid field, which sit directly on `background` as well. On most themes the two are the same
-value; on Amazone they differ.
+value; on Amazone, Summer and Candy, whose backgrounds are mid-tone or saturated, `error` is a
+darker red than `danger`.
 
 Constraints worth knowing before changing them:
 
@@ -123,13 +124,18 @@ Constraints worth knowing before changing them:
   orange; Lila uses the same crimson. Orange is unavailable - it collides with `--rk-accent`.
 - Never use `danger` for text on `background`; use `error`.
 - On `nacht` the polarity inverts: the status colour is light and its `-foreground` is dark, matching
-  how `--rk-primary` already behaves there.
+  how `--rk-primary` already behaves there. No red carries white text and also reads as text on the
+  navy card, so `nacht`'s `danger` is a light crimson (`#ff6680`) of the same hue as everywhere
+  else; an earlier salmon read as a different colour next to the other themes.
+- The active tab's marker (`--rk-nav-indicator`) is always a colour of the theme's own palette and
+  at least 3:1 against `--rk-nav-bg`: red on Strong, teal on Dark, orchid on Soft, orange on Summer,
+  pink on Candy. Verein Amazone noticed an orange marker on Soft as foreign to it.
 
 **Destructive actions are never signalled by colour alone.** Pair `danger` with an explicit verb, an
 icon, and a confirmation step.
 
 Contrast is checked per theme by the Playwright suite, because each theme is a separate palette and
-one pass proves nothing about the other three.
+one pass proves nothing about the others.
 
 ### Breakpoints and custom variants
 
@@ -255,7 +261,7 @@ for square label-less actions, with `.rk-icon-button-primary` as its filled vari
 a compact row exists to perform. `rk-control-base` is the shared `@utility` they build on and is not
 for direct use.
 
-`.rk-button-secondary` currently fails AA contrast in amazone, warm and lila (its foreground on the
+`.rk-button-secondary` currently fails AA contrast in amazone and lila (its foreground on the
 secondary fill is about 3.9:1). Until the palette is revisited, use `-ghost` for a declining or
 secondary action; the Playwright contrast loop will catch a regression either way.
 
@@ -495,11 +501,11 @@ alert, and the only thing wearing this class is today's Tagesimpuls saying hello
 never opacity, for the same contrast reason the reorderable list records above.
 
 The card pairs it with a haptic pattern on the same envelope (`HapticsInteractor`): four taps whose
-intensity and sharpness fall away across the same 1.2s. _When_ it greets is the Tagesimpuls
-screen's call - „Bei jedem Öffnen“ (the default: a cold start or a return from the background, not
-a tab switch), „Einmal am Tag“ or „Ohne Animation“. _Whether_ the phone vibrates along is the
-app-wide „Vibration“ setting, and the app-wide „Animationen“ setting still silences the wave under
-„Reduziert“ whichever greeting is picked; the Tagesimpuls screen says so when that is the case.
+intensity and sharpness fall away across the same 1.2s. It greets on every opening of the app (a
+cold start or a return from the background, not a tab switch), and not at all - neither wave nor
+buzz - while „Animationen“ is on „Wenig“, or on „Systemeinstellung“ with the device reducing motion.
+Verein Amazone folded the former Tagesimpuls setting into „Animationen“ for that. _Whether_ the
+phone vibrates along is the app-wide „Vibration“ setting.
 Neither channel ever carries information on its own: the card is fully readable with both off.
 
 ### Haptics

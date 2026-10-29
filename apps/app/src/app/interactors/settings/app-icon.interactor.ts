@@ -42,20 +42,21 @@ const NATIVE_NAMES: Record<AppIconId, string | null> = {
 const DEFAULT_ICON: AppIconId = 'cool-cat-nacht';
 
 /**
- * What happens after the icon is picked, which is different on each platform and is only ever true
- * of one of them: iOS puts up its own confirmation, Android swaps the icon lazily. Saying both at
- * once left every reader working out which half applied to them.
+ * What the choice does, in Verein Amazone's words, plus what happens after the icon is picked where
+ * that needs saying. iOS puts up its own confirmation, which explains itself; Android swaps the icon
+ * lazily, which would otherwise look like the choice did not work.
  *
  * Android's wording also covers the `web` case, which never renders this - the screen offers no
  * choice at all where `available` is false.
  */
 const CHANGE_NOTICES: Record<'ios' | 'other', string> = {
   ios:
-    'Das neue Symbol erscheint auf dem Startbildschirm. Du bestätigst die Änderung noch einmal ' +
-    'in einem Hinweis des Systems.',
+    'Wähle das App-Symbol aus, das dir am besten gefällt. Es wird auf deinem Startbildschirm ' +
+    'angezeigt.',
   other:
-    'Das neue Symbol erscheint auf dem Startbildschirm. Auf manchen Geräten wird es erst ' +
-    'getauscht, nachdem du die App einmal ganz geschlossen hast.',
+    'Wähle das App-Symbol aus, das dir am besten gefällt. Es wird auf deinem Startbildschirm ' +
+    'angezeigt. Auf manchen Geräten wird es erst getauscht, nachdem du die App einmal ganz ' +
+    'geschlossen hast.',
 };
 
 /**
@@ -76,12 +77,12 @@ export class AppIconInteractor {
   private readonly platform = inject(DevicePlatformService);
 
   readonly options: readonly AppIconOption[] = [
-    option('cool-cat-nacht', 'Cool Cat Nacht'),
-    option('cool-cat-lila', 'Cool Cat Lila'),
-    option('cool-cat-hell', 'Cool Cat Hell'),
-    option('sam-orange', 'Sam Orange'),
-    option('sam-tuerkis', 'Sam Türkis'),
-    option('sam-hell', 'Sam Hell'),
+    option('cool-cat-nacht', 'Leo dunkel'),
+    option('cool-cat-lila', 'Leo lila'),
+    option('cool-cat-hell', 'Leo hell'),
+    option('sam-orange', 'Sam orange'),
+    option('sam-tuerkis', 'Sam türkis'),
+    option('sam-hell', 'Sam hell'),
   ];
 
   /** What to expect after picking an icon here, in this device's terms - see `CHANGE_NOTICES`. */

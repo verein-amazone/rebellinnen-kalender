@@ -1,27 +1,16 @@
 import { computed, inject, Injectable } from '@angular/core';
 
-import { SystemDarkMode } from '@app/cross-cutting/infrastructure/system-dark-mode';
 import { SystemReducedMotion } from '@app/cross-cutting/infrastructure/system-reduced-motion';
 import { AppearanceStore } from '@app/data/stores/appearance.store';
 import type {
-  DynamicThemeId,
   MotionId,
-  PaletteId,
   TextSizeId,
   ThemeId,
   VibrationId,
 } from '@app/data/stores/appearance-preferences';
 import type { ChoiceOption } from '@app/interactors/choice-option';
 
-export type { DynamicThemeId, MotionId, PaletteId, TextSizeId, ThemeId, VibrationId };
-
-/** The palettes each dynamic theme switches between with the device's dark mode. */
-const DYNAMIC_THEME_PALETTES: Readonly<
-  Record<DynamicThemeId, { readonly light: PaletteId; readonly dark: PaletteId }>
-> = {
-  'amazone-nacht': { light: 'amazone', dark: 'nacht' },
-  'lila-nacht': { light: 'lila', dark: 'nacht' },
-};
+export type { MotionId, TextSizeId, ThemeId, VibrationId };
 
 /** A selectable appearance option. The shape is shared with the other settings screens. */
 export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
@@ -39,25 +28,11 @@ export type AppearanceOption<TId extends string> = ChoiceOption<TId>;
 export class AppearanceInteractor {
   private readonly store = inject(AppearanceStore);
   private readonly systemReducedMotion = inject(SystemReducedMotion);
-  private readonly systemDarkMode = inject(SystemDarkMode);
 
   readonly theme = computed(() => this.store.preferences().theme);
   readonly textSize = computed(() => this.store.preferences().textSize);
   readonly motion = computed(() => this.store.preferences().motion);
   readonly vibration = computed(() => this.store.preferences().vibration);
-
-  /**
-   * The palette on screen right now: the selected one, or - for a dynamic theme - the light or
-   * dark half the device's appearance calls for. This, not `theme`, is what reaches `data-theme`.
-   */
-  readonly palette = computed<PaletteId>(() => {
-    const theme = this.theme();
-    if (!isDynamicTheme(theme)) {
-      return theme;
-    }
-    const pair = DYNAMIC_THEME_PALETTES[theme];
-    return this.systemDarkMode.dark() ? pair.dark : pair.light;
-  });
 
   /**
    * Whether animations are reduced right now: by the app's own setting, or by the device's while
@@ -68,26 +43,17 @@ export class AppearanceInteractor {
     return motion === 'reduced' || (motion === 'system' && this.systemReducedMotion.reduced());
   });
 
-  /** The palettes on their own. */
-  readonly paletteOptions: readonly AppearanceOption<PaletteId>[] = [
-    { id: 'amazone', label: 'Amazone', description: null },
-    { id: 'warm', label: 'Sonnenuntergang', description: null },
-    { id: 'nacht', label: 'Mitternacht', description: null },
-    { id: 'lila', label: 'Lavendel', description: null },
-  ];
-
   /**
-   * The dynamic pairs, named light half first. What they have in common - following the device -
-   * is said once, by the group they are listed under, rather than repeated on every option.
+   * The colour themes, under the names Verein Amazone gave them, with Summer and Candy as their own
+   * additions. Sonnenuntergang and the dynamic themes that followed the device's dark mode were
+   * dropped as more confusing than useful.
    */
-  readonly dynamicThemeOptions: readonly AppearanceOption<DynamicThemeId>[] = [
-    { id: 'amazone-nacht', label: 'Amazone / Mitternacht', description: null },
-    { id: 'lila-nacht', label: 'Lavendel / Mitternacht', description: null },
-  ];
-
   readonly themeOptions: readonly AppearanceOption<ThemeId>[] = [
-    ...this.paletteOptions,
-    ...this.dynamicThemeOptions,
+    { id: 'amazone', label: 'Strong', description: null },
+    { id: 'nacht', label: 'Dark', description: null },
+    { id: 'lila', label: 'Soft', description: null },
+    { id: 'summer', label: 'Summer', description: null },
+    { id: 'candy', label: 'Candy', description: null },
   ];
 
   readonly textSizeOptions: readonly AppearanceOption<TextSizeId>[] = [
@@ -105,19 +71,19 @@ export class AppearanceInteractor {
 
   readonly motionOptions: readonly AppearanceOption<MotionId>[] = [
     {
-      id: 'system',
-      label: 'Systemeinstellung',
-      description: 'Übernimmt die Einstellung deines Geräts.',
+      id: 'standard',
+      label: 'Standard',
+      description: 'Alle Animationen werden dargestellt.',
     },
     {
       id: 'reduced',
-      label: 'Reduziert',
-      description: 'Reduziert Bewegungen und Übergänge in der App.',
+      label: 'Wenig',
+      description: 'Es werden wenige Animationen in der App dargestellt.',
     },
     {
-      id: 'standard',
-      label: 'Standard',
-      description: 'Zeigt die regulären Animationen der App.',
+      id: 'system',
+      label: 'Systemeinstellung',
+      description: 'Übernimmt die Einstellung deines Geräts.',
     },
   ];
 
@@ -125,23 +91,10 @@ export class AppearanceInteractor {
     {
       id: 'on',
       label: 'Ein',
-      description:
-        'Kurze Vibrationen bestätigen, was du getan hast, und der Tagesimpuls begrüßt dich damit.',
+      description: 'Die App vibriert kurz zur Begrüßung und wenn du Änderungen vornimmst.',
     },
     { id: 'off', label: 'Aus', description: 'Die App vibriert nie.' },
   ];
-
-  /**
-   * The palettes a theme option previews: its own, or both halves of a dynamic theme, so the option
-   * shows what it does rather than whichever half applies at the moment.
-   */
-  palettesOf(theme: ThemeId): readonly PaletteId[] {
-    if (!isDynamicTheme(theme)) {
-      return [theme];
-    }
-    const pair = DYNAMIC_THEME_PALETTES[theme];
-    return [pair.light, pair.dark];
-  }
 
   /** The label of the currently selected theme, for the settings overview. */
   readonly themeLabel = computed(() => labelOf(this.themeOptions, this.theme()));
@@ -164,10 +117,6 @@ export class AppearanceInteractor {
   selectVibration(vibration: VibrationId): void {
     this.store.update({ vibration });
   }
-}
-
-function isDynamicTheme(theme: ThemeId): theme is DynamicThemeId {
-  return Object.hasOwn(DYNAMIC_THEME_PALETTES, theme);
 }
 
 function labelOf<TId extends string>(options: readonly AppearanceOption<TId>[], id: TId): string {
