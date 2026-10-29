@@ -87,7 +87,7 @@ describe('NativeVideoPlayer', () => {
       expect.objectContaining({
         videoId: 'teTZq72DAlM',
         frame: { x: 16, y: 121, width: 358, height: 201 },
-        options: { autoplay: true, rel: false, ccLoadPolicy: true },
+        options: { autoplay: true, rel: false },
       }),
     ]);
   });

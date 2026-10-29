@@ -8,10 +8,11 @@ const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
 
 /**
  * Plays inline (`playsinline`), starts at once since a tap asked for it (`autoplay`), suggests only
- * the same channel's videos at the end (`rel=0`), and shows German controls and captions where the
- * video has them.
+ * the same channel's videos at the end (`rel=0`), and shows German controls. Captions stay off
+ * unless the viewer turns them on, in German first: several videos have subtitles burned in, and
+ * YouTube's own would cover them.
  */
-const EMBED_PARAMS = 'autoplay=1&playsinline=1&rel=0&hl=de&cc_lang_pref=de&cc_load_policy=1';
+const EMBED_PARAMS = 'autoplay=1&playsinline=1&rel=0&hl=de&cc_lang_pref=de';
 
 /** Whether `id` can be played at all - a malformed id only gets the link to YouTube. */
 export function isYoutubeId(id: string): boolean {

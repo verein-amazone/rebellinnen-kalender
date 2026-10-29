@@ -85,8 +85,9 @@ export class NativeVideoPlayer {
         videoId,
         frame: toPluginFrame(frame),
         // The tap on the cover asked for the video, so it starts at once. Only the same
-        // channel's videos are suggested at the end, and captions show where the video has them.
-        options: { autoplay: true, rel: false, ccLoadPolicy: true },
+        // channel's videos are suggested at the end. Captions stay off unless the viewer turns them
+        // on: several videos have subtitles burned in, and YouTube's own would cover them.
+        options: { autoplay: true, rel: false },
       });
     } catch (error) {
       void listener.remove();

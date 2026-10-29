@@ -175,10 +175,11 @@ behaviour.
 - A video is never only a picture with a play icon: its cover is one native `<button>` whose name
   starts with the visible „Video abspielen“, the picture is `alt=""` and its description is read
   after the name (`aria-describedby`). The video then plays in the cover's place, and focus moves
-  from the vanished button to the player's stage, which is named „YouTube-Video: …“. The YouTube player's controls are YouTube's; ask
-  for captions (`cc_load_policy`) and keep „Auf YouTube ansehen“ as a second path to the same video.
-  Whether a video has captions is the content's job (WCAG 1.2.2): ask the producer when a video is
-  added.
+  from the vanished button to the player's stage, which is named „YouTube-Video: …“. The YouTube player's controls are YouTube's; keep
+  „Auf YouTube ansehen“ as a second path to the same video. YouTube's captions are not forced on:
+  Verein Amazone burns subtitles into several videos, and YouTube's would cover them; its CC button
+  still offers them. Whether a video has captions is the content's job (WCAG 1.2.2): ask the
+  producer when a video is added.
 - Tables are for tabular data, with `<caption>` and `<th scope>`. A static table is never an ARIA
   grid.
 

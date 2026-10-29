@@ -175,7 +175,8 @@ on Android and iOS, the youtube-nocookie embed in the browser. Under it sit „A
 a second way in, and an info button that says playing sends data to Google.
 
 When a video is added, ask the producer whether it has German captions, and say in the pull request
-if it does not - the app asks YouTube to show captions, but cannot add any (WCAG 1.2.2).
+if it does not (WCAG 1.2.2). Burned-in subtitles are best: the app leaves YouTube's own captions
+off so they do not cover them, and it cannot add any.
 
 ## 6. Verify
 
