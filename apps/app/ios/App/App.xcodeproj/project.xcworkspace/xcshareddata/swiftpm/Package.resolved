@@ -1,13 +1,13 @@
 {
-  "originHash" : "99742316ec66275c3956249a8fe87c8f881440080146a817098fb454c8f3bb74",
+  "originHash" : "5be0d3189867a2d4b60240cd4dcefadd2c651fba2195b81a732f407b1eec86e8",
   "pins" : [
     {
       "identity" : "capacitor-swift-pm",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ionic-team/capacitor-swift-pm.git",
       "state" : {
-        "revision" : "4c7f346d16196e21fbe23d4a7a6fc7af62af6742",
-        "version" : "8.5.3"
+        "revision" : "e9e932f7748d3b948bc47f5791c761ac5221ec6a",
+        "version" : "8.6.0"
       }
     },
     {
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "205df55271aa1ba512a9bfe3fd1813bc9ac52a19",
         "version" : "4.17.0"
-      }
-    },
-    {
-      "identity" : "youtubeplayerview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mukeshydv/YoutubePlayerView.git",
-      "state" : {
-        "revision" : "8a085819f9adaf32648caa27ce1ef19a363e441a",
-        "version" : "1.2.2"
       }
     },
     {
