@@ -161,8 +161,10 @@ has them); keep the redirect for as long as an old address can still be out ther
   asked for it to be left out there, and the e2e suite checks it.
 - **Store links** come from `apps/site/site.config.json`. While a listing is not public its URL stays
   `null`, and the site says „Bald verfügbar im App Store …“ instead of showing that badge. Fill in
-  the App Store URL without a country (`https://apps.apple.com/app/…/id<number>`, so every visitor
-  lands in their own storefront) and the Play URL
+  the App Store URL with the Austrian storefront (`https://apps.apple.com/at/app/…/id<number>`, as
+  the App Store's own share link gives it). Never drop the country: in a browser Apple resolves a
+  URL without one to the US storefront, where the app is not listed, and answers 404. On an iPhone
+  the App Store app opens the link in the visitor's own storefront anyway. Then fill in the Play URL
   (`https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender`) when each
   store goes live.
 - **`/download`** is the address for QR codes. On an iPhone or iPad it forwards to the App Store, on
