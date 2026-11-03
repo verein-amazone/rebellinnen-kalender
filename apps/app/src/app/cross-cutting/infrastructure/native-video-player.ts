@@ -48,10 +48,11 @@ let nextId = 0;
  *
  * Native because the WebView cannot frame YouTube itself on iOS: from `capacitor://localhost` it
  * sends no referrer, and YouTube refuses to play with "Error 153". The plugin's view loads the player
- * from an https origin instead - youtube-nocookie.com on iOS. It is laid *over* the WebView at a
- * frame the caller keeps in sync with a placeholder element, and does not scroll with the page: the
- * caller moves it along with every scroll, and parks it while anything of the page - the sticky
- * header - covers the placeholder, since the native view would otherwise be drawn on top of it.
+ * from an https origin instead - YouTube's privacy-enhanced youtube-nocookie.com, like the browser
+ * build. It is laid *over* the WebView at a frame the caller keeps in sync with a placeholder
+ * element, and does not scroll with the page: the caller moves it along with every scroll, and parks
+ * it while anything of the page - the sticky header - covers the placeholder, since the native view
+ * would otherwise be drawn on top of it.
  *
  * Android and iOS only. On the web `available` is false and the caller frames the player itself,
  * where an http(s) origin works.
@@ -92,9 +93,9 @@ export class NativeVideoPlayer {
         // on: several videos have subtitles burned in, and YouTube's own would cover them. That
         // takes a German player (`hl`), since YouTube shows its automatic captions whenever the
         // player's language differs from the video's, and the player otherwise follows the device
-        // language. iOS loads the player from YouTube's privacy-enhanced host, like the browser
-        // build. `hl` comes from a pnpm patch (patches/); Android's player has neither option and
-        // ignores both.
+        // language. Both platforms load the player from YouTube's privacy-enhanced host, like the
+        // browser build. `hl` comes from a pnpm patch (patches/) and is iOS only; Android's player
+        // ignores it.
         options: { autoplay: true, rel: false, hl: 'de', host: PRIVACY_ENHANCED_HOST },
       });
     } catch (error) {

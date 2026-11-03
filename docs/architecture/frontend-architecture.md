@@ -423,9 +423,9 @@ Only create cross-cutting code when it is actually shared.
   wherever the page covers the placeholder, found by hit-testing its corners
   (`elementFromPoint`), which catches the header and any sheet without knowing about them. The
   view is removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
-  `capacitor://localhost` (YouTube's "Error 153", no referrer). On iOS it loads the player from
-  the privacy-enhanced youtube-nocookie.com, which Android's player cannot; the browser build frames
-  the cookie-less embed itself (`frame-src` in `index.html`).
+  `capacitor://localhost` (YouTube's "Error 153", no referrer). It loads the player from the
+  privacy-enhanced youtube-nocookie.com; the browser build frames the cookie-less embed itself
+  (`frame-src` in `index.html`).
 - `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,
   and the folder is only created when one does. A context may be injected only into
   components/presenters; interactors and data-layer classes must not inject them. Prefer local
