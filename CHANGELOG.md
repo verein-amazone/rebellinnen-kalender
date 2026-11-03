@@ -1,3 +1,13 @@
+## [1.1.0-rc.11](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.10...v1.1.0-rc.11) (2026-11-03)
+
+### Features
+
+* **app:** play iOS videos in YouTube's privacy-enhanced mode ([396a71a](https://github.com/verein-amazone/rebellinnen-kalender/commit/396a71a452b8d63364635ad2b5cc2bdc8f6accce))
+
+### Chores
+
+* **deps:** weekly app dependency update ([24eed2d](https://github.com/verein-amazone/rebellinnen-kalender/commit/24eed2d615a7679c2fbcde7bb0593cb73e6d058e))
+
 ## [1.1.0-rc.10](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.9...v1.1.0-rc.10) (2026-11-03)
 
 ### Bug Fixes
