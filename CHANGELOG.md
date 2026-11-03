@@ -1,3 +1,9 @@
+## [1.1.0-rc.10](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.9...v1.1.0-rc.10) (2026-11-03)
+
+### Bug Fixes
+
+* **site:** link the Austrian App Store storefront ([1b19521](https://github.com/verein-amazone/rebellinnen-kalender/commit/1b195213020b11bf18759b405326bb0f693f7e17))
+
 ## [1.1.0-rc.9](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.8...v1.1.0-rc.9) (2026-11-03)
 
 ### Delivery
