@@ -171,7 +171,8 @@ Notes from doing this for the first 41 items:
 
 An item with `video` shows its picture as a cover with „Video abspielen“; nothing reaches YouTube
 before the tap (privacy policy §6.2). The video then plays in the picture's place: a native player
-on Android and iOS, the youtube-nocookie embed in the browser. Under it sit „Auf YouTube ansehen“,
+on Android and iOS (from youtube-nocookie.com on iOS, youtube.com on Android), the youtube-nocookie
+embed in the browser. Under it sit „Auf YouTube ansehen“,
 a second way in, and an info button that says playing sends data to Google.
 
 When a video is added, ask the producer whether it has German captions, and say in the pull request
