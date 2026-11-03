@@ -47,3 +47,9 @@ overrides:
   # writer 8, so preset 10 fails the release with `Missing helper`. Pin the whole tree to preset 9 and
   # drop the override once release-notes-generator ships writer 9.
   conventional-changelog-conventionalcommits: ^9.3.1
+patchedDependencies:
+  # Adds an `hl` option (the player's interface language) to the iOS player. Without it YouTube takes
+  # the device language, and on a phone not set to German it shows automatic captions over the
+  # videos, which have German audio and often burned-in subtitles. Keyed without a version so it
+  # follows updates; drop it once the plugin has the option (capawesome-team/capacitor-plugins#1195).
+  '@capawesome/capacitor-youtube-player': patches/@capawesome__capacitor-youtube-player.patch

@@ -58,3 +58,13 @@ it and calls that when the injector is destroyed - which rejects with
 `"App.ngOnDestroy() is not implemented on web"` in every jsdom spec that reaches the token
 transitively, whether or not the test ever uses the plugin. A plain object has no such property. It
 also narrows the token's type to the slice the app uses, which is the boundary this folder is for.
+
+## Patched plugins
+
+A plugin that lacks something the app needs is patched with `pnpm patch`, not forked: the patch
+lives in the root `patches/`, `patchedDependencies` in `pnpm-workspace.yaml` names it and says why,
+and an upstream issue tracks its removal. The key has no version, so the patch follows updates and
+the install fails loudly once it no longer applies.
+
+- `@capawesome/capacitor-youtube-player`: an `hl` option (the player's interface language) on iOS,
+  [capawesome-team/capacitor-plugins#1195](https://github.com/capawesome-team/capacitor-plugins/issues/1195).

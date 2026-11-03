@@ -178,7 +178,9 @@ behaviour.
   from the vanished button to the player's stage, which is named „YouTube-Video: …“. The YouTube player's controls are YouTube's; keep
   „Auf YouTube ansehen“ as a second path to the same video. YouTube's captions are not forced on:
   Verein Amazone burns subtitles into several videos, and YouTube's would cover them; its CC button
-  still offers them. Whether a video has captions is the content's job (WCAG 1.2.2): ask the
+  still offers them. The player is German (`hl=de`), because YouTube shows its automatic captions
+  whenever the player's language differs from the video's, and the player otherwise follows the
+  device language. Android's native player cannot be set yet (capawesome-team/capacitor-plugins#1195). Whether a video has captions is the content's job (WCAG 1.2.2): ask the
   producer when a video is added.
 - Tables are for tabular data, with `<caption>` and `<th scope>`. A static table is never an ARIA
   grid.

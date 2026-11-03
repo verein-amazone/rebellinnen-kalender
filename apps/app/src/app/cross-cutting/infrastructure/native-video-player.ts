@@ -89,10 +89,13 @@ export class NativeVideoPlayer {
         frame: toPluginFrame(frame),
         // The tap on the cover asked for the video, so it starts at once. Only the same
         // channel's videos are suggested at the end. Captions stay off unless the viewer turns them
-        // on: several videos have subtitles burned in, and YouTube's own would cover them. iOS
-        // loads the player from YouTube's privacy-enhanced host, like the browser build; Android's
-        // player has no such option and ignores it.
-        options: { autoplay: true, rel: false, host: PRIVACY_ENHANCED_HOST },
+        // on: several videos have subtitles burned in, and YouTube's own would cover them. That
+        // takes a German player (`hl`), since YouTube shows its automatic captions whenever the
+        // player's language differs from the video's, and the player otherwise follows the device
+        // language. iOS loads the player from YouTube's privacy-enhanced host, like the browser
+        // build. `hl` comes from a pnpm patch (patches/); Android's player has neither option and
+        // ignores both.
+        options: { autoplay: true, rel: false, hl: 'de', host: PRIVACY_ENHANCED_HOST },
       });
     } catch (error) {
       void listener.remove();
