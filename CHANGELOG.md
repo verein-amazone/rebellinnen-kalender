@@ -1,3 +1,9 @@
+## [1.1.0-rc.12](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.11...v1.1.0-rc.12) (2026-11-03)
+
+### Bug Fixes
+
+* **app:** keep YouTube's automatic captions off on iOS ([cc9b903](https://github.com/verein-amazone/rebellinnen-kalender/commit/cc9b903d8a251bbd3715e3f57227b16c70d17f85)), closes [capawesome-team/capacitor-plugins#1195](https://github.com/capawesome-team/capacitor-plugins/issues/1195)
+
 ## [1.1.0-rc.11](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.10...v1.1.0-rc.11) (2026-11-03)
 
 ### Features
