@@ -1,3 +1,9 @@
+## [1.1.0-rc.9](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.8...v1.1.0-rc.9) (2026-11-03)
+
+### Delivery
+
+* **deps:** bump ruby/setup-ruby ([afad768](https://github.com/verein-amazone/rebellinnen-kalender/commit/afad76833bd6ed574c344450380acded2bbe7427))
+
 ## [1.1.0-rc.8](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.7...v1.1.0-rc.8) (2026-10-29)
 
 ### Chores
