@@ -78,7 +78,7 @@ describe('NativeVideoPlayer', () => {
     expect(setup('web').player.available).toBe(false);
   });
 
-  it('opens the video at once, at the rounded frame', async () => {
+  it('opens the video at once, at the rounded frame, from the privacy-enhanced host', async () => {
     const { player, plugin } = setup();
 
     await player.open('teTZq72DAlM', FRAME, () => undefined);
@@ -87,7 +87,7 @@ describe('NativeVideoPlayer', () => {
       expect.objectContaining({
         videoId: 'teTZq72DAlM',
         frame: { x: 16, y: 121, width: 358, height: 201 },
-        options: { autoplay: true, rel: false },
+        options: { autoplay: true, rel: false, host: 'https://www.youtube-nocookie.com' },
       }),
     ]);
   });

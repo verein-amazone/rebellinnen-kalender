@@ -1,4 +1,4 @@
-**Stand: 29. Oktober 2026**
+**Stand: 3. November 2026**
 
 ## 1. Deine Privatsphäre ist uns wichtig
 
@@ -180,6 +180,8 @@ Einige Inhalte enthalten ein Video, das auf YouTube veröffentlicht ist. Anbiete
 Solange du ein Video nicht abspielst, zeigt die App nur ein Vorschaubild, das in der App selbst gespeichert ist. Dabei wird keine Verbindung zu YouTube oder Google hergestellt.
 
 Erst wenn du auf „Video abspielen“ tippst, lädt die App den Videoplayer von YouTube und spielt das Video an der Stelle des Vorschaubilds ab. Darauf weist dich das Info-Symbol neben dem Link „Auf YouTube ansehen“ unter jedem Video hin. Dabei werden insbesondere deine IP-Adresse, Informationen über dein Gerät und dein Betriebssystem sowie das aufgerufene Video an Google übertragen. Google kann außerdem Cookies oder ähnliche Technologien auf deinem Gerät speichern und die Nutzung des Players auswerten. Wenn du auf deinem Gerät bei Google angemeldet bist, kann Google das Abspielen deinem Konto zuordnen.
+
+Auf iOS lädt die App den Videoplayer im erweiterten Datenschutzmodus von YouTube, also von der Adresse youtube-nocookie.com. Nach Angaben von Google beeinflusst ein Video, das du in diesem Modus abspielst, nicht dein Nutzungserlebnis auf YouTube, etwa die Videos, die dir dort empfohlen werden. Auf Android unterstützt der in der App verwendete Videoplayer diesen Modus nicht; dort lädt die App den Videoplayer von youtube.com. Die oben beschriebene Übertragung von Daten an Google findet in beiden Fällen statt.
 
 Der Verein Amazone erhält keine Informationen darüber, welche Videos du abspielst.
 

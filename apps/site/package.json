@@ -19,7 +19,7 @@
     "@amazone/design-system": "workspace:*",
     "@amazone/legal": "workspace:*",
     "@tailwindcss/vite": "catalog:",
-    "astro": "^7.4.2",
+    "astro": "^7.4.4",
     "tailwindcss": "catalog:"
   },
   "devDependencies": {

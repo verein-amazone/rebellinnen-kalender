@@ -37,6 +37,9 @@ const PARKED_FRAME: VideoPlayerFrame = {
   height: MIN_PLAYER_SIZE,
 };
 
+/** YouTube's privacy-enhanced mode, the host the browser build frames as well. */
+const PRIVACY_ENHANCED_HOST = 'https://www.youtube-nocookie.com';
+
 let nextId = 0;
 
 /**
@@ -45,10 +48,10 @@ let nextId = 0;
  *
  * Native because the WebView cannot frame YouTube itself on iOS: from `capacitor://localhost` it
  * sends no referrer, and YouTube refuses to play with "Error 153". The plugin's view loads the player
- * from an https origin instead. It is laid *over* the WebView at a frame the caller keeps in sync
- * with a placeholder element, and does not scroll with the page: the caller moves it along with
- * every scroll, and parks it while anything of the page - the sticky header - covers the
- * placeholder, since the native view would otherwise be drawn on top of it.
+ * from an https origin instead - youtube-nocookie.com on iOS. It is laid *over* the WebView at a
+ * frame the caller keeps in sync with a placeholder element, and does not scroll with the page: the
+ * caller moves it along with every scroll, and parks it while anything of the page - the sticky
+ * header - covers the placeholder, since the native view would otherwise be drawn on top of it.
  *
  * Android and iOS only. On the web `available` is false and the caller frames the player itself,
  * where an http(s) origin works.
@@ -86,8 +89,10 @@ export class NativeVideoPlayer {
         frame: toPluginFrame(frame),
         // The tap on the cover asked for the video, so it starts at once. Only the same
         // channel's videos are suggested at the end. Captions stay off unless the viewer turns them
-        // on: several videos have subtitles burned in, and YouTube's own would cover them.
-        options: { autoplay: true, rel: false },
+        // on: several videos have subtitles burned in, and YouTube's own would cover them. iOS
+        // loads the player from YouTube's privacy-enhanced host, like the browser build; Android's
+        // player has no such option and ignores it.
+        options: { autoplay: true, rel: false, host: PRIVACY_ENHANCED_HOST },
       });
     } catch (error) {
       void listener.remove();
