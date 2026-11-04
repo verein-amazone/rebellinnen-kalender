@@ -1,3 +1,18 @@
+## [1.1.0-rc.19](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.18...v1.1.0-rc.19) (2026-11-04)
+
+### Features
+
+* **content:** adopt Verein Amazone's content revision of 3 November 2026 ([166afba](https://github.com/verein-amazone/rebellinnen-kalender/commit/166afbac03a2d9cc4b3656fc2529e627e2dc4213))
+
+### Bug Fixes
+
+* **content:** drop the „Hass im Netz“ video from wi-314 ([90950af](https://github.com/verein-amazone/rebellinnen-kalender/commit/90950af43fa90f7ac2487c0a8c3b1a7cfdc6dbab))
+* **content:** give wi-314 its own video ([83fa91f](https://github.com/verein-amazone/rebellinnen-kalender/commit/83fa91ffb1330fdb88250fc52c94e97efcada59d))
+
+### Chores
+
+* **store:** answer "Mature or suggestive themes" with None ([f83791d](https://github.com/verein-amazone/rebellinnen-kalender/commit/f83791dca8ca9d5a36119c3e7567fc58d1fc8515))
+
 ## [1.1.0-rc.18](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.17...v1.1.0-rc.18) (2026-11-04)
 
 ### Features
