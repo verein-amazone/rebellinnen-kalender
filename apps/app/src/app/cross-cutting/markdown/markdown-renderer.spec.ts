@@ -59,12 +59,23 @@ describe('MarkdownRenderer', () => {
       );
     });
 
-    it('renders https and http links', () => {
+    it('renders https and http links as leaving the app, in a new window', () => {
+      const hint = '<span class="sr-only">, öffnet in einem neuen Fenster</span>';
+
       const https = renderer.render('[secure](https://example.org/path)');
-      expect(https).toContain('<a href="https://example.org/path">secure</a>');
+      expect(https).toContain(
+        `<a href="https://example.org/path" target="_blank" rel="noopener noreferrer">secure${hint}</a>`,
+      );
 
       const http = renderer.render('[plain](http://example.org)');
-      expect(http).toContain('<a href="http://example.org">plain</a>');
+      expect(http).toContain(
+        `<a href="http://example.org" target="_blank" rel="noopener noreferrer">plain${hint}</a>`,
+      );
+    });
+
+    it('leaves links that stay in the app as they are', () => {
+      expect(renderer.render('[oben](#start)')).toContain('<a href="#start">oben</a>');
+      expect(renderer.render('[Inhalte](/content)')).toContain('<a href="/content">Inhalte</a>');
     });
   });
 

@@ -87,6 +87,17 @@ describe('CalendarPickerField', () => {
     expect(button.textContent).toContain('Privat');
   });
 
+  it('names the button after both the label and the selected calendar', async () => {
+    const { element, button } = await setup();
+
+    const [label, value] = (button.getAttribute('aria-labelledby') ?? '')
+      .split(' ')
+      .map((id) => element.querySelector(`#${id}`));
+
+    expect(label?.textContent?.trim()).toBe('Kalender');
+    expect(value?.textContent).toContain('Privat');
+  });
+
   it('opens the picker sheet with every calendar and the current selection', async () => {
     const { button, sheets } = await setup();
 

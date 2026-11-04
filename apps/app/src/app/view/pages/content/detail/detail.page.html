@@ -13,7 +13,9 @@
       } @else {
         <svg lucideBookmark class="rk-icon" aria-hidden="true"></svg>
       }
-      <span class="sr-only">{{ bookmarkActionLabel() }}: {{ headerContent.title }}</span>
+      <!-- A fixed name: the state is `aria-pressed`, so a name that changed with it would say it
+           twice („Aus Sammlung entfernen, gedrückt“). -->
+      <span class="sr-only">In „Meine Sammlung“: {{ headerContent.title }}</span>
     </button>
   }
 

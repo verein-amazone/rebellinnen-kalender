@@ -48,10 +48,11 @@ describe('ReminderEditDialog', () => {
     expect(label?.textContent?.trim()).not.toBe('');
   });
 
-  it('keeps the label for assistive technology only, since the sheet heading says it on screen', async () => {
-    const { element } = await setup('Blumen gießen');
+  it('shows the label on screen rather than leaving it to a placeholder', async () => {
+    const { element, input } = await setup('Blumen gießen');
 
-    expect(element.querySelector('label')?.className).toContain('sr-only');
+    expect(element.querySelector('label')?.className).not.toContain('sr-only');
+    expect(input.hasAttribute('placeholder')).toBe(false);
   });
 
   it('asks the sheet for focus and puts the caret behind the existing text', async () => {

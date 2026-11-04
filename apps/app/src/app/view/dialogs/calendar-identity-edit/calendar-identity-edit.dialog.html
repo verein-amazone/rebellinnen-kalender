@@ -60,10 +60,16 @@
   <div class="mt-4">
     <fieldset>
       <legend class="rk-label">Farbe</legend>
-      <div class="grid grid-cols-6 gap-3">
+      <!--
+        Wrapping rather than a fixed six-column grid: each swatch keeps a full touch target, which
+        grows with the text size, and a narrow sheet takes fewer per row instead of shrinking them.
+        The radio is visually hidden, so its focus ring is drawn on the swatch - an outline, set
+        apart from the ring that marks the checked one.
+      -->
+      <div class="flex flex-wrap gap-3">
         @for (swatch of palette; track swatch.hex) {
           <label
-            class="has-checked:ring-foreground relative block aspect-square cursor-pointer rounded-full has-checked:ring-2 has-checked:ring-offset-2"
+            class="has-checked:ring-foreground has-focus-visible:outline-ring size-touch relative block cursor-pointer rounded-full has-checked:ring-2 has-checked:ring-offset-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-4"
             [style.background-color]="swatch.hex"
           >
             <input
