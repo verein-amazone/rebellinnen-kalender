@@ -40,7 +40,8 @@ do when an upload fails.
 
 Pull requests get no browser preview of the app. A change to the website (`apps/site`, the
 design system or the legal texts in `packages/`) is built and tested by the `Website` CI job, which uploads the built
-site as an artifact to look at; it goes live when the pull request is merged into `dev`.
+site as an artifact to look at; it goes live with the next release from `main`, not when the pull
+request is merged into `dev`.
 
 ### Commit messages
 

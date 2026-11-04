@@ -303,7 +303,7 @@ jobs:
             -quiet
 
   android:
-    name: Android build (debug)
+    name: Android build (debug and release)
     runs-on: ubuntu-latest
     needs: build
     timeout-minutes: 25
@@ -354,6 +354,13 @@ jobs:
       - name: Build the debug APK
         working-directory: apps/app/android
         run: ./gradlew assembleDebug --no-daemon
+
+      # The release build runs R8, which the debug build skips, so a missing keep rule or another
+      # release-only failure shows up here rather than in the store upload after tagging (#148). No
+      # keystore variables are set, so the bundle stays unsigned.
+      - name: Build the release bundle (unsigned)
+        working-directory: apps/app/android
+        run: ./gradlew bundleRelease --no-daemon
 
       # The licence list the app shows covers what Angular cannot see: the Android and iOS libraries,
       # copied assets and fonts. The committed file has to match what Gradle and Package.resolved
