@@ -25,7 +25,10 @@ export interface CalendarOccurrence {
   readonly kind: 'event' | 'todo';
   readonly title: string;
   readonly location: string | null;
-  /** A device occurrence's description/notes; `null` for app (which has its own `note`) and ICS. */
+  /**
+   * The event's description as its calendar wrote it - possibly HTML (see `EventDescriptionRenderer`).
+   * Set for device and ICS occurrences; `null` for app ones, which have their own `note`.
+   */
   readonly description: string | null;
   readonly allDay: boolean;
   readonly start: TemporalValue;

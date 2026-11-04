@@ -285,10 +285,10 @@ function buildRow(input: RowInput): OccurrenceRecord {
     itemId: input.branding.sourceType === 'app' ? item.id : null,
     title: input.overrides?.title ?? item.title,
     location: overriddenText(input.overrides?.location, item.location),
-    // Only device-cached rows carry a description (see `device-normalizer.ts`); app-owned items
-    // keep their note on the canonical `app_items` record instead, and ICS description support is
-    // out of scope here.
-    description: null,
+    // App-owned items keep their note on the canonical `app_items` record instead; the ICS
+    // pipeline's fabricated record carries the feed's `DESCRIPTION` as its note.
+    description:
+      input.branding.sourceType === 'ics' ? overriddenText(input.overrides?.note, item.note) : null,
     isAllDay,
     start,
     end,

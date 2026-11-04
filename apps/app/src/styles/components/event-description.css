@@ -1,0 +1,28 @@
+/*
+ * Renders the sanitized HTML of an imported event description (`EventDescriptionRenderer`, see
+ * `cross-cutting/rich-text/`). Tailwind's preflight strips list markers and block spacing, so lists
+ * and paragraphs from Google Calendar or Outlook would otherwise run together. Only the tags the
+ * renderer's allow-list can produce need a rule here.
+ */
+
+@layer components {
+  .rk-event-description :is(p, ul, ol):not(:last-child) {
+    margin-bottom: 0.75em;
+  }
+
+  .rk-event-description ul {
+    @apply list-disc ps-5;
+  }
+
+  .rk-event-description ol {
+    @apply list-decimal ps-5;
+  }
+
+  .rk-event-description li + li {
+    margin-top: 0.25em;
+  }
+
+  .rk-event-description a {
+    @apply text-primary break-words underline underline-offset-2;
+  }
+}

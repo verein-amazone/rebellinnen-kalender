@@ -40,6 +40,7 @@ import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { EventDescriptionComponent } from '@app/view/components/event-description/event-description';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -70,6 +71,7 @@ import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-me
   host: { class: 'block' },
   imports: [
     DatePipe,
+    EventDescriptionComponent,
     EventForm,
     LucideBell,
     FocusedScreenScaffold,

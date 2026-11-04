@@ -90,7 +90,7 @@
         }
 
         @if (currentOccurrence.description; as description) {
-          <p class="text-muted-foreground whitespace-pre-line">{{ description }}</p>
+          <app-event-description class="text-muted-foreground" [description]="description" />
         }
 
         @if (note(); as currentNote) {

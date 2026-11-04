@@ -335,7 +335,9 @@ Expansion is bounded to a configurable window (defaults −6/+18 months,
 `data/calendar/recurrence/materialization-config.ts`) and extended when a range query approaches a
 coverage edge. Coverage rows are written in the same transaction as the rows they describe and are
 stamped with the recurrence-engine version, so an engine upgrade triggers a cheap full rebuild of
-derived rows without touching canonical data.
+derived rows without touching canonical data. The stamp also carries `ROW_REVISION`, which is bumped
+by hand when the app's own materializer changes what a row holds (revision 2: ICS rows carry the
+event's description), so rows written by an older app are rebuilt the same way.
 
 ### Recognising work that would change nothing
 

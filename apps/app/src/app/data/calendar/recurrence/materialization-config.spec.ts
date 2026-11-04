@@ -8,6 +8,6 @@ import { RECURRENCE_ENGINE_VERSION } from './materialization-config';
  */
 describe('RECURRENCE_ENGINE_VERSION', () => {
   it('names an exact rrule-temporal version, never a semver range', () => {
-    expect(RECURRENCE_ENGINE_VERSION).toMatch(/^rrule-temporal@\d+\.\d+\.\d+$/);
+    expect(RECURRENCE_ENGINE_VERSION).toMatch(/^rrule-temporal@\d+\.\d+\.\d+\+rows\.\d+$/);
   });
 });
