@@ -1,4 +1,4 @@
-import { parseAppDestination } from './app-destination';
+import { parseAppDestination, shortcutDestinationAt } from './app-destination';
 
 describe('parseAppDestination', () => {
   it('opens the four App Shortcut screens', () => {
@@ -38,5 +38,34 @@ describe('parseAppDestination', () => {
     'event:app:item-1',
   ])('ignores %j', (raw) => {
     expect(parseAppDestination(raw)).toBeNull();
+  });
+});
+
+describe('shortcutDestinationAt', () => {
+  it.each([
+    ['/today', 'today'],
+    ['/content', 'collection'],
+    ['/content?area=collection&q=wut', 'collection'],
+    ['/content?area=unknown', 'collection'],
+    ['/content?area=services', 'services'],
+    ['/content?area=services&service=rat-auf-draht', 'services'],
+    ['/calendar/event/new', 'new-event'],
+  ])('finds the App Shortcut screen at %s', (url, destination) => {
+    expect(shortcutDestinationAt(url)).toBe(destination);
+  });
+
+  it.each(['/calendar', '/calendar/event/item-1', '/content/wi-01', '/settings'])(
+    'finds none at %s',
+    (url) => {
+      expect(shortcutDestinationAt(url)).toBeNull();
+    },
+  );
+
+  it('is the way back from every App Shortcut destination', () => {
+    for (const destination of ['today', 'collection', 'services', 'new-event'] as const) {
+      const opened = parseAppDestination(destination);
+      const url = `${opened?.commands.join('/')}?${new URLSearchParams(opened?.queryParams)}`;
+      expect(shortcutDestinationAt(url)).toBe(destination);
+    }
   });
 });

@@ -145,7 +145,8 @@ The workflow:
       all of its results.
 - [ ] **App Shortcuts (iPhone):** the Shortcuts app lists „Heute öffnen“, „Meine Sammlung öffnen“,
       „Anlaufstellen öffnen“ and „Neuen Termin erstellen“, and each one opens its screen. The new
-      appointment opens as an empty form, not saved. Try one by voice through Siri.
+      appointment opens as an empty form, not saved. Try one by voice through Siri. Each action
+      in the Shortcuts app shows its German description, and the app's tiles there are red.
 - [ ] **Shake** on Heute replays the Tagesimpuls greeting on a real device, and the same replay is
       reachable by tapping.
 

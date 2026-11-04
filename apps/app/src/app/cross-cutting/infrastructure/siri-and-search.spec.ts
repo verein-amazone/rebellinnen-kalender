@@ -16,6 +16,11 @@ class FakePlugin {
     return this.failing ? Promise.reject(new Error('index unavailable')) : Promise.resolve();
   }
 
+  donate(options: { destination: string }): Promise<void> {
+    this.calls.push(`donate ${options.destination}`);
+    return this.failing ? Promise.reject(new Error('unknown destination')) : Promise.resolve();
+  }
+
   deleteAll(): Promise<void> {
     this.calls.push('delete all');
     return this.failing ? Promise.reject(new Error('index unavailable')) : Promise.resolve();
@@ -57,6 +62,7 @@ describe('DeviceSiriAndSearch', () => {
 
     expect(device.isSupported()).toBe(false);
     await device.replaceDomain('support-services', [ENTRY]);
+    await device.donate('today');
     await device.deleteAll();
     device.onDestinationOpened(handler)();
 
@@ -81,11 +87,13 @@ describe('DeviceSiriAndSearch', () => {
     );
   });
 
-  it('swallows a failed clear', async () => {
+  it('swallows a failed donation and a failed clear', async () => {
     const { device, plugin } = setup();
     plugin.failing = true;
 
+    await expect(device.donate('today')).resolves.toBeUndefined();
     await expect(device.deleteAll()).resolves.toBeUndefined();
+    expect(plugin.calls).toEqual(['donate today', 'delete all']);
   });
 
   it('hands on opened destinations until it is stopped', async () => {

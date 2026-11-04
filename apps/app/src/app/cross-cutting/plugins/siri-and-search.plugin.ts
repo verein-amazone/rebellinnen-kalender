@@ -12,6 +12,7 @@ export interface SearchableItem {
 /** The app's own iOS plugin (`ios/App/App/SiriAndSearchPlugin.swift`); there is no npm package. */
 export interface SiriAndSearchPlugin {
   replaceDomain(options: { domain: string; items: readonly SearchableItem[] }): Promise<void>;
+  donate(options: { destination: string }): Promise<void>;
   deleteAll(): Promise<void>;
   addListener(
     eventName: 'destinationOpened',
@@ -35,6 +36,7 @@ export const SIRI_AND_SEARCH_PLUGIN = new InjectionToken<SiriAndSearchPlugin>(
       const plugin = registerPlugin<SiriAndSearchPlugin>('SiriAndSearch');
       return {
         replaceDomain: (options) => plugin.replaceDomain(options),
+        donate: (options) => plugin.donate(options),
         deleteAll: () => plugin.deleteAll(),
         addListener: (eventName, listener) => plugin.addListener(eventName, listener),
       };

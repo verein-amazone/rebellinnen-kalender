@@ -20,7 +20,8 @@ export interface SearchEntry {
  *
  * Only the iOS app has them; everywhere else this reports itself as unsupported and every call is
  * a no-op. `replaceDomain` rejects on failure so the caller can report it and try again later;
- * `deleteAll` swallows it like `DeviceNotifications.cancelAll`, since it runs on the way to a reset.
+ * `donate` and `deleteAll` swallow it - a missed donation only weakens a suggestion, and `deleteAll`
+ * runs on the way to a reset, like `DeviceNotifications.cancelAll`.
  */
 @Injectable({ providedIn: 'root' })
 export class DeviceSiriAndSearch {
@@ -39,6 +40,22 @@ export class DeviceSiriAndSearch {
     await this.plugin.replaceDomain({ domain, items: entries });
   }
 
+  /**
+   * Tells iOS the App Shortcut screen `destination` (`today`, `collection`, `services` or
+   * `new-event`) was opened inside the app, so Siri can learn when to suggest it.
+   */
+  async donate(destination: string): Promise<void> {
+    if (!this.isSupported()) {
+      return;
+    }
+    try {
+      await this.plugin.donate({ destination });
+    } catch {
+      // See the class comment.
+    }
+  }
+
+  /** Removes the app's entries in iOS search and its donations. */
   async deleteAll(): Promise<void> {
     if (!this.isSupported()) {
       return;

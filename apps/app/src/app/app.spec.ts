@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { App } from '@app/app';
@@ -10,6 +11,9 @@ import type { AppDestination } from '@app/interactors/siri-and-search/app-destin
 import { ExternalDestinationsInteractor } from '@app/interactors/siri-and-search/external-destinations.interactor';
 import { SiriAndSearchInteractor } from '@app/interactors/siri-and-search/siri-and-search.interactor';
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
+
+@Component({ template: '' })
+class EmptyPage {}
 
 class FakeReminderSchedulerInteractor {
   reschedules = 0;
@@ -37,9 +41,15 @@ class FakeSiriAndSearchInteractor {
 class FakeExternalDestinationsInteractor {
   destinationHandler: ((destination: AppDestination) => void) | null = null;
 
+  donations: string[] = [];
+
   onDestinationOpened(handler: (destination: AppDestination) => void): () => void {
     this.destinationHandler = handler;
     return () => (this.destinationHandler = null);
+  }
+
+  donate(destination: string): void {
+    this.donations.push(destination);
   }
 }
 
@@ -128,6 +138,24 @@ describe('App', () => {
     expect(navigate).toHaveBeenCalledWith(['/content'], {
       queryParams: { area: 'services', service: 'telefonseelsorge' },
     });
+  });
+
+  it('donates the App Shortcut screens the user goes to, not the start screen', async () => {
+    const destinations = TestBed.inject(
+      ExternalDestinationsInteractor,
+    ) as unknown as FakeExternalDestinationsInteractor;
+    const router = TestBed.inject(Router);
+    router.resetConfig([{ path: '**', component: EmptyPage }]);
+
+    TestBed.createComponent(App);
+    await router.navigateByUrl('/today');
+    await router.navigateByUrl('/content?area=services');
+    await router.navigateByUrl('/content?area=services&q=rat');
+    await router.navigateByUrl('/content/wi-01');
+    await router.navigateByUrl('/content');
+    await router.navigateByUrl('/today');
+
+    expect(destinations.donations).toEqual(['services', 'collection', 'today']);
   });
 
   it('brings iOS search up to date after the first render and on every bookmark change', async () => {
