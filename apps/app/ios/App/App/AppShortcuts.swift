@@ -6,6 +6,7 @@ import AppIntents
 
 struct OpenTodayIntent: AppIntent {
     static var title: LocalizedStringResource = "Heute öffnen"
+    static var description = IntentDescription("Öffnet die Übersicht für heute.")
     static var openAppWhenRun = true
 
     @MainActor
@@ -17,6 +18,7 @@ struct OpenTodayIntent: AppIntent {
 
 struct OpenCollectionIntent: AppIntent {
     static var title: LocalizedStringResource = "Meine Sammlung öffnen"
+    static var description = IntentDescription("Öffnet die Inhalte, die du mit dem Lesezeichen markiert hast.")
     static var openAppWhenRun = true
 
     @MainActor
@@ -28,6 +30,9 @@ struct OpenCollectionIntent: AppIntent {
 
 struct OpenSupportServicesIntent: AppIntent {
     static var title: LocalizedStringResource = "Anlaufstellen öffnen"
+    static var description = IntentDescription(
+        "Öffnet Beratungsstellen, Mädchentreffs und andere Angebote für Mädchen* und junge Frauen*."
+    )
     static var openAppWhenRun = true
 
     @MainActor
@@ -39,6 +44,7 @@ struct OpenSupportServicesIntent: AppIntent {
 
 struct CreateEventIntent: AppIntent {
     static var title: LocalizedStringResource = "Neuen Termin erstellen"
+    static var description = IntentDescription("Öffnet ein leeres Formular für einen neuen Termin.")
     static var openAppWhenRun = true
 
     @MainActor
@@ -48,23 +54,56 @@ struct CreateEventIntent: AppIntent {
     }
 }
 
+/// The intent of the screen `destination` names, for `SiriAndSearchPlugin.donate`. Only the four
+/// screens above have one.
+func appShortcutIntent(for destination: String) -> (any AppIntent)? {
+    switch destination {
+    case "today": return OpenTodayIntent()
+    case "collection": return OpenCollectionIntent()
+    case "services": return OpenSupportServicesIntent()
+    case "new-event": return CreateEventIntent()
+    default: return nil
+    }
+}
+
+/// Every intent type above, so a data reset can delete their donations.
+let appShortcutIntentTypes: [any AppIntent.Type] = [
+    OpenTodayIntent.self,
+    OpenCollectionIntent.self,
+    OpenSupportServicesIntent.self,
+    CreateEventIntent.self
+]
+
+// `shortTitle` and `systemImageName` are the buttons Spotlight shows next to the app (iOS 17 and
+// later). The initializer taking them exists since iOS 16, where they are simply unused.
 struct RebellinnenShortcuts: AppShortcutsProvider {
+    /// The tiles in the Shortcuts app; red is the closest to the app's primary colour.
+    static var shortcutTileColor: ShortcutTileColor = .red
+
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: OpenTodayIntent(),
-            phrases: ["Heute in \(.applicationName) öffnen", "\(.applicationName) Heute öffnen"]
+            phrases: ["Heute in \(.applicationName) öffnen", "\(.applicationName) Heute öffnen"],
+            shortTitle: "Heute",
+            systemImageName: "sun.max"
         )
         AppShortcut(
             intent: OpenCollectionIntent(),
-            phrases: ["Meine Sammlung in \(.applicationName) öffnen", "\(.applicationName) Meine Sammlung"]
+            phrases: ["Meine Sammlung in \(.applicationName) öffnen", "\(.applicationName) Meine Sammlung"],
+            shortTitle: "Meine Sammlung",
+            systemImageName: "bookmark"
         )
         AppShortcut(
             intent: OpenSupportServicesIntent(),
-            phrases: ["Anlaufstellen in \(.applicationName) öffnen", "\(.applicationName) Anlaufstellen"]
+            phrases: ["Anlaufstellen in \(.applicationName) öffnen", "\(.applicationName) Anlaufstellen"],
+            shortTitle: "Anlaufstellen",
+            systemImageName: "phone"
         )
         AppShortcut(
             intent: CreateEventIntent(),
-            phrases: ["Neuen Termin in \(.applicationName) erstellen", "\(.applicationName) Neuer Termin"]
+            phrases: ["Neuen Termin in \(.applicationName) erstellen", "\(.applicationName) Neuer Termin"],
+            shortTitle: "Neuer Termin",
+            systemImageName: "calendar.badge.plus"
         )
     }
 }

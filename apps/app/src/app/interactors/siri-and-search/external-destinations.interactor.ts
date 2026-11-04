@@ -2,10 +2,15 @@ import { inject, Injectable } from '@angular/core';
 
 import { DeviceSiriAndSearch } from '@app/cross-cutting/infrastructure/siri-and-search';
 
-import { parseAppDestination, type AppDestination } from './app-destination';
+import {
+  parseAppDestination,
+  type AppDestination,
+  type ShortcutDestination,
+} from './app-destination';
 
 /**
- * Where an iOS search result or an App Shortcut (#167) opens the app.
+ * Where an iOS search result or an App Shortcut (#167) opens the app, and which App Shortcut
+ * screens are opened inside it.
  *
  * Kept apart from `SiriAndSearchInteractor`, which decides what is indexed: listening has to start
  * with the app, while indexing pulls in the content and Anlaufstellen catalogs and is loaded
@@ -26,5 +31,13 @@ export class ExternalDestinationsInteractor {
         handler(destination);
       }
     });
+  }
+
+  /**
+   * Tells iOS the user went to an App Shortcut screen inside the app. Siri learns from these
+   * donations when and where to suggest the shortcut; they stay on the device.
+   */
+  donate(destination: ShortcutDestination): void {
+    void this.device.donate(destination);
   }
 }

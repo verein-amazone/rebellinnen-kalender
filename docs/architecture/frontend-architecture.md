@@ -177,6 +177,12 @@ turn it off per app. `App` loads the interactor lazily and runs it after the fir
 every bookmark change, since it reads the content and Anlaufstellen catalogs that the initial
 bundle otherwise does without.
 
+The way back runs the other way too: when the user goes to one of the four App Shortcut screens
+inside the app, `App` donates that shortcut to iOS (`ExternalDestinationsInteractor.donate()`), so
+Siri can learn when to suggest it. `shortcutDestinationAt()` recognises the screen from the URL.
+The screen the app starts on is not donated, and neither is a change on a screen already shown,
+such as a typed search. A data reset deletes the donations along with the search entries.
+
 #### Android's back button
 
 The WebView history is **not** what Android's back button or back gesture walks. Screens are left

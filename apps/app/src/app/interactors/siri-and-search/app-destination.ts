@@ -10,7 +10,10 @@ export const SERVICE_DESTINATION_PREFIX = 'service:';
 /** The `id` prefix of a bookmarked content item's entry in iOS search. */
 export const CONTENT_DESTINATION_PREFIX = 'content:';
 
-const FIXED_DESTINATIONS: Readonly<Record<string, AppDestination>> = {
+/** The screens the App Shortcuts open, by the destination that names each. */
+export type ShortcutDestination = 'today' | 'collection' | 'services' | 'new-event';
+
+const FIXED_DESTINATIONS: Readonly<Record<ShortcutDestination, AppDestination>> = {
   today: { commands: ['/today'] },
   collection: { commands: ['/content'], queryParams: { area: 'collection' } },
   services: { commands: ['/content'], queryParams: { area: 'services' } },
@@ -27,7 +30,7 @@ const FIXED_DESTINATIONS: Readonly<Record<string, AppDestination>> = {
  */
 export function parseAppDestination(raw: string): AppDestination | null {
   if (Object.hasOwn(FIXED_DESTINATIONS, raw)) {
-    return FIXED_DESTINATIONS[raw];
+    return FIXED_DESTINATIONS[raw as ShortcutDestination];
   }
 
   const serviceId = idAfter(raw, SERVICE_DESTINATION_PREFIX);
@@ -41,6 +44,25 @@ export function parseAppDestination(raw: string): AppDestination | null {
   }
 
   return null;
+}
+
+/**
+ * Which App Shortcut screen the app `url` shows, if any - the way back from `parseAppDestination`
+ * for the four of them. `/content` is Meine Sammlung unless it shows the Anlaufstellen, as on the
+ * overview page.
+ */
+export function shortcutDestinationAt(url: string): ShortcutDestination | null {
+  const { pathname, searchParams } = new URL(url, 'app://local');
+  switch (pathname) {
+    case '/today':
+      return 'today';
+    case '/calendar/event/new':
+      return 'new-event';
+    case '/content':
+      return searchParams.get('area') === 'services' ? 'services' : 'collection';
+    default:
+      return null;
+  }
 }
 
 /** The id after `prefix`, if it is a plausible catalog id: no path, query or fragment in it. */

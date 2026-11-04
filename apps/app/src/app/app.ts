@@ -8,12 +8,16 @@ import {
   Injector,
   untracked,
 } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
+import {
+  shortcutDestinationAt,
+  type ShortcutDestination,
+} from '@app/interactors/siri-and-search/app-destination';
 import { ExternalDestinationsInteractor } from '@app/interactors/siri-and-search/external-destinations.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
@@ -56,6 +60,21 @@ export class App {
       ({ commands, queryParams }) => void this.router.navigate(commands, { queryParams }),
     );
 
+    // The App Shortcut screens the user goes to inside the app are donated to iOS, which learns from
+    // them when to suggest each shortcut. Only going there counts: not the screen the app starts on,
+    // and not a search typed into the screen already shown.
+    let shortcutScreen: ShortcutDestination | null | undefined;
+    const navigations = this.router.events.subscribe((event) => {
+      if (!(event instanceof NavigationEnd)) {
+        return;
+      }
+      const screen = shortcutDestinationAt(event.urlAfterRedirects);
+      if (shortcutScreen !== undefined && screen !== null && screen !== shortcutScreen) {
+        this.externalDestinations.donate(screen);
+      }
+      shortcutScreen = screen;
+    });
+
     // What iOS search lists is brought up to date after the first render, never ahead of it, and
     // again whenever a bookmark changes. The catalogs themselves only change with an app update,
     // which is a start. `sync()` writes nothing when nothing changed, and nothing off iOS.
@@ -97,6 +116,7 @@ export class App {
       this.destroyed = true;
       stopWatchingResumes();
       stopWatchingDestinations();
+      navigations.unsubscribe();
     });
 
     // A resume only fires on the way back in, so the first run has to be started here.

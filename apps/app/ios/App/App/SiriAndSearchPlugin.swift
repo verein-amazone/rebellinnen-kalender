@@ -1,9 +1,11 @@
+import AppIntents
 import Capacitor
 import CoreSpotlight
 import UniformTypeIdentifiers
 
-/// Core Spotlight for the web app (#167): replaces or clears the app's entries in iOS search, and
-/// hands on the destinations Spotlight results and App Shortcuts open (see `AppDestinations`).
+/// Core Spotlight for the web app (#167): replaces or clears the app's entries in iOS search, donates
+/// the App Shortcut screens opened inside the app, and hands on the destinations Spotlight results
+/// and App Shortcuts open (see `AppDestinations`).
 ///
 /// The app's only local plugin; `MainViewController` registers it. What to index, and when, is
 /// decided in TypeScript (`SiriAndSearchInteractor`) - this side only writes what it is given.
@@ -13,6 +15,7 @@ public class SiriAndSearchPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "SiriAndSearch"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "replaceDomain", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "donate", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "deleteAll", returnType: CAPPluginReturnPromise)
     ]
 
@@ -54,12 +57,35 @@ public class SiriAndSearchPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    @objc func deleteAll(_ call: CAPPluginCall) {
-        CSSearchableIndex.default().deleteAllSearchableItems { error in
-            if let error {
-                call.reject(error.localizedDescription)
-            } else {
+    /// Tells iOS that the screen `destination` names was opened inside the app, so Siri can suggest
+    /// its App Shortcut where and when it is used. Only the four App Shortcut screens are known.
+    @objc func donate(_ call: CAPPluginCall) {
+        guard let destination = call.getString("destination"),
+              let intent = appShortcutIntent(for: destination) else {
+            call.reject("unknown destination")
+            return
+        }
+        Task {
+            do {
+                try await IntentDonationManager.shared.donate(intent: intent)
                 call.resolve()
+            } catch {
+                call.reject(error.localizedDescription)
+            }
+        }
+    }
+
+    /// Clears the app's entries in iOS search and the donations behind Siri's suggestions.
+    @objc func deleteAll(_ call: CAPPluginCall) {
+        Task {
+            do {
+                for intentType in appShortcutIntentTypes {
+                    try await IntentDonationManager.shared.deleteDonations(matching: .intentType(intentType))
+                }
+                try await CSSearchableIndex.default().deleteAllSearchableItems()
+                call.resolve()
+            } catch {
+                call.reject(error.localizedDescription)
             }
         }
     }
