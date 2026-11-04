@@ -48,9 +48,6 @@ overrides:
   compression@<1.8.2: '>=1.8.2'
   conventional-changelog-conventionalcommits: ^9.3.1
 
-patchedDependencies:
-  '@capawesome/capacitor-youtube-player': c00a01ee6caef5db82fce7a3e8365204a6bca0d192da812403b5f0a863e5cdf2
-
 importers:
 
   .:
@@ -158,8 +155,8 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2(@capacitor/core@8.6.0)
       '@capawesome/capacitor-youtube-player':
-        specifier: ^0.1.2
-        version: 0.1.2(patch_hash=c00a01ee6caef5db82fce7a3e8365204a6bca0d192da812403b5f0a863e5cdf2)(@capacitor/core@8.6.0)
+        specifier: ^0.1.4
+        version: 0.1.4(@capacitor/core@8.6.0)
       '@ebarooni/capacitor-calendar':
         specifier: ^8.10.0
         version: 8.10.0(@capacitor/core@8.6.0)
@@ -884,8 +881,8 @@ packages:
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
-  '@capawesome/capacitor-youtube-player@0.1.2':
-    resolution: {integrity: sha512-DvaUZ5ZfrsOuk0txcSUIxCDhkoLLWmXfIp/nFSW9MPggx5lfBEBfjdsCyQzGrF+Jltq5czuh4Gcjrdq69w8EEQ==}
+  '@capawesome/capacitor-youtube-player@0.1.4':
+    resolution: {integrity: sha512-xeOVxuSssIfXm46LdnoYcAE6r+eaV21YChsQHcczKwAVMlqWmi7u4JH1y6NUTwszJQZnO5/qw/Mil4zUu8wl8g==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -7116,7 +7113,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.6.0
 
-  '@capawesome/capacitor-youtube-player@0.1.2(patch_hash=c00a01ee6caef5db82fce7a3e8365204a6bca0d192da812403b5f0a863e5cdf2)(@capacitor/core@8.6.0)':
+  '@capawesome/capacitor-youtube-player@0.1.4(@capacitor/core@8.6.0)':
     dependencies:
       '@capacitor/core': 8.6.0
 

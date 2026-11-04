@@ -44,9 +44,8 @@ once the user plays it.
   under the video says data goes to Google. On Android and iOS a native player view
   (`@capawesome/capacitor-youtube-player`, wrapped by
   `apps/app/src/app/cross-cutting/infrastructure/native-video-player.ts`) loads YouTube's player -
-  from youtube-nocookie.com (privacy-enhanced mode) on iOS, from youtube.com on Android, whose
-  player has no host option; the browser build frames youtube-nocookie.com. Until the tap the
-  cover is the item's own bundled picture, and nothing reaches YouTube. Privacy policy §6.2.
+  from youtube-nocookie.com (privacy-enhanced mode), as the browser build frames it. Until the tap
+  the cover is the item's own bundled picture, and nothing reaches YouTube. Privacy policy §6.2.
 
 That provider sees the device's IP address, as with any download. This is not collection by the
 developer - nothing is sent to Verein Amazone or Independo - but the privacy policy has to say it
