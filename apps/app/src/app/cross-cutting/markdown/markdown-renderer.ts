@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import DOMPurify, { type Config } from 'dompurify';
 import { Marked, type Token, type TokenizerAndRendererExtension } from 'marked';
 
@@ -11,6 +11,11 @@ import { Marked, type Token, type TokenizerAndRendererExtension } from 'marked';
  * strict, declarative allow-list. We never build HTML strings by hand and never
  * use `bypassSecurityTrustHtml`. The MarkdownContentComponent binds the result
  * through `[innerHTML]`, so Angular's sanitizer runs as a second layer.
+ *
+ * A web link leaves the app - the system browser on native, a new tab on the web - so the sanitized
+ * result marks it as such, like every other external link in the app: `target="_blank"` and a
+ * visually hidden „, öffnet in einem neuen Fenster“. That happens after sanitizing, on the DOM
+ * DOMPurify returns, so the allow-list itself stays as strict as the Markdown needs.
  */
 
 /** Elements that make up the supported Markdown subset; `div` only ever comes from a callout. */
@@ -31,6 +36,9 @@ const ALLOWED_TAGS = [
 
 /** Only links may carry attributes, and only their `href`. */
 const ALLOWED_ATTR = ['href'];
+
+/** A link that leaves the app; `mailto:` hands over to the mail app and needs no new window. */
+const EXTERNAL_HREF = /^https?:/i;
 
 /**
  * Allow `http:` / `https:`, `mailto:` (the OS hands it to the mail app) plus scheme-less links
@@ -68,6 +76,8 @@ const calloutExtension: TokenizerAndRendererExtension = {
 
 @Injectable({ providedIn: 'root' })
 export class MarkdownRenderer {
+  private readonly document = inject(DOCUMENT);
+
   private readonly marked = new Marked({
     gfm: true,
     breaks: false,
@@ -88,7 +98,25 @@ export class MarkdownRenderer {
     }
 
     const rawHtml = this.marked.parse(markdown, { async: false });
-    return DOMPurify.sanitize(rawHtml, SANITIZE_CONFIG);
+    const fragment = DOMPurify.sanitize(rawHtml, { ...SANITIZE_CONFIG, RETURN_DOM_FRAGMENT: true });
+    for (const link of fragment.querySelectorAll('a')) {
+      if (EXTERNAL_HREF.test(link.getAttribute('href') ?? '')) {
+        this.markExternal(link);
+      }
+    }
+
+    const container = this.document.createElement('div');
+    container.append(fragment);
+    return container.innerHTML;
+  }
+
+  private markExternal(link: HTMLAnchorElement): void {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    const hint = this.document.createElement('span');
+    hint.className = 'sr-only';
+    hint.textContent = ', öffnet in einem neuen Fenster';
+    link.append(hint);
   }
 
   /**

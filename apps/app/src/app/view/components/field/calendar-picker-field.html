@@ -1,4 +1,8 @@
-<label class="rk-label" [for]="id()">Kalender</label>
+<!--
+  `for` alone would make the label the button's whole name and hide the calendar it shows, so the
+  button names itself from both. `for` stays, so a tap on the label opens the picker too.
+-->
+<label class="rk-label" [id]="labelId()" [for]="id()">Kalender</label>
 
 <ul class="rk-list">
   <li>
@@ -8,11 +12,12 @@
       [id]="id()"
       [disabled]="state().disabled()"
       [attr.aria-invalid]="showError() ? 'true' : null"
+      [attr.aria-labelledby]="selected() ? labelId() + ' ' + valueId() : labelId()"
       [attr.aria-describedby]="showError() ? errorId() : null"
       (click)="open()"
     >
       @if (selected(); as calendar) {
-        <span class="rk-row-label flex items-center gap-2">
+        <span class="rk-row-label flex items-center gap-2" [id]="valueId()">
           <app-calendar-avatar [color]="calendar.color" [emoji]="calendar.emoji" />
           {{ calendar.name }}
         </span>

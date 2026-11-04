@@ -229,6 +229,21 @@ describe('ContentDetailPage', () => {
     expect(button?.getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('names the bookmark toggle the same in both states, leaving the state to aria-pressed', async () => {
+    const { element, toggle, settle } = await setup({ bookmarked: false });
+    const name = () => element.querySelector('button[aria-pressed] .sr-only')?.textContent?.trim();
+    const before = name();
+
+    toggle();
+    await settle();
+
+    expect(before).toMatch(/^In „Meine Sammlung“: /);
+    expect(element.querySelector('button[aria-pressed]')?.getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    expect(name()).toBe(before);
+  });
+
   it('asks before removing the item from the collection and then leaves for the collection', async () => {
     const { toggle, settle, bookmarks, sheets, navigateByUrl } = await setup({
       bookmarked: true,

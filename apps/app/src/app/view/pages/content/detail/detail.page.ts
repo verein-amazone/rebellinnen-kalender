@@ -165,10 +165,6 @@ export class ContentDetailPage {
     })),
   );
 
-  protected readonly bookmarkActionLabel = computed(() =>
-    this.bookmarked() ? 'Aus „Meine Sammlung“ entfernen' : 'Zu „Meine Sammlung“ hinzufügen',
-  );
-
   protected reload(): void {
     this.data.reload();
   }

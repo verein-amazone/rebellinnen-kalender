@@ -30,6 +30,13 @@ describe('MarkdownContentComponent', () => {
     expect(el.innerHTML.toLowerCase()).not.toContain('<script');
   });
 
+  it('keeps the new-window marking of a web link through Angular sanitization', () => {
+    const link = render('[Verein](https://example.org)').querySelector('a');
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(link?.querySelector('.sr-only')?.textContent).toBe(', öffnet in einem neuen Fenster');
+  });
+
   it('strips the href from unsafe links but keeps the text', () => {
     const el = render('[go](javascript:alert(1))');
     expect(el.querySelector('a')?.getAttribute('href')).toBeFalsy();

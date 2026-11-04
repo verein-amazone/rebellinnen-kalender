@@ -253,4 +253,16 @@ describe('MainNavigationScaffold', () => {
     expect(document.activeElement).toBe(link);
     expect(announce).toHaveBeenCalledWith('Stub', 'polite');
   });
+
+  it('should neither announce nor move focus when navigating within one destination', async () => {
+    const { element, navigateTo } = await setUp('/calendar');
+    const announce = vi.spyOn(TestBed.inject(LiveAnnouncer), 'announce');
+
+    const field = element.querySelector<HTMLElement>('#stub-field');
+    field?.focus();
+    await navigateTo('/calendar?day=2026-11-05');
+
+    expect(document.activeElement).toBe(field);
+    expect(announce).not.toHaveBeenCalled();
+  });
 });
