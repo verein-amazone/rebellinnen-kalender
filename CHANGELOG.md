@@ -1,3 +1,16 @@
+## [1.1.0-rc.15](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.14...v1.1.0-rc.15) (2026-11-04)
+
+### Build
+
+* **app:** keep the iOS display name in Info.plist only ([a5a75c2](https://github.com/verein-amazone/rebellinnen-kalender/commit/a5a75c2efb6a983f70f960d6ccbdd8c0b147536a)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **app:** limit the FileProvider to the camera-capture folder ([271c44c](https://github.com/verein-amazone/rebellinnen-kalender/commit/271c44c68d86ff3a5a12f3c36bb73c1284ac8217)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **app:** shrink the Android release build with R8 ([46ebee9](https://github.com/verein-amazone/rebellinnen-kalender/commit/46ebee9aadb9d17583971edd509d505c410817f7)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+
+### Delivery
+
+* build the unsigned Android release bundle in pull requests ([8f4a910](https://github.com/verein-amazone/rebellinnen-kalender/commit/8f4a910537d88c7f7398ab05d26502eea7499f64)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **pages:** publish the website from main ([36784e8](https://github.com/verein-amazone/rebellinnen-kalender/commit/36784e8488e7f1bc9d5ba2b65ee19eca4807c443)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+
 ## [1.1.0-rc.14](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.13...v1.1.0-rc.14) (2026-11-04)
 
 ### Chores
