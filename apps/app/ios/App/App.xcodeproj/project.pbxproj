@@ -309,8 +309,6 @@
 				CURRENT_PROJECT_VERSION = 10100014;
 				DEVELOPMENT_TEAM = 66FNFGH7RT;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Rebell*innen";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -340,8 +338,6 @@
 				CURRENT_PROJECT_VERSION = 10100014;
 				DEVELOPMENT_TEAM = 66FNFGH7RT;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Rebell*innen";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
