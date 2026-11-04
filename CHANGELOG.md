@@ -1,3 +1,9 @@
+## [1.1.0-rc.18](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.17...v1.1.0-rc.18) (2026-11-04)
+
+### Features
+
+* **site:** show the Hil-Foundation logo and name the cooperation in the project sentence ([4033cd6](https://github.com/verein-amazone/rebellinnen-kalender/commit/4033cd615c4e0c40fdfc4d2cd2fb90488083cc09)), closes [#grlpwr](https://github.com/verein-amazone/rebellinnen-kalender/issues/grlpwr)
+
 ## [1.1.0-rc.17](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.16...v1.1.0-rc.17) (2026-11-04)
 
 ### Features
