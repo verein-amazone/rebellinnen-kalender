@@ -1,3 +1,9 @@
+## [1.1.0-rc.20](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.19...v1.1.0-rc.20) (2026-11-04)
+
+### Bug Fixes
+
+* **app:** accessibility polish from the pre-release review ([136f2b2](https://github.com/verein-amazone/rebellinnen-kalender/commit/136f2b220554a449faf67243300889ab5222e9a0)), closes [#146](https://github.com/verein-amazone/rebellinnen-kalender/issues/146)
+
 ## [1.1.0-rc.19](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.18...v1.1.0-rc.19) (2026-11-04)
 
 ### Features
