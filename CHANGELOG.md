@@ -1,3 +1,13 @@
+## [1.1.0-rc.13](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.12...v1.1.0-rc.13) (2026-11-04)
+
+### Features
+
+* **app:** play Android videos in YouTube's privacy-enhanced mode ([5790255](https://github.com/verein-amazone/rebellinnen-kalender/commit/57902551967756de3240574a75cb2ebd25ff5db6))
+
+### Build
+
+* **app:** take the player's hl option from the plugin ([7839d49](https://github.com/verein-amazone/rebellinnen-kalender/commit/7839d49f79acb5daec11484da10260f61002952f)), closes [capawesome-team/capacitor-plugins#1197](https://github.com/capawesome-team/capacitor-plugins/issues/1197) [capawesome-team/capacitor-plugins#1196](https://github.com/capawesome-team/capacitor-plugins/issues/1196)
+
 ## [1.1.0-rc.12](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.11...v1.1.0-rc.12) (2026-11-03)
 
 ### Bug Fixes
