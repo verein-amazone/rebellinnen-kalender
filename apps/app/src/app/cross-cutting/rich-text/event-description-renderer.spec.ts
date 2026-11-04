@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  EventDescriptionRenderer,
-  type EventDescriptionContent,
-} from '@app/cross-cutting/rich-text/event-description-renderer';
+import { EventDescriptionRenderer } from '@app/cross-cutting/rich-text/event-description-renderer';
 
 describe('EventDescriptionRenderer', () => {
   let renderer: EventDescriptionRenderer;
@@ -12,25 +9,50 @@ describe('EventDescriptionRenderer', () => {
   });
 
   function html(description: string): string {
-    const content = renderer.render(description);
-    expect(content.format).toBe('html');
-    return (content as Extract<EventDescriptionContent, { format: 'html' }>).html;
+    return renderer.render(description);
   }
 
   describe('plain text', () => {
-    it('keeps a description without markup as it is', () => {
-      const text = 'Treffpunkt beim Eingang.\nBitte pünktlich sein.';
-      expect(renderer.render(text)).toEqual({ format: 'plain-text', text });
+    it('keeps its line breaks', () => {
+      expect(html('Treffpunkt beim Eingang.\nBitte pünktlich sein.')).toBe(
+        'Treffpunkt beim Eingang.<br>Bitte pünktlich sein.',
+      );
     });
 
-    it('does not mistake literal angle brackets for HTML', () => {
-      const text = 'Treffpunkt <Eingang Nord>, Alter < 18 und > 12';
-      expect(renderer.render(text)).toEqual({ format: 'plain-text', text });
+    it('shows literal angle brackets as text, never as markup', () => {
+      expect(html('Treffpunkt <Eingang Nord>, Alter < 18 und > 12')).toBe(
+        'Treffpunkt &lt;Eingang Nord&gt;, Alter &lt; 18 und &gt; 12',
+      );
     });
 
     it('treats a description with only unsupported tags as text', () => {
-      const text = 'Bitte <name> und <datum> eintragen';
-      expect(renderer.render(text).format).toBe('plain-text');
+      expect(html('Bitte <name> eintragen <script>x</script>')).toBe(
+        'Bitte &lt;name&gt; eintragen &lt;script&gt;x&lt;/script&gt;',
+      );
+    });
+  });
+
+  describe('links in the text', () => {
+    it('links web addresses with a scheme or www, and e-mail addresses', () => {
+      expect(
+        html('Infos: https://example.org/a?b=1, www.example.org oder an n.kaufmann@amazone.or.at'),
+      ).toBe(
+        'Infos: <a href="https://example.org/a?b=1">https://example.org/a?b=1</a>, <a href="http://www.example.org">www.example.org</a> oder an <a href="mailto:n.kaufmann@amazone.or.at">n.kaufmann@amazone.or.at</a>',
+      );
+    });
+
+    it('leaves bare domains and abbreviations as text', () => {
+      expect(html('Siehe amazone.or.at, z.B. morgen.')).toBe('Siehe amazone.or.at, z.B. morgen.');
+    });
+
+    it('links addresses in the text of an HTML description, but not inside an existing link', () => {
+      expect(
+        html(
+          '<a href="https://www.notion.so/a">https://www.notion.so/a</a><br>Join: https://meet.google.com/abc-defg-hij',
+        ),
+      ).toBe(
+        '<a href="https://www.notion.so/a">https://www.notion.so/a</a><br>Join: <a href="https://meet.google.com/abc-defg-hij">https://meet.google.com/abc-defg-hij</a>',
+      );
     });
   });
 
@@ -58,7 +80,7 @@ describe('EventDescriptionRenderer', () => {
         '<a href="https://www.notion.so/example">Notizen</a>\n\n-::~:~::~:~:-\nJoin with Google Meet: https://meet.google.com/abc-defg-hij\n-::~:~::~:~:-',
       );
       expect(result).toBe(
-        '<a href="https://www.notion.so/example">Notizen</a><br><br>-::~:~::~:~:-<br>Join with Google Meet: https://meet.google.com/abc-defg-hij<br>-::~:~::~:~:-',
+        '<a href="https://www.notion.so/example">Notizen</a><br><br>-::~:~::~:~:-<br>Join with Google Meet: <a href="https://meet.google.com/abc-defg-hij">https://meet.google.com/abc-defg-hij</a><br>-::~:~::~:~:-',
       );
     });
 
@@ -90,10 +112,10 @@ describe('EventDescriptionRenderer', () => {
       );
     });
 
-    it('leaves a description without markup as plain text', () => {
+    it('leaves a description without markup as its text', () => {
       const text =
         'IDAHOBIT steht für den 17. Mai als Internationalen Tag gegen Homo-, Bi-, Inter-, Trans- und Asexuellenfeindlichkeit.';
-      expect(renderer.render(text)).toEqual({ format: 'plain-text', text });
+      expect(html(text)).toBe(text);
     });
   });
 

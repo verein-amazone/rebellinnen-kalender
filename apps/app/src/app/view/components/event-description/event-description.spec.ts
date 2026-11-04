@@ -14,12 +14,13 @@ describe('EventDescriptionComponent', () => {
     fixture = TestBed.createComponent(EventDescriptionComponent);
   });
 
-  it('shows plain text as text, line breaks and angle brackets included', () => {
-    const el = render('Treffpunkt <Eingang Nord>\nzweite Zeile');
-    const paragraph = el.querySelector('p');
-    expect(paragraph?.textContent).toBe('Treffpunkt <Eingang Nord>\nzweite Zeile');
-    expect(paragraph?.classList).toContain('whitespace-pre-line');
-    expect(el.querySelector('.rk-event-description')).toBeNull();
+  it('shows plain text as text, with its line breaks and its addresses as links', () => {
+    const container = render('Treffpunkt <Eingang Nord>\nhttps://example.org').querySelector(
+      '.rk-event-description',
+    );
+    expect(container?.querySelector('br')).not.toBeNull();
+    expect(container?.textContent).toBe('Treffpunkt <Eingang Nord>https://example.org');
+    expect(container?.querySelector('a')?.getAttribute('href')).toBe('https://example.org');
   });
 
   it('shows a formatted description with its formatting', () => {

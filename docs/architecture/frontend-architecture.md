@@ -674,15 +674,18 @@ description is never changed; the presentation is derived each time it is shown.
 - **`cross-cutting/rich-text/event-description-renderer.ts`** (`EventDescriptionRenderer`) decides
   the format from the content, not from a vendor flag such as `X-MOZ-GOOGLE-HTML-DESCRIPTION`. A
   description is HTML only if the browser's parser finds one of the allow-listed formatting
-  elements in it, so `Treffpunkt <Eingang Nord>` stays text. HTML goes through DOMPurify with its
-  own allow-list (`p`, `div`, `br`, `b`, `strong`, `i`, `em`, `u`, `ul`, `ol`, `li`, `a` with
-  `href`). Links keep `https:`, `http:`, `mailto:` and `tel:` only; unlike curated Markdown, a
-  scheme-less link is dropped, because an imported relative path would resolve against the app.
-  Newlines in the text - Google appends plain-text blocks such as the Meet details to an HTML
-  description - become `<br>`.
-- **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) shows
-  plain text with its line breaks, or binds the sanitized HTML with `[innerHTML]` (styled by
-  `.rk-event-description`), so Angular's sanitizer again runs as a second layer.
+  elements in it; anything else becomes a text node, so `Treffpunkt <Eingang Nord>` stays text. HTML
+  goes through DOMPurify with its own allow-list (`p`, `div`, `br`, `b`, `strong`, `i`, `em`, `u`,
+  `ul`, `ol`, `li`, `a` with `href`). Links keep `https:`, `http:`, `mailto:` and `tel:` only;
+  unlike curated Markdown, a scheme-less link is dropped, because an imported relative path would
+  resolve against the app. For both formats, newlines become `<br>` (Google appends plain-text
+  blocks such as the Meet details to an HTML description), and web addresses with a scheme or
+  `www.` and e-mail addresses in the text become links. [`linkifyjs`](https://linkify.js.org/) finds
+  them - only its `find()`, used nowhere else - and the links are built as DOM nodes. The finished
+  HTML passes DOMPurify once more.
+- **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) binds
+  that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
+  runs as a further layer.
 
 ## Allowed / forbidden examples
 

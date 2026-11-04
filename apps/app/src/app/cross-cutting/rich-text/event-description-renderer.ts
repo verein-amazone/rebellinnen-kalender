@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import DOMPurify, { type Config } from 'dompurify';
-
-/**
- * The presentation of an imported event description. The description itself stays as it was
- * imported; this is derived from it each time it is shown.
- */
-export type EventDescriptionContent =
-  | { readonly format: 'plain-text'; readonly text: string }
-  | { readonly format: 'html'; readonly html: string };
+import { find as findLinks } from 'linkifyjs';
 
 /**
  * Elements a calendar's description editor produces: Google Calendar's bold, italic, underline,
@@ -34,33 +27,41 @@ const FORMATTING_TAGS = new Set(ALLOWED_TAGS.map((tag) => tag.toUpperCase()));
 const BLOCK_TAGS = new Set(['P', 'DIV', 'BR', 'UL', 'OL', 'LI']);
 
 /**
- * Turns an imported event description into something safe to show. RFC 5545 defines `DESCRIPTION`
- * as plain text, but Google Calendar writes HTML into it, with or without the vendor flag
- * `X-MOZ-GOOGLE-HTML-DESCRIPTION`, and device calendars may return the same HTML. So the format is
- * detected from the content: a description counts as HTML only when it contains one of the
- * formatting elements above. Text such as `Treffpunkt <Eingang Nord>` stays plain text.
+ * Turns an imported event description into safe HTML. The description itself stays as it was
+ * imported; the HTML is derived from it each time it is shown.
+ *
+ * RFC 5545 defines `DESCRIPTION` as plain text, but Google Calendar writes HTML into it, with or
+ * without the vendor flag `X-MOZ-GOOGLE-HTML-DESCRIPTION`, and device calendars may return the same
+ * HTML. So the format is detected from the content: a description counts as HTML only when it
+ * contains one of the formatting elements above. Text such as `Treffpunkt <Eingang Nord>` stays text
+ * and becomes a text node, never markup.
  *
  * HTML is parsed by the browser and reduced by DOMPurify to the allow-list above - never by regular
- * expressions. The result is bound through `[innerHTML]`, so Angular's sanitizer runs as a second
- * layer.
+ * expressions. Then, for both formats, line breaks are kept and web addresses and e-mail addresses in
+ * the text become links (`linkifyjs` finds them; the links are built as DOM nodes). The finished HTML
+ * passes DOMPurify once more, and is bound through `[innerHTML]`, so Angular's sanitizer runs as a
+ * further layer.
  */
 @Injectable({ providedIn: 'root' })
 export class EventDescriptionRenderer {
-  render(description: string): EventDescriptionContent {
-    if (!looksLikeHtml(description)) {
-      return { format: 'plain-text', text: description };
-    }
-
-    const fragment = DOMPurify.sanitize(description, {
-      ...SANITIZE_CONFIG,
-      RETURN_DOM_FRAGMENT: true,
-    });
+  render(description: string): string {
+    const fragment = looksLikeHtml(description)
+      ? DOMPurify.sanitize(description, { ...SANITIZE_CONFIG, RETURN_DOM_FRAGMENT: true })
+      : textFragment(description);
     removeEmptyBlocks(fragment);
     preserveLineBreaks(fragment);
+    linkify(fragment);
+
     const container = document.createElement('div');
     container.append(fragment);
-    return { format: 'html', html: container.innerHTML.trim() };
+    return DOMPurify.sanitize(container.innerHTML, SANITIZE_CONFIG).trim();
   }
+}
+
+function textFragment(text: string): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  fragment.append(text);
+  return fragment;
 }
 
 /**
@@ -126,4 +127,45 @@ function preserveLineBreaks(root: Node): void {
 
 function breaksLine(node: Node | null): boolean {
   return node instanceof Element && BLOCK_TAGS.has(node.tagName);
+}
+
+/**
+ * Web addresses with a scheme or `www.`, and e-mail addresses. A bare domain (`amazone.or.at`) is
+ * left as text: in running text too many things look like one.
+ */
+function isLinkable(link: { readonly type: string; readonly value: string }): boolean {
+  return (
+    link.type === 'email' || (link.type === 'url' && /^(?:https?:\/\/|www\.)/i.test(link.value))
+  );
+}
+
+/** Turns the addresses in every text node outside an existing link into links. */
+function linkify(root: Node): void {
+  const textNodes: Text[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    if (!node.parentElement?.closest('a')) {
+      textNodes.push(node);
+    }
+  }
+
+  for (const node of textNodes) {
+    const links = findLinks(node.data).filter(isLinkable);
+    if (links.length === 0) {
+      continue;
+    }
+    const parts: (string | HTMLAnchorElement)[] = [];
+    let index = 0;
+    for (const link of links) {
+      parts.push(node.data.slice(index, link.start));
+      const anchor = document.createElement('a');
+      anchor.href = link.href;
+      anchor.textContent = link.value;
+      parts.push(anchor);
+      index = link.end;
+    }
+    parts.push(node.data.slice(index));
+    node.replaceWith(...parts.filter((part) => part !== ''));
+  }
 }

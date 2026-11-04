@@ -180,6 +180,9 @@ importers:
       ical.js:
         specifier: ^2.2.1
         version: 2.2.1
+      linkifyjs:
+        specifier: ^4.4.0
+        version: 4.4.0
       marked:
         specifier: ^18.1.2
         version: 18.1.2
@@ -4508,6 +4511,9 @@ packages:
 
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
+
+  linkifyjs@4.4.0:
+    resolution: {integrity: sha512-InTexvtbai+2c+dEVGcc6O6P2DMVIiwD9a/i4zFroazOIYLOS6FSVmAJ7kFeumnCMx6/gQqNAkbUvgMubV4+MA==}
 
   listr2@11.1.0:
     resolution: {integrity: sha512-xsuczF6mWkEo/E80QHaEokQzKmTy7m80KcLRnkUt9wrcePres2w7dbQi5zOsWtDUg8Dac4gPFyu4EJ/IvKwTOg==}
@@ -10462,6 +10468,8 @@ snapshots:
       lightningcss-win32-x64-msvc: 1.33.0
 
   lines-and-columns@1.2.4: {}
+
+  linkifyjs@4.4.0: {}
 
   listr2@11.1.0:
     dependencies:
