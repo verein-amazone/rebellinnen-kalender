@@ -173,37 +173,50 @@ What in that content can matter for a rating:
 
 The answers live in [`apps/app/fastlane/metadata/app_store_rating_config.json`](../apps/app/fastlane/metadata/app_store_rating_config.json)
 and are applied by `deliver` together with the store listing - so the console always shows what this
-repository says. **All proposed**, to be agreed with Verein Amazone:
+repository says. Agreed with Verein Amazone for 1.0.0, revised on their request of 4 November 2026:
 
-| Question                                                  | Answer          | Why                                                                                  |
-| --------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------ |
-| Mature or suggestive themes                               | Infrequent/mild | Sexual violence and abuse are named in several biographies, as facts, not described. |
-| Medical or treatment information                          | Infrequent/mild | The menstruation entry and the eating-disorder and crisis helplines.                 |
-| Health or wellness topics                                 | Yes             | Same entries.                                                                        |
-| Realistic violence                                        | None            | Violence is mentioned in biographies, never depicted. **Re-check with the videos.**  |
-| Alcohol, tobacco or drug use or references                | None            | One passing mention in a podcast recommendation.                                     |
-| Sexual content or nudity, graphic or not                  | None            | Education about sexuality and gender identity is not sexual content.                 |
-| Profanity, horror, weapons, gambling, contests            | None            | -                                                                                    |
-| Unrestricted web access                                   | No              | External links open the system browser; the app has no browser of its own.           |
-| User-generated content, messaging, social media           | No              | -                                                                                    |
-| Advertising, loot boxes, parental controls, age assurance | No              | -                                                                                    |
+| Question                                                  | Answer          | Why                                                                                             |
+| --------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| Mature or suggestive themes                               | None            | Sexual violence and abuse are named in several biographies, as facts, not described. See below. |
+| Medical or treatment information                          | Infrequent/mild | The menstruation entry and the eating-disorder and crisis helplines.                            |
+| Health or wellness topics                                 | Yes             | Same entries.                                                                                   |
+| Realistic violence                                        | None            | Violence is mentioned in biographies, never depicted. **Re-check with the videos.**             |
+| Alcohol, tobacco or drug use or references                | None            | One passing mention in a podcast recommendation.                                                |
+| Sexual content or nudity, graphic or not                  | None            | Education about sexuality and gender identity is not sexual content.                            |
+| Profanity, horror, weapons, gambling, contests            | None            | -                                                                                               |
+| Unrestricted web access                                   | No              | External links open the system browser; the app has no browser of its own.                      |
+| User-generated content, messaging, social media           | No              | -                                                                                               |
+| Advertising, loot boxes, parental controls, age assurance | No              | -                                                                                               |
 
-Expected result: **13+**. With "Mature or suggestive themes" and "Medical or treatment information"
-on None, it would be 4+ - which undersells what the Rebell\*innen biographies talk about.
+"Mature or suggestive themes" was "Infrequent/mild" up to 1.0.0, which gave 13+. The German App
+Store shows that answer as „Szenen mit erotischen Anspielungen“, and the app has no erotic content,
+so Verein Amazone asked for it to go (4 November 2026). The biographies name abuse as a fact and
+never describe it, so None is a fair answer. App Store Connect shows the resulting rating after the
+next `deliver`; record it here. The change reaches the store page with the next submitted version.
 
 ### Google Play (IARC)
 
-Play Console → App content → Content rating, category **"Reference, News, or Educational"** (the
-closest IARC category for a calendar with editorial content; "Utility, Productivity, Communication,
-or Other" is the alternative if IARC's reviewers disagree). Answer it with the same reading as above:
+Play Console → App content → Content rating. Resubmitted on 4 November 2026 (category **"All Other
+App Types"**, as before) with these answers:
 
-- Violence: references to real violence in text only, no depictions.
-- Sexuality: no sexual content; educational references to sexuality and gender identity.
-- Language, controlled substances, gambling: none.
+- Violence: references to violence against humans in a realistic setting, referred to only, no
+  blood. No war setting, no dark overtones.
+- Sexuality: **references to sexual violence, referred to only** - the biographies. Not
+  "Suggestive/Sexual Themes or References": that answer, given on 20 September 2026, produced PEGI 12
+  with the descriptor „Sexuelle Anspielung“, which Verein Amazone rightly objected to.
+- Controlled substances: a reference to illegal drugs (the warning about K.O.-Tropfen in wi-73).
+- Fear, gambling, language, crude humour: none.
 - Users can interact or exchange content: **no**. Shares location: **no**. Digital purchases:
-  **no**.
+  **no**. Primarily news or educational: **no**.
+- Online content: **yes** - the YouTube videos. They refer to violence (the STOPiT clips) but do not
+  show it; no sexual material, offensive language or drugs.
 
-Record the resulting ratings (PEGI, USK, ESRB, …) here once the questionnaire is submitted.
+Ratings shown before submitting: **PEGI 3** without descriptors (Austria), USK 16 ("Contents for
+Different Age Groups"), ESRB Teen (Violent References, Sexual
+Themes, Drug Reference), ClassInd 14, IARC generic 3+. Managed publishing is on, so the change went
+to Google for review and must then be published from the Publishing overview. Re-answer the
+questionnaire when new content touches any of these points, in particular a video that shows
+violence.
 
 ## Export compliance
 
