@@ -196,21 +196,27 @@ next `deliver`; record it here. The change reaches the store page with the next 
 
 ### Google Play (IARC)
 
-Play Console → App content → Content rating, category **"Reference, News, or Educational"** (the
-closest IARC category for a calendar with editorial content; "Utility, Productivity, Communication,
-or Other" is the alternative if IARC's reviewers disagree). Answer it with the same reading as above:
+Play Console → App content → Content rating. Resubmitted on 4 November 2026 (category **"All Other
+App Types"**, as before) with these answers:
 
-- Violence: references to real violence in text only, no depictions.
-- Sexuality: no sexual content and **no sexual innuendo**; educational references to sexuality and
-  gender identity.
-- Language, controlled substances, gambling: none.
+- Violence: references to violence against humans in a realistic setting, referred to only, no
+  blood. No war setting, no dark overtones.
+- Sexuality: **references to sexual violence, referred to only** - the biographies. Not
+  "Suggestive/Sexual Themes or References": that answer, given on 20 September 2026, produced PEGI 12
+  with the descriptor „Sexuelle Anspielung“, which Verein Amazone rightly objected to.
+- Controlled substances: a reference to illegal drugs (the warning about K.O.-Tropfen in wi-73).
+- Fear, gambling, language, crude humour: none.
 - Users can interact or exchange content: **no**. Shares location: **no**. Digital purchases:
-  **no**.
+  **no**. Primarily news or educational: **no**.
+- Online content: **yes** - the YouTube videos. They refer to violence (the STOPiT clips) but do not
+  show it; no sexual material, offensive language or drugs.
 
-The questionnaire submitted on 20 September 2026 gave PEGI 12 with the descriptor „Sexuelle
-Anspielung“ (USK 6, ESRB Teen), which does not fit the app. Verein Amazone asked for it to be
-corrected (4 November 2026). Edit the questionnaire in the Play Console and answer no to sexual
-innuendo. A new rating applies without an app update. Record the new ratings here.
+Ratings shown before submitting: **PEGI 3** without descriptors (Austria), USK 16 ("Contents for
+Different Age Groups"), ESRB Teen (Violent References, Sexual
+Themes, Drug Reference), ClassInd 14, IARC generic 3+. Managed publishing is on, so the change went
+to Google for review and must then be published from the Publishing overview. Re-answer the
+questionnaire when new content touches any of these points, in particular a video that shows
+violence.
 
 ## Export compliance
 
