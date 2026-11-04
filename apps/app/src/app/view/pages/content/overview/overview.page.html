@@ -219,7 +219,7 @@
                 <span class="rk-skeleton block h-3 w-2/3"></span>
               </div>
             </div>
-          } @else if (serviceMatches(); as matches) {
+          } @else if (shownServiceMatches(); as matches) {
             <!-- A search spans every region, so the region chips step aside and each card names
                  its region instead. -->
             @if (matches.length > 0) {

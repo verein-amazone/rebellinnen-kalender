@@ -6,6 +6,10 @@ import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calenda
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { IcsSubscriptionInteractor } from '@app/interactors/calendar/ics-subscription.interactor';
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
+import type { AppDestination } from '@app/interactors/siri-and-search/app-destination';
+import { ExternalDestinationsInteractor } from '@app/interactors/siri-and-search/external-destinations.interactor';
+import { SiriAndSearchInteractor } from '@app/interactors/siri-and-search/siri-and-search.interactor';
+import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 
 class FakeReminderSchedulerInteractor {
   reschedules = 0;
@@ -18,6 +22,24 @@ class FakeReminderSchedulerInteractor {
 
   onReminderTapped(handler: (occurrenceId: string) => void): void {
     this.tapHandler = handler;
+  }
+}
+
+class FakeSiriAndSearchInteractor {
+  syncs = 0;
+
+  sync(): Promise<void> {
+    this.syncs += 1;
+    return Promise.resolve();
+  }
+}
+
+class FakeExternalDestinationsInteractor {
+  destinationHandler: ((destination: AppDestination) => void) | null = null;
+
+  onDestinationOpened(handler: (destination: AppDestination) => void): () => void {
+    this.destinationHandler = handler;
+    return () => (this.destinationHandler = null);
   }
 }
 
@@ -62,6 +84,8 @@ describe('App', () => {
         { provide: IcsSubscriptionInteractor, useClass: FakeIcsSubscriptionInteractor },
         { provide: CalendarMaintenanceInteractor, useClass: FakeCalendarMaintenanceInteractor },
         { provide: ReminderSchedulerInteractor, useClass: FakeReminderSchedulerInteractor },
+        { provide: SiriAndSearchInteractor, useClass: FakeSiriAndSearchInteractor },
+        { provide: ExternalDestinationsInteractor, useClass: FakeExternalDestinationsInteractor },
       ],
     }).compileComponents();
   });
@@ -87,6 +111,37 @@ describe('App', () => {
     reminders.tapHandler?.('app:item-1#2026-10-12T18:00:00');
 
     expect(navigate).toHaveBeenCalledWith(['/calendar', 'event', 'app:item-1#2026-10-12T18:00:00']);
+  });
+
+  it('opens the destination of a Spotlight result or an App Shortcut', () => {
+    const destinations = TestBed.inject(
+      ExternalDestinationsInteractor,
+    ) as unknown as FakeExternalDestinationsInteractor;
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    TestBed.createComponent(App);
+    destinations.destinationHandler?.({
+      commands: ['/content'],
+      queryParams: { area: 'services', service: 'telefonseelsorge' },
+    });
+
+    expect(navigate).toHaveBeenCalledWith(['/content'], {
+      queryParams: { area: 'services', service: 'telefonseelsorge' },
+    });
+  });
+
+  it('brings iOS search up to date after the first render and on every bookmark change', async () => {
+    const siriAndSearch = TestBed.inject(
+      SiriAndSearchInteractor,
+    ) as unknown as FakeSiriAndSearchInteractor;
+
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(siriAndSearch.syncs).toBe(1));
+
+    TestBed.inject(BookmarkChanges).notify();
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(siriAndSearch.syncs).toBe(2));
   });
 
   it('should create the app', () => {

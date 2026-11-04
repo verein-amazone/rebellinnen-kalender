@@ -16,6 +16,10 @@
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		AA02BB02CC02DD02EE02FF02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA01BB01CC01DD01EE01FF01 /* SceneDelegate.swift */; };
+		AA04BB04CC04DD04EE04FF04 /* AppDestinations.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA03BB03CC03DD03EE03FF03 /* AppDestinations.swift */; };
+		AA06BB06CC06DD06EE06FF06 /* SiriAndSearchPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA05BB05CC05DD05EE05FF05 /* SiriAndSearchPlugin.swift */; };
+		AA08BB08CC08DD08EE08FF08 /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA07BB07CC07DD07EE07FF07 /* AppShortcuts.swift */; };
+		AA10BB10CC10DD10EE10FF10 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA09BB09CC09DD09EE09FF09 /* MainViewController.swift */; };
 		EA9F28DB74440A868D908639 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 514C50FB044EE933251E492B /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +36,10 @@
 		514C50FB044EE933251E492B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		AA01BB01CC01DD01EE01FF01 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		AA03BB03CC03DD03EE03FF03 /* AppDestinations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDestinations.swift; sourceTree = "<group>"; };
+		AA05BB05CC05DD05EE05FF05 /* SiriAndSearchPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriAndSearchPlugin.swift; sourceTree = "<group>"; };
+		AA07BB07CC07DD07EE07FF07 /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
+		AA09BB09CC09DD09EE09FF09 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +77,10 @@
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				AA01BB01CC01DD01EE01FF01 /* SceneDelegate.swift */,
+				AA03BB03CC03DD03EE03FF03 /* AppDestinations.swift */,
+				AA05BB05CC05DD05EE05FF05 /* SiriAndSearchPlugin.swift */,
+				AA07BB07CC07DD07EE07FF07 /* AppShortcuts.swift */,
+				AA09BB09CC09DD09EE09FF09 /* MainViewController.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
@@ -164,6 +176,10 @@
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				AA02BB02CC02DD02EE02FF02 /* SceneDelegate.swift in Sources */,
+				AA04BB04CC04DD04EE04FF04 /* AppDestinations.swift in Sources */,
+				AA06BB06CC06DD06EE06FF06 /* SiriAndSearchPlugin.swift in Sources */,
+				AA08BB08CC08DD08EE08FF08 /* AppShortcuts.swift in Sources */,
+				AA10BB10CC10DD10EE10FF10 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

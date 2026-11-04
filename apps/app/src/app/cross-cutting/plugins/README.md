@@ -59,6 +59,20 @@ it and calls that when the injector is destroyed - which rejects with
 transitively, whether or not the test ever uses the plugin. A plain object has no such property. It
 also narrows the token's type to the slice the app uses, which is the boundary this folder is for.
 
+## The app's own plugin
+
+`siri-and-search.plugin.ts` is the one token without an npm package behind it: Spotlight and the App
+Shortcuts (#167) are implemented in the iOS app target itself (`ios/App/App/SiriAndSearchPlugin.swift`,
+`AppShortcuts.swift`, `AppDestinations.swift`). Its factory calls `registerPlugin()` from
+`@capacitor/core` instead of importing a package; the rules above apply unchanged.
+
+Capacitor only discovers npm plugins (through the generated `capacitor.config.json`), so a plugin
+compiled into the app is registered by hand: `MainViewController.swift`, the bridge view controller
+`Main.storyboard` names, does it in `capacitorDidLoad()`. The project does not use synchronized
+folders, so a new Swift file also needs its entries in `App.xcodeproj/project.pbxproj` (file
+reference, group, Sources build phase). There is no Android counterpart; the wrapper reports itself
+as unsupported there.
+
 ## Patched plugins
 
 A plugin that lacks something the app needs is patched with `pnpm patch`, not forked: the patch
