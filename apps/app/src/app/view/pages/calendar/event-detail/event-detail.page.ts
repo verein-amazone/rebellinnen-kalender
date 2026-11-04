@@ -19,9 +19,11 @@ import {
   LucideCheck,
   LucideExternalLink,
   LucidePencil,
+  LucidePhone,
   LucideRepeat,
   LucideRotateCw,
   LucideTrash2,
+  LucideVideo,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
@@ -34,6 +36,10 @@ import {
   type TemporalValue,
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import {
+  findOnlineMeeting,
+  MEETING_PROVIDER_NAMES,
+} from '@app/interactors/calendar/online-meeting';
 import { describeStoredRecurrence } from '@app/interactors/calendar/recurrence';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
@@ -78,9 +84,11 @@ import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-me
     LucideCheck,
     LucideExternalLink,
     LucidePencil,
+    LucidePhone,
     LucideRepeat,
     LucideRotateCw,
     LucideTrash2,
+    LucideVideo,
   ],
   templateUrl: './event-detail.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -138,6 +146,20 @@ export class EventDetailPage {
   });
 
   protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
+
+  /**
+   * The occurrence's online meeting, if it has one, with the description and location to show
+   * beside it: the provider's generated block and a location that only repeats the link are left out.
+   */
+  protected readonly meetingDetails = computed(() => {
+    const occurrence = this.occurrence();
+    return findOnlineMeeting({
+      description: occurrence?.description ?? null,
+      location: occurrence?.location ?? null,
+    });
+  });
+
+  protected readonly providerNames = MEETING_PROVIDER_NAMES;
 
   /**
    * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a

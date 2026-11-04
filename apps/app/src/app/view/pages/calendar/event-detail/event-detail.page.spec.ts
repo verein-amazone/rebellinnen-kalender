@@ -320,6 +320,37 @@ describe('EventDetailPage, read view', () => {
     expect(element.textContent).toContain('Montag, 10. August 2026');
   });
 
+  it('shows a join and a dial-in action for a Google Meet event, without the generated block', async () => {
+    const delimiter = '-::~:~::~:~:~:~:~:~::~:~::-';
+    const { element } = await setup({
+      id: 'occ-1',
+      occurrence: occurrence({
+        itemId: null,
+        location: null,
+        description: [
+          'Agenda im Wiki',
+          '',
+          delimiter,
+          'Join with Google Meet: https://meet.google.com/abc-defg-hij',
+          'Or dial: (AT) +43 1 2345678 PIN: 123456789#',
+          'Please do not edit this section.',
+          delimiter,
+        ].join('\n'),
+        actions: { editableInApp: false, deletableInApp: false, editViaNativeCalendar: true },
+      }),
+    });
+
+    const links = [...element.querySelectorAll('a')];
+    const join = links.find((link) => link.textContent?.includes('Google Meet beitreten'));
+    const dial = links.find((link) => link.textContent?.includes('Einwählen'));
+    expect(join?.getAttribute('href')).toBe('https://meet.google.com/abc-defg-hij');
+    expect(join?.getAttribute('target')).toBe('_blank');
+    expect(dial?.getAttribute('href')).toBe('tel:+4312345678;123456789%23');
+    expect(dial?.textContent).toContain('+43 1 2345678');
+    expect(element.textContent).toContain('Agenda im Wiki');
+    expect(element.textContent).not.toContain('Please do not edit');
+  });
+
   it('shows „Ganztägig“ for an all-day occurrence instead of a time range', async () => {
     const { element } = await setup({
       id: 'occ-1',

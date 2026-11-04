@@ -687,6 +687,9 @@ description is never changed; the presentation is derived each time it is shown.
   that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
   runs as a further layer.
 
+A video call in the event is found before the description is shown, and the provider's generated
+block is taken out of it; see [Online meetings in imported events](./online-meetings.md).
+
 ## Allowed / forbidden examples
 
 Allowed:
