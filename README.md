@@ -57,7 +57,7 @@ The app has a small website on Verein Amazone's domain, `https://rebellinnen.ama
 introduction with the store links, `/download` (the target of the printed QR codes, which sends a
 phone straight to its store) and the privacy policy, terms of use and imprint. It is a static
 [Astro](https://astro.build/) site in [`apps/site`](./apps/site/), styled with Tailwind on the app's
-own design tokens and rendering the same legal texts the app bundles, and published from `dev` by
+own design tokens and rendering the same legal texts the app bundles, and published from `main` by
 [.github/workflows/pages.yml](./.github/workflows/pages.yml). See
 [docs/store-listing.md](./docs/store-listing.md#website) for how it is put together.
 

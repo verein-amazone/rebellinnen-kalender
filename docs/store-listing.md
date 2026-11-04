@@ -129,8 +129,8 @@ website texts do not describe the app. Each has one source in `packages/legal/sr
 The texts are Verein Amazone's: change them with their review, like the store copy, and update the
 „Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
 one paragraph as emphasis; the renderer drops `mailto:` and `tel:` links, so addresses stay text.
-Because the web pages follow `dev`, a change is public as soon as it is merged - land it when it is
-true for the version in the stores.
+The web pages follow `main`, so a change goes public with the next release from `main`, together
+with the app version it describes (#148).
 
 The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
 in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's
@@ -179,7 +179,7 @@ has them); keep the redirect for as long as an old address can still be out ther
   proeuropeanvalues.at/finanzierung, the default app icon and the store screenshots as WebP
   (`cwebp -q 82 -resize 600 0`). Regenerate the screenshots after `pnpm store:screenshots` changes
   them.
-- **Published** by `.github/workflows/pages.yml` on every push to `dev` that touches its sources,
+- **Published** by `.github/workflows/pages.yml` on every push to `main` that touches its sources,
   and **tested** by `pnpm test:site` (axe, no foreign requests, no Content-Security-Policy
   violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job.
 
