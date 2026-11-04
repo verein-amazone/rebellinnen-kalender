@@ -2367,12 +2367,7 @@
       "sourceUrl": null,
       "validFrom": null,
       "validTo": null,
-      "eligibleForDaily": true,
-      "video": {
-        "provider": "youtube",
-        "id": "E67LmAfrivQ",
-        "orientation": "portrait"
-      }
+      "eligibleForDaily": true
     },
     {
       "id": "wi-315",
