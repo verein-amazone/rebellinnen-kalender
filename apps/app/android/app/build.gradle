@@ -56,7 +56,13 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            // R8 shrinks and obfuscates the release build (#148). The keep rules come with the
+            // libraries: Capacitor core keeps every plugin class and its annotated methods,
+            // SQLCipher keeps its JNI classes, and AGP's defaults keep @JavascriptInterface methods.
+            // A new native plugin that uses reflection may need a rule in proguard-rules.pro, so
+            // check a release build on a device after adding one. The mapping file travels inside
+            // the app bundle, where Play picks it up for crash deobfuscation.
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if (hasReleaseKeystore) {
                 signingConfig signingConfigs.release
