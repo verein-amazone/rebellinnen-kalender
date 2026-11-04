@@ -21,7 +21,7 @@ let package = Package(
         .package(name: "CapawesomeCapacitorAppIcon", path: "../../../../../node_modules/.pnpm/@capawesome+capacitor-app-icon@0.1.2_@capacitor+core@8.6.0/node_modules/@capawesome/capacitor-app-icon"),
         .package(name: "CapawesomeCapacitorHaptics", path: "../../../../../node_modules/.pnpm/@capawesome+capacitor-haptics@0.1.2_@capacitor+core@8.6.0/node_modules/@capawesome/capacitor-haptics"),
         .package(name: "CapawesomeCapacitorShake", path: "../../../../../node_modules/.pnpm/@capawesome+capacitor-shake@0.1.2_@capacitor+core@8.6.0/node_modules/@capawesome/capacitor-shake"),
-        .package(name: "CapawesomeCapacitorYoutubePlayer", path: "../../../../../node_modules/.pnpm/@capawesome+capacitor-youtube-player@0.1.3_patch_hash=c00a01ee6caef5db82fce7a3e8365204a_3bf6db8f9a980db9e83a7d0a7184da39/node_modules/@capawesome/capacitor-youtube-player"),
+        .package(name: "CapawesomeCapacitorYoutubePlayer", path: "../../../../../node_modules/.pnpm/@capawesome+capacitor-youtube-player@0.1.4_@capacitor+core@8.6.0/node_modules/@capawesome/capacitor-youtube-player"),
         .package(name: "EbarooniCapacitorCalendar", path: "../../../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.10.0_@capacitor+core@8.6.0/node_modules/@ebarooni/capacitor-calendar"),
         .package(name: "IndependoCapacitorEmojiPicker", path: "../../../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.4_@capacitor+core@8.6.0/node_modules/@independo/capacitor-emoji-picker"),
         .package(name: "CapacitorNativeSettings", path: "../../../../../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.6.0/node_modules/capacitor-native-settings")

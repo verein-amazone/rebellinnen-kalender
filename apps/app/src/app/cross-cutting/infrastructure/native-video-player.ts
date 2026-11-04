@@ -94,8 +94,8 @@ export class NativeVideoPlayer {
         // takes a German player (`hl`), since YouTube shows its automatic captions whenever the
         // player's language differs from the video's, and the player otherwise follows the device
         // language. Both platforms load the player from YouTube's privacy-enhanced host, like the
-        // browser build. `hl` comes from a pnpm patch (patches/) and is iOS only; Android's player
-        // ignores it.
+        // browser build. `hl` is iOS only; Android's player ignores it
+        // (capawesome-team/capacitor-plugins#1196).
         options: { autoplay: true, rel: false, hl: 'de', host: PRIVACY_ENHANCED_HOST },
       });
     } catch (error) {
