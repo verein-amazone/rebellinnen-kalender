@@ -1,3 +1,9 @@
+## [1.1.0-rc.16](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.15...v1.1.0-rc.16) (2026-11-04)
+
+### Features
+
+* **app:** list Anlaufstellen and saved content in iOS search, add App Shortcuts ([126580d](https://github.com/verein-amazone/rebellinnen-kalender/commit/126580d7c01b04e625cb3f6e717931aa75eb1c4f)), closes [#167](https://github.com/verein-amazone/rebellinnen-kalender/issues/167)
+
 ## [1.1.0-rc.15](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.14...v1.1.0-rc.15) (2026-11-04)
 
 ### Build
