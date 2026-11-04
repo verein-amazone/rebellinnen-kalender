@@ -55,10 +55,23 @@ export class EventDescriptionRenderer {
       ...SANITIZE_CONFIG,
       RETURN_DOM_FRAGMENT: true,
     });
+    removeEmptyBlocks(fragment);
     preserveLineBreaks(fragment);
     const container = document.createElement('div');
     container.append(fragment);
     return { format: 'html', html: container.innerHTML.trim() };
+  }
+}
+
+/**
+ * Google's editor leaves empty paragraphs around lists (`<br><p></p><ul>…</ul><p></p>`), which would
+ * otherwise each add a paragraph gap. A blank line the author typed is a `<br>` and stays.
+ */
+function removeEmptyBlocks(root: DocumentFragment): void {
+  for (const block of root.querySelectorAll('p, div')) {
+    if (block.textContent?.trim() === '' && block.querySelector('br') === null) {
+      block.remove();
+    }
   }
 }
 

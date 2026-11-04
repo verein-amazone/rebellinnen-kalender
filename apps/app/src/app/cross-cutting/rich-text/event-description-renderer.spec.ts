@@ -69,6 +69,34 @@ describe('EventDescriptionRenderer', () => {
     });
   });
 
+  describe('the public Amazone calendar (Google Calendar), as of November 2026', () => {
+    it('renders the registration reminder with its bold line and list, without empty paragraphs', () => {
+      expect(
+        html(
+          '<b>Heute noch schnell anmelden und den Rebell*innen Kalender 2027/28 mitgestalten! </b><br><br>Wie, wann, wo...?<br><p></p><ul><li>Drei Online-Workshops im März</li><li>Für alle ab 12 Jahren</li></ul><p></p>',
+        ),
+      ).toBe(
+        '<b>Heute noch schnell anmelden und den Rebell*innen Kalender 2027/28 mitgestalten! </b><br><br>Wie, wann, wo...?<br><ul><li>Drei Online-Workshops im März</li><li>Für alle ab 12 Jahren</li></ul>',
+      );
+    });
+
+    it('keeps the link to a PDF in an otherwise plain description', () => {
+      expect(
+        html(
+          'Am 11. Oktober ist Weltmädchen*tag! <br>Orte findest du zum Beispiel hier: <a href="https://cms.amazone.or.at/media/pages/projekte/rebell-innen-kalender/landkarte.pdf">landkarte.pdf</a>',
+        ),
+      ).toBe(
+        'Am 11. Oktober ist Weltmädchen*tag! <br>Orte findest du zum Beispiel hier: <a href="https://cms.amazone.or.at/media/pages/projekte/rebell-innen-kalender/landkarte.pdf">landkarte.pdf</a>',
+      );
+    });
+
+    it('leaves a description without markup as plain text', () => {
+      const text =
+        'IDAHOBIT steht für den 17. Mai als Internationalen Tag gegen Homo-, Bi-, Inter-, Trans- und Asexuellenfeindlichkeit.';
+      expect(renderer.render(text)).toEqual({ format: 'plain-text', text });
+    });
+  });
+
   describe('sanitizing', () => {
     it('removes scripts, event handlers and embedded content', () => {
       const result = html(
