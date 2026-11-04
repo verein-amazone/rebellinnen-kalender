@@ -153,6 +153,30 @@ This keeps the back button, deep links and app restarts correct for free, and it
 not need a custom `RouteReuseStrategy`. Pages read such values through `withComponentInputBinding()`,
 which binds route parameters to signal inputs.
 
+#### Entry points from outside the app
+
+Three things can open the app on a particular screen: a tapped reminder, an iOS search (Spotlight)
+result and an App Shortcut (#167). `App` registers the handler for each one first thing in its
+constructor, because the OS holds back the event that launched the app only until a listener
+exists. The reminder hands over an occurrence id. The other two hand over one string, a
+_destination_, which `parseAppDestination()` (`interactors/siri-and-search/app-destination.ts`)
+turns into router arguments: `today`, `collection`, `services`, `new-event`, `service:<id>` or
+`content:<id>`. An unknown or malformed destination is dropped, so an entry written by a later
+version of the app cannot lead anywhere unexpected.
+
+A destination carries ids, never a route, and the screens it leads to already cope with a missing
+item: the detail page says the content is not available, and the Anlaufstellen page ignores an
+unknown `?service=`. None of these entry points goes through the introduction, as with any other
+deep link; only `/today` has the first-launch guard.
+
+The native side (`ios/App/App/AppDestinations.swift`) queues destinations until the app's plugin
+has loaded, so a cold start loses none. `ExternalDestinationsInteractor` listens for them from the start.
+What goes into iOS search is decided by `SiriAndSearchInteractor`: every Anlaufstelle and every
+bookmarked item, nothing personal. The app has no switch for it; iOS's own „Siri & Suche“ settings
+turn it off per app. `App` loads the interactor lazily and runs it after the first render and on
+every bookmark change, since it reads the content and Anlaufstellen catalogs that the initial
+bundle otherwise does without.
+
 #### Android's back button
 
 The WebView history is **not** what Android's back button or back gesture walks. Screens are left

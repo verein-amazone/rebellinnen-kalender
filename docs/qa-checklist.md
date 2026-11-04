@@ -137,6 +137,15 @@ The workflow:
 - [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
       Impressum) open in the browser or the phone app, and the back path into the app works.
 - [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.
+- [ ] **iOS search (physical iPhone; Spotlight does not work in the Simulator):** search for an
+      Anlaufstelle by name and tap the result, once with the app killed and once with it in the
+      background - the Anlaufstellen screen opens with that card focused. Bookmark an item, find it
+      in Spotlight, tap it - its detail screen opens; remove the bookmark - the result is gone.
+      Switching the app off under iOS „Einstellungen → Apps → Rebell*innen → Siri & Suche“ hides
+      all of its results.
+- [ ] **App Shortcuts (iPhone):** the Shortcuts app lists „Heute öffnen“, „Meine Sammlung öffnen“,
+      „Anlaufstellen öffnen“ and „Neuen Termin erstellen“, and each one opens its screen. The new
+      appointment opens as an empty form, not saved. Try one by voice through Siri.
 - [ ] **Shake** on Heute replays the Tagesimpuls greeting on a real device, and the same replay is
       reachable by tapping.
 

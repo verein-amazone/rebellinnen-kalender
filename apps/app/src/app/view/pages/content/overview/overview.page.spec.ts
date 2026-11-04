@@ -168,6 +168,12 @@ async function setup(
       fixture.componentRef.setInput('area', area);
       await fixture.whenStable();
     },
+    /** Likewise for `?service=`, as a second iOS search result sets it on the open screen. */
+    setService: async (id: string) => {
+      fixture.componentRef.setInput('service', id);
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve));
+    },
     bookmarks,
     haptics,
     bookmarkChanges: TestBed.inject(BookmarkChanges),
@@ -263,6 +269,37 @@ describe('ContentOverviewPage', () => {
       expect(document.activeElement).toBe(card);
       expect(card?.getAttribute('tabindex')).toBe('-1');
       expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' });
+    });
+
+    it('reveals another entry when the open screen is sent to it', async () => {
+      Element.prototype.scrollIntoView = vi.fn();
+
+      const { element, setService } = await setup({
+        queryParams: { area: 'services', service: 'verein-amazone' },
+        regions,
+        services,
+      });
+      await setService('rat-auf-draht');
+
+      const card = element.querySelector<HTMLElement>('#support-service-rat-auf-draht');
+      expect(card).not.toBeNull();
+      expect(document.activeElement).toBe(card);
+    });
+
+    it('closes a search still open on the screen, so the entry it is sent to can be revealed', async () => {
+      Element.prototype.scrollIntoView = vi.fn();
+
+      const { element, setService } = await setup({
+        queryParams: { area: 'services', q: 'rat' },
+        regions,
+        services,
+      });
+      expect(element.querySelector('input[type="search"]')).not.toBeNull();
+
+      await setService('verein-amazone');
+
+      expect(element.querySelector('input[type="search"]')).toBeNull();
+      expect(document.activeElement?.id).toBe('support-service-verein-amazone');
     });
 
     it('leaves the screen as it is for an unknown entry', async () => {

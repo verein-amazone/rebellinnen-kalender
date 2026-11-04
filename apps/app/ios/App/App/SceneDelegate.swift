@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import CoreSpotlight
 
 /// Bridges the `UIScene` life cycle back onto Capacitor's application delegate proxy.
 ///
@@ -52,6 +53,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        // A tapped Spotlight result: its identifier is the destination (see `AppDestinations`).
+        if userActivity.activityType == CSSearchableItemActionType,
+           let identifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String {
+            AppDestinations.shared.open(identifier)
+        }
         _ = ApplicationDelegateProxy.shared.application(.shared, continue: userActivity) { _ in }
     }
 }
