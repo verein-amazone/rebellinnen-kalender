@@ -1,3 +1,9 @@
+## [1.1.0-rc.14](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.13...v1.1.0-rc.14) (2026-11-04)
+
+### Chores
+
+* **deps:** move glob and minimatch past their advisories ([6ed7f46](https://github.com/verein-amazone/rebellinnen-kalender/commit/6ed7f4663434ba259181e802ac200f7ec7695fb9))
+
 ## [1.1.0-rc.13](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.12...v1.1.0-rc.13) (2026-11-04)
 
 ### Features
