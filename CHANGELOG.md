@@ -1,3 +1,9 @@
+## [1.1.0-rc.17](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.16...v1.1.0-rc.17) (2026-11-04)
+
+### Features
+
+* **app:** polish the App Shortcuts and donate their screens ([26ca565](https://github.com/verein-amazone/rebellinnen-kalender/commit/26ca56513e99cce1d7d8f7257f343b14b203f25b)), closes [#167](https://github.com/verein-amazone/rebellinnen-kalender/issues/167)
+
 ## [1.1.0-rc.16](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.15...v1.1.0-rc.16) (2026-11-04)
 
 ### Features
