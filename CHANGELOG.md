@@ -1,3 +1,133 @@
+## [1.1.0](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0...v1.1.0) (2026-11-05)
+
+### Features
+
+* **app:** join and dial into online meetings from the event detail ([f944c47](https://github.com/verein-amazone/rebellinnen-kalender/commit/f944c4751b799be841dbc6b1cf00a92c1cd0d8e2))
+* **app:** keep an event's URL and its feed's join link ([1210696](https://github.com/verein-amazone/rebellinnen-kalender/commit/12106964c576f07e0fb866be248b8afbc660fe62))
+* **app:** list Anlaufstellen and saved content in iOS search, add App Shortcuts ([126580d](https://github.com/verein-amazone/rebellinnen-kalender/commit/126580d7c01b04e625cb3f6e717931aa75eb1c4f)), closes [#167](https://github.com/verein-amazone/rebellinnen-kalender/issues/167)
+* **app:** make addresses in event descriptions tappable ([7f054f2](https://github.com/verein-amazone/rebellinnen-kalender/commit/7f054f2dee1165159dc2fc68ec05168c203a7156))
+* **app:** play Android videos in YouTube's privacy-enhanced mode ([5790255](https://github.com/verein-amazone/rebellinnen-kalender/commit/57902551967756de3240574a75cb2ebd25ff5db6))
+* **app:** play iOS videos in YouTube's privacy-enhanced mode ([396a71a](https://github.com/verein-amazone/rebellinnen-kalender/commit/396a71a452b8d63364635ad2b5cc2bdc8f6accce))
+* **app:** polish the App Shortcuts and donate their screens ([26ca565](https://github.com/verein-amazone/rebellinnen-kalender/commit/26ca56513e99cce1d7d8f7257f343b14b203f25b)), closes [#167](https://github.com/verein-amazone/rebellinnen-kalender/issues/167)
+* **app:** remind of device and subscribed calendar appointments ([cfdf309](https://github.com/verein-amazone/rebellinnen-kalender/commit/cfdf30910ca42d2914625f83f8eab11039965984))
+* **app:** show formatted event descriptions, ICS ones included ([54a9bd6](https://github.com/verein-amazone/rebellinnen-kalender/commit/54a9bd6fe1542788cb882e15096b08ba56651ee6))
+* **calendar:** rename the partner calendars and give them calmer default colours ([f51cf6c](https://github.com/verein-amazone/rebellinnen-kalender/commit/f51cf6cca282e1ac0f67853f37da17bb1a32a165))
+* **content:** add 102 Wissen items from Verein Amazone (wi-23 - wi-99, wi-300 - wi-325) ([63f6414](https://github.com/verein-amazone/rebellinnen-kalender/commit/63f641431ec8b60a0457249d5e98e7a0818aba6b))
+* **content:** adopt Verein Amazone's content revision of 3 November 2026 ([166afba](https://github.com/verein-amazone/rebellinnen-kalender/commit/166afbac03a2d9cc4b3656fc2529e627e2dc4213))
+* **content:** link the recommended podcasts to their official pages ([12f12ef](https://github.com/verein-amazone/rebellinnen-kalender/commit/12f12ef959308f88a935bcf96e4f5beb9950140c))
+* **content:** play an item's video in the app, and link the Anlaufstellen it names ([e16f4af](https://github.com/verein-amazone/rebellinnen-kalender/commit/e16f4afb740267bcc6090f1f8725c55512e9e12c))
+* **content:** render callouts and mailto links in Markdown ([6408598](https://github.com/verein-amazone/rebellinnen-kalender/commit/640859822a85505afcdfd3fa4ca01303fb8ef622))
+* **content:** yearly windows, video and Anlaufstellen fields in the content model ([5b49aff](https://github.com/verein-amazone/rebellinnen-kalender/commit/5b49affcb0fb1b9f08be5acea42a64f6739c0e75))
+* **onboarding:** adopt Verein Amazone's revised wording ([dc080d9](https://github.com/verein-amazone/rebellinnen-kalender/commit/dc080d9a0acdb1706977225eed14b9119b175496))
+* **settings:** adopt Verein Amazone's revised wording ([0c985d5](https://github.com/verein-amazone/rebellinnen-kalender/commit/0c985d504060a24d3a5754ea37357757119ee3c9))
+* **settings:** offer the dynamic colour themes as pairs below the palettes ([4b92f09](https://github.com/verein-amazone/rebellinnen-kalender/commit/4b92f096cd5f743adcbea61bb50ea09c6edc7ca6))
+* **site:** link the App Store and announce the 9 November launch ([f417d24](https://github.com/verein-amazone/rebellinnen-kalender/commit/f417d245f2c8818f1e44111decc5d3efeb3e4059))
+* **site:** show the Hil-Foundation logo and name the cooperation in the project sentence ([4033cd6](https://github.com/verein-amazone/rebellinnen-kalender/commit/4033cd615c4e0c40fdfc4d2cd2fb90488083cc09)), closes [#grlpwr](https://github.com/verein-amazone/rebellinnen-kalender/issues/grlpwr)
+* **theme:** add Summer and Candy ([495092c](https://github.com/verein-amazone/rebellinnen-kalender/commit/495092c8db93e4393a61fc98e7fbd044943ce380)), closes [#facf4e](https://github.com/verein-amazone/rebellinnen-kalender/issues/facf4e) [#0d60d3](https://github.com/verein-amazone/rebellinnen-kalender/issues/0d60d3) [#f07b27](https://github.com/verein-amazone/rebellinnen-kalender/issues/f07b27) [#fbdce2](https://github.com/verein-amazone/rebellinnen-kalender/issues/fbdce2) [#f8879e](https://github.com/verein-amazone/rebellinnen-kalender/issues/f8879e) [#5a84e6](https://github.com/verein-amazone/rebellinnen-kalender/issues/5a84e6) [#3a5fc2](https://github.com/verein-amazone/rebellinnen-kalender/issues/3a5fc2)
+* **theme:** rename the themes and drop Sonnenuntergang and the dynamic themes ([9de1dd5](https://github.com/verein-amazone/rebellinnen-kalender/commit/9de1dd5d3fb96fc44c26841b1ed6c6153a1910dd))
+* **today:** drop the closing footer ([2d969d1](https://github.com/verein-amazone/rebellinnen-kalender/commit/2d969d184d5c857f797e295256bf8e92003afd46))
+* **today:** drop the Tagesimpuls setting; the greeting follows Animationen ([eb8fb76](https://github.com/verein-amazone/rebellinnen-kalender/commit/eb8fb7667809d8128e4ddfd782ae9ae62bfe59da))
+* **video:** play videos in place and move the notice behind an info button ([62ffd90](https://github.com/verein-amazone/rebellinnen-kalender/commit/62ffd90d28c3fc929d5fe1272d7b4f8dbe55b323))
+
+### Bug Fixes
+
+* **app:** accessibility polish from the pre-release review ([136f2b2](https://github.com/verein-amazone/rebellinnen-kalender/commit/136f2b220554a449faf67243300889ab5222e9a0)), closes [#146](https://github.com/verein-amazone/rebellinnen-kalender/issues/146)
+* **app:** drop the empty paragraphs Google leaves around lists ([3d4cd80](https://github.com/verein-amazone/rebellinnen-kalender/commit/3d4cd8019837d97f9a9002992af8b3a7ff42c716))
+* **app:** keep YouTube's automatic captions off on iOS ([cc9b903](https://github.com/verein-amazone/rebellinnen-kalender/commit/cc9b903d8a251bbd3715e3f57227b16c70d17f85)), closes [capawesome-team/capacitor-plugins#1195](https://github.com/capawesome-team/capacitor-plugins/issues/1195)
+* **content:** drop the „Hass im Netz“ video from wi-314 ([90950af](https://github.com/verein-amazone/rebellinnen-kalender/commit/90950af43fa90f7ac2487c0a8c3b1a7cfdc6dbab))
+* **content:** finish the image rights review for 1.1.0 ([4ea054f](https://github.com/verein-amazone/rebellinnen-kalender/commit/4ea054f62ce71466b3556bf6c96ba0c244186c21))
+* **content:** give wi-314 its own video ([83fa91f](https://github.com/verein-amazone/rebellinnen-kalender/commit/83fa91ffb1330fdb88250fc52c94e97efcada59d))
+* **content:** shorten the collection tab to „Sammlung“ ([a86fa47](https://github.com/verein-amazone/rebellinnen-kalender/commit/a86fa4773bf9186df61c68046c12ef8df6859ccb))
+* **content:** shorten the sign-up item's title and link its e-mail addresses ([50cdada](https://github.com/verein-amazone/rebellinnen-kalender/commit/50cdada711e828813afbcdfee118ac4ee18b73c6))
+* **fastlane:** leave the App Store release type to the person who submits ([5c746ba](https://github.com/verein-amazone/rebellinnen-kalender/commit/5c746ba23111513c383f77daef900fed42f30a93))
+* **fastlane:** pass the platform to the TestFlight hand-off of an earlier upload ([46e4601](https://github.com/verein-amazone/rebellinnen-kalender/commit/46e46019701aa856bdad4db3c237f0565f26d731))
+* **legal:** name the partner calendar „Rebell*innen Kalender“ in the privacy policy ([5112e58](https://github.com/verein-amazone/rebellinnen-kalender/commit/5112e58531ac0125138109b1cf0eecb3f1894161))
+* **onboarding:** keep only the terms link on the welcome step ([37a3c22](https://github.com/verein-amazone/rebellinnen-kalender/commit/37a3c22c4375e51dfb700adc413b505d74095a10))
+* **settings:** give section headings the same size as on Heute ([5fe6834](https://github.com/verein-amazone/rebellinnen-kalender/commit/5fe6834000fea37423dfbac96babbf8d2fd0515c))
+* **site:** hide the Google Play link until pre-registration is live ([fe82ed0](https://github.com/verein-amazone/rebellinnen-kalender/commit/fe82ed012d2b31e5ce7927a333d0368ff55f23d0))
+* **site:** link Google Play again now that pre-registration is live ([afbd64a](https://github.com/verein-amazone/rebellinnen-kalender/commit/afbd64adf0089a0ed37b5b3bf2e9ffdf8eb6a95b))
+* **site:** link the Austrian App Store storefront ([1b19521](https://github.com/verein-amazone/rebellinnen-kalender/commit/1b195213020b11bf18759b405326bb0f693f7e17))
+* **theme:** mark the active tab and destructive actions in each theme's own colours ([6ab244f](https://github.com/verein-amazone/rebellinnen-kalender/commit/6ab244fd75b09faf6a89fefec636e736da0f5dd5))
+* **video:** stop forcing YouTube's captions on ([9c7eaa0](https://github.com/verein-amazone/rebellinnen-kalender/commit/9c7eaa0127f625e6f85e77e1686aa6c8d11fb2a7))
+
+### Improvements
+
+* **site:** open links in a new tab ([a3d55fd](https://github.com/verein-amazone/rebellinnen-kalender/commit/a3d55fd06ad787e5c08267fd55059cdccb87c19d))
+
+### Build
+
+* **app:** keep the iOS display name in Info.plist only ([a5a75c2](https://github.com/verein-amazone/rebellinnen-kalender/commit/a5a75c2efb6a983f70f960d6ccbdd8c0b147536a)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **app:** limit the FileProvider to the camera-capture folder ([271c44c](https://github.com/verein-amazone/rebellinnen-kalender/commit/271c44c68d86ff3a5a12f3c36bb73c1284ac8217)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **app:** shrink the Android release build with R8 ([46ebee9](https://github.com/verein-amazone/rebellinnen-kalender/commit/46ebee9aadb9d17583971edd509d505c410817f7)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **app:** take the player's hl option from the plugin ([7839d49](https://github.com/verein-amazone/rebellinnen-kalender/commit/7839d49f79acb5daec11484da10260f61002952f)), closes [capawesome-team/capacitor-plugins#1197](https://github.com/capawesome-team/capacitor-plugins/issues/1197) [capawesome-team/capacitor-plugins#1196](https://github.com/capawesome-team/capacitor-plugins/issues/1196)
+
+### Chores
+
+* **deps:** move glob and minimatch past their advisories ([6ed7f46](https://github.com/verein-amazone/rebellinnen-kalender/commit/6ed7f4663434ba259181e802ac200f7ec7695fb9))
+* **deps:** weekly app dependency update ([24eed2d](https://github.com/verein-amazone/rebellinnen-kalender/commit/24eed2d615a7679c2fbcde7bb0593cb73e6d058e))
+* **deps:** weekly app dependency update ([b369f93](https://github.com/verein-amazone/rebellinnen-kalender/commit/b369f93cdc38e6c6de03be49af1ec0a887d8b611))
+* **deps:** weekly app dependency update ([4bdc510](https://github.com/verein-amazone/rebellinnen-kalender/commit/4bdc510bbf7f19962dabea1cc40d771d931fe42a))
+* **deps:** weekly app dependency update ([be717cc](https://github.com/verein-amazone/rebellinnen-kalender/commit/be717cc06325a988d7f1187e9a37d407bf6f2c15))
+* **release:** 1.0.1-rc.1 [skip ci] ([0433e56](https://github.com/verein-amazone/rebellinnen-kalender/commit/0433e56bcdc46b8707a6dbd370d3bd869543bb86))
+* **release:** 1.0.1-rc.2 [skip ci] ([af8b52d](https://github.com/verein-amazone/rebellinnen-kalender/commit/af8b52db679abc6b3fdeef9e03ab34dbf7497572))
+* **release:** 1.0.1-rc.3 [skip ci] ([4463a99](https://github.com/verein-amazone/rebellinnen-kalender/commit/4463a9903fcf1750263d18bee35470cda87a8887))
+* **release:** 1.1.0-rc.1 [skip ci] ([08c0413](https://github.com/verein-amazone/rebellinnen-kalender/commit/08c041312c9f031cb6b7a9501c9b22897f0dea26))
+* **release:** 1.1.0-rc.10 [skip ci] ([bd9d574](https://github.com/verein-amazone/rebellinnen-kalender/commit/bd9d57442494c0a1cb1492887de321aa60ff6de7))
+* **release:** 1.1.0-rc.11 [skip ci] ([6386d9c](https://github.com/verein-amazone/rebellinnen-kalender/commit/6386d9c2b7d96b8e28c16d530bdfc991a0212ebc))
+* **release:** 1.1.0-rc.12 [skip ci] ([728b982](https://github.com/verein-amazone/rebellinnen-kalender/commit/728b9821c36937eebd5b3bbe327d0bcbcd022b5f))
+* **release:** 1.1.0-rc.13 [skip ci] ([2afee59](https://github.com/verein-amazone/rebellinnen-kalender/commit/2afee59cb58e663edbe01ec0082c87fbde7c0a0e))
+* **release:** 1.1.0-rc.14 [skip ci] ([e0e50c3](https://github.com/verein-amazone/rebellinnen-kalender/commit/e0e50c317d6986d4a50782ebd5b94c437c201aca))
+* **release:** 1.1.0-rc.15 [skip ci] ([b63ede9](https://github.com/verein-amazone/rebellinnen-kalender/commit/b63ede9127dbf61756b9fec4abe718c531da7a06))
+* **release:** 1.1.0-rc.16 [skip ci] ([52601f3](https://github.com/verein-amazone/rebellinnen-kalender/commit/52601f38eb18fe557e19d507efb147b7d66bdc24))
+* **release:** 1.1.0-rc.17 [skip ci] ([afbc304](https://github.com/verein-amazone/rebellinnen-kalender/commit/afbc304abbd45cccecc1565f0932fe8e89f1dda4))
+* **release:** 1.1.0-rc.18 [skip ci] ([ee8f97c](https://github.com/verein-amazone/rebellinnen-kalender/commit/ee8f97c6c5c90cf9bc33cc070c6548e4b3e92780))
+* **release:** 1.1.0-rc.19 [skip ci] ([5d5813a](https://github.com/verein-amazone/rebellinnen-kalender/commit/5d5813a747a50067508e8b38df8391a3d6d5c42d))
+* **release:** 1.1.0-rc.2 [skip ci] ([ad6937e](https://github.com/verein-amazone/rebellinnen-kalender/commit/ad6937e7bba617d60379bd9804dfa21c2382dbab))
+* **release:** 1.1.0-rc.20 [skip ci] ([bdf024c](https://github.com/verein-amazone/rebellinnen-kalender/commit/bdf024c4e731dc57b82fe40f3bf9b6e44d9e4d45))
+* **release:** 1.1.0-rc.21 [skip ci] ([bd579bc](https://github.com/verein-amazone/rebellinnen-kalender/commit/bd579bc79d81d276b66bb50ef321ec58aac42552))
+* **release:** 1.1.0-rc.22 [skip ci] ([87cbca6](https://github.com/verein-amazone/rebellinnen-kalender/commit/87cbca69fa485653ab9817dcc427d0ab917d83ad))
+* **release:** 1.1.0-rc.23 [skip ci] ([ddf1605](https://github.com/verein-amazone/rebellinnen-kalender/commit/ddf1605fca0b621e34f3f81da85137910e3d00f4))
+* **release:** 1.1.0-rc.24 [skip ci] ([5a6023a](https://github.com/verein-amazone/rebellinnen-kalender/commit/5a6023a3ee4c2da48fc95a4dc1323aa712ebaa3b))
+* **release:** 1.1.0-rc.3 [skip ci] ([f875fb8](https://github.com/verein-amazone/rebellinnen-kalender/commit/f875fb87faf8ec136b0ee53dba1fd486d1ee6cb0))
+* **release:** 1.1.0-rc.4 [skip ci] ([2f47cd8](https://github.com/verein-amazone/rebellinnen-kalender/commit/2f47cd8b8635a9b5f551cabedaaa69068c2d5467))
+* **release:** 1.1.0-rc.5 [skip ci] ([93f3740](https://github.com/verein-amazone/rebellinnen-kalender/commit/93f374001d37f0af084f1bcae38454aadb78c816))
+* **release:** 1.1.0-rc.6 [skip ci] ([09ae1e8](https://github.com/verein-amazone/rebellinnen-kalender/commit/09ae1e8eff3d954e2b8a512bcf5accbf7c19a5e2))
+* **release:** 1.1.0-rc.7 [skip ci] ([654ec4c](https://github.com/verein-amazone/rebellinnen-kalender/commit/654ec4c92ccd9a8e97b279d3ba5538697a02be9a))
+* **release:** 1.1.0-rc.8 [skip ci] ([3803eae](https://github.com/verein-amazone/rebellinnen-kalender/commit/3803eae24744471ad02c9ef2a0283a1c3dc5a857))
+* **release:** 1.1.0-rc.9 [skip ci] ([fa449c9](https://github.com/verein-amazone/rebellinnen-kalender/commit/fa449c913462a21992967e603c1da8ea7262867c))
+* **site:** forward kalender.amazone.or.at to the new domain ([fed4ee0](https://github.com/verein-amazone/rebellinnen-kalender/commit/fed4ee073e5b686cb70cdf6bafca8bfbb5ab7bb7))
+* **site:** move the website to rebellinnen.amazone.or.at ([5898281](https://github.com/verein-amazone/rebellinnen-kalender/commit/58982810e83e6e6323617d4ed052ceca1dfd14ec))
+* **site:** show the 2027 app screens ([44b766e](https://github.com/verein-amazone/rebellinnen-kalender/commit/44b766e2f0f93ee74cc04f2e7978ffb13b9c6033))
+* **store:** answer "Mature or suggestive themes" with None ([f83791d](https://github.com/verein-amazone/rebellinnen-kalender/commit/f83791dca8ca9d5a36119c3e7567fc58d1fc8515))
+* **store:** date the screenshots 2027 and rename the demo appointments ([84f557b](https://github.com/verein-amazone/rebellinnen-kalender/commit/84f557b0ecca46f771eab692c366f37d548cbd3b))
+
+### Delivery
+
+* build the unsigned Android release bundle in pull requests ([8f4a910](https://github.com/verein-amazone/rebellinnen-kalender/commit/8f4a910537d88c7f7398ab05d26502eea7499f64)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **deps:** bump ruby/setup-ruby ([afad768](https://github.com/verein-amazone/rebellinnen-kalender/commit/afad76833bd6ed574c344450380acded2bbe7427))
+* **deps:** bump ruby/setup-ruby ([5ead76c](https://github.com/verein-amazone/rebellinnen-kalender/commit/5ead76c911714856480e45a04ddf8988a25073ba))
+* **deps:** bump the github-actions group with 2 updates ([c72e72e](https://github.com/verein-amazone/rebellinnen-kalender/commit/c72e72e9c9d7b89eb89d7ce58741d61961871e61))
+* **pages:** publish the website from main ([36784e8](https://github.com/verein-amazone/rebellinnen-kalender/commit/36784e8488e7f1bc9d5ba2b65ee19eca4807c443)), closes [#148](https://github.com/verein-amazone/rebellinnen-kalender/issues/148)
+* **release:** accept improvement as a commit type that releases a patch ([f1a6d4f](https://github.com/verein-amazone/rebellinnen-kalender/commit/f1a6d4fcb062e3d2578e64f73f068990f55d5859))
+
+### Refactoring
+
+* **site:** apply Verein Amazone's copy and layout feedback ([a89cd0e](https://github.com/verein-amazone/rebellinnen-kalender/commit/a89cd0e06eed6524ede505fe82d05fa13d899b7f))
+* **site:** rebuild the footer after Verein Amazone's draft ([339b563](https://github.com/verein-amazone/rebellinnen-kalender/commit/339b563cd6bde6c54f4bee4c93fc96f45008e681)), closes [#grlpwr](https://github.com/verein-amazone/rebellinnen-kalender/issues/grlpwr)
+* **store:** show the next Weltfrauentag in the screenshots ([e636a40](https://github.com/verein-amazone/rebellinnen-kalender/commit/e636a4094e5f6a6682b667aad32f2b849fca124e))
+
+
+## Neu in Version 1.1.0
+
+- Über 100 neue Wissensbeiträge, viele mit Video direkt in der App
+- Beiträge führen zu passenden Anlaufstellen
+- Erinnerungen auch für Termine aus Gerätekalender und abonnierten Kalendern
+- Online-Termine: mit einem Tipp beitreten oder einwählen
+- Terminbeschreibungen mit Formatierung und antippbaren Links
+- Neue Farben: Strong, Dark, Soft, Summer und Candy
+- iPhone: Anlaufstellen und deine Sammlung in der Suche, Kurzbefehle für Siri
+- Überarbeitete Texte und bessere Barrierefreiheit
+
 ## [1.1.0-rc.24](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.23...v1.1.0-rc.24) (2026-11-05)
 
 ### Features
