@@ -28,6 +28,8 @@ function occurrence(overrides: Partial<OccurrenceRecord> = {}): OccurrenceRecord
     startLocalDay: '2026-10-12',
     endLocalDay: '2026-10-12',
     externalId: null,
+    url: null,
+    conferenceUrl: null,
     ...overrides,
   };
 }

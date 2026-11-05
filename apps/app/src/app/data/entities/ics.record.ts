@@ -41,6 +41,13 @@ export interface IcsItemRecord {
   readonly title: string;
   readonly location: string | null;
   readonly note: string | null;
+  /** The event's `URL` - an `http(s)` address, else `null`. */
+  readonly url: string | null;
+  /**
+   * The join link from `CONFERENCE` or a vendor property such as `X-GOOGLE-CONFERENCE` - an `https`
+   * address, else `null`. Kept for the series as a whole: an override does not change it.
+   */
+  readonly conferenceUrl: string | null;
   readonly start: TemporalValue;
   readonly end: TemporalValue | null;
   readonly rrule: string | null;

@@ -148,6 +148,8 @@ describe('CalendarMaintenanceInteractor', () => {
       startLocalDay: '1970-01-01',
       endLocalDay: '1970-01-01',
       externalId: 'event-1',
+      url: null,
+      conferenceUrl: null,
     };
     await occurrences.insertMany([deviceRow]);
     localStorage.setItem(
@@ -191,6 +193,8 @@ describe('CalendarMaintenanceInteractor', () => {
       startLocalDay: '2026-08-10',
       endLocalDay: '2026-08-11',
       externalId: 'event-2',
+      url: null,
+      conferenceUrl: null,
     };
     await occurrences.insertMany([allDayRow]);
     localStorage.setItem(
@@ -240,6 +244,8 @@ describe('CalendarMaintenanceInteractor', () => {
       startLocalDay: '1970-01-01',
       endLocalDay: '1970-01-01',
       externalId: 'event-1',
+      url: null,
+      conferenceUrl: null,
     };
     await occurrences.insertMany([deviceRow]);
     const coverage = await occurrences.findCoverage('source-1');

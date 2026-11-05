@@ -297,6 +297,9 @@ function buildRow(input: RowInput): OccurrenceRecord {
     startLocalDay: startPoint.localDay,
     endLocalDay,
     externalId: null,
+    // Set for ICS rows by the repository from the normalized item; app items have neither.
+    url: null,
+    conferenceUrl: null,
   };
 }
 

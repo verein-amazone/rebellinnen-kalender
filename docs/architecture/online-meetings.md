@@ -12,11 +12,11 @@ Events reach the app on two paths, and the device path often carries a third par
 OS has synced it - a Google account added in iOS Settings, an Exchange account, Outlook's sync on
 Android.
 
-| Path                                   | What the app can read                                                                          |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| ICS subscription (`ical.js`)           | Every property, including `X-*` - but only `SUMMARY`, `LOCATION`, `DESCRIPTION` are kept today |
-| iOS device calendar (EventKit, plugin) | `notes` (description), `location`, `url`                                                       |
-| Android device calendar (plugin)       | `description`, `location`; the plugin always returns `url: null` on Android                    |
+| Path                                   | What the app can read                                                                       |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- |
+| ICS subscription (`ical.js`)           | Every property; kept: `SUMMARY`, `LOCATION`, `DESCRIPTION`, `URL` and the join link (below) |
+| iOS device calendar (EventKit, plugin) | `notes` (description), `location`, `url`                                                    |
+| Android device calendar (plugin)       | `description`, `location`; the plugin always returns `url: null` on Android                 |
 
 `@ebarooni/capacitor-calendar` 8.10.0 exposes no iCal `X-*` properties, no Android
 `ExtendedProperties` and no iOS `structuredLocation`. iOS offers reading apps no conference API
@@ -50,17 +50,25 @@ So on a device, description and location are what there is.
 
 ## How a meeting is found
 
-1. A provider block in the description - delimiter pair (Webex: start line to the end) with a join
+1. An ICS feed's structured join link (`conferenceUrl`): `CONFERENCE` - the entry marked `VIDEO`,
+   else the first `https` one - then `X-GOOGLE-CONFERENCE`, `X-MICROSOFT-SKYPETEAMSMEETINGURL`,
+   `X-MICROSOFT-ONLINEMEETINGEXTERNALLINK` and `X-PM-CONFERENCE-URL`. `X-MICROSOFT-ONLINEMEETINGCONFLINK`
+   is a SIP address and ignored. On an unknown host it is still a meeting („Online-Meeting
+   beitreten“), because the feed says so. Kept for the series; an override does not change it.
+2. A provider block in the description - delimiter pair (Webex: start line to the end) with a join
    link of that provider inside. It also yields the dial-in, and only such a block is removed from
    the shown description; an unpaired delimiter cuts nothing.
-2. A join link in the location.
-3. A join link anywhere in the description, in running text or in an `href`.
+3. A join link in the event's `URL` (ICS) or `EKEvent.url` (iOS).
+4. A join link in the location.
+5. A join link anywhere in the description, in running text or in an `href`.
 
 The provider comes from the join link's host and path alone (patterns adapted from
 [MeetingBar](https://github.com/leits/MeetingBar/blob/master/MeetingBar/Meetings/MeetingProvider.swift)),
 never from the calendar's provider: a Google calendar can hold a Teams meeting. Outlook Safe Links
 and Google's `/url?q=` redirects are unwrapped first. An unknown link is never a meeting. A location
 that only repeats the join link, or only says „Microsoft Teams Meeting“, is not shown again.
+An event `URL` that is not the join link is offered as „<host> öffnen“ - the host, because where a
+tap leads matters - unless the description already shows it.
 
 The dial-in becomes a `tel:` URI: `,` pauses, `;` waits for the caller to confirm (Apple Calendar
 does that for Meet: number, `;`, PIN), `#` is written `%23`. Join links stay plain `https` links;
@@ -69,8 +77,8 @@ when it is installed.
 
 ## Not yet covered
 
-- The ICS path does not keep `URL`, `X-GOOGLE-CONFERENCE`, `X-MICROSOFT-SKYPETEAMSMEETINGURL` or
-  `CONFERENCE`, and the device cache does not keep iOS's `url`. Both need a migration (#56).
+- Feeds stored before migration 23 get the new fields at their next full download: the migration
+  drops their `ETag`/`Last-Modified`, so the next regular refresh cannot answer `304`.
 - To verify on devices:
   - Android with a Google account: does a Meet event's `description` contain the block at all?
   - iOS with a Google account: are `url` or `location` set?

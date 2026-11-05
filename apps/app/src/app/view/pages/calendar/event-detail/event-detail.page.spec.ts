@@ -37,6 +37,8 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     title: 'Zahnarzt',
     location: 'Praxis Dr. Muster',
     description: null,
+    url: null,
+    conferenceUrl: null,
     allDay: false,
     start: { kind: 'zoned', value: '2026-08-10T09:00:00', timeZone: 'Europe/Vienna' },
     end: { kind: 'zoned', value: '2026-08-10T10:30:00', timeZone: 'Europe/Vienna' },
@@ -349,6 +351,28 @@ describe('EventDetailPage, read view', () => {
     expect(dial?.textContent).toContain('+43 1 2345678');
     expect(element.textContent).toContain('Agenda im Wiki');
     expect(element.textContent).not.toContain('Please do not edit');
+  });
+
+  it('offers the event URL as a link labelled with its host, and a feed join link as a join button', async () => {
+    const { element } = await setup({
+      id: 'occ-1',
+      occurrence: occurrence({
+        itemId: null,
+        location: null,
+        url: 'https://www.amazone.or.at/anmeldung',
+        conferenceUrl: 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC',
+        actions: { editableInApp: false, deletableInApp: false, editViaNativeCalendar: false },
+      }),
+    });
+
+    const links = [...element.querySelectorAll('a')];
+    const website = links.find((link) => link.textContent?.includes('amazone.or.at öffnen'));
+    const join = links.find((link) => link.textContent?.includes('Microsoft Teams beitreten'));
+    expect(website?.getAttribute('href')).toBe('https://www.amazone.or.at/anmeldung');
+    expect(website?.getAttribute('target')).toBe('_blank');
+    expect(join?.getAttribute('href')).toBe(
+      'https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC',
+    );
   });
 
   it('shows „Ganztägig“ for an all-day occurrence instead of a time range', async () => {

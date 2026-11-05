@@ -111,6 +111,8 @@ function toRow(
     startLocalDay: startDay,
     endLocalDay: endDay,
     externalId: instance.eventId,
+    url: instance.url,
+    conferenceUrl: null,
   };
 }
 

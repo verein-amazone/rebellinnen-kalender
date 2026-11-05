@@ -86,6 +86,7 @@ describe('findOnlineMeeting', () => {
         meeting: null,
         description,
         location: null,
+        website: null,
       });
     });
   });
@@ -223,12 +224,93 @@ describe('findOnlineMeeting', () => {
         meeting: null,
         description: 'Plenum',
         location: 'Vereinslokal',
+        website: null,
       });
       expect(findOnlineMeeting({ description: null, location: null })).toEqual({
         meeting: null,
         description: null,
         location: null,
+        website: null,
       });
+    });
+  });
+  describe('structured data', () => {
+    it('prefers the feed\u2019s conference link and takes the dial-in from the block of the same provider', () => {
+      const description = [
+        'Agenda',
+        GOOGLE_DELIMITER,
+        'Join with Google Meet: https://meet.google.com/abc-defg-hij',
+        'Or dial: (AT) +43 1 2345678 PIN: 123456789#',
+        GOOGLE_DELIMITER,
+      ].join('\n');
+
+      const details = findOnlineMeeting({
+        description,
+        location: null,
+        conferenceUrl: 'https://meet.google.com/abc-defg-hij',
+      });
+
+      expect(details.meeting).toEqual({
+        provider: 'google-meet',
+        joinUrl: 'https://meet.google.com/abc-defg-hij',
+        dialIn: {
+          number: '+43 1 2345678',
+          pin: '123456789',
+          telUrl: 'tel:+4312345678;123456789%23',
+        },
+      });
+      expect(details.description).toBe('Agenda');
+    });
+
+    it('treats a conference link on an unknown host as a generic meeting', () => {
+      expect(
+        findOnlineMeeting({
+          description: null,
+          location: null,
+          conferenceUrl: 'https://video.example.org/room/42',
+        }).meeting,
+      ).toEqual({
+        provider: 'generic',
+        joinUrl: 'https://video.example.org/room/42',
+        dialIn: null,
+      });
+    });
+
+    it('takes a join link from the event URL and does not offer it again as a website', () => {
+      const details = findOnlineMeeting({
+        description: null,
+        location: null,
+        url: 'https://us02web.zoom.us/j/98765432101',
+      });
+
+      expect(details.meeting?.provider).toBe('zoom');
+      expect(details.website).toBeNull();
+    });
+  });
+
+  describe('website', () => {
+    it('offers another event URL as a link labelled with its host', () => {
+      expect(
+        findOnlineMeeting({
+          description: 'Anmeldung bis Freitag.',
+          location: null,
+          url: 'https://www.amazone.or.at/anmeldung',
+        }).website,
+      ).toEqual({ url: 'https://www.amazone.or.at/anmeldung', host: 'amazone.or.at' });
+    });
+
+    it('leaves out a URL the description already shows, and anything that is not a web address', () => {
+      expect(
+        findOnlineMeeting({
+          description: 'Infos: https://amazone.or.at/anmeldung/',
+          location: null,
+          url: 'http://amazone.or.at/anmeldung',
+        }).website,
+      ).toBeNull();
+      expect(
+        findOnlineMeeting({ description: null, location: null, url: 'javascript:alert(1)' })
+          .website,
+      ).toBeNull();
     });
   });
 });

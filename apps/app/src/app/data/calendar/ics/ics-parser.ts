@@ -152,6 +152,8 @@ function collectEvent(
     title: event.summary ?? '',
     location: event.location ?? null,
     note: event.description ?? null,
+    url: webUrl(vevent.getFirstPropertyValue('url')),
+    conferenceUrl: conferenceUrlOf(vevent),
     start,
     end: endOf(event, start),
     rrule: readRrule(vevent),
@@ -309,4 +311,59 @@ function plainDateTime(time: ICAL.Time): string {
     minute: time.minute,
     second: time.second,
   }).toString();
+}
+
+/**
+ * Properties that carry an online meeting's join link, in the order they are trusted: the standard
+ * one (RFC 7986), then the vendors' own. `X-MICROSOFT-ONLINEMEETINGCONFLINK` is left out - it is a SIP
+ * address, not a link to open. See `docs/architecture/online-meetings.md`.
+ */
+const CONFERENCE_PROPERTIES = [
+  'x-google-conference',
+  'x-microsoft-skypeteamsmeetingurl',
+  'x-microsoft-onlinemeetingexternallink',
+  'x-pm-conference-url',
+] as const;
+
+/**
+ * The event's join link from its structured properties, or `null`. Of several `CONFERENCE`
+ * entries the one marked as video wins, else the first web link; `tel:` entries are dial-ins, not
+ * join links.
+ */
+function conferenceUrlOf(vevent: ICAL.Component): string | null {
+  const conferences = vevent
+    .getAllProperties('conference')
+    .map((property) => ({
+      url: webUrl(property.getFirstValue(), 'https-only'),
+      video: /\bvideo\b/i.test(String(property.getParameter('feature') ?? '')),
+    }))
+    .filter((conference): conference is { url: string; video: boolean } => conference.url !== null);
+  const standard = conferences.find((conference) => conference.video) ?? conferences[0];
+  if (standard !== undefined) {
+    return standard.url;
+  }
+
+  for (const name of CONFERENCE_PROPERTIES) {
+    const url = webUrl(vevent.getFirstPropertyValue(name), 'https-only');
+    if (url !== null) {
+      return url;
+    }
+  }
+  return null;
+}
+
+/**
+ * A property value as a web address, or `null` for anything else - a `javascript:` or relative
+ * value never leaves the parser. Join links must be `https`; an event's `URL` may also be `http`.
+ */
+function webUrl(
+  value: unknown,
+  scheme: 'http-or-https' | 'https-only' = 'http-or-https',
+): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  const allowed = scheme === 'https-only' ? /^https:\/\/\S+$/i : /^https?:\/\/\S+$/i;
+  return allowed.test(trimmed) ? trimmed : null;
 }
