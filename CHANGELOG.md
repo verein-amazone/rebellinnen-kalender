@@ -1,3 +1,9 @@
+## [1.1.0-rc.23](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.22...v1.1.0-rc.23) (2026-11-05)
+
+### Bug Fixes
+
+* **content:** finish the image rights review for 1.1.0 ([4ea054f](https://github.com/verein-amazone/rebellinnen-kalender/commit/4ea054f62ce71466b3556bf6c96ba0c244186c21))
+
 ## [1.1.0-rc.22](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.21...v1.1.0-rc.22) (2026-11-05)
 
 ### Features
