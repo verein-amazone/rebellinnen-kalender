@@ -1,3 +1,15 @@
+## [1.1.0-rc.21](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.20...v1.1.0-rc.21) (2026-11-05)
+
+### Features
+
+* **app:** join and dial into online meetings from the event detail ([f944c47](https://github.com/verein-amazone/rebellinnen-kalender/commit/f944c4751b799be841dbc6b1cf00a92c1cd0d8e2))
+* **app:** make addresses in event descriptions tappable ([7f054f2](https://github.com/verein-amazone/rebellinnen-kalender/commit/7f054f2dee1165159dc2fc68ec05168c203a7156))
+* **app:** show formatted event descriptions, ICS ones included ([54a9bd6](https://github.com/verein-amazone/rebellinnen-kalender/commit/54a9bd6fe1542788cb882e15096b08ba56651ee6))
+
+### Bug Fixes
+
+* **app:** drop the empty paragraphs Google leaves around lists ([3d4cd80](https://github.com/verein-amazone/rebellinnen-kalender/commit/3d4cd8019837d97f9a9002992af8b3a7ff42c716))
+
 ## [1.1.0-rc.20](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.19...v1.1.0-rc.20) (2026-11-04)
 
 ### Bug Fixes
