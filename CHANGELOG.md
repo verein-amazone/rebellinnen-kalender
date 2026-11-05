@@ -1,3 +1,9 @@
+## [1.1.0-rc.24](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.23...v1.1.0-rc.24) (2026-11-05)
+
+### Features
+
+* **app:** remind of device and subscribed calendar appointments ([cfdf309](https://github.com/verein-amazone/rebellinnen-kalender/commit/cfdf30910ca42d2914625f83f8eab11039965984))
+
 ## [1.1.0-rc.23](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.22...v1.1.0-rc.23) (2026-11-05)
 
 ### Bug Fixes
