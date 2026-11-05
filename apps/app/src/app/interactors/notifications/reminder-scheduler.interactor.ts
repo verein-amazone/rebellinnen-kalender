@@ -8,7 +8,9 @@ import {
   type PlannedNotification,
 } from '@app/cross-cutting/infrastructure/notifications';
 import { CalendarRepository, type ReminderCandidate } from '@app/data/calendar/calendar.repository';
+import { remindsOfCalendar } from '@app/data/stores/notification-preferences';
 import { NotificationPreferencesStore } from '@app/data/stores/notification-preferences.store';
+import { CalendarFiltersInteractor } from '@app/interactors/calendar/calendar-filters.interactor';
 
 /**
  * How many reminders are handed to the OS at once. iOS keeps at most 64 pending notifications per
@@ -18,8 +20,9 @@ import { NotificationPreferencesStore } from '@app/data/stores/notification-pref
 export const MAX_PENDING_REMINDERS = 60;
 
 /**
- * How many upcoming occurrences are looked at. Each holds up to five reminders and they arrive in
- * start order, so this comfortably covers the first `MAX_PENDING_REMINDERS` reminders.
+ * How many upcoming occurrences are looked at, across every calendar the app reminds of. Each holds
+ * up to five reminders and they arrive in start order, so this comfortably covers the first
+ * `MAX_PENDING_REMINDERS` reminders.
  */
 const CANDIDATE_LIMIT = 300;
 
@@ -32,11 +35,13 @@ const LOOK_BACK_MINUTES = 24 * 60;
 /**
  * Turns the user's appointments into pending local notifications (#81).
  *
- * The OS gets the complete set every time: the next `MAX_PENDING_REMINDERS` reminders of app-owned
- * appointments in enabled calendars, replacing whatever was pending. Recomputing from the
- * materialized occurrences, rather than patching individual notifications, is what keeps edits,
- * series splits, cancelled occurrences, a zone change and an app update all correct with one code
- * path. Device-calendar events are never scheduled here - their alerts belong to the OS calendar.
+ * The OS gets the complete set every time: the next `MAX_PENDING_REMINDERS` reminders of the
+ * appointments in every enabled calendar the app reminds of, replacing whatever was pending - the
+ * app's own calendars by default, and each device or subscribed calendar the user turned on.
+ * Recomputing from the materialized occurrences, rather than patching individual notifications, is
+ * what keeps edits, series splits, cancelled occurrences, a zone change, a sync and an app update
+ * all correct with one code path. A synced appointment reminds at its own alerts if it has any, at
+ * the default times otherwise.
  *
  * Calls are serialized and coalesced: a reschedule requested while one runs is folded into a single
  * follow-up run, so a burst of edits cannot interleave two replacements.
@@ -46,6 +51,7 @@ export class ReminderSchedulerInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly preferences = inject(NotificationPreferencesStore);
   private readonly notifications = inject(DeviceNotifications);
+  private readonly calendars = inject(CalendarFiltersInteractor);
 
   private running: Promise<void> | null = null;
   private requested = false;
@@ -92,9 +98,14 @@ export class ReminderSchedulerInteractor {
       return;
     }
 
+    const calendarIds = (await this.calendars.listFilterable())
+      .filter((calendar) => remindsOfCalendar(preferences, calendar))
+      .map((calendar) => calendar.id);
+
     const now = Temporal.Now.instant();
     const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const candidates = await this.repository.upcomingReminderCandidates(
+      calendarIds,
       now.subtract({ minutes: LOOK_BACK_MINUTES }).toString(),
       CANDIDATE_LIMIT,
     );

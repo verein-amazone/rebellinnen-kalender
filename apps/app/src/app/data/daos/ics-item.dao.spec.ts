@@ -20,6 +20,7 @@ function item(overrides: Partial<IcsItemRecord> = {}): IcsItemRecord {
     rrule: null,
     url: null,
     conferenceUrl: null,
+    reminders: null,
     ...overrides,
   };
 }
@@ -36,6 +37,7 @@ function exception(overrides: Partial<IcsItemExceptionRecord> = {}): IcsItemExce
     note: null,
     start: null,
     end: null,
+    reminders: null,
     ...overrides,
   };
 }

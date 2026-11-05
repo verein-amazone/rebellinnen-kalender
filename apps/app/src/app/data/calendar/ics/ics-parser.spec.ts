@@ -318,6 +318,75 @@ describe('parseIcsCalendar', () => {
       '<b>Heute noch schnell anmelden!</b><br><br>Wie, wann, wo...?<br><p></p><ul><li>Drei Online-Workshops</li></ul><p></p>',
     );
   });
+  describe('reminders', () => {
+    function remindersOf(alarms: readonly string[]): readonly number[] | null {
+      const text = calendar([
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'SUMMARY:Plenum',
+        'DTSTART:20261012T160000Z',
+        ...alarms,
+        'END:VEVENT',
+      ]);
+      return parseIcsCalendar(text, 'sub-1', 'rev-1').items[0].reminders;
+    }
+
+    function alarm(action: string, trigger: string): string[] {
+      return ['BEGIN:VALARM', `ACTION:${action}`, 'DESCRIPTION:Plenum', trigger, 'END:VALARM'];
+    }
+
+    it('reads the alarms as minutes before the start, earliest first', () => {
+      expect(
+        remindersOf([
+          ...alarm('DISPLAY', 'TRIGGER:-PT15M'),
+          ...alarm('AUDIO', 'TRIGGER;RELATED=START:-P1D'),
+          ...alarm('DISPLAY', 'TRIGGER:PT0S'),
+        ]),
+      ).toEqual([1440, 15, 0]);
+    });
+
+    it("reads an override's own alarms, and none for a cancellation", () => {
+      const text = calendar([
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'SUMMARY:Plenum',
+        'DTSTART:20261012T160000Z',
+        'RRULE:FREQ=WEEKLY',
+        'EXDATE:20261026T160000Z',
+        ...alarm('DISPLAY', 'TRIGGER:-PT15M'),
+        'END:VEVENT',
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'RECURRENCE-ID:20261019T160000Z',
+        'SUMMARY:Plenum',
+        'DTSTART:20261019T160000Z',
+        ...alarm('DISPLAY', 'TRIGGER:-PT1H'),
+        'END:VEVENT',
+      ]);
+
+      const { exceptions } = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+      expect(exceptions.map((exception) => [exception.status, exception.reminders])).toEqual([
+        ['cancelled', null],
+        ['override', [60]],
+      ]);
+    });
+
+    it('has none without alarms, so the default times apply', () => {
+      expect(remindersOf([])).toBeNull();
+    });
+
+    it('skips e-mail alarms and triggers that are not relative to the start', () => {
+      expect(
+        remindersOf([
+          ...alarm('EMAIL', 'TRIGGER:-PT30M'),
+          ...alarm('DISPLAY', 'TRIGGER;RELATED=END:-PT5M'),
+          ...alarm('DISPLAY', 'TRIGGER;VALUE=DATE-TIME:20261012T150000Z'),
+        ]),
+      ).toBeNull();
+    });
+  });
+
   describe('event URL and join link', () => {
     function single(lines: readonly string[]) {
       return parseIcsCalendar(

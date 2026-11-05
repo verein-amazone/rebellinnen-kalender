@@ -12,6 +12,8 @@ import {
   type DeviceEventInstance,
 } from '@app/data/gateways/native-calendar.gateway';
 import { MIGRATIONS } from '@app/data/migrations/migrations';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
+
 import { DEVICE_SOURCE_ID, DeviceCalendarSyncInteractor } from './device-calendar-sync.interactor';
 
 class FakeNativeCalendarGateway {
@@ -38,6 +40,7 @@ class FakeNativeCalendarGateway {
       endUtc: '2026-08-10T09:00:00Z',
       isAllDay: false,
       timeZone: null,
+      alertMinutesBefore: [],
     },
   ];
   failNative = false;
@@ -68,6 +71,15 @@ class FakeNativeCalendarGateway {
   }
 }
 
+class FakeScheduler {
+  reschedules = 0;
+
+  reschedule(): Promise<void> {
+    this.reschedules += 1;
+    return Promise.resolve();
+  }
+}
+
 describe('DeviceCalendarSyncInteractor', () => {
   let database: InMemorySqliteDatabase;
   let interactor: DeviceCalendarSyncInteractor;
@@ -75,17 +87,20 @@ describe('DeviceCalendarSyncInteractor', () => {
   let sources: CalendarSourceDao;
   let occurrences: OccurrenceDao;
   let repository: CalendarRepository;
+  let scheduler: FakeScheduler;
 
   beforeEach(async () => {
     database = new InMemorySqliteDatabase();
     database.migrate(MIGRATIONS);
     gateway = new FakeNativeCalendarGateway();
+    scheduler = new FakeScheduler();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: SQLITE_DATABASE, useValue: database },
         { provide: NativeCalendarGateway, useValue: gateway },
+        { provide: ReminderSchedulerInteractor, useValue: scheduler },
       ],
     });
 
@@ -232,6 +247,45 @@ describe('DeviceCalendarSyncInteractor', () => {
     await expect(
       occurrences.listInRange('2026-08-01T00:00:00Z', '2026-08-31T00:00:00Z'),
     ).resolves.toHaveLength(1);
+  });
+
+  describe('reminders', () => {
+    const context = { nowUtc: '2026-08-01T09:00:00.000Z', timeZone: 'Europe/Vienna' };
+
+    it('reschedules after a refresh that changed the rows, not after one that did not', async () => {
+      await interactor.connect();
+      const afterConnect = scheduler.reschedules;
+
+      await interactor.refresh({ force: true });
+      expect(scheduler.reschedules).toBe(afterConnect);
+
+      gateway.instances = [{ ...gateway.instances[0], alertMinutesBefore: [30] }];
+      await interactor.refresh({ force: true });
+      expect(scheduler.reschedules).toBe(afterConnect + 1);
+    });
+
+    it('reschedules on reconnecting, even when the events are the same as before', async () => {
+      await interactor.connect();
+      await repository.disconnectDeviceSource(DEVICE_SOURCE_ID, context);
+      const beforeReconnect = scheduler.reschedules;
+
+      await interactor.connect();
+
+      expect(scheduler.reschedules).toBeGreaterThan(beforeReconnect);
+    });
+
+    it('reschedules when calendar access is taken away and when it comes back', async () => {
+      await interactor.connect();
+      const afterConnect = scheduler.reschedules;
+
+      gateway.permission = 'denied';
+      await interactor.refresh({ force: true });
+      expect(scheduler.reschedules).toBe(afterConnect + 1);
+
+      gateway.permission = 'granted';
+      await interactor.refresh({ force: true });
+      expect(scheduler.reschedules).toBe(afterConnect + 2);
+    });
   });
 
   it('a native failure keeps the cache and marks the source as failing', async () => {

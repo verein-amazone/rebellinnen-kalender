@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Temporal } from 'temporal-polyfill';
 
 import { CalendarRepository, type CalendarContext } from '@app/data/calendar/calendar.repository';
+import type { CalendarSourceState } from '@app/data/entities/calendar-source.record';
 import {
   WINDOW_FUTURE_MONTHS,
   WINDOW_PAST_MONTHS,
@@ -11,6 +12,7 @@ import {
   type DeviceCalendarPermission,
 } from '@app/data/gateways/native-calendar.gateway';
 import { devicePlatform } from '@app/cross-cutting/infrastructure/device-platform';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 
 /** The one device source; a device has one OS calendar store, so the id is a constant. */
 export const DEVICE_SOURCE_ID = 'device';
@@ -33,6 +35,7 @@ const RANGE_BUFFER_DAYS = 1;
 export class DeviceCalendarSyncInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly gateway = inject(NativeCalendarGateway);
+  private readonly reminders = inject(ReminderSchedulerInteractor);
 
   private lastAutomaticRefreshAt = 0;
 
@@ -46,6 +49,9 @@ export class DeviceCalendarSyncInteractor {
       await this.ensureSource();
       await this.repository.reconnectDeviceSource(DEVICE_SOURCE_ID, this.context());
       await this.refresh({ force: true });
+      // Unconditionally: the source just came back, and a refresh that finds the same events as
+      // before the disconnect changes neither the rows nor the source state.
+      void this.reminders.reschedule();
     }
 
     return permission;
@@ -77,11 +83,22 @@ export class DeviceCalendarSyncInteractor {
     // succeeded, where a rejection would either be unhandled or make that write look failed - and
     // a retried native create would then exist twice in the OS calendar.
     try {
-      return await this.refreshCache();
+      const stateBefore = await this.sourceState();
+      const changed = await this.refreshCache();
+      // New appointments or alerts change what a device calendar with reminders reminds of; so does
+      // calendar access being taken away or given back, which the scheduler goes by.
+      if (changed || (await this.sourceState()) !== stateBefore) {
+        void this.reminders.reschedule();
+      }
+      return changed;
     } catch (error) {
       console.warn('Die Gerätekalender konnten nicht aktualisiert werden.', error);
       return false;
     }
+  }
+
+  private async sourceState(): Promise<CalendarSourceState | null> {
+    return (await this.repository.findSource(DEVICE_SOURCE_ID))?.state ?? null;
   }
 
   private async refreshCache(): Promise<boolean> {

@@ -152,6 +152,59 @@ describe('IcsSubscriptionInteractor', () => {
     expect(stored!.lastSuccessAt).not.toBeNull();
   });
 
+  it("keeps the series' alarms on each occurrence, and an override's own where it has any", async () => {
+    const alarm = (trigger: string) => [
+      'BEGIN:VALARM',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Plenum',
+      `TRIGGER:${trigger}`,
+      'END:VALARM',
+    ];
+    http.result = {
+      status: 'ok',
+      body: [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//test//DE',
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'SUMMARY:Plenum',
+        'DTSTART:20261012T170000Z',
+        'DTEND:20261012T190000Z',
+        'RRULE:FREQ=WEEKLY;COUNT=3',
+        ...alarm('-PT15M'),
+        'END:VEVENT',
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'RECURRENCE-ID:20261019T170000Z',
+        'SUMMARY:Plenum (länger)',
+        'DTSTART:20261019T160000Z',
+        'DTEND:20261019T190000Z',
+        ...alarm('-PT1H'),
+        'END:VEVENT',
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'RECURRENCE-ID:20261026T170000Z',
+        'SUMMARY:Plenum (verschoben)',
+        'DTSTART:20261026T180000Z',
+        'DTEND:20261026T200000Z',
+        'END:VEVENT',
+        'END:VCALENDAR',
+      ].join('\r\n'),
+      etag: null,
+      lastModified: null,
+    };
+
+    await interactor.add('Verein', 'https://example.org/cal.ics');
+
+    const rows = await occurrences.listInRange('2026-10-01T00:00:00Z', '2026-11-15T00:00:00Z');
+    expect(rows.map((row) => [row.title, row.reminders])).toEqual([
+      ['Plenum', [15]],
+      ['Plenum (länger)', [60]],
+      ['Plenum (verschoben)', [15]],
+    ]);
+  });
+
   it('warns about entries the parser had to skip, without failing the refresh', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     http.result = {

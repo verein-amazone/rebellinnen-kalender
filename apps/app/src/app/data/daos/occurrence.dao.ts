@@ -10,6 +10,8 @@ import type {
 import type { TemporalKind } from '../entities/temporal-value';
 import { SQLITE_DATABASE, type SqlValue, type SqliteExecutor } from '../gateways/sqlite-database';
 
+import { fromRemindersColumn, toRemindersColumn } from './reminders-column';
+
 /** The database shape of an `occurrences` row. */
 interface OccurrenceRow {
   readonly id: string;
@@ -38,6 +40,7 @@ interface OccurrenceRow {
   readonly external_id: string | null;
   readonly url: string | null;
   readonly conference_url: string | null;
+  readonly reminders: string | null;
 }
 
 /** The database shape of a `source_coverage` row. */
@@ -53,7 +56,7 @@ interface CoverageRow {
 const COLUMNS = `id, source_id, source_type, calendar_id, series_id, original_start, provenance,
   item_kind, item_id, title, location, description, is_all_day, start_kind, start_value, start_tz,
   end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id,
-  url, conference_url`;
+  url, conference_url, reminders`;
 
 const COLUMN_COUNT = COLUMNS.split(',').length;
 
@@ -65,7 +68,7 @@ const COVERAGE_COLUMNS = `source_id, window_start_utc, window_end_utc, engine_ve
  *
  * `SQLITE_MAX_VARIABLE_NUMBER` is 32766 on SQLite 3.32+, but only 999 on older builds - iOS,
  * Android and the browser do not all ship the same engine, so the low limit is the one to
- * respect. At 26 bound values per row, 36 rows stay under it everywhere. The point is the order of
+ * respect. At 27 bound values per row, 36 rows stay under it everywhere. The point is the order of
  * magnitude - a full window rebuild goes from thousands of statements to dozens - not squeezing
  * out the last one, so there is no reason to go near any limit.
  */
@@ -181,26 +184,36 @@ export class OccurrenceDao {
   }
 
   /**
-   * The next rows of one source type in enabled sources and calendars starting at or after
-   * `fromUtc`, earliest first - what the reminder scheduler looks ahead at. Bounded, because only the next few dozen reminders can be
-   * pending with the operating system at once anyway.
+   * The next rows of the given calendars, in enabled sources and calendars that still have calendar
+   * access, starting at or after `fromUtc`, earliest first - what the reminder scheduler looks
+   * ahead at. One query across every source, so the limit cuts the merged timeline rather than each
+   * calendar's share of it. Bounded, because only the next few dozen reminders can be pending with
+   * the operating system at once anyway.
    */
-  async listUpcomingInEnabledCalendars(
-    sourceType: OccurrenceRecord['sourceType'],
+  async listUpcomingInCalendars(
+    calendarIds: readonly string[],
     fromUtc: string,
     limit: number,
     executor: SqliteExecutor = this.database,
   ): Promise<OccurrenceRecord[]> {
+    if (calendarIds.length === 0) {
+      return [];
+    }
+
     // Disabled sources and calendars are filtered before the limit, so a busy hidden calendar
-    // cannot fill the window and push later visible appointments out of it.
+    // cannot fill the window and push later visible appointments out of it. So is a device source
+    // whose calendar access was taken away: its cached rows stay visible, but the app may no longer
+    // read them, and must not put their titles on the lock screen from a copy it cannot refresh.
     const rows = await executor.query<OccurrenceRow>(
       `SELECT ${COLUMNS} FROM occurrences
-       WHERE source_type = ? AND start_utc >= ?
-         AND source_id IN (SELECT id FROM calendar_sources WHERE enabled = 1)
+       WHERE calendar_id IN (${calendarIds.map(() => '?').join(', ')}) AND start_utc >= ?
+         AND source_id IN (
+           SELECT id FROM calendar_sources WHERE enabled = 1 AND state <> 'permission-lost'
+         )
          AND calendar_id IN (SELECT id FROM calendars WHERE enabled = 1)
        ORDER BY start_utc ASC, id ASC
        LIMIT ?`,
-      [sourceType, fromUtc, limit],
+      [...calendarIds, fromUtc, limit],
     );
 
     return rows.map(toRecord);
@@ -371,6 +384,7 @@ function toValues(record: OccurrenceRecord): SqlValue[] {
     record.externalId,
     record.url,
     record.conferenceUrl,
+    toRemindersColumn(record.reminders),
   ];
 }
 
@@ -401,5 +415,6 @@ function toRecord(row: OccurrenceRow): OccurrenceRecord {
     externalId: row.external_id ?? null,
     url: row.url ?? null,
     conferenceUrl: row.conference_url ?? null,
+    reminders: fromRemindersColumn(row.reminders),
   };
 }

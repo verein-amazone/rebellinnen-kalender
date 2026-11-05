@@ -177,6 +177,7 @@ describe('NativeCalendarGateway', () => {
               endDate: Date.parse('2026-08-10T09:00:00Z'),
               isAllDay: false,
               timezone: 'Europe/Vienna',
+              alerts: [-15, 0],
             },
           ] as never,
         };
@@ -203,6 +204,8 @@ describe('NativeCalendarGateway', () => {
         endUtc: '2026-08-10T09:00:00Z',
         isAllDay: false,
         timeZone: 'Europe/Vienna',
+        // The plugin's „15 minutes before“ is -15; the app counts minutes before the start.
+        alertMinutesBefore: [15, 0],
       },
     ]);
   });
@@ -390,6 +393,7 @@ describe('NativeCalendarGateway', () => {
         endDate: Date.parse(endDate),
         isAllDay: true,
         timezone: 'UTC',
+        alerts: [],
       };
     }
 

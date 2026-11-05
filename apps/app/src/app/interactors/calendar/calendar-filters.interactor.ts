@@ -18,6 +18,8 @@ export interface CalendarFilterOption {
   readonly name: string;
   readonly color: string | null;
   readonly emoji: string | null;
+  /** Whose calendar it is - what decides, for example, whether the app reminds by default. */
+  readonly sourceType: CalendarSourceType;
 }
 
 /**
@@ -84,10 +86,11 @@ export class CalendarFiltersInteractor {
       sources.filter((source) => source.enabled).map((source) => source.id),
     );
 
-    const rankOf = (calendar: CalendarRecord): number => {
-      const sourceType = sourceTypeById.get(calendar.sourceId);
-      return sourceType ? SOURCE_TYPE_ORDER[sourceType] : SOURCE_TYPE_ORDER.ics;
-    };
+    // Every listed calendar's source is known - only those of enabled sources are listed - so the
+    // fallback is never taken; it only spares the type a non-null assertion.
+    const sourceTypeOf = (calendar: CalendarRecord): CalendarSourceType =>
+      sourceTypeById.get(calendar.sourceId) ?? 'ics';
+    const rankOf = (calendar: CalendarRecord): number => SOURCE_TYPE_ORDER[sourceTypeOf(calendar)];
 
     // The user's own arrangement wins; anything they have not placed follows in the default order,
     // so a calendar connected after the last reordering appears at the end rather than at random.
@@ -106,6 +109,7 @@ export class CalendarFiltersInteractor {
         name: calendar.name,
         color: calendar.color,
         emoji: calendar.emoji,
+        sourceType: sourceTypeOf(calendar),
       }));
   }
 }

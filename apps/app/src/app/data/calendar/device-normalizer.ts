@@ -3,6 +3,8 @@ import { Temporal } from 'temporal-polyfill';
 import type { OccurrenceRecord } from '../entities/occurrence.record';
 import type { DeviceEventInstance } from '../gateways/native-calendar.gateway';
 
+import { syncedReminders } from './synced-reminders';
+
 /** Deterministic row id for the calendar snapshot of one native calendar. */
 export function deviceCalendarRowId(nativeCalendarId: string): string {
   return `device-cal:${nativeCalendarId}`;
@@ -113,6 +115,7 @@ function toRow(
     externalId: instance.eventId,
     url: instance.url,
     conferenceUrl: null,
+    reminders: syncedReminders(instance.alertMinutesBefore),
   };
 }
 

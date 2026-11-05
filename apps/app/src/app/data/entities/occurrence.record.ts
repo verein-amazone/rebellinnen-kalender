@@ -60,6 +60,13 @@ export interface OccurrenceRecord {
   readonly url: string | null;
   /** An ICS event's join link from `CONFERENCE` or a vendor property; `null` for other rows. */
   readonly conferenceUrl: string | null;
+  /**
+   * A synced event's own reminders in minutes before the start: a device event's alerts, an ICS
+   * event's `VALARM`s. `null` when it has none - the app then reminds at the default times, if the
+   * user turned reminders on for the calendar - and always `null` for app rows, whose reminders
+   * live on the canonical item.
+   */
+  readonly reminders: readonly number[] | null;
 }
 
 /**

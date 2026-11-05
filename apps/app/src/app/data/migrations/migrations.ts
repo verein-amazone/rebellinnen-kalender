@@ -3,6 +3,7 @@ import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
 import { CREATE_SEARCH_INDEX } from './021-search-index';
 import { ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS } from './022-content-video-and-support-links';
 import { ADD_EVENT_URL_AND_CONFERENCE } from './023-event-url-and-conference';
+import { ADD_SYNCED_EVENT_REMINDERS } from './024-synced-event-reminders';
 import type { Migration } from './migration';
 
 /**
@@ -21,6 +22,7 @@ export const MIGRATIONS: readonly Migration[] = [
   CREATE_SEARCH_INDEX,
   ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS,
   ADD_EVENT_URL_AND_CONFERENCE,
+  ADD_SYNCED_EVENT_REMINDERS,
 ];
 
 /** The version a freshly opened database is upgraded to. Derived, so it cannot fall behind. */

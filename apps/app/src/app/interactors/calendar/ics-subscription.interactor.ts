@@ -11,6 +11,7 @@ import type { CalendarSourceState } from '@app/data/entities/calendar-source.rec
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import { IcsHttpGateway } from '@app/data/gateways/ics-http.gateway';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 
 import { DEFAULT_CALENDAR_COLOR } from './calendar-colors';
 
@@ -55,6 +56,9 @@ export class IcsSubscriptionInteractor {
   private readonly repository = inject(CalendarRepository);
   private readonly http = inject(IcsHttpGateway);
   private readonly emojiPicker = inject(NativeEmojiPicker);
+  // A subscribed calendar the user turned reminders on for changes what is pending with the OS
+  // whenever its rows change. Rescheduling is cheap and covers the calendars without reminders too.
+  private readonly reminders = inject(ReminderSchedulerInteractor);
   private readonly isWeb = inject(DevicePlatformService).platform === 'web';
 
   /** One download per subscription at a time; see `refresh`. */
@@ -210,6 +214,7 @@ export class IcsSubscriptionInteractor {
         result.lastModified,
         context,
       );
+      void this.reminders.reschedule();
       return 'updated';
     } catch (error) {
       // Never the URL itself: the message plus the redacted origin is enough to diagnose.
@@ -254,6 +259,7 @@ export class IcsSubscriptionInteractor {
   /** Removes the subscription with its source, calendar, normalized data and derived rows. */
   async remove(subscriptionId: string): Promise<void> {
     await this.repository.removeIcsSubscription(subscriptionId);
+    void this.reminders.reschedule();
   }
 
   /** Renames the subscription's calendar or changes its colour/emoji identity. */
@@ -272,6 +278,7 @@ export class IcsSubscriptionInteractor {
   /** Enables or disables the subscription; its source and calendar flip together. */
   async setEnabled(subscriptionId: string, enabled: boolean): Promise<void> {
     await this.repository.setIcsSubscriptionEnabled(subscriptionId, enabled, this.context());
+    void this.reminders.reschedule();
   }
 
   /** Opens the emoji picker; resolves `null` when the user dismisses it without a selection. */

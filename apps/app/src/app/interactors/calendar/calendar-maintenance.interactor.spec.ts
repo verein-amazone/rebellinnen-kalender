@@ -150,6 +150,7 @@ describe('CalendarMaintenanceInteractor', () => {
       externalId: 'event-1',
       url: null,
       conferenceUrl: null,
+      reminders: null,
     };
     await occurrences.insertMany([deviceRow]);
     localStorage.setItem(
@@ -195,6 +196,7 @@ describe('CalendarMaintenanceInteractor', () => {
       externalId: 'event-2',
       url: null,
       conferenceUrl: null,
+      reminders: null,
     };
     await occurrences.insertMany([allDayRow]);
     localStorage.setItem(
@@ -246,6 +248,7 @@ describe('CalendarMaintenanceInteractor', () => {
       externalId: 'event-1',
       url: null,
       conferenceUrl: null,
+      reminders: null,
     };
     await occurrences.insertMany([deviceRow]);
     const coverage = await occurrences.findCoverage('source-1');

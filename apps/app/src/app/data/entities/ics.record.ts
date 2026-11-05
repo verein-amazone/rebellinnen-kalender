@@ -51,6 +51,11 @@ export interface IcsItemRecord {
   readonly start: TemporalValue;
   readonly end: TemporalValue | null;
   readonly rrule: string | null;
+  /**
+   * Minutes before the start from the event's `VALARM`s, or `null` for none. Kept for the series as
+   * a whole, like `conferenceUrl`.
+   */
+  readonly reminders: readonly number[] | null;
 }
 
 /** An override (RECURRENCE-ID) or cancellation (EXDATE), keyed by the original start. */
@@ -65,4 +70,9 @@ export interface IcsItemExceptionRecord {
   readonly note: string | null;
   readonly start: TemporalValue | null;
   readonly end: TemporalValue | null;
+  /**
+   * An override's own `VALARM`s in minutes before its start, or `null` for none - the occurrence
+   * then keeps the series' reminders. Always `null` for a cancellation.
+   */
+  readonly reminders: readonly number[] | null;
 }

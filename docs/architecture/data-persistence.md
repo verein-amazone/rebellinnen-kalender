@@ -400,11 +400,27 @@ its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Ta
   `notification-preferences.store.ts`. Reminders are off until the user turns them on, in the
   settings or the introduction's last step - the only places the app asks for the notification
   permission, always from a tap.
+- Which calendars remind is a switch per calendar under „Kalender verwalten → Erinnerungen“
+  (`calendarReminders` in the same store, `CalendarRemindersInteractor`), linked from
+  „Benachrichtigungen“. The app's own calendars remind unless switched off; device and subscribed
+  calendars only once switched on, since their calendar app may already remind. The settings say
+  that both reminding means two notifications.
+- A synced appointment reminds at its **own** reminders where it has any, else at the default
+  times: `occurrences.reminders` holds a device event's alerts (the plugin's `alerts`, negated) or
+  an ICS event's `VALARM`s (`ics_items.reminders`; `DISPLAY`/`AUDIO` triggers relative to the
+  start only), as the same JSON array as `app_items.reminders`, `NULL` for none. An ICS override
+  with alarms of its own (`ics_item_exceptions.reminders`) reminds at those, one without at the
+  series'. A synced event cannot say „explicitly no reminder“, so an empty list is stored as `NULL`.
+- A device source in `permission-lost` keeps its cached rows visible but reminds of none of them:
+  the app can no longer refresh them and must not put their titles on the lock screen. Losing or
+  regaining access, and reconnecting, reschedule.
 - `ReminderSchedulerInteractor` hands the OS the **complete set** on every app start, resume and
-  edit: the next 60 reminders of app-owned occurrences in enabled calendars, computed from the
-  materialized `occurrences` rows (`CalendarRepository.upcomingReminderCandidates`). iOS keeps at
-  most 64 pending notifications per app and silently drops the rest; staying below that keeps the
-  choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
+  edit, and after a device sync or ICS refresh that changed rows: the next 60 reminders of the
+  occurrences in the enabled calendars that remind, computed from the materialized `occurrences`
+  rows (`CalendarRepository.upcomingReminderCandidates`). One query across all sources orders the
+  candidates by start, so the limit cuts the merged timeline rather than each calendar's share. iOS
+  keeps at most 64 pending notifications per app and silently drops the rest; staying below that
+  keeps the choice ours. Recomputing instead of patching covers edits, series splits, cancelled occurrences,
   a zone change and an app update with one code path. Runs are serialized and coalesced.
 - A run cancels only the pending notifications the new set no longer contains, and before it
   schedules the new set, which stays within iOS's limit. The others are scheduled again under their
@@ -413,9 +429,10 @@ its first day in the device zone: „1 Tag vorher um 09:00“ is `900`, „Am Ta
 - A notification id is a stable 31-bit FNV-1a hash of `<occurrence id>|<minutes>`, moved to the
   next free number on a collision within one batch. The occurrence id travels in the
   notification's `extra`, and `App` opens `/calendar/event/<id>` when it is tapped.
-- Device-calendar appointments are never scheduled locally: their reminders are written as native
-  alerts (`DeviceEventDraft.alertMinutesBefore`), so the OS calendar delivers them. While reminders
-  are off, a new device event gets none.
+- An appointment created into a device calendar gets its reminders as native alerts
+  (`DeviceEventDraft.alertMinutesBefore`), so the OS calendar delivers them. While reminders are
+  off, a new device event gets none. The app reminds of it as well only if the user switched
+  reminders on for that device calendar.
 - Android: `USE_EXACT_ALARM` (granted without asking from Android 13, needs the Play Console's
   „exact alarm“ declaration as a calendar app) keeps reminders on time. Without the grant, the
   scheduler falls back to inexact delivery instead of letting the plugin open the system settings

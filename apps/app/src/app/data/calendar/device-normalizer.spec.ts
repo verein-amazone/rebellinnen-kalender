@@ -16,6 +16,7 @@ function instance(overrides: Partial<DeviceEventInstance> = {}): DeviceEventInst
     endUtc: '2026-08-10T09:00:00Z',
     isAllDay: false,
     timeZone: 'Europe/Vienna',
+    alertMinutesBefore: [],
     ...overrides,
   };
 }
@@ -50,6 +51,21 @@ describe('normalizeDeviceInstances', () => {
     );
 
     expect(rows).toHaveLength(1);
+  });
+
+  it("keeps the event's own alerts as its reminders, and none for an event without", () => {
+    const [withAlerts, without] = normalizeDeviceInstances(
+      'device',
+      'ios',
+      [
+        instance({ alertMinutesBefore: [0, 60, 60] }),
+        instance({ eventId: 'event-2', alertMinutesBefore: [] }),
+      ],
+      'Europe/Vienna',
+    );
+
+    expect(withAlerts.reminders).toEqual([60, 0]);
+    expect(without.reminders).toBeNull();
   });
 
   it('drops instances without a calendar', () => {

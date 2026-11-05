@@ -6,6 +6,7 @@ import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
 import { CREATE_SEARCH_INDEX } from './021-search-index';
 import { ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS } from './022-content-video-and-support-links';
 import { ADD_EVENT_URL_AND_CONFERENCE } from './023-event-url-and-conference';
+import { ADD_SYNCED_EVENT_REMINDERS } from './024-synced-event-reminders';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -392,6 +393,109 @@ describe('MIGRATIONS', () => {
       expect(
         await database.query(`SELECT id, etag, last_modified, raw_ics FROM ics_subscriptions`),
       ).toEqual([{ id: 'sub-1', etag: null, last_modified: null, raw_ics: 'BEGIN:VCALENDAR' }]);
+
+      database.close();
+    });
+  });
+
+  describe('version 24 over a version 23 database', () => {
+    /** A database with a device occurrence carrying a join link, an ICS item and its subscription. */
+    async function versionTwentyThreeDatabase(): Promise<InMemorySqliteDatabase> {
+      const database = new InMemorySqliteDatabase();
+      database.migrate([
+        CREATE_SCHEMA,
+        REBUILD_CONTENT_ITEMS,
+        CREATE_SEARCH_INDEX,
+        ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS,
+        ADD_EVENT_URL_AND_CONFERENCE,
+      ]);
+      await database.run(
+        `INSERT INTO occurrences (id, source_id, source_type, calendar_id, provenance, item_kind,
+          title, is_all_day, start_kind, start_value, start_utc, end_utc, start_local_day,
+          end_local_day, external_id, url)
+         VALUES ('device:e1', 'device', 'device', 'cal-1', 'device-cached', 'event', 'Stand-up', 0,
+          'utc', '2026-11-05T08:00:00Z', '2026-11-05T08:00:00Z', '2026-11-05T09:00:00Z',
+          '2026-11-05', '2026-11-05', 'e1', 'https://example.org/standup')`,
+      );
+      await database.run(
+        `INSERT INTO ics_subscriptions (id, url, etag, last_modified, raw_ics, created_at, updated_at)
+         VALUES ('sub-1', 'https://example.org/basic.ics', '"abc"', 'Wed, 04 Nov 2026 10:00:00 GMT',
+          'BEGIN:VCALENDAR', '2026-11-01', '2026-11-04')`,
+      );
+      await database.run(
+        `INSERT INTO ics_items (subscription_id, uid, revision_id, kind, title, start_kind,
+          start_value, conference_url)
+         VALUES ('sub-1', 'u1', 'rev-1', 'event', 'Plenum', 'date', '2026-11-05',
+          'https://meet.example.org/plenum')`,
+      );
+      await database.run(
+        `INSERT INTO ics_item_exceptions (subscription_id, uid, original_start, revision_id, status,
+          title)
+         VALUES ('sub-1', 'u1', '2026-11-12', 'rev-1', 'override', 'Plenum (verlegt)')`,
+      );
+      return database;
+    }
+
+    it('adds the reminders columns, keeping every row and column, and survives running twice', async () => {
+      const database = await versionTwentyThreeDatabase();
+      database.migrate([ADD_SYNCED_EVENT_REMINDERS]);
+      database.migrate([ADD_SYNCED_EVENT_REMINDERS]);
+
+      expect((await columnNames(database, 'occurrences')).slice(-2)).toEqual([
+        'conference_url',
+        'reminders',
+      ]);
+      expect((await columnNames(database, 'ics_items')).slice(-2)).toEqual([
+        'conference_url',
+        'reminders',
+      ]);
+      expect((await columnNames(database, 'ics_item_exceptions')).slice(-2)).toEqual([
+        'end_tz',
+        'reminders',
+      ]);
+      expect(
+        await database.query(`SELECT original_start, title, reminders FROM ics_item_exceptions`),
+      ).toEqual([{ original_start: '2026-11-12', title: 'Plenum (verlegt)', reminders: null }]);
+      expect(await database.query(`SELECT id, url, reminders FROM occurrences`)).toEqual([
+        { id: 'device:e1', url: 'https://example.org/standup', reminders: null },
+      ]);
+      expect(await database.query(`SELECT uid, conference_url, reminders FROM ics_items`)).toEqual([
+        { uid: 'u1', conference_url: 'https://meet.example.org/plenum', reminders: null },
+      ]);
+      expect(
+        await database.query<{ readonly name: string }>(
+          `SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'occurrences' AND name NOT LIKE 'sqlite_%'
+           ORDER BY name`,
+        ),
+      ).toEqual([
+        { name: 'idx_occurrences_range' },
+        { name: 'idx_occurrences_series' },
+        { name: 'idx_occurrences_source' },
+      ]);
+
+      database.close();
+    });
+
+    it('makes every feed due for a full download, so the next start reads its alarms', async () => {
+      const database = await versionTwentyThreeDatabase();
+      await database.run(
+        `UPDATE ics_subscriptions SET last_success_at = '2026-11-04', last_checked_at = '2026-11-05'`,
+      );
+      database.migrate([ADD_SYNCED_EVENT_REMINDERS]);
+
+      expect(
+        await database.query(
+          `SELECT id, etag, last_modified, last_success_at, last_checked_at FROM ics_subscriptions`,
+        ),
+      ).toEqual([
+        {
+          id: 'sub-1',
+          etag: null,
+          last_modified: null,
+          last_success_at: '2026-11-04',
+          last_checked_at: '1970-01-01T00:00:00Z',
+        },
+      ]);
 
       database.close();
     });

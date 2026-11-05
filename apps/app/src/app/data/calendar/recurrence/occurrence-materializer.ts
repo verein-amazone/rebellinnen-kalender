@@ -297,9 +297,11 @@ function buildRow(input: RowInput): OccurrenceRecord {
     startLocalDay: startPoint.localDay,
     endLocalDay,
     externalId: null,
-    // Set for ICS rows by the repository from the normalized item; app items have neither.
+    // Set for ICS rows by the repository from the normalized item; app items have none of them -
+    // their reminders stay on the canonical item.
     url: null,
     conferenceUrl: null,
+    reminders: null,
   };
 }
 

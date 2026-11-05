@@ -25,6 +25,7 @@ function occurrence(overrides: Partial<OccurrenceRecord> = {}): OccurrenceRecord
     externalId: 'event-1',
     url: null,
     conferenceUrl: null,
+    reminders: null,
     ...overrides,
   };
 }

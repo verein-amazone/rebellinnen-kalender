@@ -34,7 +34,7 @@ class StubLiveAnnouncer {
 }
 
 function calendar(id: string, name: string): CalendarFilterOption {
-  return { id, name, color: null, emoji: null };
+  return { id, name, color: null, emoji: null, sourceType: 'app' };
 }
 
 async function setup(calendars: CalendarFilterOption[]) {

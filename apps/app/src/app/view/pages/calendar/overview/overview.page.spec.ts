@@ -350,8 +350,14 @@ describe('CalendarOverviewPage', () => {
       { day: '2026-08-05' },
       [],
       [
-        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
-        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅', sourceType: 'app' },
+        {
+          id: 'cal-2',
+          name: 'Rebell*innen Termine',
+          color: '#E92F2A',
+          emoji: '✊',
+          sourceType: 'app',
+        },
       ],
     );
 
@@ -367,8 +373,14 @@ describe('CalendarOverviewPage', () => {
         occurrence({ id: 'b', calendarId: 'cal-2', title: 'Von Rebellinnen' }),
       ],
       [
-        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
-        { id: 'cal-2', name: 'Rebell*innen Termine', color: '#E92F2A', emoji: '✊' },
+        { id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅', sourceType: 'app' },
+        {
+          id: 'cal-2',
+          name: 'Rebell*innen Termine',
+          color: '#E92F2A',
+          emoji: '✊',
+          sourceType: 'app',
+        },
       ],
     );
 
@@ -393,7 +405,7 @@ describe('CalendarOverviewPage', () => {
     const { element, whenStable } = await setup(
       { day: '2026-08-05' },
       [],
-      [{ id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' }],
+      [{ id: 'cal-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅', sourceType: 'app' }],
     );
 
     const chip = Array.from(element.querySelectorAll('button')).find((b) =>
