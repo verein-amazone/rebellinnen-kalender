@@ -175,24 +175,30 @@ The answers live in [`apps/app/fastlane/metadata/app_store_rating_config.json`](
 and are applied by `deliver` together with the store listing - so the console always shows what this
 repository says. Agreed with Verein Amazone for 1.0.0, revised on their request of 4 November 2026:
 
-| Question                                                  | Answer          | Why                                                                                             |
-| --------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
-| Mature or suggestive themes                               | None            | Sexual violence and abuse are named in several biographies, as facts, not described. See below. |
-| Medical or treatment information                          | Infrequent/mild | The menstruation entry and the eating-disorder and crisis helplines.                            |
-| Health or wellness topics                                 | Yes             | Same entries.                                                                                   |
-| Realistic violence                                        | None            | Violence is mentioned in biographies, never depicted. **Re-check with the videos.**             |
-| Alcohol, tobacco or drug use or references                | None            | One passing mention in a podcast recommendation.                                                |
-| Sexual content or nudity, graphic or not                  | None            | Education about sexuality and gender identity is not sexual content.                            |
-| Profanity, horror, weapons, gambling, contests            | None            | -                                                                                               |
-| Unrestricted web access                                   | No              | External links open the system browser; the app has no browser of its own.                      |
-| User-generated content, messaging, social media           | No              | -                                                                                               |
-| Advertising, loot boxes, parental controls, age assurance | No              | -                                                                                               |
+| Question                                                  | Answer | Why                                                                                             |
+| --------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| Mature or suggestive themes                               | None   | Sexual violence and abuse are named in several biographies, as facts, not described. See below. |
+| Medical or treatment information                          | None   | No diagnoses or treatment guidance; the menstruation entry and the helplines are information.   |
+| Health or wellness topics                                 | Yes    | The menstruation entry and the eating-disorder and crisis helplines.                            |
+| Realistic violence                                        | None   | Violence is mentioned in biographies, never depicted. **Re-check with the videos.**             |
+| Alcohol, tobacco or drug use or references                | None   | One passing mention in a podcast recommendation.                                                |
+| Sexual content or nudity, graphic or not                  | None   | Education about sexuality and gender identity is not sexual content.                            |
+| Profanity, horror, weapons, gambling, contests            | None   | -                                                                                               |
+| Unrestricted web access                                   | No     | External links open the system browser; the app has no browser of its own.                      |
+| User-generated content, messaging, social media           | No     | -                                                                                               |
+| Advertising, loot boxes, parental controls, age assurance | No     | -                                                                                               |
 
 "Mature or suggestive themes" was "Infrequent/mild" up to 1.0.0, which gave 13+. The German App
 Store shows that answer as „Szenen mit erotischen Anspielungen“, and the app has no erotic content,
 so Verein Amazone asked for it to go (4 November 2026). The biographies name abuse as a fact and
-never describe it, so None is a fair answer. App Store Connect shows the resulting rating after the
-next `deliver`; record it here. The change reaches the store page with the next submitted version.
+never describe it, so None is a fair answer.
+
+That alone left the rating at 13+: "Medical or treatment information: Infrequent/mild" also gives
+13+. Apple defines it as diagnoses or guidance around managing medical conditions, which the app
+does not give - the menstruation entry explains the cycle and the helplines are contact details -
+so it became None on 5 November 2026, keeping "Health or wellness topics: Yes" for the same
+entries. App Store Connect then calculates **9+** (Vietnam 12+, Korea „ALL“, Brazil its own
+class; 4+ on iOS versions before 26). It reaches the store page with 1.1.0.
 
 ### Google Play (IARC)
 
