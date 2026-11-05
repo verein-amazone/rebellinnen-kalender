@@ -119,6 +119,8 @@ function toOccurrence(row: RangeOccurrence): CalendarOccurrence {
     title: row.title,
     location: row.location,
     description: row.description,
+    url: row.url,
+    conferenceUrl: row.conferenceUrl,
     allDay: row.isAllDay,
     start: row.start,
     end: row.end,

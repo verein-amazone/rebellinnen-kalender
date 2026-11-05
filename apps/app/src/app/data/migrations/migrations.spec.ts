@@ -5,6 +5,7 @@ import { CREATE_SCHEMA } from './019-create-schema';
 import { REBUILD_CONTENT_ITEMS } from './020-rebuild-content-items';
 import { CREATE_SEARCH_INDEX } from './021-search-index';
 import { ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS } from './022-content-video-and-support-links';
+import { ADD_EVENT_URL_AND_CONFERENCE } from './023-event-url-and-conference';
 import { DATABASE_VERSION, MIGRATIONS } from './migrations';
 
 interface TableInfoRow {
@@ -305,6 +306,92 @@ describe('MIGRATIONS', () => {
       await expect(async () =>
         database.run(`INSERT INTO bookmarks (content_item_id, created_at) VALUES ('gone', 'x')`),
       ).rejects.toThrow('FOREIGN KEY');
+
+      database.close();
+    });
+  });
+
+  describe('version 23 over a version 22 database', () => {
+    /** A 1.1.0 database with a device occurrence, an ICS item and its subscription. */
+    async function versionTwentyTwoDatabase(): Promise<InMemorySqliteDatabase> {
+      const database = new InMemorySqliteDatabase();
+      database.migrate([
+        CREATE_SCHEMA,
+        REBUILD_CONTENT_ITEMS,
+        CREATE_SEARCH_INDEX,
+        ADD_CONTENT_VIDEO_AND_SUPPORT_LINKS,
+      ]);
+      await database.run(
+        `INSERT INTO occurrences (id, source_id, source_type, calendar_id, provenance, item_kind,
+          title, location, is_all_day, start_kind, start_value, start_utc, end_utc,
+          start_local_day, end_local_day, external_id, description)
+         VALUES ('device:e1', 'device', 'device', 'cal-1', 'device-cached', 'event', 'Stand-up',
+          NULL, 0, 'utc', '2026-11-05T08:00:00Z', '2026-11-05T08:00:00Z', '2026-11-05T09:00:00Z',
+          '2026-11-05', '2026-11-05', 'e1', 'Agenda')`,
+      );
+      await database.run(
+        `INSERT INTO ics_subscriptions (id, url, etag, last_modified, raw_ics, created_at, updated_at)
+         VALUES ('sub-1', 'https://example.org/basic.ics', '"abc"', 'Wed, 04 Nov 2026 10:00:00 GMT',
+          'BEGIN:VCALENDAR', '2026-11-01', '2026-11-04')`,
+      );
+      await database.run(
+        `INSERT INTO ics_items (subscription_id, uid, revision_id, kind, title, note, start_kind,
+          start_value)
+         VALUES ('sub-1', 'u1', 'rev-1', 'event', 'Plenum', 'Notiz', 'date', '2026-11-05')`,
+      );
+      return database;
+    }
+
+    it('adds the URL and join-link columns, keeping every row, and survives running twice', async () => {
+      const database = await versionTwentyTwoDatabase();
+      database.migrate([ADD_EVENT_URL_AND_CONFERENCE]);
+      database.migrate([ADD_EVENT_URL_AND_CONFERENCE]);
+
+      expect((await columnNames(database, 'occurrences')).slice(-3)).toEqual([
+        'description',
+        'url',
+        'conference_url',
+      ]);
+      expect((await columnNames(database, 'ics_items')).slice(-3)).toEqual([
+        'rrule',
+        'url',
+        'conference_url',
+      ]);
+      expect(
+        await database.query(`SELECT id, title, description, url, conference_url FROM occurrences`),
+      ).toEqual([
+        {
+          id: 'device:e1',
+          title: 'Stand-up',
+          description: 'Agenda',
+          url: null,
+          conference_url: null,
+        },
+      ]);
+      expect(await database.query(`SELECT uid, note, url, conference_url FROM ics_items`)).toEqual([
+        { uid: 'u1', note: 'Notiz', url: null, conference_url: null },
+      ]);
+      expect(
+        await database.query<{ readonly name: string }>(
+          `SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'occurrences' AND name NOT LIKE 'sqlite_%'
+           ORDER BY name`,
+        ),
+      ).toEqual([
+        { name: 'idx_occurrences_range' },
+        { name: 'idx_occurrences_series' },
+        { name: 'idx_occurrences_source' },
+      ]);
+
+      database.close();
+    });
+
+    it('drops the conditional-request metadata, so the next refresh re-parses each feed', async () => {
+      const database = await versionTwentyTwoDatabase();
+      database.migrate([ADD_EVENT_URL_AND_CONFERENCE]);
+
+      expect(
+        await database.query(`SELECT id, etag, last_modified, raw_ics FROM ics_subscriptions`),
+      ).toEqual([{ id: 'sub-1', etag: null, last_modified: null, raw_ics: 'BEGIN:VCALENDAR' }]);
 
       database.close();
     });

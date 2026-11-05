@@ -36,6 +36,8 @@ interface OccurrenceRow {
   readonly start_local_day: string;
   readonly end_local_day: string;
   readonly external_id: string | null;
+  readonly url: string | null;
+  readonly conference_url: string | null;
 }
 
 /** The database shape of a `source_coverage` row. */
@@ -50,7 +52,8 @@ interface CoverageRow {
 
 const COLUMNS = `id, source_id, source_type, calendar_id, series_id, original_start, provenance,
   item_kind, item_id, title, location, description, is_all_day, start_kind, start_value, start_tz,
-  end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id`;
+  end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id,
+  url, conference_url`;
 
 const COLUMN_COUNT = COLUMNS.split(',').length;
 
@@ -62,11 +65,11 @@ const COVERAGE_COLUMNS = `source_id, window_start_utc, window_end_utc, engine_ve
  *
  * `SQLITE_MAX_VARIABLE_NUMBER` is 32766 on SQLite 3.32+, but only 999 on older builds - iOS,
  * Android and the browser do not all ship the same engine, so the low limit is the one to
- * respect. At 24 bound values per row, 40 rows stay under it everywhere. The point is the order of
+ * respect. At 26 bound values per row, 36 rows stay under it everywhere. The point is the order of
  * magnitude - a full window rebuild goes from thousands of statements to dozens - not squeezing
  * out the last one, so there is no reason to go near any limit.
  */
-const INSERT_CHUNK_ROWS = 40;
+const INSERT_CHUNK_ROWS = 36;
 
 /** 9 bound values per row in `updatePlacementMany` - 100 rows stay under the same low limit. */
 const UPDATE_CHUNK_ROWS = 100;
@@ -366,6 +369,8 @@ function toValues(record: OccurrenceRecord): SqlValue[] {
     record.startLocalDay,
     record.endLocalDay,
     record.externalId,
+    record.url,
+    record.conferenceUrl,
   ];
 }
 
@@ -394,5 +399,7 @@ function toRecord(row: OccurrenceRow): OccurrenceRecord {
     startLocalDay: row.start_local_day,
     endLocalDay: row.end_local_day,
     externalId: row.external_id ?? null,
+    url: row.url ?? null,
+    conferenceUrl: row.conference_url ?? null,
   };
 }

@@ -7,13 +7,23 @@ import { find as findLinks } from 'linkifyjs';
  * Google calendar can hold a Teams meeting - so it is recognised from the join URL's host alone, never
  * from the surrounding text, which the provider may word differently or translate.
  *
- * Only description and location are read here; device calendars offer nothing else on both
- * platforms. Formats, sources and the open questions are recorded in
+ * Structured data comes first where a source has it: an ICS feed's `CONFERENCE` or vendor property
+ * (`conferenceUrl`) and an event's own `URL` - on devices only iOS reports one. Otherwise description
+ * and location are all there is. Formats, sources and the open questions are recorded in
  * `docs/architecture/online-meetings.md`.
  */
 
+/** `generic`: a join link the feed marks as a conference, on a host the app does not know. */
 export type MeetingProvider =
-  'google-meet' | 'microsoft-teams' | 'zoom' | 'webex' | 'jitsi' | 'whereby' | 'goto' | 'facetime';
+  | 'google-meet'
+  | 'microsoft-teams'
+  | 'zoom'
+  | 'webex'
+  | 'jitsi'
+  | 'whereby'
+  | 'goto'
+  | 'facetime'
+  | 'generic';
 
 /** How the app names a provider, e.g. in „Google Meet beitreten“. */
 export const MEETING_PROVIDER_NAMES: Readonly<Record<MeetingProvider, string>> = {
@@ -25,6 +35,7 @@ export const MEETING_PROVIDER_NAMES: Readonly<Record<MeetingProvider, string>> =
   whereby: 'Whereby',
   goto: 'GoTo Meeting',
   facetime: 'FaceTime',
+  generic: 'Online-Meeting',
 };
 
 export interface MeetingDialIn {
@@ -48,10 +59,15 @@ export interface EventMeetingDetails {
   readonly description: string | null;
   /** The location, or `null` if it only repeated the meeting. */
   readonly location: string | null;
+  /**
+   * The event's own web address to offer as a link, or `null` - also when it is the join link or
+   * already appears in the description, which shows it as a link anyway.
+   */
+  readonly website: { readonly url: string; readonly host: string } | null;
 }
 
 /** Join URLs by host and path, after MeetingBar's provider list. A provider's other pages do not match. */
-const JOIN_URL_PATTERNS: readonly (readonly [MeetingProvider, RegExp])[] = [
+const JOIN_URL_PATTERNS: readonly (readonly [Exclude<MeetingProvider, 'generic'>, RegExp])[] = [
   [
     'google-meet',
     /^https:\/\/meet\.google\.com\/(?:[a-z]{3}-[a-z]{4}-[a-z]{3}\b|lookup\/|_meet\/)/i,
@@ -106,18 +122,70 @@ const TEAMS_LOCATION = /^Microsoft Teams[- ](?:Meeting|Besprechung)$/i;
 export function findOnlineMeeting(event: {
   readonly description: string | null;
   readonly location: string | null;
+  readonly url?: string | null;
+  readonly conferenceUrl?: string | null;
 }): EventMeetingDetails {
   const block = event.description === null ? null : findBlock(event.description);
   const meeting =
+    structuredMeeting(event.conferenceUrl ?? null, block?.meeting ?? null) ??
     block?.meeting ??
+    firstMeetingIn(event.url ?? '') ??
     firstMeetingIn(event.location ?? '') ??
     firstMeetingIn(event.description ?? '');
+  const description = emptyAsNull(block === null ? event.description : block.remainder);
 
   return {
     meeting,
-    description: emptyAsNull(block === null ? event.description : block.remainder),
+    description,
     location: repeatsMeeting(event.location, meeting) ? null : event.location,
+    website: websiteOf(event.url ?? null, meeting, description),
   };
+}
+
+/**
+ * The feed's own join link. Its provider comes from the host like any other; an unknown host is still
+ * a meeting, because the feed says so. A generated block of the same provider adds its dial-in.
+ */
+function structuredMeeting(
+  conferenceUrl: string | null,
+  blockMeeting: OnlineMeeting | null,
+): OnlineMeeting | null {
+  if (conferenceUrl === null) {
+    return null;
+  }
+  const provider = providerOf(conferenceUrl) ?? 'generic';
+  return {
+    provider,
+    joinUrl: conferenceUrl,
+    dialIn: blockMeeting?.provider === provider ? blockMeeting.dialIn : null,
+  };
+}
+
+/**
+ * The event's web address as a link of its own: only `http(s)`, not the join link again, and not when
+ * the description already contains it (compared without scheme and trailing slash). Labelled with
+ * its host - where a tap leads matters - without a leading `www.`; a punycode host stays as it is,
+ * which keeps look-alike domains recognisable.
+ */
+function websiteOf(
+  url: string | null,
+  meeting: OnlineMeeting | null,
+  description: string | null,
+): EventMeetingDetails['website'] {
+  if (url === null || !/^https?:\/\//i.test(url) || url === meeting?.joinUrl) {
+    return null;
+  }
+  let host: string;
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    return null;
+  }
+  const bare = (text: string): string => text.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+  if (description !== null && description.includes(bare(url))) {
+    return null;
+  }
+  return { url, host: host.replace(/^www\./i, '') };
 }
 
 function findBlock(
@@ -160,10 +228,14 @@ function meetingUrls(
   return linkSources(text).flatMap((source) =>
     findLinks(source, 'url').flatMap((link) => {
       const url = unwrapRedirect(link.href);
-      const match = JOIN_URL_PATTERNS.find(([, pattern]) => pattern.test(url));
-      return match === undefined ? [] : [{ provider: match[0], joinUrl: url }];
+      const provider = providerOf(url);
+      return provider === null ? [] : [{ provider, joinUrl: url }];
     }),
   );
+}
+
+function providerOf(url: string): MeetingProvider | null {
+  return JOIN_URL_PATTERNS.find(([, pattern]) => pattern.test(url))?.[0] ?? null;
 }
 
 /**

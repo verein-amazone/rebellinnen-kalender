@@ -33,6 +33,7 @@ class FakeNativeCalendarGateway {
       title: 'Zahnarzt',
       location: null,
       description: null,
+      url: null,
       startUtc: '2026-08-10T08:00:00Z',
       endUtc: '2026-08-10T09:00:00Z',
       isAllDay: false,

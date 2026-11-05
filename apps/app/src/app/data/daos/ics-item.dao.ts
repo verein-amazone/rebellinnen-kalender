@@ -21,6 +21,8 @@ interface ItemRow {
   readonly end_value: string | null;
   readonly end_tz: string | null;
   readonly rrule: string | null;
+  readonly url: string | null;
+  readonly conference_url: string | null;
 }
 
 /** The database shape of an `ics_item_exceptions` row. */
@@ -42,13 +44,13 @@ interface ExceptionRow {
 }
 
 const ITEM_COLUMNS = `subscription_id, uid, revision_id, kind, title, location, note,
-  start_kind, start_value, start_tz, end_kind, end_value, end_tz, rrule`;
+  start_kind, start_value, start_tz, end_kind, end_value, end_tz, rrule, url, conference_url`;
 const EXCEPTION_COLUMNS = `subscription_id, uid, original_start, revision_id, status, title,
   location, note, start_kind, start_value, start_tz, end_kind, end_value, end_tz`;
 
 /**
- * Both tables have 14 columns, so 60 rows bind 840 values - under the 999-variable limit older
- * SQLite builds enforce. See `INSERT_CHUNK_ROWS` in `occurrence.dao.ts` for the full reasoning.
+ * `ics_items` has 16 columns and `ics_item_exceptions` 14, so 60 rows bind at most 960 values - under
+ * the 999-variable limit older SQLite builds enforce. See `INSERT_CHUNK_ROWS` in `occurrence.dao.ts` for the full reasoning.
  */
 const INSERT_CHUNK_ROWS = 60;
 
@@ -162,6 +164,8 @@ function toItemValues(record: IcsItemRecord): SqlValue[] {
     record.end?.value ?? null,
     record.end?.timeZone ?? null,
     record.rrule,
+    record.url,
+    record.conferenceUrl,
   ];
 }
 
@@ -197,6 +201,8 @@ function toItemRecord(row: ItemRow): IcsItemRecord {
     start: { kind: row.start_kind, value: row.start_value, timeZone: row.start_tz ?? null },
     end: toOptionalTemporal(row.end_kind, row.end_value, row.end_tz),
     rrule: row.rrule ?? null,
+    url: row.url ?? null,
+    conferenceUrl: row.conference_url ?? null,
   };
 }
 

@@ -148,14 +148,17 @@ export class EventDetailPage {
   protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
 
   /**
-   * The occurrence's online meeting, if it has one, with the description and location to show
-   * beside it: the provider's generated block and a location that only repeats the link are left out.
+   * The occurrence's online meeting, if it has one, with the description, location and website to
+   * show beside it: the provider's generated block, a location that only repeats the link and a
+   * website that is the join link or already in the description are left out.
    */
   protected readonly meetingDetails = computed(() => {
     const occurrence = this.occurrence();
     return findOnlineMeeting({
       description: occurrence?.description ?? null,
       location: occurrence?.location ?? null,
+      url: occurrence?.url ?? null,
+      conferenceUrl: occurrence?.conferenceUrl ?? null,
     });
   });
 

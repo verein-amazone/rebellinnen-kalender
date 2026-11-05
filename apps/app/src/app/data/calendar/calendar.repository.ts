@@ -1035,7 +1035,15 @@ export class CalendarRepository {
         },
         { keyPrefix: 'ics', sourceType: 'ics' },
       );
-      pending.push(...result.occurrences);
+      // The fabricated app-item shape has no place for them, so they are carried over here - from
+      // the series as a whole, an override does not change them (see `IcsItemRecord`).
+      pending.push(
+        ...result.occurrences.map((row) => ({
+          ...row,
+          url: item.url,
+          conferenceUrl: item.conferenceUrl,
+        })),
+      );
       truncated ||= result.truncated;
     }
 

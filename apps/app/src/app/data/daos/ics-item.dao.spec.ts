@@ -18,6 +18,8 @@ function item(overrides: Partial<IcsItemRecord> = {}): IcsItemRecord {
     start: { kind: 'zoned', value: '2026-09-07T18:00:00', timeZone: 'Europe/Vienna' },
     end: null,
     rrule: null,
+    url: null,
+    conferenceUrl: null,
     ...overrides,
   };
 }

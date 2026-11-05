@@ -68,6 +68,8 @@ export interface DeviceEventInstance {
   readonly title: string;
   readonly location: string | null;
   readonly description: string | null;
+  /** The event's web address. iOS only: on Android the plugin always reports `null`. */
+  readonly url: string | null;
   readonly startUtc: string;
   readonly endUtc: string;
   readonly isAllDay: boolean;
@@ -150,6 +152,7 @@ export class NativeCalendarGateway {
         title: event.title,
         location: event.location,
         description: event.description,
+        url: event.url,
         startUtc: toInstant(event.startDate),
         endUtc: toInstant(event.endDate),
         isAllDay: event.isAllDay,

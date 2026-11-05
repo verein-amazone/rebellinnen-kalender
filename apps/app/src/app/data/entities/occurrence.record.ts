@@ -40,8 +40,8 @@ export interface OccurrenceRecord {
   readonly title: string;
   readonly location: string | null;
   /**
-   * A device event's description/notes, straight from the OS calendar. `null` for app-owned rows
-   * (which keep their note on the canonical `app_items` record instead) and for ICS rows.
+   * The event's description as its calendar wrote it: a device event's notes, an ICS event's
+   * `DESCRIPTION`. `null` for app-owned rows, which keep their note on the canonical record.
    */
   readonly description: string | null;
   readonly isAllDay: boolean;
@@ -53,6 +53,13 @@ export interface OccurrenceRecord {
   readonly endLocalDay: string;
   /** The platform's own event id for device-cached rows. */
   readonly externalId: string | null;
+  /**
+   * The event's own web address: iOS `EKEvent.url` for device rows (Android has none), the `URL`
+   * property for ICS rows, `null` for app rows.
+   */
+  readonly url: string | null;
+  /** An ICS event's join link from `CONFERENCE` or a vendor property; `null` for other rows. */
+  readonly conferenceUrl: string | null;
 }
 
 /**

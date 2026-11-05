@@ -119,6 +119,22 @@
           </div>
         }
 
+        @if (meetingDetails().website; as website) {
+          <!-- Labelled with the host, so it is clear where the tap leads; the icon says it leaves the
+               app. -->
+          <p>
+            <a
+              [href]="website.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary min-h-touch inline-flex items-center gap-2 break-all underline underline-offset-2"
+            >
+              <svg lucideExternalLink class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+              <span>{{ website.host }} öffnen</span>
+            </a>
+          </p>
+        }
+
         @if (meetingDetails().description; as description) {
           <app-event-description class="text-muted-foreground" [description]="description" />
         }

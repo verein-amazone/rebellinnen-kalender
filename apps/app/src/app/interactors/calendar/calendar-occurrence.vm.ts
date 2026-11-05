@@ -30,6 +30,10 @@ export interface CalendarOccurrence {
    * Set for device and ICS occurrences; `null` for app ones, which have their own `note`.
    */
   readonly description: string | null;
+  /** The event's web address (iOS device events, ICS `URL`); `null` otherwise. */
+  readonly url: string | null;
+  /** An ICS event's join link from `CONFERENCE` or a vendor property; `null` otherwise. */
+  readonly conferenceUrl: string | null;
   readonly allDay: boolean;
   readonly start: TemporalValue;
   readonly end: TemporalValue | null;

@@ -318,4 +318,58 @@ describe('parseIcsCalendar', () => {
       '<b>Heute noch schnell anmelden!</b><br><br>Wie, wann, wo...?<br><p></p><ul><li>Drei Online-Workshops</li></ul><p></p>',
     );
   });
+  describe('event URL and join link', () => {
+    function single(lines: readonly string[]) {
+      return parseIcsCalendar(
+        calendar([
+          'BEGIN:VEVENT',
+          'UID:u1',
+          'SUMMARY:Treffen',
+          'DTSTART;VALUE=DATE:20261105',
+          ...lines,
+          'END:VEVENT',
+        ]),
+        'sub-1',
+        'rev-1',
+      ).items[0];
+    }
+
+    it('keeps the URL and Google\u2019s conference link', () => {
+      expect(
+        single([
+          'URL:https://amazone.or.at/anmeldung',
+          'X-GOOGLE-CONFERENCE:https://meet.google.com/abc-defg-hij',
+        ]),
+      ).toMatchObject({
+        url: 'https://amazone.or.at/anmeldung',
+        conferenceUrl: 'https://meet.google.com/abc-defg-hij',
+      });
+    });
+
+    it('prefers the standard CONFERENCE marked as video, and skips its dial-in entries', () => {
+      expect(
+        single([
+          'X-GOOGLE-CONFERENCE:https://meet.google.com/zzz-zzzz-zzz',
+          'CONFERENCE;VALUE=URI;FEATURE=PHONE:tel:+4312345678',
+          'CONFERENCE;VALUE=URI;FEATURE=AUDIO,VIDEO;LABEL=Raum:https://video.example.org/42',
+        ]).conferenceUrl,
+      ).toBe('https://video.example.org/42');
+    });
+
+    it('reads the Teams property, and ignores the SIP conference link', () => {
+      expect(
+        single([
+          'X-MICROSOFT-ONLINEMEETINGCONFLINK:conf:sip:someone@example.org',
+          'X-MICROSOFT-SKYPETEAMSMEETINGURL:https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC',
+        ]).conferenceUrl,
+      ).toBe('https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC');
+    });
+
+    it('drops anything that is not a web address', () => {
+      expect(
+        single(['URL:javascript:alert(1)', 'X-GOOGLE-CONFERENCE:http://meet.google.com/abc']),
+      ).toMatchObject({ url: null, conferenceUrl: null });
+      expect(single([])).toMatchObject({ url: null, conferenceUrl: null });
+    });
+  });
 });
