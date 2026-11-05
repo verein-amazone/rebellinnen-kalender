@@ -1,3 +1,9 @@
+## [1.1.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0...v1.1.1-rc.1) (2026-11-05)
+
+### Chores
+
+* **store:** answer "Medical or treatment information" with None ([90cb722](https://github.com/verein-amazone/rebellinnen-kalender/commit/90cb72292cee6362d30f5c83d04e78db8113bb94))
+
 ## [1.1.0](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.0.0...v1.1.0) (2026-11-05)
 
 ### Features
