@@ -106,7 +106,13 @@ describe('CalendarFiltersInteractor', () => {
     });
 
     await expect(interactor.listFilterable()).resolves.toEqual([
-      { id: 'calendar-1', name: 'Mein Kalender', color: '#7B3FA8', emoji: '📅' },
+      {
+        id: 'calendar-1',
+        name: 'Mein Kalender',
+        color: '#7B3FA8',
+        emoji: '📅',
+        sourceType: 'app',
+      },
     ]);
   });
 

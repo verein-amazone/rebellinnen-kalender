@@ -12,6 +12,7 @@ function calendar(overrides: Partial<CalendarFilterOption> = {}): CalendarFilter
     name: 'Mein Kalender',
     color: '#7B3FA8',
     emoji: '📅',
+    sourceType: 'app',
     ...overrides,
   };
 }

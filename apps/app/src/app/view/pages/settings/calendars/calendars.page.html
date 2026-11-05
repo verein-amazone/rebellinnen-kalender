@@ -67,5 +67,19 @@
         </li>
       </ul>
     </section>
+
+    @if (remindersSupported) {
+      <section class="space-y-2">
+        <h2>Benachrichtigungen</h2>
+        <ul class="rk-list">
+          <li>
+            <a routerLink="/settings/calendars/reminders" class="rk-row">
+              <span class="rk-row-label">Erinnerungen</span>
+              <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
+            </a>
+          </li>
+        </ul>
+      </section>
+    }
   </div>
 </app-focused-screen>

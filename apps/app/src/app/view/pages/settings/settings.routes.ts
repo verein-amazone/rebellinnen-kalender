@@ -9,6 +9,7 @@ import { CalendarOrderPage } from './calendars/order/calendar-order.page';
 import { CuratedCalendarsPage } from './calendars/curated/curated-calendars.page';
 import { DeviceCalendarsPage } from './calendars/device/device-calendars.page';
 import { IcsCalendarsPage } from './calendars/ics/ics-calendars.page';
+import { CalendarRemindersPage } from './calendars/reminders/calendar-reminders.page';
 import { ContentCatalogPage } from './content-catalog/content-catalog.page';
 import { DevToolsPage } from './dev-tools/dev-tools.page';
 import { ImageCreditsPage } from './image-credits/image-credits.page';
@@ -45,6 +46,7 @@ export const SETTINGS_ROUTES: Routes = [
   },
   { path: 'calendars/device', component: DeviceCalendarsPage, title: 'Gerätekalender' },
   { path: 'calendars/order', component: CalendarOrderPage, title: 'Reihenfolge' },
+  { path: 'calendars/reminders', component: CalendarRemindersPage, title: 'Erinnerungen' },
   { path: 'calendars/ics', component: IcsCalendarsPage, title: 'Abonnierte Kalender' },
   { path: 'licenses', component: LicensesPage, title: 'Open-Source-Lizenzen' },
   { path: 'image-credits', component: ImageCreditsPage, title: 'Bildnachweise' },

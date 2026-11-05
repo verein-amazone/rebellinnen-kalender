@@ -74,6 +74,11 @@ export interface DeviceEventInstance {
   readonly endUtc: string;
   readonly isAllDay: boolean;
   readonly timeZone: string | null;
+  /**
+   * The event's alerts in minutes before the start, like `DeviceEventDraft.alertMinutesBefore` -
+   * empty for none.
+   */
+  readonly alertMinutesBefore: readonly number[];
 }
 
 /**
@@ -157,6 +162,10 @@ export class NativeCalendarGateway {
         endUtc: toInstant(event.endDate),
         isAllDay: event.isAllDay,
         timeZone: event.timezone,
+        // The plugin counts minutes relative to the start, negative before it, on both platforms
+        // (`createEvent` writes them the same way). `0 - minutes` rather than `-minutes`, so an
+        // alert at the start stays 0 instead of becoming -0.
+        alertMinutesBefore: event.alerts.map((minutes) => 0 - minutes),
       };
     });
   }

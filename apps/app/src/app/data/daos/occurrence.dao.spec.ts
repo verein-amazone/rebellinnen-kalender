@@ -30,6 +30,7 @@ function occurrence(overrides: Partial<OccurrenceRecord> = {}): OccurrenceRecord
     externalId: null,
     url: null,
     conferenceUrl: null,
+    reminders: null,
     ...overrides,
   };
 }

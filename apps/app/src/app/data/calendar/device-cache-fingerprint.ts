@@ -81,5 +81,6 @@ function fieldsOf(row: OccurrenceRecord): readonly string[] {
     row.externalId ?? '',
     row.url ?? '',
     row.conferenceUrl ?? '',
+    row.reminders?.join(',') ?? '',
   ];
 }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { LucideExternalLink } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
+import { LucideChevronRight, LucideExternalLink } from '@lucide/angular';
 
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
 import {
@@ -14,7 +15,8 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 /**
  * „Benachrichtigungen“ (#81): one switch for appointment reminders as a whole and, while it is on,
  * the reminders a new appointment starts with - separately for timed and all-day appointments.
- * Each appointment can still set its own in the appointment form.
+ * Each appointment can still set its own in the appointment form. Which calendars remind is chosen
+ * under „Kalender verwalten → Erinnerungen“, linked from here.
  */
 @Component({
   selector: 'app-settings-notifications',
@@ -23,9 +25,11 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
   imports: [
     CheckHaptics,
     FocusedScreenScaffold,
+    LucideChevronRight,
     LucideExternalLink,
     NotificationsBlockedBlock,
     ReminderListField,
+    RouterLink,
   ],
   templateUrl: './notifications.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

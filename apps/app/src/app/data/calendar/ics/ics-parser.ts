@@ -3,6 +3,7 @@ import { Temporal } from 'temporal-polyfill';
 
 import type { IcsItemExceptionRecord, IcsItemRecord } from '../../entities/ics.record';
 import type { TemporalValue } from '../../entities/temporal-value';
+import { syncedReminders } from '../synced-reminders';
 import { utcInstantFromEpochMilliseconds } from '../utc-instant';
 
 /**
@@ -139,6 +140,7 @@ function collectEvent(
         note: event.description ?? null,
         start,
         end: endOf(event, start),
+        reminders: remindersOf(vevent),
       },
     });
     return;
@@ -157,6 +159,7 @@ function collectEvent(
     start,
     end: endOf(event, start),
     rrule: readRrule(vevent),
+    reminders: remindersOf(vevent),
   });
 
   for (const property of vevent.getAllProperties('exdate')) {
@@ -173,6 +176,7 @@ function collectEvent(
           note: null,
           start: null,
           end: null,
+          reminders: null,
         },
       });
     }
@@ -231,6 +235,39 @@ function describeSkippedEvent(vevent: ICAL.Component, cause: unknown): string {
   return uid
     ? `Skipped event ${String(uid)}: ${reason}`
     : `Skipped an event without a UID: ${reason}`;
+}
+
+/**
+ * The event's own reminders from its `VALARM`s, in minutes before the start - or `null` for none.
+ *
+ * Only alarms that show something on the device count (`DISPLAY`, `AUDIO`); an `EMAIL` alarm is
+ * the publisher's mail, not a reminder here. Only triggers relative to the start are read: one
+ * relative to the end, or at a fixed date-time, means something different for every occurrence of
+ * a series, and the app keeps one list per series - plus one per override, which reads its own.
+ */
+function remindersOf(vevent: ICAL.Component): readonly number[] | null {
+  const minutesBefore = vevent.getAllSubcomponents('valarm').flatMap((alarm) => {
+    const action = alarm.getFirstPropertyValue('action');
+    if (typeof action !== 'string' || !['DISPLAY', 'AUDIO'].includes(action.toUpperCase())) {
+      return [];
+    }
+
+    const trigger = alarm.getFirstProperty('trigger');
+    const offset = trigger?.getFirstValue();
+    const related = trigger?.getParameter('related');
+    if (
+      !(offset instanceof ICAL.Duration) ||
+      (typeof related === 'string' && related.toUpperCase() !== 'START')
+    ) {
+      return [];
+    }
+
+    // A trigger counts from the start, negative before it. `0 -` keeps a trigger at the start 0
+    // rather than -0.
+    return [0 - Math.round(offset.toSeconds() / 60)];
+  });
+
+  return syncedReminders(minutesBefore);
 }
 
 function readRrule(vevent: ICAL.Component): string | null {

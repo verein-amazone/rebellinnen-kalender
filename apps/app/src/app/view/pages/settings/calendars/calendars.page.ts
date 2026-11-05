@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { DevicePlatformService } from '@app/cross-cutting/infrastructure/device-platform';
 import { AppCalendarsInteractor } from '@app/interactors/calendar/app-calendars.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { CalendarAvatar } from '@app/view/components/calendar-avatar/calendar-avatar';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
 import {
@@ -21,7 +22,8 @@ import { valueOr } from '@app/cross-cutting/helpers/resource-value';
 /**
  * „Kalender verwalten“ (#20): the app calendar's identity editor, plus links into the
  * device-calendar and ICS-subscription screens, each a self-contained flow of its own (#25
- * follow-up split them out of what used to be one long page).
+ * follow-up split them out of what used to be one long page), and into the per-calendar choices
+ * that span all of them: the order and the reminders.
  *
  * Uses `resource()` and reloads after every write, per the frontend-architecture convention;
  * there is no persisted list cache here, matching `view/blocks/reminder-list/`.
@@ -47,6 +49,9 @@ export class CalendarsPage {
    * not send the headers a browser would need (see the gateway).
    */
   protected readonly isNativePlatform = inject(DevicePlatformService).platform !== 'web';
+
+  /** Which calendars remind is only a choice where reminders can be delivered at all. */
+  protected readonly remindersSupported = inject(NotificationPreferencesInteractor).isSupported;
 
   private readonly appCalendarsResource = resource({
     loader: () => this.appCalendars.listWritable(),
