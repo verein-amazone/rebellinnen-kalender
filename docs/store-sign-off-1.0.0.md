@@ -136,16 +136,16 @@ und Hilfsangebote. Nichts davon wird gezeigt oder ausgemalt.
 
 ## 4. Datenschutz und rechtliche Angaben
 
-| Punkt                                       | Vorschlag                                                                                                                                                                                                                                                                                                                                                                                                              | OK / Änderung |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://kalender.amazone.or.at/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text: `packages/legal/src/datenschutz.md`.                                                                                                                                                                  | ☑             |
-| Nutzungsbedingungen                         | In der App unter Einstellungen → Nutzungsbedingungen und öffentlich unter https://kalender.amazone.or.at/nutzungsbedingungen/. Text: `packages/legal/src/nutzungsbedingungen.md`. Sie ersetzen nicht die Standard-Lizenzvereinbarung (EULA) von Apple, die daneben gilt.                                                                                                                                               | ☑             |
-| Impressum                                   | Eigenes Impressum für die App, in der App unter Einstellungen → Impressum und öffentlich unter https://kalender.amazone.or.at/impressum/. Text: `packages/legal/src/impressum.md`: die neue Fassung, ergänzt um zwei Sätze aus dem Impressum auf amazone.or.at (Copyright für Inhalte und Fotos, Verantwortung für verlinkte Seiten). Bankverbindung und Webdesign-Angaben der Website sind weggelassen. Bitte prüfen. | ☑             |
-| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                                                                                                                                                                                   | ☑             |
-| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                                                                                                                                                                                            | ☑             |
-| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                                                                                                                                                                                          | ☑             |
-| Kontakt für App-Prüfung (Apple)             | Name: Verein Amazone, Telefon: +43 5574 45801, E-Mail: office@amazone.or.at                                                                                                                                                                                                                                                                                                                                            | ☑             |
-| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                                                                                                                                                                                                | ☑             |
+| Punkt                                       | Vorschlag                                                                                                                                                                                                                                                                                                                                                                                                                 | OK / Änderung |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| Datenschutzerklärung                        | Eigene Datenschutzerklärung für die App, in der App unter Einstellungen → Datenschutz und öffentlich unter https://rebellinnen.amazone.or.at/datenschutz/ (der Text auf amazone.or.at erwähnt die App nicht). Text: `packages/legal/src/datenschutz.md`.                                                                                                                                                                  | ☑             |
+| Nutzungsbedingungen                         | In der App unter Einstellungen → Nutzungsbedingungen und öffentlich unter https://rebellinnen.amazone.or.at/nutzungsbedingungen/. Text: `packages/legal/src/nutzungsbedingungen.md`. Sie ersetzen nicht die Standard-Lizenzvereinbarung (EULA) von Apple, die daneben gilt.                                                                                                                                               | ☑             |
+| Impressum                                   | Eigenes Impressum für die App, in der App unter Einstellungen → Impressum und öffentlich unter https://rebellinnen.amazone.or.at/impressum/. Text: `packages/legal/src/impressum.md`: die neue Fassung, ergänzt um zwei Sätze aus dem Impressum auf amazone.or.at (Copyright für Inhalte und Fotos, Verantwortung für verlinkte Seiten). Bankverbindung und Webdesign-Angaben der Website sind weggelassen. Bitte prüfen. | ☑             |
+| Angaben zum Datenschutz in den Stores       | Apple „Keine Daten erfasst“, Google „Keine Daten erhoben, keine Daten weitergegeben“                                                                                                                                                                                                                                                                                                                                      | ☑             |
+| Rechte an Inhalten (Apple)                  | „Ja, die App hat die nötigen Rechte an Inhalten Dritter“ – Bildrechte wurden in #11 geprüft                                                                                                                                                                                                                                                                                                                               | ☑             |
+| Verfügbarkeit                               | **Nur Österreich**, kostenlos                                                                                                                                                                                                                                                                                                                                                                                             | ☑             |
+| Kontakt für App-Prüfung (Apple)             | Name: Verein Amazone, Telefon: +43 5574 45801, E-Mail: office@amazone.or.at                                                                                                                                                                                                                                                                                                                                               | ☑             |
+| Kontakt im Google-Play-Eintrag (öffentlich) | E-Mail office@amazone.or.at, Website amazone.or.at, Telefon optional: …                                                                                                                                                                                                                                                                                                                                                   | ☑             |
 
 ### Inhalt der Datenschutzerklärung
 
@@ -198,11 +198,12 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   Store-Beschreibung: Sie sagt nur noch „Du kannst die App mit dem Kalender deines Handys
   verbinden“ und verspricht kein Speichern in Gerätekalender. Die Korrektur im Kalender-Plugin
   ([ebarooni/capacitor-calendar#306](https://github.com/ebarooni/capacitor-calendar/pull/306))
-  läuft unabhängig davon weiter (#133).
+  ist seit Version 8.10.0 ausgeliefert (#133).
 
 - ☐ **Rechtstexte in der Einführung: verlinken, nicht bestätigen lassen.** Der erste Schritt der
-  Einführung zeigt jetzt: „Mit der Nutzung der App gelten die Nutzungsbedingungen.“, darunter den
-  Link „Nutzungsbedingungen lesen“. Diesen Schritt sehen alle, auch wer die Einführung überspringt.
+  Einführung zeigt den Link „Nutzungsbedingungen lesen“; den Satz „Mit der Nutzung der App gelten
+  die Nutzungsbedingungen.“ darüber haben wir als zu viel Text für den ersten Bildschirm wieder
+  entfernt. Diesen Schritt sehen alle, auch wer die Einführung überspringt.
   Der Schritt „Deine Daten bleiben bei dir“ verlinkt die Datenschutzerklärung. Beide öffnen sich
   in der App und funktionieren ohne Internet. Ein Häkchen zum Akzeptieren gibt es bewusst nicht:
   - Die Datenschutzerklärung ist eine Information (Art. 13 DSGVO), keine Einwilligung. Die App
@@ -254,9 +255,11 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   (Ansprechperson für die Domain: Karin) und zeigt per `CNAME` auf `verein-amazone.github.io`.
   Datenschutzerklärung, Nutzungsbedingungen, Impressum und die Website der App liegen dort; die
   alten Adressen unter verein-amazone.github.io/rebellinnen-kalender leiten weiter. Die Web-Demo
-  wird nicht mehr veröffentlicht. Noch zu tun:
-  Datenschutz-URL in App Store Connect und Play Console auf
-  https://kalender.amazone.or.at/datenschutz/ ändern.
+  wird nicht mehr veröffentlicht. Die Website ist inzwischen nach
+  https://rebellinnen.amazone.or.at/ umgezogen; `kalender.amazone.or.at` leitet dorthin weiter. Die
+  Datenschutz-URL in der Play Console ist seit 23. Oktober 2026
+  https://rebellinnen.amazone.or.at/datenschutz/. Noch zu tun: dieselbe URL in App Store Connect
+  eintragen.
 - ☑ **Website prüfen.** https://kalender.amazone.or.at/ ist jetzt die Website der App statt der
   Web-Demo: eine Startseite mit den Links in die Stores, `/download` als Ziel für QR-Codes (leitet
   ein iPhone in den App Store und ein Android-Handy zu Google Play) und die drei Rechtstexte. Die
@@ -273,9 +276,10 @@ Website https://kalender.amazone.or.at/ umgeschrieben, die die Web-Demo ersetzt.
   einer größeren oder Vektor-Datei des Logos fragen. Ein Logo von Verein Amazone gibt es auf der
   Website noch nicht, nur den Namen als Link:
   Wenn es eines geben soll, bitte die Datei schicken.
-- ☐ **Store-Adressen nach der Freischaltung.** Sobald die App öffentlich ist, tragen wir die
-  Adressen aus App Store und Google Play ein; bis dahin steht dort „Bald verfügbar im App Store und
-  bei Google Play“. QR-Codes immer auf https://kalender.amazone.or.at/download zeigen lassen, nie
+- ☑ **Store-Adressen nach der Freischaltung.** Die Website verlinkt beide Stores:
+  https://apps.apple.com/at/app/rebell-innen/id6806218483 (Vorbestellung) und
+  https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender. Unter den Knöpfen
+  steht bis nach dem Start „Ab 9. November 2026 verfügbar“. QR-Codes immer auf https://kalender.amazone.or.at/download zeigen lassen, nie
   direkt auf einen Store.
 - ☐ **Google-Kalender umbenennen.** Der Kalender von Verein Amazone heißt in der App jetzt
   „Rebell\*innen Termine“. In Google Kalender heißt er noch „Rebell\*innen Kalender“, und diesen

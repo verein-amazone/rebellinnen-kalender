@@ -5,7 +5,7 @@ import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 import { ContentItemDao } from '@app/data/daos/content-item.dao';
 import { ContentCatalogSync } from '@app/data/content/content-catalog-sync';
 import { DailyImpulseStore } from '@app/data/stores/daily-impulse.store';
-import { ImpulsePreferencesStore } from '@app/data/stores/impulse-preferences.store';
+import { AppearanceStore } from '@app/data/stores/appearance.store';
 
 import { DailyImpulseInteractor } from './daily-impulse.interactor';
 import { selectDailyImpulse } from './select-daily-impulse';
@@ -24,6 +24,8 @@ function item(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -34,7 +36,7 @@ class FakeContentItemDao {
    * stable pick up by id regardless of whether it is still in today's eligible pool. */
   private readonly all = new Map<string, ContentItemRecord>();
 
-  listEligibleForDay(): Promise<ContentItemRecord[]> {
+  listEligibleForDaily(): Promise<ContentItemRecord[]> {
     for (const record of this.eligible) {
       this.all.set(record.id, record);
     }
@@ -115,6 +117,17 @@ describe('DailyImpulseInteractor', () => {
     });
   });
 
+  it('only picks among items whose window includes today, yearly windows in any year', async () => {
+    dao.eligible = [
+      item({ id: 'past', validFrom: '2027-02-01', validTo: '2027-02-10' }),
+      item({ id: 'idahobit', validFrom: '--05-17', validTo: '--05-17' }),
+      item({ id: 'june', validFrom: '--06-01', validTo: '--06-30' }),
+    ];
+    const interactor = TestBed.inject(DailyImpulseInteractor);
+
+    await expect(interactor.featuredItem('2031-05-17')).resolves.toMatchObject({ id: 'idahobit' });
+  });
+
   it('returns the same stable item on repeated calls for the same day even if the pool changes', async () => {
     const records = [item({ id: 'a' }), item({ id: 'b' })];
     dao.eligible = records;
@@ -187,51 +200,30 @@ describe('DailyImpulseInteractor', () => {
     expect(interactor.featuredItemId('2027-02-05')).toBe('b');
     expect((await interactor.featuredItem('2027-02-05'))?.id).toBe('b');
     // The override is announced like any other new impulse.
-    expect(interactor.shouldGreet('2027-02-05')).toBe(true);
+    expect(interactor.shouldGreet()).toBe(true);
   });
 
   describe('when the impulse greets', () => {
-    it('greets once per opening of the app by default, and again after a return from the background', () => {
+    it('greets once per opening of the app, and again after a return from the background', () => {
       const interactor = TestBed.inject(DailyImpulseInteractor);
 
-      expect(interactor.shouldGreet('2027-02-05')).toBe(true);
-      interactor.markGreeted('2027-02-05');
-      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+      expect(interactor.shouldGreet()).toBe(true);
+      interactor.markGreeted();
+      expect(interactor.shouldGreet()).toBe(false);
 
       lifecycle.resume();
 
-      expect(interactor.shouldGreet('2027-02-05')).toBe(true);
+      expect(interactor.shouldGreet()).toBe(true);
     });
 
-    it('greets only once a day when set to „Einmal am Tag“, however often the app is reopened', () => {
-      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'daily' });
+    it('never greets with Animationen on „Wenig“, and does not answer a shake either', () => {
+      TestBed.inject(AppearanceStore).update({ motion: 'reduced' });
       const interactor = TestBed.inject(DailyImpulseInteractor);
 
-      interactor.markGreeted('2027-02-05');
+      expect(interactor.shouldGreet()).toBe(false);
       lifecycle.resume();
-
-      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
-      expect(interactor.shouldGreet('2027-02-06')).toBe(true);
-    });
-
-    it('never greets when set to „Ohne Animation“, and does not answer a shake either', () => {
-      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'off' });
-      const interactor = TestBed.inject(DailyImpulseInteractor);
-
-      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
-      lifecycle.resume();
-      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
+      expect(interactor.shouldGreet()).toBe(false);
       expect(interactor.greetingEnabled()).toBe(false);
-    });
-
-    it('records the day as seen when it greets, so switching to „Einmal am Tag“ does not repeat it', () => {
-      const interactor = TestBed.inject(DailyImpulseInteractor);
-      interactor.markGreeted('2027-02-05');
-
-      TestBed.inject(ImpulsePreferencesStore).update({ greeting: 'daily' });
-
-      expect(TestBed.inject(DailyImpulseStore).hasSeen('2027-02-05')).toBe(true);
-      expect(interactor.shouldGreet('2027-02-05')).toBe(false);
     });
   });
 });

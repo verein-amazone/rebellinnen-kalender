@@ -17,13 +17,13 @@ class FakeAppIconInteractor {
   readonly options: readonly AppIconOption[] = [
     {
       id: 'cool-cat-nacht',
-      label: 'Cool Cat Nacht',
+      label: 'Leo dunkel',
       description: null,
       previewUrl: 'app-icons/cool-cat-nacht.webp',
     },
     {
       id: 'cool-cat-lila',
-      label: 'Cool Cat Lila',
+      label: 'Leo lila',
       description: null,
       previewUrl: 'app-icons/cool-cat-lila.webp',
     },
@@ -126,7 +126,7 @@ describe('AppIconPage', () => {
     element.querySelector<HTMLInputElement>('input[value="cool-cat-lila"]')!.click();
     await fixture.whenStable();
 
-    expect(announcer.announcements).toEqual(['App-Symbol: Cool Cat Lila']);
+    expect(announcer.announcements).toEqual(['App-Symbol: Leo lila']);
   });
 
   it('confirms the switch with one selection tick', async () => {

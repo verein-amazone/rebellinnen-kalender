@@ -46,13 +46,13 @@ function setup(platform: 'ios' | 'android' | 'web' = 'ios') {
 }
 
 describe('AppIconInteractor', () => {
-  it('explains what happens next in the terms of the device it is running on', () => {
-    // Saying both at once left every reader working out which half applied to them.
-    expect(setup('ios').interactor.changeNotice).toContain('Hinweis des Systems');
+  it('warns about the delayed swap only on the device where it happens', () => {
+    // iOS confirms the change in its own alert; Android may swap the icon only after a restart.
+    expect(setup('ios').interactor.changeNotice).toContain('Startbildschirm');
     expect(setup('ios').interactor.changeNotice).not.toContain('ganz geschlossen');
 
+    expect(setup('android').interactor.changeNotice).toContain('Startbildschirm');
     expect(setup('android').interactor.changeNotice).toContain('ganz geschlossen');
-    expect(setup('android').interactor.changeNotice).not.toContain('Hinweis des Systems');
   });
 
   it('offers every icon with a label and a preview', () => {

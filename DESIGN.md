@@ -15,6 +15,7 @@ colors:
   accent: 'var(--color-accent)'
   accent-foreground: 'var(--color-accent-foreground)'
   nav-bg: 'var(--color-nav-bg)'
+  nav-indicator: 'var(--color-nav-indicator)'
   danger: 'var(--color-danger)'
   danger-foreground: 'var(--color-danger-foreground)'
   error: 'var(--color-error)'
@@ -107,10 +108,10 @@ own sake - every primitive exists because a real screen (Today, appointments, Ni
 Anlaufstellen) needed it, and the component set stays deliberately small: buttons, cards/rows,
 fields, choices, pills, checks, toggles, sheets, a tab bar, a dropdown menu, a reorderable list.
 
-The system is four swappable palettes (`amazone` default, `warm`/Sonnenuntergang, `nacht`/
-Mitternacht, `lila`/Lavendel) over one shared shape, type and spacing language - recoloring the app
-is a `data-theme` attribute swap, never a second set of components. A fifth choice, „Systemeinstellung“,
-is not a palette: it follows the device's dark mode between Amazone and Mitternacht. Everything is built for a thumb
+The system is a set of swappable palettes (`amazone`/„Strong“ default, `nacht`/„Dark“,
+`lila`/„Soft“, `summer`/„Summer“, `candy`/„Candy“) over one shared shape, type and spacing language - recoloring the app is a
+`data-theme` attribute swap, never a second set of components. No theme follows the device's dark
+mode; each is picked explicitly. Everything is built for a thumb
 on glass: no bare `hover:` anywhere in the codebase, `min-h-touch` (48px) on every interactive
 target, 16px-minimum form text, and a text-size ladder (`small` 14px through `xxlarge` 32px) that
 reflows components rather than clipping them - container queries, not media queries, drive that
@@ -137,7 +138,7 @@ once as raw `--rk-*` values per `[data-theme='…']` block in `theme.css` and ex
 color values; nothing below restates a hex code** - every color is named by its role token
 (`var(--color-primary)`, `bg-primary`, …), which resolves differently per theme and stays correct
 automatically when a theme's palette changes. Descriptive names below describe `amazone`, the
-default theme, as an example; `warm`, `nacht` and `lila` restate the same role tokens with different
+default theme, as an example; the other themes restate the same role tokens with different
 values rather than being described separately.
 
 ### Primary
@@ -165,9 +166,11 @@ values rather than being described separately.
   `--rk-foreground` in every theme.
 - **Muted surface** (`var(--color-muted)` / `bg-muted`, "Soft Sand" in the default theme):
   muted/hover surfaces (`.rk-button-ghost`'s hover fill, `.rk-toggle` track).
-- **Accent** (`var(--color-accent)` / `bg-accent`, "Amazone Orange" in the default theme): the tab
-  bar's active-indicator color only - reserved for that single "you are here" signal rather than
-  general decoration.
+- **Accent** (`var(--color-accent)` / `bg-accent`, "Amazone Orange" in the default theme): the
+  hover and press tint of tappable rows and calendar days, never general decoration.
+- **Nav indicator** (`var(--color-nav-indicator)` / `bg-nav-indicator`): the tab bar's
+  active-indicator color, reserved for that single "you are here" signal. Red (`#e92f2a`) in the
+  default theme, as Verein Amazone asked; every other theme uses its accent.
 
 ### Named Rules
 
@@ -324,7 +327,7 @@ must not scale with the root font size.
 
 - **Style:** the bottom tab bar (`.rk-tab-bar`) fills `nav-bg` (the deep-indigo foreground color) with
   `rebel-text` labels; a `min-h-touch` tab stacks icon over label. The active destination is marked
-  two ways - bold label weight plus a small `accent`-colored rounded indicator bar beneath the
+  two ways - bold label weight plus a small `nav-indicator`-colored rounded indicator bar beneath the
   icon - never by color alone.
 - **Compact form:** past the `13rem` container threshold, icon size and indicator size pin to fixed
   pixels (24px icon, 16×3px indicator) while the label keeps scaling, so the bar doesn't consume the
@@ -352,7 +355,7 @@ control's accessible name flips to the opposite action.
 
 ## Website (`apps/site`)
 
-The website at kalender.amazone.or.at wears the same Amazone theme at page scale, from the same
+The website at rebellinnen.amazone.or.at wears the same Amazone theme at page scale, from the same
 tokens (`@amazone/design-system`); it adds no colour of its own. What differs is scale and layout,
 because a page is read at arm's length and on screens of every width:
 

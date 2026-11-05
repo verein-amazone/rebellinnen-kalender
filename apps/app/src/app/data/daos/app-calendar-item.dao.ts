@@ -9,6 +9,8 @@ import type {
 import type { TemporalKind, TemporalValue } from '../entities/temporal-value';
 import { SQLITE_DATABASE, type SqliteExecutor } from '../gateways/sqlite-database';
 
+import { fromRemindersColumn, toRemindersColumn } from './reminders-column';
+
 /** The database shape of an `app_items` row. */
 interface AppItemRow {
   readonly id: string;
@@ -289,23 +291,4 @@ function toOptionalTemporal(
   }
 
   return { kind, value, timeZone: timeZone ?? null };
-}
-
-function toRemindersColumn(reminders: readonly number[] | null): string | null {
-  return reminders === null ? null : JSON.stringify(reminders);
-}
-
-/** A malformed value is read as „follow the defaults“ rather than failing the whole row. */
-function fromRemindersColumn(value: string | null | undefined): readonly number[] | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) && parsed.every((minutes) => Number.isInteger(minutes))
-      ? (parsed as number[])
-      : null;
-  } catch {
-    return null;
-  }
 }

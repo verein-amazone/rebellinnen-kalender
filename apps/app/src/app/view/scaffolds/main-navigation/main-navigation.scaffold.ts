@@ -132,9 +132,11 @@ export class MainNavigationScaffold {
    * Decide what happens to focus and to the scroll position once the new screen has rendered.
    *
    * Moving between two primary destinations means the user is operating the bottom navigation, so
-   * focus stays where it is and the new page is only announced. Every other navigation - opening a
-   * focused screen, closing one, or the initial load - replaces the context entirely, so focus
-   * moves to the new screen's title.
+   * focus stays where it is and the new page is only announced. A navigation within one destination
+   * (another calendar day, the other content area) keeps both focus and the page it is on, so it is
+   * not announced either - the title would only repeat. Every other navigation - opening a focused
+   * screen, closing one, or the initial load - replaces the context entirely, so focus moves to the
+   * new screen's title.
    *
    * There is one scroll region for every screen, so it would otherwise keep the previous screen's
    * offset. A screen being returned to - closed back to, switched back to in the bottom
@@ -152,9 +154,11 @@ export class MainNavigationScaffold {
     const currentScreen = this.scrollMemory.screenOf(event.urlAfterRedirects);
     this.previousScreen = currentScreen;
 
-    const isTabSwitch = previousTab !== null && currentTab !== null;
+    const isSameTab = previousTab !== null && previousTab === currentTab;
+    const isTabSwitch = previousTab !== null && currentTab !== null && previousTab !== currentTab;
     const navigation = this.router.currentNavigation();
     const isReturn =
+      isSameTab ||
       isTabSwitch ||
       navigation?.trigger === 'popstate' ||
       isReturnNavigation(navigation?.extras.info);
@@ -163,7 +167,7 @@ export class MainNavigationScaffold {
       () => {
         if (isTabSwitch) {
           this.pageFocus.announcePageHeading();
-        } else {
+        } else if (!isSameTab) {
           this.pageFocus.focusPageHeading();
         }
 

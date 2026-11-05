@@ -1,70 +1,38 @@
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-
-import { SystemDarkMode } from '@app/cross-cutting/infrastructure/system-dark-mode';
 
 import { AppearanceInteractor } from './appearance.interactor';
 
-class FakeSystemDarkMode {
-  readonly dark = signal(false);
-}
-
-function setup(): { interactor: AppearanceInteractor; systemDarkMode: FakeSystemDarkMode } {
+function setup(): AppearanceInteractor {
   localStorage.clear();
   TestBed.resetTestingModule();
-
-  const systemDarkMode = new FakeSystemDarkMode();
-  TestBed.configureTestingModule({
-    providers: [{ provide: SystemDarkMode, useValue: systemDarkMode }],
-  });
-
-  return { interactor: TestBed.inject(AppearanceInteractor), systemDarkMode };
+  return TestBed.inject(AppearanceInteractor);
 }
 
 describe('AppearanceInteractor', () => {
-  it('shows an explicitly selected palette whatever the device appearance', () => {
-    const { interactor, systemDarkMode } = setup();
-
-    interactor.selectTheme('lila');
-    systemDarkMode.dark.set(true);
-
-    expect(interactor.palette()).toBe('lila');
-  });
-
-  it('follows the device between Amazone and Mitternacht on the system theme', () => {
-    const { interactor, systemDarkMode } = setup();
-
-    interactor.selectTheme('system');
-    expect(interactor.palette()).toBe('amazone');
-
-    systemDarkMode.dark.set(true);
-    expect(interactor.palette()).toBe('nacht');
-
-    systemDarkMode.dark.set(false);
-    expect(interactor.palette()).toBe('amazone');
-  });
-
-  it('keeps Amazone as the default, even on a device in dark mode', () => {
-    const { interactor, systemDarkMode } = setup();
-
-    systemDarkMode.dark.set(true);
+  it('keeps Amazone („Strong“) as the default theme', () => {
+    const interactor = setup();
 
     expect(interactor.theme()).toBe('amazone');
-    expect(interactor.palette()).toBe('amazone');
+    expect(interactor.themeLabel()).toBe('Strong');
   });
 
-  it('previews both halves of the system theme and one palette for every other option', () => {
-    const { interactor } = setup();
+  it('lists the themes under the names Verein Amazone gave them', () => {
+    const interactor = setup();
 
-    expect(interactor.palettesOf('system')).toEqual(['amazone', 'nacht']);
-    expect(interactor.palettesOf('warm')).toEqual(['warm']);
+    expect(interactor.themeOptions.map((option) => [option.id, option.label])).toEqual([
+      ['amazone', 'Strong'],
+      ['nacht', 'Dark'],
+      ['lila', 'Soft'],
+      ['summer', 'Summer'],
+      ['candy', 'Candy'],
+    ]);
   });
 
-  it('labels the system theme like the other device-following settings', () => {
-    const { interactor } = setup();
+  it('names the selected theme for the settings overview', () => {
+    const interactor = setup();
 
-    interactor.selectTheme('system');
+    interactor.selectTheme('lila');
 
-    expect(interactor.themeLabel()).toBe('Systemeinstellung');
+    expect(interactor.themeLabel()).toBe('Soft');
   });
 });

@@ -25,7 +25,7 @@ interface Props {
 
 const { title, description, path, header = path !== '/', script } = Astro.props;
 
-const site = Astro.site ?? new URL('https://kalender.amazone.or.at');
+const site = Astro.site ?? new URL('https://rebellinnen.amazone.or.at');
 const canonical = path === null ? null : new URL(path, site).href;
 // The Play feature graphic doubles as the preview image when the link is shared.
 const ogImage = new URL(shareImage, site).href;

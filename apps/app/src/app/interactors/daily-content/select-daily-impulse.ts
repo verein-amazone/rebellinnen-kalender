@@ -1,10 +1,10 @@
-import { Temporal } from 'temporal-polyfill';
-
 import { stringHash } from '@app/cross-cutting/helpers/string-hash';
 import type { ContentItemRecord } from '@app/data/entities/content-item.record';
 
+import { windowDays } from './content-window';
+
 export interface SelectDailyImpulseInput {
-  /** Items eligible for `today`, as returned by `ContentItemDao.listEligibleForDay`. */
+  /** Items eligible for `today`: daily-eligible and inside their window (`isWithinWindow`). */
   readonly eligible: readonly ContentItemRecord[];
   /** Ids shown on recent days, oldest first - excluded from today's pick where possible. */
   readonly recentIds: readonly string[];
@@ -13,13 +13,6 @@ export interface SelectDailyImpulseInput {
   /** Today, `YYYY-MM-DD`. Also seeds the deterministic pick among equally-eligible candidates. */
   readonly today: string;
 }
-
-/**
- * Content with no `validFrom`/`validTo` bound (or open-ended on one side) is treated as if it were
- * eligible for this many days, when computing its selection weight below - long enough that it's
- * clearly less urgent than a dated item, without ever reaching zero probability.
- */
-const EVERGREEN_WINDOW_DAYS = 90;
 
 /**
  * The factor an item's weight is multiplied by for each trait it shares with the previous impulse,
@@ -66,27 +59,21 @@ export function selectDailyImpulse(input: SelectDailyImpulseInput): ContentItemR
 
 /**
  * What makes two impulses feel alike when one follows the other. Every trait counts on its own, so
- * an item sharing two of them with the previous impulse is lowered twice. Content with a video adds
- * a `video` trait once items can carry one, so that a video does not follow a video either.
+ * an item sharing two of them with the previous impulse is lowered twice: a video does not follow a
+ * video, any more than a Rebell*in follows a Rebell*in.
  */
 function varietyTraits(item: ContentItemRecord): readonly string[] {
-  return [`kind:${item.kind}`];
+  return item.video === null ? [`kind:${item.kind}`] : [`kind:${item.kind}`, 'video'];
 }
 
 /** `1 / windowDays`, lowered by `REPEAT_WEIGHT` once per trait shared with the previous impulse. */
-function weightOf(item: ContentItemRecord, previousTraits: ReadonlySet<string>): number {
+function weightOf(
+  item: ContentItemRecord,
+  previousTraits: ReadonlySet<string>,
+  today: string,
+): number {
   const shared = varietyTraits(item).filter((trait) => previousTraits.has(trait)).length;
-  return REPEAT_WEIGHT ** shared / windowDays(item);
-}
-
-/** How many days an item is eligible for - narrower windows get picked more often. */
-function windowDays(item: ContentItemRecord): number {
-  if (item.validFrom === null || item.validTo === null) {
-    return EVERGREEN_WINDOW_DAYS;
-  }
-
-  const spanDays = Temporal.PlainDate.from(item.validFrom).until(item.validTo).days + 1;
-  return Math.max(1, spanDays);
+  return REPEAT_WEIGHT ** shared / windowDays(item, today);
 }
 
 /**
@@ -100,7 +87,7 @@ function weightedPick(
   today: string,
 ): ContentItemRecord | null {
   const previousTraits = new Set(previous === null ? [] : varietyTraits(previous));
-  const weights = candidates.map((item) => weightOf(item, previousTraits));
+  const weights = candidates.map((item) => weightOf(item, previousTraits, today));
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
 
   const HASH_RESOLUTION = 1_000_000;

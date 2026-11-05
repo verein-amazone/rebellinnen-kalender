@@ -103,32 +103,10 @@ describe('DailyImpulseStore', () => {
     expect(TestBed.inject(DailyImpulseStore).pick()).toBeNull();
   });
 
-  it('reports a day as unseen until it is marked, and remembers that across instances', () => {
-    const store = TestBed.inject(DailyImpulseStore);
-    expect(store.hasSeen('2027-02-05')).toBe(false);
-
-    store.markSeen('2027-02-05');
-
-    expect(store.hasSeen('2027-02-05')).toBe(true);
-    expect(store.hasSeen('2027-02-06')).toBe(false);
-
-    TestBed.resetTestingModule();
-    expect(TestBed.inject(DailyImpulseStore).hasSeen('2027-02-05')).toBe(true);
-  });
-
-  it('keeps the seen day when a fresh pick is recorded, so one day is announced once', () => {
-    const store = TestBed.inject(DailyImpulseStore);
-    store.markSeen('2027-02-05');
-
-    store.setPick('2027-02-05', 'wi-02');
-
-    expect(store.hasSeen('2027-02-05')).toBe(true);
-  });
-
   it('overrides the pick without touching the cooldown, and lets the day be announced again', () => {
     const store = TestBed.inject(DailyImpulseStore);
     store.setPick('2027-02-05', 'wi-01');
-    store.markSeen('2027-02-05');
+    store.markGreetedThisSession();
 
     store.overridePick('2027-02-05', 'reb-09');
 
@@ -136,6 +114,6 @@ describe('DailyImpulseStore', () => {
     // A hand-picked impulse is not a real selection - it must not push a genuine one out of the
     // 14-day window.
     expect(store.recentIds()).toEqual(['wi-01']);
-    expect(store.hasSeen('2027-02-05')).toBe(false);
+    expect(store.greetedThisSession()).toBe(false);
   });
 });

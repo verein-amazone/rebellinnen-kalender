@@ -105,11 +105,9 @@ The workflow:
       sheets - no clipping, no overlap, no sideways scrolling, no lost control.
 - [ ] **Reduced motion:** the OS setting and the app's own „Animationen“ setting both remove
       non-essential motion, and nothing that carried information disappears with it.
-- [ ] **Every colour theme** - Amazone, Sonnenuntergang, Mitternacht, Lavendel: text readable,
-      focus visible and not hidden behind the header, the tab bar or an open sheet.
-- [ ] **System colour theme (all devices):** with „Farbthema → Systemeinstellung“, switching the
-      device to dark mode while the app is open turns it to Mitternacht at once, and back to
-      Amazone in light mode. A cold start in dark mode shows no white flash before the app paints.
+- [ ] **Every colour theme** under Einstellungen → Farben: text readable, focus visible and not
+      hidden behind the header, the tab bar or an open sheet, and the active tab marked in a colour
+      of that theme.
 - [ ] **Tap only:** every action is reachable by a plain tap - nothing needs a long press, a swipe,
       a drag or a double tap.
 
@@ -135,10 +133,20 @@ The workflow:
 - [ ] **All-day device events on Android** are written and read on the right day (#98).
 - [ ] **App icon:** each of the six cat icons can be selected and shows on the home screen.
 - [ ] **App icon after the upgrade:** on a device whose tester build had „Pixel“ or „Nacht“
-      selected, the app still has a home-screen icon after the update (the default, Cool Cat Nacht).
+      selected, the app still has a home-screen icon after the update (the default, Leo dunkel).
 - [ ] **External links** (Anlaufstellen, licences, image credits, the links inside Datenschutz and
       Impressum) open in the browser or the phone app, and the back path into the app works.
 - [ ] **Datenschutz, Nutzungsbedingungen and Impressum** open inside the app with no connection.
+- [ ] **iOS search (physical iPhone; Spotlight does not work in the Simulator):** search for an
+      Anlaufstelle by name and tap the result, once with the app killed and once with it in the
+      background - the Anlaufstellen screen opens with that card focused. Bookmark an item, find it
+      in Spotlight, tap it - its detail screen opens; remove the bookmark - the result is gone.
+      Switching the app off under iOS „Einstellungen → Apps → Rebell*innen → Siri & Suche“ hides
+      all of its results.
+- [ ] **App Shortcuts (iPhone):** the Shortcuts app lists „Heute öffnen“, „Meine Sammlung öffnen“,
+      „Anlaufstellen öffnen“ and „Neuen Termin erstellen“, and each one opens its screen. The new
+      appointment opens as an empty form, not saved. Try one by voice through Siri. Each action
+      in the Shortcuts app shows its German description, and the app's tiles there are red.
 - [ ] **Shake** on Heute replays the Tagesimpuls greeting on a real device, and the same replay is
       reachable by tapping.
 

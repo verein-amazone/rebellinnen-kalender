@@ -20,6 +20,8 @@ function record(overrides: Partial<ContentItemRecord> = {}): ContentItemRecord {
     validFrom: null,
     validTo: null,
     eligibleForDaily: true,
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -101,28 +103,41 @@ describe('ContentItemDao', () => {
     await expect(dao.findById('with-sources')).resolves.toMatchObject({ relatedSources });
   });
 
-  it('lists only items eligible for a given day: evergreen and in-range date-specific items', async () => {
+  it('lists every item eligible for daily selection, whatever its window', async () => {
     await database.run(`DELETE FROM content_items`);
-    await database.run(
-      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, eligible_for_daily)
-       VALUES ('evergreen', 'wissensimpulse', 'E', 'e', 'e', 1)`,
-    );
-    await database.run(
-      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, valid_from, valid_to, eligible_for_daily)
-       VALUES ('in-range', 'wissensimpulse', 'I', 'i', 'i', '2027-02-01', '2027-02-10', 1)`,
-    );
-    await database.run(
-      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, valid_from, valid_to, eligible_for_daily)
-       VALUES ('out-of-range', 'wissensimpulse', 'O', 'o', 'o', '2027-03-01', '2027-03-10', 1)`,
-    );
-    await database.run(
-      `INSERT INTO content_items (id, kind, title, teaser, body_markdown, valid_from, eligible_for_daily)
-       VALUES ('open-ended-from', 'wissensimpulse', 'F', 'f', 'f', '2027-02-01', 1)`,
-    );
+    await dao.upsert(record({ id: 'evergreen' }));
+    await dao.upsert(record({ id: 'one-off', validFrom: '2027-03-01', validTo: '2027-03-10' }));
+    await dao.upsert(record({ id: 'yearly', validFrom: '--05-17', validTo: '--05-17' }));
+    await dao.upsert(record({ id: 'not-daily', eligibleForDaily: false }));
 
-    const ids = (await dao.listEligibleForDay('2027-02-05')).map((item) => item.id);
+    const ids = (await dao.listEligibleForDaily()).map((item) => item.id);
 
-    expect(ids.sort()).toEqual(['evergreen', 'in-range', 'open-ended-from']);
+    expect(ids).toEqual(['evergreen', 'one-off', 'yearly']);
+  });
+
+  it('round-trips an item’s video and the Anlaufstellen it points to', async () => {
+    await database.run(`DELETE FROM content_items`);
+    const video = { provider: 'youtube', id: 'teTZq72DAlM', orientation: 'portrait' } as const;
+    await dao.upsert(record({ id: 'with-video', video, supportServiceIds: ['rat-auf-draht'] }));
+    await dao.upsert(record({ id: 'all-services', supportServiceIds: [] }));
+    await dao.upsert(record({ id: 'plain' }));
+
+    await expect(dao.findById('with-video')).resolves.toMatchObject({
+      video,
+      supportServiceIds: ['rat-auf-draht'],
+    });
+    // An empty list is a link to the whole Anlaufstellen page, so it must not read back as `null`.
+    await expect(dao.findById('all-services')).resolves.toMatchObject({ supportServiceIds: [] });
+    await expect(dao.findById('plain')).resolves.toMatchObject({
+      video: null,
+      supportServiceIds: null,
+    });
+
+    await dao.upsert(record({ id: 'with-video', video: null, supportServiceIds: null }));
+    await expect(dao.findById('with-video')).resolves.toMatchObject({
+      video: null,
+      supportServiceIds: null,
+    });
   });
 
   it('lists the ids of every stored item', async () => {

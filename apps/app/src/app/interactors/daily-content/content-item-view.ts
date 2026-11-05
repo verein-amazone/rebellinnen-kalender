@@ -30,6 +30,8 @@ export async function toContentItemView(
     sourceLabel: record.sourceLabel,
     sourceUrl: record.sourceUrl,
     relatedSources: record.relatedSources,
+    video: record.video,
+    supportServiceIds: record.supportServiceIds,
   };
 }
 

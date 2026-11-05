@@ -6,7 +6,6 @@ import { formatDayLong } from '@app/cross-cutting/helpers/date-format';
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
 import { ReminderListBlock } from '@app/view/blocks/reminder-list/reminder-list.block';
 import { TodayAppointmentsBlock } from '@app/view/blocks/today-appointments/today-appointments.block';
-import { TodayClosingBlock } from '@app/view/blocks/today-closing/today-closing.block';
 import { TodayGreetingBlock } from '@app/view/blocks/today-greeting/today-greeting.block';
 import { TodayImpulseBlock } from '@app/view/blocks/today-impulse/today-impulse.block';
 
@@ -19,7 +18,6 @@ import { TodayImpulseBlock } from '@app/view/blocks/today-impulse/today-impulse.
     LucideSettings,
     ReminderListBlock,
     TodayAppointmentsBlock,
-    TodayClosingBlock,
     TodayGreetingBlock,
     TodayImpulseBlock,
   ],

@@ -120,17 +120,17 @@ website texts do not describe the app. Each has one source in `packages/legal/sr
 - **In the app**, under Einstellungen → App & Rechtliches (`PrivacyPage`, `TermsPage`,
   `ImprintPage`), read from the bundled file so it works offline.
 - **On the web**, as part of the website (below):
-  <https://kalender.amazone.or.at/datenschutz/>,
-  <https://kalender.amazone.or.at/nutzungsbedingungen/> and
-  <https://kalender.amazone.or.at/impressum/>. The privacy URL is in
+  <https://rebellinnen.amazone.or.at/datenschutz/>,
+  <https://rebellinnen.amazone.or.at/nutzungsbedingungen/> and
+  <https://rebellinnen.amazone.or.at/impressum/>. The privacy URL is in
   `apps/app/fastlane/metadata/de-DE/privacy_url.txt`, in App Store Connect (App Privacy) and in the Play
   Console (App content → Privacy policy).
 
 The texts are Verein Amazone's: change them with their review, like the store copy, and update the
 „Stand“ date. Write the gender star as `\*` (`Rebell\*innen`), or Markdown reads two of them in
 one paragraph as emphasis; the renderer drops `mailto:` and `tel:` links, so addresses stay text.
-Because the web pages follow `dev`, a change is public as soon as it is merged - land it when it is
-true for the version in the stores.
+The web pages follow `main`, so a change goes public with the next release from `main`, together
+with the app version it describes (#148).
 
 The terms of use do not replace Apple's standard licence agreement (EULA): no custom EULA is set
 in App Store Connect, so Apple's applies alongside them. A custom EULA would have to meet Apple's
@@ -138,9 +138,18 @@ minimum terms for one.
 
 ## Website
 
-`https://kalender.amazone.or.at/` is the app's website: an introduction with the store links,
+`https://rebellinnen.amazone.or.at/` is the app's website: an introduction with the store links,
 `/download`, the three legal texts and a 404 page. The domain is a DNS `CNAME` to
 `verein-amazone.github.io` that Verein Amazone maintains.
+
+Until October 2026 the website lived at `kalender.amazone.or.at`, and 1.0.0 went to the stores with
+those addresses (privacy policy, marketing URL, the bundled privacy policy, printed QR codes). That
+domain stays a DNS `CNAME` to `verein-amazone.github.io` too and is served by a second, tiny Pages
+site, `apps/site-redirect/`, which forwards every address to the same path here
+(`/datenschutz/` → `https://rebellinnen.amazone.or.at/datenschutz/`). The Play Console privacy
+policy URL moved to the new domain on 23 October 2026. Change the remaining URLs in App Store
+Connect and the Play Console with the next submission (`apps/app/fastlane/metadata/de-DE/` already
+has them); keep the redirect for as long as an old address can still be out there.
 
 - **Built by** [Astro](https://astro.build/) from `apps/site` (`pnpm build:site`) into
   `apps/site/dist/`. The pages are in `apps/site/src/pages/`, styled with Tailwind on the tokens of
@@ -152,12 +161,15 @@ minimum terms for one.
   asked for it to be left out there, and the e2e suite checks it.
 - **Store links** come from `apps/site/site.config.json`. While a listing is not public its URL stays
   `null`, and the site says „Bald verfügbar im App Store …“ instead of showing that badge. Fill in
-  the App Store URL (`https://apps.apple.com/at/app/…/id<number>`) and the Play URL
+  the App Store URL with the Austrian storefront (`https://apps.apple.com/at/app/…/id<number>`, as
+  the App Store's own share link gives it). Never drop the country: in a browser Apple resolves a
+  URL without one to the US storefront, where the app is not listed, and answers 404. On an iPhone
+  the App Store app opens the link in the visitor's own storefront anyway. Then fill in the Play URL
   (`https://play.google.com/store/apps/details?id=at.or.amazone.rebellinnenkalender`) when each
   store goes live.
 - **`/download`** is the address for QR codes. On an iPhone or iPad it forwards to the App Store, on
   Android to Google Play; anywhere else, without JavaScript or before release, it shows the store
-  buttons it has. Print `https://kalender.amazone.or.at/download` - never a store URL - so the code
+  buttons it has. Print `https://rebellinnen.amazone.or.at/download` - never a store URL - so the code
   keeps working whatever the stores change.
 - **Nothing third-party**: fonts, images and the one script are served from the site itself, there
   are no cookies and no tracking, and a Content-Security-Policy says so. The privacy policy
@@ -167,14 +179,15 @@ minimum terms for one.
   proeuropeanvalues.at/finanzierung, the default app icon and the store screenshots as WebP
   (`cwebp -q 82 -resize 600 0`). Regenerate the screenshots after `pnpm store:screenshots` changes
   them.
-- **Published** by `.github/workflows/pages.yml` on every push to `dev` that touches its sources,
+- **Published** by `.github/workflows/pages.yml` on every push to `main` that touches its sources,
   and **tested** by `pnpm test:site` (axe, no foreign requests, no Content-Security-Policy
   violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job.
 
 ## Availability
 
-Austria only, free. Set in App Store Connect (Pricing and Availability) and on Play's production
-track (Countries / regions); neither comes from this repository.
+Austria, Germany, Switzerland and Liechtenstein, free. Set in App Store Connect (Pricing and
+Availability) and on Play's production track (Countries / regions) and its pre-registration;
+none of it comes from this repository.
 
 ## Changing the listing
 
@@ -224,4 +237,4 @@ replaces it - re-run the replaced one if it was an upload.
   email and website. They are personal data and do not belong in a public repository. `deliver`
   updates only the review fields it has a file for, so the console values stay.
 - **Play app category and tags**, which `supply` does not manage.
-- **Pricing and availability** - free, in all countries the account allows.
+- **Pricing and availability** - see [Availability](#availability).

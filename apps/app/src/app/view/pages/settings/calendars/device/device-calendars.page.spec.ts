@@ -164,14 +164,14 @@ describe('DeviceCalendarsPage, not connected', () => {
   it('explains the connection before any device source exists', async () => {
     const { element } = await setup();
 
-    expect(element.textContent).toContain('Verbinde die Kalender deines Geräts');
+    expect(element.textContent).toContain('nicht mit dem Kalender auf deinem Gerät verbunden');
   });
 
   it('connects and announces success on grant', async () => {
     const page = await setup({ connectResult: 'granted' });
 
     const button = Array.from(page.element.querySelectorAll('button')).find((candidate) =>
-      candidate.textContent?.includes('Gerätekalender verbinden'),
+      candidate.textContent?.includes('Verbinden'),
     );
     button!.click();
     await page.settle();
@@ -184,7 +184,7 @@ describe('DeviceCalendarsPage, not connected', () => {
     const page = await setup({ connectResult: 'denied' });
 
     const connectButton = Array.from(page.element.querySelectorAll('button')).find((candidate) =>
-      candidate.textContent?.includes('Gerätekalender verbinden'),
+      candidate.textContent?.includes('Verbinden'),
     );
     connectButton!.click();
     await page.settle();

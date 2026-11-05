@@ -120,8 +120,8 @@ the router; anything that is not a route of this app falls back to the screen's 
 `PageFocus` finds its heading. It is the one such route that does not use `FocusedScreenScaffold`:
 it is the start of the app rather than a subpage, so it has no dismiss action and no title bar, just
 a progress bar, a centered step heading and a footer of „Weiter“/„Zurück“. Only the first step offers
-„Erste Schritte überspringen“. One step („Mach die App zu deiner“) sets the name and the colour
-theme through the same interactors as Settings → Profil and Farbthema, so nothing there needs
+„Erste Schritte überspringen“. One step („Mach deine App einzigartig!“) sets the name and the colour
+theme through the same interactors as Settings → Profil and Farben, so nothing there needs
 saving. Each step is its own URL, which is what moves focus to the new
 heading and announces it - the page manages neither. Steps replace each other in the history, so the
 back gesture leaves the introduction; „Zurück“ is a visible button.
@@ -152,6 +152,36 @@ filter or a chosen view mode are route state, not component state.
 This keeps the back button, deep links and app restarts correct for free, and it means the app does
 not need a custom `RouteReuseStrategy`. Pages read such values through `withComponentInputBinding()`,
 which binds route parameters to signal inputs.
+
+#### Entry points from outside the app
+
+Three things can open the app on a particular screen: a tapped reminder, an iOS search (Spotlight)
+result and an App Shortcut (#167). `App` registers the handler for each one first thing in its
+constructor, because the OS holds back the event that launched the app only until a listener
+exists. The reminder hands over an occurrence id. The other two hand over one string, a
+_destination_, which `parseAppDestination()` (`interactors/siri-and-search/app-destination.ts`)
+turns into router arguments: `today`, `collection`, `services`, `new-event`, `service:<id>` or
+`content:<id>`. An unknown or malformed destination is dropped, so an entry written by a later
+version of the app cannot lead anywhere unexpected.
+
+A destination carries ids, never a route, and the screens it leads to already cope with a missing
+item: the detail page says the content is not available, and the Anlaufstellen page ignores an
+unknown `?service=`. None of these entry points goes through the introduction, as with any other
+deep link; only `/today` has the first-launch guard.
+
+The native side (`ios/App/App/AppDestinations.swift`) queues destinations until the app's plugin
+has loaded, so a cold start loses none. `ExternalDestinationsInteractor` listens for them from the start.
+What goes into iOS search is decided by `SiriAndSearchInteractor`: every Anlaufstelle and every
+bookmarked item, nothing personal. The app has no switch for it; iOS's own „Siri & Suche“ settings
+turn it off per app. `App` loads the interactor lazily and runs it after the first render and on
+every bookmark change, since it reads the content and Anlaufstellen catalogs that the initial
+bundle otherwise does without.
+
+The way back runs the other way too: when the user goes to one of the four App Shortcut screens
+inside the app, `App` donates that shortcut to iOS (`ExternalDestinationsInteractor.donate()`), so
+Siri can learn when to suggest it. `shortcutDestinationAt()` recognises the screen from the URL.
+The screen the app starts on is not donated, and neither is a change on a screen already shown,
+such as a typed search. A data reset deletes the donations along with the search entries.
 
 #### Android's back button
 
@@ -405,7 +435,8 @@ Only create cross-cutting code when it is actually shared.
 
 - `infrastructure/` - stateless wrappers around technical UI/device capabilities: the launcher icon,
   haptics, the shake gesture, the emoji picker, the OS settings deep link, the on-screen keyboard
-  (visibility and the inset it covers), the OS text scale, the app lifecycle, local notifications, page focus, change notifications. Interactors and presenters
+  (visibility and the inset it covers), the OS text scale, the app lifecycle, local notifications,
+  the native YouTube player, page focus, change notifications. Interactors and presenters
   both use them. The dividing line against `data/gateways/` is whether the thing is a **data
   source**: the device calendar is queryable data and therefore a gateway, while haptics are not.
   `app-lifecycle.ts` is the single owner of "the app came back to the foreground"; nothing else
@@ -414,6 +445,17 @@ Only create cross-cutting code when it is actually shared.
   to look again, and exposes the local day as a `YYYY-MM-DD` signal. A key rather than a `Date`, so it
   emits once per day change instead of on every check - a screen can make it a `resource` parameter
   and be reloaded at midnight without watching for it.
+  `native-video-player.ts` is the one capability that draws: it lays a native player view over the
+  WebView at a frame the caller keeps in sync with a placeholder element. Such a view does not scroll
+  with the page and floats over the sticky header, the tab bar and every sheet. So its one caller,
+  `view/components/video-player/` on the item screen, checks the placeholder on every frame while
+  the video plays: it moves the view along with the page, and parks it - paused and out of sight -
+  wherever the page covers the placeholder, found by hit-testing its corners
+  (`elementFromPoint`), which catches the header and any sheet without knowing about them. The
+  view is removed as soon as a navigation starts. It exists because WKWebView cannot frame YouTube from
+  `capacitor://localhost` (YouTube's "Error 153", no referrer). It loads the player from the
+  privacy-enhanced youtube-nocookie.com; the browser build frames the cookie-less embed itself
+  (`frame-src` in `index.html`).
 - `contexts/` - readonly, application-wide state exposed to components via signals. None exists yet,
   and the folder is only created when one does. A context may be injected only into
   components/presenters; interactors and data-layer classes must not inject them. Prefer local
@@ -430,6 +472,8 @@ Only create cross-cutting code when it is actually shared.
   is actually needed; they do not exist while they would be empty.
 - `markdown/` - the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
+- `rich-text/` - the sanitizer for imported event descriptions, which may be HTML. See
+  [Imported event descriptions](#imported-event-descriptions).
 
 ## Build targets
 
@@ -494,7 +538,7 @@ Colours, fonts and radii are **design tokens in CSS**, never values in TypeScrip
 
 Text size (`data-text-size`) and reduced motion (`data-motion`) work the same way. For both, the
 absence of the attribute means "follow the device setting", which is the default. `data-theme` is
-always present: a theme that follows the device is resolved to a palette before it is written (see
+always present: every theme is an explicit choice (see
 [Applying the selection](#applying-the-selection)).
 
 ### OS text scaling
@@ -532,8 +576,8 @@ applying the scale after the first paint would show the app at the wrong size fo
 Never use `-webkit-text-size-adjust: none` and never hard-code px font sizes: both defeat the
 scaling this is built to support.
 
-Adding a theme means adding one block to `theme.css` plus its id in `PALETTE_IDS` and
-`AppearanceInteractor`. Theme previews (`view/components/theme-swatch`) are rendered by putting
+Adding a theme means adding one block to `theme.css` plus its id in `THEME_IDS`, its label in
+`AppearanceInteractor` and its id in `e2e/theme-contrast.spec.ts`. Theme previews (`view/components/theme-swatch`) are rendered by putting
 `data-theme` on the preview element itself, so no screen ever needs a colour literal.
 
 ### Applying the selection
@@ -546,11 +590,11 @@ The selection follows the normal layer direction:
   and exposes the current selection, plus `motionReduced` - the app setting resolved against the
   device's (`cross-cutting/infrastructure/system-reduced-motion.ts`) for the few places that have to
   know in code rather than in CSS.
-- The colour theme is resolved in the interactor too, not in CSS. The `system` theme has no
-  `[data-theme]` block of its own: `palette` maps it to Amazone or Mitternacht from the device's dark
-  mode (`cross-cutting/infrastructure/system-dark-mode.ts`), and that palette is what reaches
-  `data-theme`. Unlike text size and motion, the theme defaults to an explicit palette (Amazone), so
-  a first start always shows the app's own face.
+- The colour theme id goes to `data-theme` as it is. There is no theme that follows the device's
+  dark mode any more - Verein Amazone dropped the dynamic pairs - and unlike text size and motion
+  the theme defaults to an explicit one (Amazone, „Strong“), so a first start always shows the
+  app's own face. A stored id of a removed theme maps to the closest remaining one on read
+  (`appearance.store.ts`).
 - `cross-cutting/infrastructure/document-appearance.ts` writes the three attributes and
   `--rk-os-scale` onto `<html>`. It is the only code that touches them.
 - `cross-cutting/infrastructure/system-text-scale.ts` supplies the OS text scale (see above).
@@ -590,19 +634,24 @@ binding as a second, independent layer.
 
 Allowed and rendered as semantic HTML: paragraphs, emphasis (`em`) and strong emphasis (`strong`),
 ordered and unordered lists, block quotes, links, and **level-two and level-three headings only**.
+One extension adds callouts: GitHub's alert syntax `> [!NOTE]` renders as a plain `<div>`, styled as
+a highlighted box (see [content authoring](../content-authoring.md#3-markdown-conventions)).
 
 Rejected: raw/embedded HTML, images, tables, code blocks and inline code, and any other element
-outside the allow-list. Their disallowed tags are stripped while their text content is kept, so
-level-one and level-four-plus headings, for example, survive as plain text rather than headings.
+outside the allow-list. Raw HTML is dropped by `marked` itself, before sanitizing, so the allowed
+`div` can only come from a callout. Other disallowed tags are stripped while their text content is
+kept, so level-one and level-four-plus headings, for example, survive as plain text rather than
+headings.
 
 ### Sanitization and URL safety
 
 - The rendered HTML always passes through DOMPurify's allow-list in the renderer, and again through
   Angular's `[innerHTML]` binding in the component. `bypassSecurityTrustHtml` is never used.
-- Links keep their `href` only for the allow-listed schemes `https:` and `http:` (relative and
-  anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
-  `ALLOWED_URI_REGEXP`. Any other scheme - for example `javascript:`, `data:` or `mailto:` - has its
-  `href` removed, leaving only the link text.
+- Links keep their `href` only for the allow-listed schemes `https:`, `http:` and `mailto:`
+  (relative and anchor links, which have no scheme, are also allowed), enforced via DOMPurify's
+  `ALLOWED_URI_REGEXP`. A `mailto:` link goes to the OS, which opens the mail app. Any other
+  scheme - for example `javascript:` or `data:` - has its `href` removed, leaving only the link
+  text.
 - A Content-Security-Policy in `apps/app/src/index.html` is the last layer: only the app's own scripts run,
   and `index.html` carries no inline script - the production build inlines no critical CSS, whose
   loader would be one. The policy's comment explains each exception. A new script, style, image, font or
@@ -614,6 +663,32 @@ level-one and level-four-plus headings, for example, survive as plain text rathe
 Feature code (pages, blocks, interactors, etc.) must render Markdown through
 `MarkdownContentComponent`, or through `MarkdownRenderer` when it only needs the string. **Never
 import `marked` outside `cross-cutting/markdown/`.**
+
+## Imported event descriptions
+
+A device or ICS event's description is shown as its calendar wrote it, and that is not always plain
+text: RFC 5545 defines `DESCRIPTION` as text, but Google Calendar writes HTML into it (bold, italic,
+underline, lists, links), and device calendars synced with Google return the same HTML. The stored
+description is never changed; the presentation is derived each time it is shown.
+
+- **`cross-cutting/rich-text/event-description-renderer.ts`** (`EventDescriptionRenderer`) decides
+  the format from the content, not from a vendor flag such as `X-MOZ-GOOGLE-HTML-DESCRIPTION`. A
+  description is HTML only if the browser's parser finds one of the allow-listed formatting
+  elements in it; anything else becomes a text node, so `Treffpunkt <Eingang Nord>` stays text. HTML
+  goes through DOMPurify with its own allow-list (`p`, `div`, `br`, `b`, `strong`, `i`, `em`, `u`,
+  `ul`, `ol`, `li`, `a` with `href`). Links keep `https:`, `http:`, `mailto:` and `tel:` only;
+  unlike curated Markdown, a scheme-less link is dropped, because an imported relative path would
+  resolve against the app. For both formats, newlines become `<br>` (Google appends plain-text
+  blocks such as the Meet details to an HTML description), and web addresses with a scheme or
+  `www.` and e-mail addresses in the text become links. [`linkifyjs`](https://linkify.js.org/) finds
+  them - only its `find()`, used nowhere else - and the links are built as DOM nodes. The finished
+  HTML passes DOMPurify once more.
+- **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) binds
+  that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
+  runs as a further layer.
+
+A video call in the event is found before the description is shown, and the provider's generated
+block is taken out of it; see [Online meetings in imported events](./online-meetings.md).
 
 ## Allowed / forbidden examples
 

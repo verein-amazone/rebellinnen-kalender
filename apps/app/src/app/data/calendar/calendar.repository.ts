@@ -69,8 +69,9 @@ export interface RangeOccurrence extends OccurrenceRecord {
 }
 
 /**
- * An upcoming app-owned occurrence with the reminders of the item behind it - the input of the
- * reminder scheduler (#81). `reminders` is the item's own list, or `null` to follow the defaults.
+ * An upcoming occurrence with its reminders - the input of the reminder scheduler (#81).
+ * `reminders` is the app item's own list or a synced event's own alerts, or `null` to follow the
+ * defaults.
  */
 export interface ReminderCandidate {
   readonly occurrenceId: string;
@@ -184,21 +185,29 @@ export class CalendarRepository {
   }
 
   /**
-   * The next app-owned occurrences starting at or after `fromUtc` in enabled calendars, with the
-   * reminders of their items. Device and ICS occurrences are never included: the operating system
-   * owns a device event's alerts, and a subscription has none of the user's.
+   * The next occurrences of `calendarIds` starting at or after `fromUtc` in enabled calendars, in
+   * one timeline across every source, with their reminders: an app row's from its item, a device or
+   * ICS row's own.
    */
-  async upcomingReminderCandidates(fromUtc: string, limit: number): Promise<ReminderCandidate[]> {
+  async upcomingReminderCandidates(
+    calendarIds: readonly string[],
+    fromUtc: string,
+    limit: number,
+  ): Promise<ReminderCandidate[]> {
     const [rows, items] = await Promise.all([
-      this.occurrences.listUpcomingInEnabledCalendars('app', fromUtc, limit),
+      this.occurrences.listUpcomingInCalendars(calendarIds, fromUtc, limit),
       this.items.listAll(),
     ]);
     const itemById = new Map(items.map((item) => [item.id, item]));
 
     return rows.flatMap((row) => {
-      const item = row.itemId === null ? undefined : itemById.get(row.itemId);
-      if (item === undefined) {
-        return [];
+      let reminders = row.reminders;
+      if (row.sourceType === 'app') {
+        const item = row.itemId === null ? undefined : itemById.get(row.itemId);
+        if (item === undefined) {
+          return [];
+        }
+        reminders = item.reminders;
       }
       return [
         {
@@ -208,7 +217,7 @@ export class CalendarRepository {
           allDay: row.isAllDay,
           startUtc: row.startUtc,
           startLocalDay: row.startLocalDay,
-          reminders: item.reminders,
+          reminders,
         },
       ];
     });
@@ -1035,7 +1044,26 @@ export class CalendarRepository {
         },
         { keyPrefix: 'ics', sourceType: 'ics' },
       );
-      pending.push(...result.occurrences);
+      // An override with alarms of its own reminds at those; every other occurrence, an override
+      // without any included, at the series' (see `IcsItemExceptionRecord`).
+      const overrideReminders = new Map(
+        (exceptionsByUid.get(item.uid) ?? []).flatMap((exception) =>
+          exception.reminders === null ? [] : [[exception.originalStart, exception.reminders]],
+        ),
+      );
+      // The fabricated app-item shape has no place for these, so they are carried over here. The
+      // links come from the series as a whole, an override does not change them (see
+      // `IcsItemRecord`).
+      pending.push(
+        ...result.occurrences.map((row) => ({
+          ...row,
+          url: item.url,
+          conferenceUrl: item.conferenceUrl,
+          reminders:
+            (row.originalStart === null ? undefined : overrideReminders.get(row.originalStart)) ??
+            item.reminders,
+        })),
+      );
       truncated ||= result.truncated;
     }
 

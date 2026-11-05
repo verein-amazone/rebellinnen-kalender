@@ -8,6 +8,10 @@ import {
 } from '@app/cross-cutting/infrastructure/notifications';
 import { CalendarRepository, type ReminderCandidate } from '@app/data/calendar/calendar.repository';
 import { NotificationPreferencesStore } from '@app/data/stores/notification-preferences.store';
+import {
+  CalendarFiltersInteractor,
+  type CalendarFilterOption,
+} from '@app/interactors/calendar/calendar-filters.interactor';
 
 import {
   MAX_PENDING_REMINDERS,
@@ -106,9 +110,21 @@ describe('planReminders', () => {
 
 class FakeRepository {
   candidates: ReminderCandidate[] = [];
+  requestedCalendarIds: readonly string[] | null = null;
 
-  upcomingReminderCandidates(): Promise<ReminderCandidate[]> {
+  upcomingReminderCandidates(calendarIds: readonly string[]): Promise<ReminderCandidate[]> {
+    this.requestedCalendarIds = calendarIds;
     return Promise.resolve(this.candidates);
+  }
+}
+
+class FakeCalendarFilters {
+  calendars: CalendarFilterOption[] = [
+    { id: 'app-cal', name: 'Mein Kalender', color: null, emoji: null, sourceType: 'app' },
+  ];
+
+  listFilterable(): Promise<CalendarFilterOption[]> {
+    return Promise.resolve(this.calendars);
   }
 }
 
@@ -141,16 +157,19 @@ class FakeNotifications {
 describe('ReminderSchedulerInteractor', () => {
   let repository: FakeRepository;
   let notifications: FakeNotifications;
+  let calendars: FakeCalendarFilters;
 
   beforeEach(() => {
     localStorage.clear();
     repository = new FakeRepository();
     notifications = new FakeNotifications();
+    calendars = new FakeCalendarFilters();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         { provide: CalendarRepository, useValue: repository },
         { provide: DeviceNotifications, useValue: notifications },
+        { provide: CalendarFiltersInteractor, useValue: calendars },
       ],
     });
   });
@@ -196,6 +215,26 @@ describe('ReminderSchedulerInteractor', () => {
     await TestBed.inject(ReminderSchedulerInteractor).reschedule();
 
     expect(notifications.pending).toHaveLength(MAX_PENDING_REMINDERS);
+  });
+
+  it('reminds of the app calendar by default and of a synced calendar once it is turned on', async () => {
+    enableReminders();
+    calendars.calendars = [
+      { id: 'app-cal', name: 'Mein Kalender', color: null, emoji: null, sourceType: 'app' },
+      { id: 'device-cal:google', name: 'Google', color: null, emoji: null, sourceType: 'device' },
+      { id: 'device-cal:work', name: 'Arbeit', color: null, emoji: null, sourceType: 'device' },
+      { id: 'ics-cal:feed', name: 'Feiertage', color: null, emoji: null, sourceType: 'ics' },
+    ];
+    const scheduler = TestBed.inject(ReminderSchedulerInteractor);
+
+    await scheduler.reschedule();
+    expect(repository.requestedCalendarIds).toEqual(['app-cal']);
+
+    TestBed.inject(NotificationPreferencesStore).update({
+      calendarReminders: { 'app-cal': false, 'device-cal:google': true, 'ics-cal:feed': true },
+    });
+    await scheduler.reschedule();
+    expect(repository.requestedCalendarIds).toEqual(['device-cal:google', 'ics-cal:feed']);
   });
 
   it('folds overlapping requests into one follow-up run', async () => {

@@ -12,7 +12,8 @@ const CATALOG_URL = '/curated-calendars/catalog.json';
 export interface CatalogEntry {
   readonly id: string;
   readonly name: string;
-  readonly description: string;
+  /** Left out where the name says it all („Feiertage Österreich“). */
+  readonly description?: string;
   readonly url: string;
   readonly color: string;
   readonly emoji: string;

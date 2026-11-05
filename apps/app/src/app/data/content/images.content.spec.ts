@@ -34,6 +34,9 @@ const LICENSES: Readonly<Record<string, string | null>> = {
   'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
   'CC BY-NC-ND 4.0': 'https://creativecommons.org/licenses/by-nc-nd/4.0/',
   'CC0 1.0': 'https://creativecommons.org/publicdomain/zero/1.0/',
+  // Graphics Verein Amazone designed in Canva, from Canva's own elements.
+  'Canva Content License': 'https://www.canva.com/policies/content-license-agreement/',
+  'Unsplash License': 'https://unsplash.com/license',
   'Public Domain': null,
   // No licence: the image is used as is with the rightsholder credited, by a decision of Verein
   // Amazone recorded in docs/content-authoring.md.
@@ -88,11 +91,7 @@ describe('public/content/images.json', () => {
   });
 
   it('only holds images that a content item shows', () => {
-    // The onboarding shows one picture from the catalog too, outside any content item.
-    const shown = new Set([
-      ...catalog.items.map((item) => item.heroImageId),
-      'alle-unsere-lieblingssongs-in-einer-playlist',
-    ]);
+    const shown = new Set(catalog.items.map((item) => item.heroImageId));
 
     expect(images.map((image) => image.id).filter((id) => !shown.has(id))).toEqual([]);
   });

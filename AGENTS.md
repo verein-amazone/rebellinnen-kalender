@@ -17,6 +17,9 @@ A pnpm workspace. Run commands from the root; its scripts delegate to the right 
   and its scripts. Everything below about Angular and the architecture is about this app.
 - `apps/site` - the website (`@amazone/site`, Astro + Tailwind). Read
   [apps/site/AGENTS.md](./apps/site/AGENTS.md) before changing it.
+- `apps/site-redirect` - static files of the Pages site that forwards the former domain
+  `kalender.amazone.or.at` to the website, path included. Published from its own repository; see
+  its README.
 - `packages/design-system` - tokens, themes, custom variants and fonts, shared by both apps.
 - `packages/legal` - the legal texts as Markdown, shared by both apps.
 - The root holds the release version, Prettier, commitlint, semantic-release, the `catalog:` in

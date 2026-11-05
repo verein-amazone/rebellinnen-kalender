@@ -18,6 +18,9 @@ function item(overrides: Partial<IcsItemRecord> = {}): IcsItemRecord {
     start: { kind: 'zoned', value: '2026-09-07T18:00:00', timeZone: 'Europe/Vienna' },
     end: null,
     rrule: null,
+    url: null,
+    conferenceUrl: null,
+    reminders: null,
     ...overrides,
   };
 }
@@ -34,6 +37,7 @@ function exception(overrides: Partial<IcsItemExceptionRecord> = {}): IcsItemExce
     note: null,
     start: null,
     end: null,
+    reminders: null,
     ...overrides,
   };
 }

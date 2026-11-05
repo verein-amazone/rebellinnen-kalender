@@ -9,10 +9,9 @@ import { expectNoBlockingViolations } from './support/a11y';
 test.describe('searching Inhalte', () => {
   async function bookmark(page: Page, id: string, title: string): Promise<void> {
     await page.goto(`/content/${id}`);
-    await page.getByRole('button', { name: `Zu „Meine Sammlung“ hinzufügen: ${title}` }).click();
-    await expect(
-      page.getByRole('button', { name: `Aus „Meine Sammlung“ entfernen: ${title}` }),
-    ).toBeVisible();
+    const toggle = page.getByRole('button', { name: `In „Meine Sammlung“: ${title}` });
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   }
 
   async function search(page: Page, area: string, query: string): Promise<void> {
@@ -78,7 +77,7 @@ test.describe('searching Inhalte', () => {
       .getByRole('searchbox', { name: 'In Anlaufstellen suchen' })
       .pressSequentially('frauenberatung', { delay: 250 });
     await expect(page.getByRole('status')).toHaveText(/\d+ Treffer/);
-    await page.getByRole('tab', { name: 'Meine Sammlung' }).click();
+    await page.getByRole('tab', { name: 'Sammlung' }).click();
 
     // The Anlaufstellen were synced when the list loaded. The content catalog may be read once,
     // for the first search of the collection - never once per keystroke.

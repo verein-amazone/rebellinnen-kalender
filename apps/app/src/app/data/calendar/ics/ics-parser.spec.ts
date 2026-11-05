@@ -297,4 +297,148 @@ describe('parseIcsCalendar', () => {
     expect(parsed.items).toHaveLength(0);
     expect(parsed.exceptions).toHaveLength(0);
   });
+
+  it('keeps a Google Calendar HTML description as it is, with the ICS escapes undone', () => {
+    // Shaped like the public Amazone calendar: Google writes the editor's HTML straight into
+    // DESCRIPTION, with no X-MOZ-GOOGLE-HTML-DESCRIPTION flag.
+    const text = calendar([
+      'BEGIN:VEVENT',
+      'UID:2reog9m7qn9faubqdmcosvhg5u@google.com',
+      'SUMMARY:Anmeldeschluss Rebell*innen Kalender 2027/28',
+      'DTSTART;VALUE=DATE:20270214',
+      'DTEND;VALUE=DATE:20270215',
+      'DESCRIPTION:<b>Heute noch schnell anmelden!</b><br><br>Wie\\, wann\\, wo...?<br><p></p><ul><li>Dr',
+      ' ei Online-Workshops</li></ul><p></p>',
+      'END:VEVENT',
+    ]);
+
+    const parsed = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+    expect(parsed.items[0].note).toBe(
+      '<b>Heute noch schnell anmelden!</b><br><br>Wie, wann, wo...?<br><p></p><ul><li>Drei Online-Workshops</li></ul><p></p>',
+    );
+  });
+  describe('reminders', () => {
+    function remindersOf(alarms: readonly string[]): readonly number[] | null {
+      const text = calendar([
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'SUMMARY:Plenum',
+        'DTSTART:20261012T160000Z',
+        ...alarms,
+        'END:VEVENT',
+      ]);
+      return parseIcsCalendar(text, 'sub-1', 'rev-1').items[0].reminders;
+    }
+
+    function alarm(action: string, trigger: string): string[] {
+      return ['BEGIN:VALARM', `ACTION:${action}`, 'DESCRIPTION:Plenum', trigger, 'END:VALARM'];
+    }
+
+    it('reads the alarms as minutes before the start, earliest first', () => {
+      expect(
+        remindersOf([
+          ...alarm('DISPLAY', 'TRIGGER:-PT15M'),
+          ...alarm('AUDIO', 'TRIGGER;RELATED=START:-P1D'),
+          ...alarm('DISPLAY', 'TRIGGER:PT0S'),
+        ]),
+      ).toEqual([1440, 15, 0]);
+    });
+
+    it("reads an override's own alarms, and none for a cancellation", () => {
+      const text = calendar([
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'SUMMARY:Plenum',
+        'DTSTART:20261012T160000Z',
+        'RRULE:FREQ=WEEKLY',
+        'EXDATE:20261026T160000Z',
+        ...alarm('DISPLAY', 'TRIGGER:-PT15M'),
+        'END:VEVENT',
+        'BEGIN:VEVENT',
+        'UID:plenum@verein',
+        'RECURRENCE-ID:20261019T160000Z',
+        'SUMMARY:Plenum',
+        'DTSTART:20261019T160000Z',
+        ...alarm('DISPLAY', 'TRIGGER:-PT1H'),
+        'END:VEVENT',
+      ]);
+
+      const { exceptions } = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+      expect(exceptions.map((exception) => [exception.status, exception.reminders])).toEqual([
+        ['cancelled', null],
+        ['override', [60]],
+      ]);
+    });
+
+    it('has none without alarms, so the default times apply', () => {
+      expect(remindersOf([])).toBeNull();
+    });
+
+    it('skips e-mail alarms and triggers that are not relative to the start', () => {
+      expect(
+        remindersOf([
+          ...alarm('EMAIL', 'TRIGGER:-PT30M'),
+          ...alarm('DISPLAY', 'TRIGGER;RELATED=END:-PT5M'),
+          ...alarm('DISPLAY', 'TRIGGER;VALUE=DATE-TIME:20261012T150000Z'),
+        ]),
+      ).toBeNull();
+    });
+  });
+
+  describe('event URL and join link', () => {
+    function single(lines: readonly string[]) {
+      return parseIcsCalendar(
+        calendar([
+          'BEGIN:VEVENT',
+          'UID:u1',
+          'SUMMARY:Treffen',
+          'DTSTART;VALUE=DATE:20261105',
+          ...lines,
+          'END:VEVENT',
+        ]),
+        'sub-1',
+        'rev-1',
+      ).items[0];
+    }
+
+    it('keeps the URL and Google\u2019s conference link', () => {
+      expect(
+        single([
+          'URL:https://amazone.or.at/anmeldung',
+          'X-GOOGLE-CONFERENCE:https://meet.google.com/abc-defg-hij',
+        ]),
+      ).toMatchObject({
+        url: 'https://amazone.or.at/anmeldung',
+        conferenceUrl: 'https://meet.google.com/abc-defg-hij',
+      });
+    });
+
+    it('prefers the standard CONFERENCE marked as video, and skips its dial-in entries', () => {
+      expect(
+        single([
+          'X-GOOGLE-CONFERENCE:https://meet.google.com/zzz-zzzz-zzz',
+          'CONFERENCE;VALUE=URI;FEATURE=PHONE:tel:+4312345678',
+          'CONFERENCE;VALUE=URI;FEATURE=AUDIO,VIDEO;LABEL=Raum:https://video.example.org/42',
+        ]).conferenceUrl,
+      ).toBe('https://video.example.org/42');
+    });
+
+    it('reads the Teams property, and ignores the SIP conference link', () => {
+      expect(
+        single([
+          'X-MICROSOFT-ONLINEMEETINGCONFLINK:conf:sip:someone@example.org',
+          'X-MICROSOFT-SKYPETEAMSMEETINGURL:https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC',
+        ]).conferenceUrl,
+      ).toBe('https://teams.microsoft.com/l/meetup-join/19%3ameeting_ABC');
+    });
+
+    it('drops anything that is not a web address', () => {
+      expect(
+        single(['URL:javascript:alert(1)', 'X-GOOGLE-CONFERENCE:http://meet.google.com/abc']),
+      ).toMatchObject({ url: null, conferenceUrl: null });
+      expect(single([])).toMatchObject({ url: null, conferenceUrl: null });
+    });
+  });
 });

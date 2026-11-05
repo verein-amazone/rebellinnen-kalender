@@ -39,8 +39,9 @@ Before the first release from `main`, two things outside this repository still n
 
 1. `.github/workflows/release.yml` runs `semantic-release`.
 2. It reads the commit types since the last tag and decides the next version. `feat` bumps the
-   minor, `fix` the patch, a `BREAKING CHANGE:` footer the major; `build`, `chore`, `ci`, `refactor`
-   and `revert` also produce a patch, so every merge gets a distinct version to hand to testers.
+   minor, `fix` and `improvement` (a noticeable change too small to call a feature) the patch, a
+   `BREAKING CHANGE:` footer the major; `build`, `chore`, `ci`, `refactor` and `revert` also produce
+   a patch, so every merge gets a distinct version to hand to testers.
    `docs`, `style` and `test` release nothing.
 3. It writes the version into `package.json`, `CHANGELOG.md`,
    `apps/app/src/app/cross-cutting/infrastructure/app-version.ts` (the „Über die App" screen) and both native
@@ -359,8 +360,9 @@ with the German changelog. Open it and roll it out.
 **App Store** (`main`). The version exists in App Store Connect with the build uploaded, its
 "What's New" text and the listing from the repository - description, keywords, screenshots,
 categories, age rating - filled in, sitting in "Prepare for Submission". Select the build, check the
-listing, then "Add for Review" and submit. It is not set to release automatically on approval, so an approved
-version still waits for a human to release it.
+listing, check "Version Release", then "Add for Review" and submit. The pipeline never sets the
+release type: App Store Connect refuses to change it on a pre-order, so it is chosen here, by the
+person who submits.
 
 1.0.0 goes out as a **pre-order** (Pricing and Availability → App Availability → Pre-Orders, Austria,
 release date 9 November 2026). A pre-order needs the version release left on "Manually release this

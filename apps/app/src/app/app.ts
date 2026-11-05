@@ -1,18 +1,26 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   effect,
   inject,
   Injector,
+  untracked,
 } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 import { CalendarMaintenanceInteractor } from '@app/interactors/calendar/calendar-maintenance.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
+import {
+  shortcutDestinationAt,
+  type ShortcutDestination,
+} from '@app/interactors/siri-and-search/app-destination';
+import { ExternalDestinationsInteractor } from '@app/interactors/siri-and-search/external-destinations.interactor';
 import { AppLifecycle } from '@app/cross-cutting/infrastructure/app-lifecycle';
+import { BookmarkChanges } from '@app/cross-cutting/infrastructure/bookmark-changes';
 import { HardwareBack } from '@app/cross-cutting/infrastructure/hardware-back';
 import { DocumentAppearance } from '@app/cross-cutting/infrastructure/document-appearance';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
@@ -31,6 +39,7 @@ export class App {
   private readonly calendarMaintenance = inject(CalendarMaintenanceInteractor);
   private readonly lifecycle = inject(AppLifecycle);
   private readonly reminders = inject(ReminderSchedulerInteractor);
+  private readonly externalDestinations = inject(ExternalDestinationsInteractor);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
@@ -46,14 +55,45 @@ export class App {
     this.reminders.onReminderTapped(
       (occurrenceId) => void this.router.navigate(['/calendar', 'event', occurrenceId]),
     );
+    // Likewise a Spotlight result or an App Shortcut (#167), which iOS holds back the same way.
+    const stopWatchingDestinations = this.externalDestinations.onDestinationOpened(
+      ({ commands, queryParams }) => void this.router.navigate(commands, { queryParams }),
+    );
+
+    // The App Shortcut screens the user goes to inside the app are donated to iOS, which learns from
+    // them when to suggest each shortcut. Only going there counts: not the screen the app starts on,
+    // and not a search typed into the screen already shown.
+    let shortcutScreen: ShortcutDestination | null | undefined;
+    const navigations = this.router.events.subscribe((event) => {
+      if (!(event instanceof NavigationEnd)) {
+        return;
+      }
+      const screen = shortcutDestinationAt(event.urlAfterRedirects);
+      if (shortcutScreen !== undefined && screen !== null && screen !== shortcutScreen) {
+        this.externalDestinations.donate(screen);
+      }
+      shortcutScreen = screen;
+    });
+
+    // What iOS search lists is brought up to date after the first render, never ahead of it, and
+    // again whenever a bookmark changes. The catalogs themselves only change with an app update,
+    // which is a start. `sync()` writes nothing when nothing changed, and nothing off iOS.
+    afterNextRender(() => this.syncSearchIndex());
+    const bookmarkChanges = inject(BookmarkChanges);
+    let bookmarksSeen = untracked(bookmarkChanges.version);
+    effect(() => {
+      const version = bookmarkChanges.version();
+      if (version !== bookmarksSeen) {
+        bookmarksSeen = version;
+        this.syncSearchIndex();
+      }
+    });
 
     // The selected appearance is applied in one place, for the whole app, whenever it changes. The
     // OS scale is part of it because it is what applies while the text size is left on `system`.
-    // The theme goes in resolved to a palette, so a `system` theme recolours the moment the device
-    // switches between light and dark.
     effect(() => {
       this.documentAppearance.apply({
-        theme: this.appearance.palette(),
+        theme: this.appearance.theme(),
         textSize: this.appearance.textSize(),
         motion: this.appearance.motion(),
         osTextScale: this.systemTextScale.scale(),
@@ -75,10 +115,27 @@ export class App {
     inject(DestroyRef).onDestroy(() => {
       this.destroyed = true;
       stopWatchingResumes();
+      stopWatchingDestinations();
+      navigations.unsubscribe();
     });
 
     // A resume only fires on the way back in, so the first run has to be started here.
     void this.refreshCalendars();
+  }
+
+  /**
+   * Loaded dynamically, like the ICS interactor below: indexing reads the content and Anlaufstellen
+   * catalogs, which the initial bundle otherwise does without.
+   */
+  private syncSearchIndex(): void {
+    void import('@app/interactors/siri-and-search/siri-and-search.interactor')
+      .then(({ SiriAndSearchInteractor }) =>
+        this.destroyed ? undefined : this.injector.get(SiriAndSearchInteractor).sync(),
+      )
+      .catch((error: unknown) => {
+        // A failed chunk load (an update replaced it); the next start or bookmark change retries.
+        console.warn('Die iOS-Suche konnte nicht aktualisiert werden.', error);
+      });
   }
 
   /**

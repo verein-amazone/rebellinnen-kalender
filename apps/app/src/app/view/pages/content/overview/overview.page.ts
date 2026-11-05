@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   debounced,
+  DOCUMENT,
   effect,
   ElementRef,
   inject,
@@ -62,6 +63,11 @@ function lastResult<T>(search: Resource<T[] | null | undefined>) {
   });
 }
 
+/** The element id of an Anlaufstelle's card, the target of a `?service=` link. */
+function serviceCardId(id: string): string {
+  return `support-service-${id}`;
+}
+
 function isContentItemKind(value: string): value is ContentItemKind {
   return value === 'wissensimpulse' || value === 'rebellin';
 }
@@ -108,6 +114,7 @@ export class ContentOverviewPage {
   private readonly haptics = inject(HapticsInteractor);
   private readonly hardwareBack = inject(HardwareBack);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
 
   /**
    * The selected area is route state (`?area=…`), the same way the calendar overview keeps its
@@ -249,6 +256,20 @@ export class ContentOverviewPage {
   );
 
   private readonly selectedRegion = signal<string | null>(null);
+
+  /**
+   * `?service=<id>`: the Anlaufstelle a content item or an iOS search result linked to. Its region
+   * is selected, so its card is in the list, and the card is scrolled to and focused once per id,
+   * when the entries have loaded - again for another id while the screen stays open, which is how a
+   * second search result arrives, closing a search that is still open on the screen.
+   *
+   * The entries load after the navigation has rendered, so this runs after `MainNavigationScaffold`
+   * has focused the screen's heading and reset the scroll position, and wins over both. An unknown
+   * id leaves the screen as it would be without one.
+   */
+  readonly service = input<string>();
+  private revealedService: string | null = null;
+
   protected readonly effectiveRegion = computed(
     () => this.selectedRegion() ?? this.regions()[0]?.id ?? null,
   );
@@ -263,6 +284,13 @@ export class ContentOverviewPage {
   });
   /** The entries matching the query across every region - `null` while none is searched. */
   protected readonly serviceMatches = lastResult<SupportServiceView>(this.servicesSearch);
+  /**
+   * `serviceMatches` as the list shows it: gone as soon as the search is, rather than once the
+   * emptied query has been searched for - a `?service=` reveal needs the region list in that render.
+   */
+  protected readonly shownServiceMatches = computed(() =>
+    this.query() === '' ? null : this.serviceMatches(),
+  );
 
   /**
    * What the search reports, once per settled result: a hint while the query is too short to
@@ -304,6 +332,23 @@ export class ContentOverviewPage {
     return valueOr(this.servicesData, []).filter((service) => service.region === region);
   });
 
+  /**
+   * Brings an entry's card into view - centred, clear of the sticky header - and focuses it. An
+   * instant jump, not an animation: the screen has only just opened, so there is no position the
+   * user would be carried away from.
+   */
+  private revealService(id: string): void {
+    const card = this.document.getElementById(serviceCardId(id));
+    if (card === null) {
+      return;
+    }
+
+    card.scrollIntoView({ block: 'center' });
+    card.focus({ preventScroll: true });
+  }
+
+  protected readonly serviceCardId = serviceCardId;
+
   protected selectRegion(regionId: string): void {
     // Tapping the region that is already selected changes nothing, so it is not felt either.
     if (regionId === this.effectiveRegion()) {
@@ -327,6 +372,32 @@ export class ContentOverviewPage {
   }
 
   constructor() {
+    effect(() => {
+      const id = this.service();
+      if (id === undefined) {
+        this.revealedService = null;
+        return;
+      }
+      // Both lists have to be in: the card only renders under its region's filter.
+      if (this.servicesLoading() || id === this.revealedService) {
+        return;
+      }
+      const target = valueOr(this.servicesData, []).find((service) => service.id === id);
+      if (target === undefined) {
+        return;
+      }
+
+      this.revealedService = id;
+      untracked(() => {
+        this.selectedRegion.set(target.region);
+        // An open search would list its results instead of the region, and those cards are no
+        // target - so it gives way, without taking focus as `closeSearch` would.
+        this.searchOpen.set(false);
+        this.searchText.set('');
+      });
+      afterNextRender(() => this.revealService(target.id), { injector: this.injector });
+    });
+
     // Writes the searched query back into the URL - see `q`. Replaced, not pushed: a keystroke is
     // not a place to come back to.
     effect(() => {

@@ -1,14 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import type { PaletteId } from '@app/interactors/settings/appearance.interactor';
+import type { ThemeId } from '@app/interactors/settings/appearance.interactor';
 
 /**
  * The colour preview next to a theme option: background, primary and text colour as three dots, so
  * the preview also shows how the theme's text reads on its background.
  *
  * It is rendered by switching the token layer on the element itself, so no colour value has to be
- * duplicated in TypeScript. Given more than one palette, each dot is split between them - the
- * `system` option shows its light and its dark half side by side.
+ * duplicated in TypeScript.
  *
  * Purely decorative: the option's label carries the meaning, so the whole swatch is hidden from
  * assistive technology.
@@ -18,21 +17,17 @@ import type { PaletteId } from '@app/interactors/settings/appearance.interactor'
   host: {
     class: 'border-border flex shrink-0 gap-1 rounded-md border p-1',
     'aria-hidden': 'true',
-    '[attr.data-theme]': 'palettes()[0]',
+    '[attr.data-theme]': 'theme()',
   },
   template: `
     @for (dot of dots; track dot) {
-      <span class="flex size-5 overflow-hidden rounded-full">
-        @for (palette of palettes(); track palette) {
-          <span class="flex-1" [class]="dot" [attr.data-theme]="palette"></span>
-        }
-      </span>
+      <span class="size-5 rounded-full" [class]="dot"></span>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ThemeSwatch {
-  readonly palettes = input.required<readonly PaletteId[]>();
+  readonly theme = input.required<ThemeId>();
 
   protected readonly dots = ['bg-background', 'bg-primary', 'bg-foreground'] as const;
 }

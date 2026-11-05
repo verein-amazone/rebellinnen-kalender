@@ -115,6 +115,8 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
 
     await sync.ensureSynced();
@@ -184,6 +186,8 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
     await contentItems.upsert({
       id: 'wi-99',
@@ -198,6 +202,8 @@ describe('ContentCatalogSync', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
     await bookmarks.add('wi-99', '2026-08-21T09:00:00.000Z');
 

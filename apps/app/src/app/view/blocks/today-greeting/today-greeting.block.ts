@@ -9,8 +9,7 @@ import { ProfileInteractor } from '@app/interactors/settings/profile.interactor'
  * the personal emoji - tapping it opens the emoji picker directly from here, per the issue.
  *
  * The greeting hour is read at evaluation time rather than tracked by a dedicated clock signal;
- * `LocalDay.day()` is read only to give the `computed` a recompute trigger on a day change, the
- * same tradeoff `TodayClosingBlock` already makes for its own time-of-day check.
+ * `LocalDay.day()` is read only to give the `computed` a recompute trigger on a day change.
  */
 @Component({
   selector: 'app-today-greeting',

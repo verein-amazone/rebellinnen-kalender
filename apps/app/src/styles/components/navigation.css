@@ -62,7 +62,7 @@
 
   /* The active destination's second, non-colour indicator - bold weight is the first. */
   .rk-tab-indicator {
-    @apply bg-accent h-1 w-6 rounded-full;
+    @apply bg-nav-indicator h-1 w-6 rounded-full;
   }
 
   /*

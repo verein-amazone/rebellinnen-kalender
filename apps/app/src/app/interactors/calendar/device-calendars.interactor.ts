@@ -5,6 +5,7 @@ import type { CalendarSourceRecord } from '@app/data/entities/calendar-source.re
 import { SystemSettings } from '@app/cross-cutting/infrastructure/system-settings';
 import { NativeEmojiPicker } from '@app/cross-cutting/infrastructure/emoji-picker';
 import type { DeviceCalendarPermission } from '@app/data/gateways/native-calendar.gateway';
+import { ReminderSchedulerInteractor } from '@app/interactors/notifications/reminder-scheduler.interactor';
 
 import { DEVICE_SOURCE_ID, DeviceCalendarSyncInteractor } from './device-calendar-sync.interactor';
 
@@ -53,6 +54,8 @@ export class DeviceCalendarsInteractor {
   private readonly sync = inject(DeviceCalendarSyncInteractor);
   private readonly appSettings = inject(SystemSettings);
   private readonly emojiPicker = inject(NativeEmojiPicker);
+  // Showing or hiding a device calendar changes which of its appointments the app may remind of.
+  private readonly reminders = inject(ReminderSchedulerInteractor);
 
   /** The device source's state and its calendars grouped by native account/source. */
   async loadSnapshot(): Promise<DeviceCalendarsSnapshot> {
@@ -117,6 +120,7 @@ export class DeviceCalendarsInteractor {
   /** Shows or hides one device calendar's occurrences without touching the connection itself. */
   async setCalendarEnabled(calendarId: string, enabled: boolean): Promise<void> {
     await this.repository.setCalendarEnabled(calendarId, enabled, this.context());
+    void this.reminders.reschedule();
   }
 
   /**
@@ -143,6 +147,7 @@ export class DeviceCalendarsInteractor {
       enabled,
       this.context(),
     );
+    void this.reminders.reschedule();
   }
 
   /**
@@ -151,6 +156,7 @@ export class DeviceCalendarsInteractor {
    */
   async disconnect(): Promise<void> {
     await this.repository.disconnectDeviceSource(DEVICE_SOURCE_ID, this.context());
+    void this.reminders.reschedule();
   }
 
   private context(): CalendarContext {

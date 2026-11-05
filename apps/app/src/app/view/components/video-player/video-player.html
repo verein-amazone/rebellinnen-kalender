@@ -1,0 +1,103 @@
+@if (!playable()) {
+  <!-- An id that cannot be played: the picture stays a picture, and only the link remains. -->
+  @if (posterPath(); as poster) {
+    <img [src]="poster" [alt]="posterAlt() ?? ''" class="w-full rounded-lg" />
+  }
+} @else if (!playing()) {
+  <!-- One native button for the whole picture. Its name starts with the visible label, so a Voice
+       Control user can say what they see; the picture is decoration, its description read after. -->
+  <button
+    type="button"
+    class="rk-video-poster"
+    [attr.aria-describedby]="posterAlt() ? descriptionId : null"
+    (click)="play()"
+  >
+    @if (posterPath(); as poster) {
+      <img [src]="poster" alt="" class="w-full" />
+    }
+    <span class="rk-video-play">
+      <svg lucidePlay class="rk-icon" aria-hidden="true"></svg>
+      <span
+        >Video abspielen<span class="sr-only">: {{ title() }}</span></span
+      >
+    </span>
+  </button>
+  @if (posterAlt(); as alt) {
+    <span [id]="descriptionId" class="sr-only">Standbild: {{ alt }}</span>
+  }
+} @else {
+  <!-- The stage, where the cover was: the web's embed sits in it, the native player lies over it.
+       Focus moves here from the vanished button; no ring, since it is a landing spot for screen
+       readers, not a control. Behind the native player it shows the picture,
+       which is what stays in view while the player is parked. -->
+  <div
+    #stage
+    class="rk-video-frame outline-none"
+    [class.rk-video-frame-portrait]="portrait()"
+    role="group"
+    [attr.aria-label]="'YouTube-Video: ' + title()"
+    tabindex="-1"
+  >
+    @if (problem(); as problem) {
+      <div class="grid size-full place-content-center p-4 text-center">
+        <p role="alert">
+          @switch (problem) {
+            @case ('offline') {
+              Du bist offline – das Video braucht eine Internetverbindung.
+            }
+            @case ('unavailable') {
+              Dieses Video ist auf YouTube nicht mehr verfügbar.
+            }
+            @default {
+              Das Video kann gerade nicht abgespielt werden.
+            }
+          }
+        </p>
+      </div>
+    } @else if (embedUrl(); as url) {
+      <iframe
+        [src]="url"
+        [title]="'YouTube-Video: ' + title()"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+        allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin"
+        class="size-full"
+      ></iframe>
+    } @else if (posterPath(); as poster) {
+      <img [src]="poster" alt="" class="size-full object-cover" />
+    }
+  </div>
+}
+
+<p role="status" class="rk-error mt-2 empty:hidden">
+  @if (offline()) {
+    Du bist offline – das Video braucht eine Internetverbindung.
+  }
+</p>
+
+<!-- The way out to YouTube on the left; on the right, at the end of the row as the toggletip asks,
+     what playing here sends to Google. -->
+<div class="mt-1 flex items-center justify-between gap-2">
+  <a
+    [href]="watchUrl()"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="min-h-touch inline-flex min-w-0 items-center gap-2 font-semibold underline underline-offset-2"
+  >
+    <svg lucideSquarePlay class="rk-icon-sm shrink-0" aria-hidden="true"></svg>
+    <span>Auf YouTube ansehen</span>
+    <span class="sr-only">, öffnet in einem neuen Fenster</span>
+  </a>
+
+  @if (playable()) {
+    <app-info-toggletip label="Info zu YouTube-Videos">
+      Beim Abspielen lädt YouTube das Video, dabei werden Daten an Google übertragen.
+      <a
+        routerLink="/settings/privacy"
+        [queryParams]="{ returnTo: returnTo() }"
+        class="underline underline-offset-2"
+        >Mehr zum Datenschutz</a
+      >
+    </app-info-toggletip>
+  }
+</div>

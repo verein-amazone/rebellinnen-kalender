@@ -22,6 +22,8 @@ function occurrence(overrides: Partial<CalendarOccurrence> = {}): CalendarOccurr
     title: 'Beratungsgespräch',
     location: null,
     description: null,
+    url: null,
+    conferenceUrl: null,
     allDay: false,
     start: { kind: 'floating', value: '2026-08-11T14:00:00', timeZone: null },
     end: { kind: 'floating', value: '2026-08-11T15:00:00', timeZone: null },

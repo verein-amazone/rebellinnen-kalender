@@ -77,6 +77,8 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     };
     dao.items.set('wi-01', record);
 
@@ -93,6 +95,8 @@ describe('ContentItemsInteractor', () => {
         sourceLabel: null,
         sourceUrl: null,
         relatedSources: [],
+        video: null,
+        supportServiceIds: null,
       },
     ]);
   });
@@ -115,6 +119,8 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     };
     dao.items.set('wi-01', record);
 
@@ -130,6 +136,8 @@ describe('ContentItemsInteractor', () => {
       sourceLabel: null,
       sourceUrl: null,
       relatedSources: [],
+      video: null,
+      supportServiceIds: null,
     });
   });
 
@@ -147,6 +155,8 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
     images.entries = [
       {
@@ -182,6 +192,8 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
     images.entries = [
       {
@@ -214,6 +226,8 @@ describe('ContentItemsInteractor', () => {
       validFrom: null,
       validTo: null,
       eligibleForDaily: true,
+      video: null,
+      supportServiceIds: null,
     });
 
     await expect(interactor.findById('wi-01')).resolves.toMatchObject({

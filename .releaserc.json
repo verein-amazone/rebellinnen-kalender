@@ -8,6 +8,7 @@
           { "type": "build", "release": "patch" },
           { "type": "chore", "release": "patch" },
           { "type": "ci", "release": "patch" },
+          { "type": "improvement", "release": "patch" },
           { "type": "refactor", "release": "patch" },
           { "type": "revert", "release": "patch" }
         ]
@@ -21,6 +22,7 @@
           "types": [
             { "type": "feat", "section": "Features" },
             { "type": "fix", "section": "Bug Fixes" },
+            { "type": "improvement", "section": "Improvements" },
             { "type": "perf", "section": "Performance" },
             { "type": "revert", "section": "Reverts" },
             { "type": "build", "section": "Build" },

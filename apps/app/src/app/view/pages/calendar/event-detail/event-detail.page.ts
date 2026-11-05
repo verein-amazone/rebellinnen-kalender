@@ -19,9 +19,11 @@ import {
   LucideCheck,
   LucideExternalLink,
   LucidePencil,
+  LucidePhone,
   LucideRepeat,
   LucideRotateCw,
   LucideTrash2,
+  LucideVideo,
 } from '@lucide/angular';
 import { firstValueFrom } from 'rxjs';
 
@@ -34,12 +36,17 @@ import {
   type TemporalValue,
 } from '@app/interactors/calendar/app-event-editing.interactor';
 import type { CalendarOccurrence } from '@app/interactors/calendar/calendar-occurrence.vm';
+import {
+  findOnlineMeeting,
+  MEETING_PROVIDER_NAMES,
+} from '@app/interactors/calendar/online-meeting';
 import { describeStoredRecurrence } from '@app/interactors/calendar/recurrence';
 import { NotificationPreferencesInteractor } from '@app/interactors/notifications/notification-preferences.interactor';
 import { reminderLabel } from '@app/interactors/notifications/reminder-labels';
 import { CalendarOccurrencesInteractor } from '@app/interactors/calendar/calendar-occurrences.interactor';
 import { DeviceCalendarSyncInteractor } from '@app/interactors/calendar/device-calendar-sync.interactor';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
+import { EventDescriptionComponent } from '@app/view/components/event-description/event-description';
 import { EventForm, type AppEventFormResult } from '@app/view/components/event-form/event-form';
 import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focused-screen.scaffold';
 import { SheetService } from '@app/view/components/sheet/sheet.service';
@@ -70,15 +77,18 @@ import { RETURN_NAVIGATION } from '@app/view/scaffolds/main-navigation/scroll-me
   host: { class: 'block' },
   imports: [
     DatePipe,
+    EventDescriptionComponent,
     EventForm,
     LucideBell,
     FocusedScreenScaffold,
     LucideCheck,
     LucideExternalLink,
     LucidePencil,
+    LucidePhone,
     LucideRepeat,
     LucideRotateCw,
     LucideTrash2,
+    LucideVideo,
   ],
   templateUrl: './event-detail.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -136,6 +146,23 @@ export class EventDetailPage {
   });
 
   protected readonly occurrence = computed(() => valueOr(this.occurrenceResource, null));
+
+  /**
+   * The occurrence's online meeting, if it has one, with the description, location and website to
+   * show beside it: the provider's generated block, a location that only repeats the link and a
+   * website that is the join link or already in the description are left out.
+   */
+  protected readonly meetingDetails = computed(() => {
+    const occurrence = this.occurrence();
+    return findOnlineMeeting({
+      description: occurrence?.description ?? null,
+      location: occurrence?.location ?? null,
+      url: occurrence?.url ?? null,
+      conferenceUrl: occurrence?.conferenceUrl ?? null,
+    });
+  });
+
+  protected readonly providerNames = MEETING_PROVIDER_NAMES;
 
   /**
    * The full record behind an app-owned occurrence, for the fields `CalendarOccurrence` (a

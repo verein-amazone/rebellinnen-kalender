@@ -3,6 +3,7 @@ import { Temporal } from 'temporal-polyfill';
 
 import type { IcsItemExceptionRecord, IcsItemRecord } from '../../entities/ics.record';
 import type { TemporalValue } from '../../entities/temporal-value';
+import { syncedReminders } from '../synced-reminders';
 import { utcInstantFromEpochMilliseconds } from '../utc-instant';
 
 /**
@@ -139,6 +140,7 @@ function collectEvent(
         note: event.description ?? null,
         start,
         end: endOf(event, start),
+        reminders: remindersOf(vevent),
       },
     });
     return;
@@ -152,9 +154,12 @@ function collectEvent(
     title: event.summary ?? '',
     location: event.location ?? null,
     note: event.description ?? null,
+    url: webUrl(vevent.getFirstPropertyValue('url')),
+    conferenceUrl: conferenceUrlOf(vevent),
     start,
     end: endOf(event, start),
     rrule: readRrule(vevent),
+    reminders: remindersOf(vevent),
   });
 
   for (const property of vevent.getAllProperties('exdate')) {
@@ -171,6 +176,7 @@ function collectEvent(
           note: null,
           start: null,
           end: null,
+          reminders: null,
         },
       });
     }
@@ -229,6 +235,39 @@ function describeSkippedEvent(vevent: ICAL.Component, cause: unknown): string {
   return uid
     ? `Skipped event ${String(uid)}: ${reason}`
     : `Skipped an event without a UID: ${reason}`;
+}
+
+/**
+ * The event's own reminders from its `VALARM`s, in minutes before the start - or `null` for none.
+ *
+ * Only alarms that show something on the device count (`DISPLAY`, `AUDIO`); an `EMAIL` alarm is
+ * the publisher's mail, not a reminder here. Only triggers relative to the start are read: one
+ * relative to the end, or at a fixed date-time, means something different for every occurrence of
+ * a series, and the app keeps one list per series - plus one per override, which reads its own.
+ */
+function remindersOf(vevent: ICAL.Component): readonly number[] | null {
+  const minutesBefore = vevent.getAllSubcomponents('valarm').flatMap((alarm) => {
+    const action = alarm.getFirstPropertyValue('action');
+    if (typeof action !== 'string' || !['DISPLAY', 'AUDIO'].includes(action.toUpperCase())) {
+      return [];
+    }
+
+    const trigger = alarm.getFirstProperty('trigger');
+    const offset = trigger?.getFirstValue();
+    const related = trigger?.getParameter('related');
+    if (
+      !(offset instanceof ICAL.Duration) ||
+      (typeof related === 'string' && related.toUpperCase() !== 'START')
+    ) {
+      return [];
+    }
+
+    // A trigger counts from the start, negative before it. `0 -` keeps a trigger at the start 0
+    // rather than -0.
+    return [0 - Math.round(offset.toSeconds() / 60)];
+  });
+
+  return syncedReminders(minutesBefore);
 }
 
 function readRrule(vevent: ICAL.Component): string | null {
@@ -309,4 +348,59 @@ function plainDateTime(time: ICAL.Time): string {
     minute: time.minute,
     second: time.second,
   }).toString();
+}
+
+/**
+ * Properties that carry an online meeting's join link, in the order they are trusted: the standard
+ * one (RFC 7986), then the vendors' own. `X-MICROSOFT-ONLINEMEETINGCONFLINK` is left out - it is a SIP
+ * address, not a link to open. See `docs/architecture/online-meetings.md`.
+ */
+const CONFERENCE_PROPERTIES = [
+  'x-google-conference',
+  'x-microsoft-skypeteamsmeetingurl',
+  'x-microsoft-onlinemeetingexternallink',
+  'x-pm-conference-url',
+] as const;
+
+/**
+ * The event's join link from its structured properties, or `null`. Of several `CONFERENCE`
+ * entries the one marked as video wins, else the first web link; `tel:` entries are dial-ins, not
+ * join links.
+ */
+function conferenceUrlOf(vevent: ICAL.Component): string | null {
+  const conferences = vevent
+    .getAllProperties('conference')
+    .map((property) => ({
+      url: webUrl(property.getFirstValue(), 'https-only'),
+      video: /\bvideo\b/i.test(String(property.getParameter('feature') ?? '')),
+    }))
+    .filter((conference): conference is { url: string; video: boolean } => conference.url !== null);
+  const standard = conferences.find((conference) => conference.video) ?? conferences[0];
+  if (standard !== undefined) {
+    return standard.url;
+  }
+
+  for (const name of CONFERENCE_PROPERTIES) {
+    const url = webUrl(vevent.getFirstPropertyValue(name), 'https-only');
+    if (url !== null) {
+      return url;
+    }
+  }
+  return null;
+}
+
+/**
+ * A property value as a web address, or `null` for anything else - a `javascript:` or relative
+ * value never leaves the parser. Join links must be `https`; an event's `URL` may also be `http`.
+ */
+function webUrl(
+  value: unknown,
+  scheme: 'http-or-https' | 'https-only' = 'http-or-https',
+): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  const allowed = scheme === 'https-only' ? /^https:\/\/\S+$/i : /^https?:\/\/\S+$/i;
+  return allowed.test(trimmed) ? trimmed : null;
 }

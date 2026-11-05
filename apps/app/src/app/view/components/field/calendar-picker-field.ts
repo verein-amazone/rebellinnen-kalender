@@ -41,6 +41,8 @@ export class CalendarPickerField {
   protected readonly showError = computed(() => this.state().touched() && this.state().invalid());
   protected readonly errorMessage = computed(() => this.state().errors()[0]?.message ?? '');
   protected readonly errorId = computed(() => `${this.id()}-error`);
+  protected readonly labelId = computed(() => `${this.id()}-label`);
+  protected readonly valueId = computed(() => `${this.id()}-value`);
 
   protected async open(): Promise<void> {
     const calendars = this.calendars();

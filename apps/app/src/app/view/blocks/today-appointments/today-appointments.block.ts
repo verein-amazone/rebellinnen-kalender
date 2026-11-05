@@ -38,8 +38,7 @@ export class TodayAppointmentsBlock {
   );
 
   /**
-   * Read when the occurrences load, not on a timer, like the closing message: an
-   * appointment that ends while the page stays open drops out on the next visit or reload.
+   * Read when the occurrences load, not on a timer: an appointment that ends while the page stays open drops out on the next visit or reload.
    */
   protected readonly entries = computed(() =>
     selectUpcomingAppointments(this.todayOccurrences(), new Date().toISOString()),

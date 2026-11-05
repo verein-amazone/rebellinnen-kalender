@@ -6,7 +6,7 @@ on as an Angular `InjectionToken`. Two places inject such a token, and nothing e
 - `data/gateways/**` for plugins that are a data source (SQLite, the device calendar).
 - `cross-cutting/infrastructure/**` for plugins that are a device capability (haptics, the shake
   gesture, the launcher icon, the OS settings deep link, the emoji picker, the keyboard, the OS
-  text scale, the app lifecycle, local notifications).
+  text scale, the app lifecycle, local notifications, the YouTube player).
 
 ESLint enforces both halves: the package ban outside this folder, and the token ban outside those
 two. `device-platform.ts` is the single exemption - it reads the Capacitor _runtime_ rather than a
@@ -58,3 +58,24 @@ it and calls that when the injector is destroyed - which rejects with
 `"App.ngOnDestroy() is not implemented on web"` in every jsdom spec that reaches the token
 transitively, whether or not the test ever uses the plugin. A plain object has no such property. It
 also narrows the token's type to the slice the app uses, which is the boundary this folder is for.
+
+## The app's own plugin
+
+`siri-and-search.plugin.ts` is the one token without an npm package behind it: Spotlight and the App
+Shortcuts (#167) are implemented in the iOS app target itself (`ios/App/App/SiriAndSearchPlugin.swift`,
+`AppShortcuts.swift`, `AppDestinations.swift`). Its factory calls `registerPlugin()` from
+`@capacitor/core` instead of importing a package; the rules above apply unchanged.
+
+Capacitor only discovers npm plugins (through the generated `capacitor.config.json`), so a plugin
+compiled into the app is registered by hand: `MainViewController.swift`, the bridge view controller
+`Main.storyboard` names, does it in `capacitorDidLoad()`. The project does not use synchronized
+folders, so a new Swift file also needs its entries in `App.xcodeproj/project.pbxproj` (file
+reference, group, Sources build phase). There is no Android counterpart; the wrapper reports itself
+as unsupported there.
+
+## Patched plugins
+
+A plugin that lacks something the app needs is patched with `pnpm patch`, not forked: the patch
+lives in the root `patches/`, `patchedDependencies` in `pnpm-workspace.yaml` names it and says why,
+and an upstream issue tracks its removal. The key has no version, so the patch follows updates and
+the install fails loudly once it no longer applies. No plugin is patched at the moment.

@@ -68,10 +68,17 @@ export interface DeviceEventInstance {
   readonly title: string;
   readonly location: string | null;
   readonly description: string | null;
+  /** The event's web address. iOS only: on Android the plugin always reports `null`. */
+  readonly url: string | null;
   readonly startUtc: string;
   readonly endUtc: string;
   readonly isAllDay: boolean;
   readonly timeZone: string | null;
+  /**
+   * The event's alerts in minutes before the start, like `DeviceEventDraft.alertMinutesBefore` -
+   * empty for none.
+   */
+  readonly alertMinutesBefore: readonly number[];
 }
 
 /**
@@ -113,9 +120,9 @@ export class NativeCalendarGateway {
       // internal name, then to the account it belongs to, and only then to the raw id.
       name: calendar.title ?? calendar.internalTitle ?? calendar.accountName ?? calendar.id,
       color: calendar.color ?? null,
-      // Unknown counts as read-only: a save into a holiday or shared calendar would fail. The plugin
-      // reports `null` for every Android calendar up to 8.9.0, so Android device calendars stay
-      // read-only until it reads the provider's access level (ebarooni/capacitor-calendar#305).
+      // Unknown counts as read-only: a save into a holiday or shared calendar would fail. Since 8.10.0
+      // the plugin derives the value on Android from the provider's access level (contributor and up
+      // is writable) and reports `null` only when the provider has no level for the calendar.
       writable: calendar.allowsContentModifications ?? false,
       // `source` is iOS-only; Android has no separate id and reports `accountName` instead.
       sourceId: calendar.source?.id ?? calendar.accountName ?? null,
@@ -150,10 +157,15 @@ export class NativeCalendarGateway {
         title: event.title,
         location: event.location,
         description: event.description,
+        url: event.url,
         startUtc: toInstant(event.startDate),
         endUtc: toInstant(event.endDate),
         isAllDay: event.isAllDay,
         timeZone: event.timezone,
+        // The plugin counts minutes relative to the start, negative before it, on both platforms
+        // (`createEvent` writes them the same way). `0 - minutes` rather than `-minutes`, so an
+        // alert at the start stays 0 instead of becoming -0.
+        alertMinutesBefore: event.alerts.map((minutes) => 0 - minutes),
       };
     });
   }

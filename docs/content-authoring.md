@@ -34,7 +34,9 @@ Fields per entry:
 | `bodyMarkdown`             | See §3 for markdown conventions (blockquotes, links).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `sourceLabel`, `sourceUrl` | Optional "Quelle" link shown under the body (e.g. a linked article/app).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `relatedSources`           | Optional array of `{ title, subtitle?, url }` "Mehr zum Thema" links, shown together in one card below the body, each opening outside the app. `title` and `url` (https) are required, `subtitle` is an optional second line such as the publisher or platform. A link to Instagram, YouTube, TikTok, Spotify, LinkedIn or Snapchat gets a matching symbol instead of the external-link icon (`link-platform.ts` next to the detail page) - omit the field entirely when there are none. **Only ever link what Amazone supplied with the entry**; never research a link (a Wikipedia article, say) and add it yourself - the app then vouches for a page nobody in the editorial team chose. |
-| `validFrom`, `validTo`     | ISO dates for date-scoped items, or both `null` for evergreen content.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `validFrom`, `validTo`     | The window the item may be featured in, both `null` for evergreen content. `--MM-DD` for a window that recurs every year (`"--05-17"` for IDAHOBIT, `"--06-01"`…`"--06-30"` for June; a window may wrap the turn of the year, `"--12-20"`…`"--01-06"`). `YYYY-MM-DD` only for a date that belongs to one year - a deadline, or a day that moves (Safer Internet Day is the second Tuesday of February). Both bounds use the same form; `content-catalog.content.spec.ts` fails otherwise.                                                                                                                                                                                                    |
+| `video`                    | Optional `{ "provider": "youtube", "id": "<11-character id>", "orientation": "landscape" \| "portrait" }`. A YouTube Short is `portrait`. The id is the part after `watch?v=`, `youtu.be/` or `shorts/` - without `si=`, `t=` or other parameters. The item's picture becomes the video's cover, so pick a still from the video. Only YouTube: a Vimeo link goes into `relatedSources` if it has no YouTube twin. See §5 for what the app does with it.                                                                                                                                                                                                                                      |
+| `supportServiceIds`        | Optional, chosen by hand: the Anlaufstellen the item points to. Omit it (or `null`) for none, `[]` for the Anlaufstellen page as a whole - when the text says „Anlaufstellen findest du hier in der App“ - or the `id`s of named entries from `support-services/catalog.json` when the text names a service that is listed there. Each named entry opens on its own card. The spec fails on an id the Anlaufstellen catalog does not have.                                                                                                                                                                                                                                                   |
 | `eligibleForDaily`         | Whether this item can be picked as the Today page's featured item.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 An entry names its picture by `heroImageId` and nothing else. The file, its description and its
@@ -69,7 +71,7 @@ that names what the picture shows, usually the person or the topic.
 ## 3. Markdown conventions
 
 `bodyMarkdown` renders through `MarkdownContentComponent` (`cross-cutting/markdown/`), which allows
-paragraphs, lists, headings, links and blockquotes - see `apps/app/src/styles/components/markdown-content.css`
+paragraphs, lists, headings, links, blockquotes and callouts - see `apps/app/src/styles/components/markdown-content.css`
 for how each renders.
 
 - **A Rebell\*in's own quoted words**, transcribed as their own standalone paragraph, should be a
@@ -77,7 +79,27 @@ for how each renders.
   (bordered, larger, semibold) rather than relying on the quote marks alone. Only convert a
   standalone quoted paragraph; leave quoted terms inside running prose (e.g. a nickname like „Godmother
   of Punk“) as plain text.
-- Links (`[text](url)`) render as underlined inline links; no other markup needed.
+- **What a reader must not miss** - a call to action, a deadline - goes in a callout at the top
+  of the body, written as a GitHub alert. It renders as a semibold box tinted in the theme's primary colour, not as a quote:
+
+  ```markdown
+  > [!NOTE]
+  > **Gestalte gemeinsam mit uns den Rebell\*innen Kalender 2027/28!**
+  ```
+
+  Only `[!NOTE]` is supported, and only once or twice per item - a body full of callouts
+  highlights nothing. A long title is a good candidate: shorten the title and put the full
+  wording in the callout.
+
+- Links (`[text](url)`) render as underlined inline links; no other markup needed. `https:` and
+  `mailto:` links work; every other scheme is removed. A sign-up form or other page the item
+  points to belongs in `relatedSources`, not in `sourceUrl`, which is only for the source of the
+  text.
+- **An e-mail address** the reader is invited to write to becomes a `mailto:` link with a subject
+  and a short template body that fit the item, URL-encoded (`%20` for spaces, `%0A` for line
+  breaks), e.g. `[n.kaufmann@amazone.or.at](mailto:n.kaufmann@amazone.or.at?subject=Song%20f%C3%BCr%20die%20Playlist)`.
+  Keep the address itself as the link text, so it can still be read and copied.
+- Raw HTML is dropped, tags and all; write Markdown only.
 - Never import `marked` outside `cross-cutting/markdown/` - always go through
   `MarkdownContentComponent`, per the frontend architecture rules.
 
@@ -145,7 +167,19 @@ Notes from doing this for the first 41 items:
   (`apps/app/scripts/check-image-rights.mjs`), so an unreviewed image can reach tester builds but not a
   release.
 
-## 5. Verify
+## 5. Videos
+
+An item with `video` shows its picture as a cover with „Video abspielen“; nothing reaches YouTube
+before the tap (privacy policy §6.2). The video then plays in the picture's place: a native player
+on Android and iOS, an embed in the browser, all loaded from YouTube's privacy-enhanced
+youtube-nocookie.com. Under it sit „Auf YouTube ansehen“, a second way in, and an
+info button that says playing sends data to Google.
+
+When a video is added, ask the producer whether it has German captions, and say in the pull request
+if it does not (WCAG 1.2.2). Burned-in subtitles are best: the app leaves YouTube's own captions
+off so they do not cover them, and it cannot add any.
+
+## 6. Verify
 
 1. `pnpm test:ci` - the catalog sync and content interactors have unit tests, but they don't cover
    authored content itself; this just confirms nothing broke.
@@ -220,11 +254,11 @@ digits are the digits the `uri` dials. It runs as part of `pnpm test:ci`. Both e
 it - `SHARED_EMOJI_BY_DESIGN` and `HTTP_ONLY_BY_NECESSITY` - name the entry and the reason; add to
 them deliberately, never to silence a failure.
 
-## Adding a curated calendar (Amazone & Partnerkalender)
+## Adding a curated calendar (Rebell*innen & mehr)
 
 `apps/app/public/curated-calendars/catalog.json` is the one place a curated online calendar is listed (#2).
 Everything in the app follows from it: the introduction's „Welche Kalender willst du sehen?“ step,
-Settings → Kalender verwalten → Amazone & Partnerkalender, and the seeded calendar itself. No
+Settings → Kalender verwalten → Rebell*innen & mehr, and the seeded calendar itself. No
 screen names a calendar in code.
 
 1. Add an entry: `id` (stable, kebab-case, never reused), `name`, `description` (one sentence,

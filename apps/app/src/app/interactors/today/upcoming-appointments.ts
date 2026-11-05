@@ -11,8 +11,7 @@ export const UPCOMING_APPOINTMENT_LIMIT = 3;
  * drops out once it has ended, not once it has started, so the meeting the user is sitting in is
  * still on the list.
  *
- * Pure on purpose, like `selectTodayClosingState`: the caller supplies `nowUtc`, so a test never
- * has to mock a clock.
+ * Pure on purpose: the caller supplies `nowUtc`, so a test never has to mock a clock.
  */
 export function selectUpcomingAppointments(
   todayOccurrences: readonly CalendarOccurrence[],

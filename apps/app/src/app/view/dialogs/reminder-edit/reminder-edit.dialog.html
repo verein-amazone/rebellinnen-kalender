@@ -1,10 +1,5 @@
 <form (submit)="$event.preventDefault(); save()">
-  <!--
-    The label is there for assistive technology but not on screen: the sheet's own heading („Neue
-    Erinnerung“ / „Erinnerung bearbeiten“) sits directly above the field and already says what to
-    type, so the visible label only repeated it a second time.
-  -->
-  <label class="sr-only" for="reminder-edit-text">Text der Erinnerung</label>
+  <label class="rk-label" for="reminder-edit-text">Text der Erinnerung</label>
 
   <div class="rk-field">
     <input
@@ -12,7 +7,6 @@
       class="rk-input"
       type="text"
       autocomplete="off"
-      placeholder="Text eingeben"
       cdkFocusInitial
       #textInput
       [attr.maxlength]="maxLength"

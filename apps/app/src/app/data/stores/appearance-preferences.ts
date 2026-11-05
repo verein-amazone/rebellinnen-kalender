@@ -2,22 +2,16 @@
  * Persisted appearance preferences.
  *
  * `system` means "follow the device setting" and is the default for text size and motion. The
- * colour theme can follow the device too, but defaults to an explicit palette: Amazone is the
- * app's face, so a first start shows it whatever the device's dark mode says.
+ * colour theme is always an explicit one: Amazone („Strong“) is the app's face, so a first start
+ * shows it whatever the device's dark mode says.
  */
 
 /**
- * The colour palettes. Their ids must match the `[data-theme='…']` blocks in
- * `src/styles/theme.css`.
+ * The colour themes. Their ids must match the `[data-theme='…']` blocks in
+ * `packages/design-system/src/theme.css`, and never change: they are what an install has stored.
+ * The labels users see („Strong“, „Dark“, …) live in `AppearanceInteractor`.
  */
-export const PALETTE_IDS = ['amazone', 'warm', 'nacht', 'lila'] as const;
-export type PaletteId = (typeof PALETTE_IDS)[number];
-
-/**
- * The selectable colour themes: every palette, plus `system`, which follows the device's dark mode
- * and resolves to a palette before it reaches the document (see `AppearanceInteractor`).
- */
-export const THEME_IDS = ['system', ...PALETTE_IDS] as const;
+export const THEME_IDS = ['amazone', 'nacht', 'lila', 'summer', 'candy'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 
 /**

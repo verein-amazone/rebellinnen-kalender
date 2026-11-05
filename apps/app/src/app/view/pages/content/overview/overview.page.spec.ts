@@ -27,6 +27,8 @@ function item(overrides: Partial<ContentItemView> = {}): ContentItemView {
     sourceLabel: null,
     sourceUrl: null,
     relatedSources: [],
+    video: null,
+    supportServiceIds: null,
     ...overrides,
   };
 }
@@ -149,9 +151,13 @@ async function setup(
   TestBed.inject(Router).navigate = navigate;
 
   const fixture = TestBed.createComponent(ContentOverviewPage);
-  // `area` is bound from the query parameter by `withComponentInputBinding()` in the real app.
+  // `area` and `service` are bound from the query parameters by `withComponentInputBinding()` in
+  // the real app.
   fixture.componentRef.setInput('area', options.queryParams?.['area']);
+  fixture.componentRef.setInput('service', options.queryParams?.['service']);
   await fixture.whenStable();
+  // The card is revealed after the render that follows loading the entries.
+  await new Promise((resolve) => setTimeout(resolve));
 
   return {
     element: fixture.nativeElement as HTMLElement,
@@ -161,6 +167,12 @@ async function setup(
     setArea: async (area: string) => {
       fixture.componentRef.setInput('area', area);
       await fixture.whenStable();
+    },
+    /** Likewise for `?service=`, as a second iOS search result sets it on the open screen. */
+    setService: async (id: string) => {
+      fixture.componentRef.setInput('service', id);
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve));
     },
     bookmarks,
     haptics,
@@ -184,7 +196,7 @@ describe('ContentOverviewPage', () => {
 
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     const servicesTab = tabs.find((tab) => tab.textContent?.includes('Anlaufstellen'));
-    const collectionTab = tabs.find((tab) => tab.textContent?.includes('Meine Sammlung'));
+    const collectionTab = tabs.find((tab) => tab.textContent?.trim() === 'Sammlung');
     expect(collectionTab?.getAttribute('aria-selected')).toBe('true');
     expect(servicesTab?.getAttribute('aria-selected')).toBe('false');
 
@@ -223,6 +235,83 @@ describe('ContentOverviewPage', () => {
 
     expect(element.textContent).toContain('Verein Amazone');
     expect(element.textContent).not.toContain('Rat auf Draht');
+  });
+
+  describe('opened for one Anlaufstelle (?service=)', () => {
+    const regions = [
+      { id: 'online', label: 'Online & Telefon' },
+      { id: 'vorarlberg', label: 'Vorarlberg' },
+    ];
+    const services = [
+      service({ id: 'rat-auf-draht', region: 'online', name: 'Rat auf Draht' }),
+      service({ id: 'verein-amazone', region: 'vorarlberg', name: 'Verein Amazone' }),
+    ];
+
+    // jsdom does not lay out, so it has no `scrollIntoView` of its own.
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    afterEach(() => {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+    });
+
+    it('selects its region, then scrolls its card into view and focuses it', async () => {
+      const scrollIntoView = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoView;
+
+      const { element } = await setup({
+        queryParams: { area: 'services', service: 'verein-amazone' },
+        regions,
+        services,
+      });
+
+      const card = element.querySelector<HTMLElement>('#support-service-verein-amazone');
+      expect(element.textContent).not.toContain('Rat auf Draht');
+      expect(card).not.toBeNull();
+      expect(document.activeElement).toBe(card);
+      expect(card?.getAttribute('tabindex')).toBe('-1');
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' });
+    });
+
+    it('reveals another entry when the open screen is sent to it', async () => {
+      Element.prototype.scrollIntoView = vi.fn();
+
+      const { element, setService } = await setup({
+        queryParams: { area: 'services', service: 'verein-amazone' },
+        regions,
+        services,
+      });
+      await setService('rat-auf-draht');
+
+      const card = element.querySelector<HTMLElement>('#support-service-rat-auf-draht');
+      expect(card).not.toBeNull();
+      expect(document.activeElement).toBe(card);
+    });
+
+    it('closes a search still open on the screen, so the entry it is sent to can be revealed', async () => {
+      Element.prototype.scrollIntoView = vi.fn();
+
+      const { element, setService } = await setup({
+        queryParams: { area: 'services', q: 'rat' },
+        regions,
+        services,
+      });
+      expect(element.querySelector('input[type="search"]')).not.toBeNull();
+
+      await setService('verein-amazone');
+
+      expect(element.querySelector('input[type="search"]')).toBeNull();
+      expect(document.activeElement?.id).toBe('support-service-verein-amazone');
+    });
+
+    it('leaves the screen as it is for an unknown entry', async () => {
+      const { element } = await setup({
+        queryParams: { area: 'services', service: 'gone' },
+        regions,
+        services,
+      });
+
+      expect(element.textContent).toContain('Rat auf Draht');
+      expect(document.activeElement?.id ?? '').not.toMatch(/^support-service-/);
+    });
   });
 
   it('ticks when another region is picked, and not when the selected one is tapped again', async () => {
@@ -347,9 +436,7 @@ describe('ContentOverviewPage', () => {
 
     const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
     expect(
-      tabs
-        .find((tab) => tab.textContent?.includes('Meine Sammlung'))
-        ?.getAttribute('aria-selected'),
+      tabs.find((tab) => tab.textContent?.trim() === 'Sammlung')?.getAttribute('aria-selected'),
     ).toBe('true');
     expect(element.textContent).toContain('Eine Rebellin');
     expect(element.textContent).not.toContain('Wissensimpuls');

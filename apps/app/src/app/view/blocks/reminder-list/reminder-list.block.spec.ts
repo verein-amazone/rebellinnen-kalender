@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 import { of, type Observable } from 'rxjs';
 
 import { LocalDay } from '@app/cross-cutting/infrastructure/local-day';
-import { ReminderChanges } from '@app/cross-cutting/infrastructure/reminder-changes';
 import { ReminderListInteractor } from '@app/interactors/reminders/reminder-list.interactor';
 import type { Reminder } from '@app/interactors/reminders/reminder.vm';
 import { HapticsInteractor } from '@app/interactors/feedback/haptics.interactor';
@@ -148,7 +147,6 @@ async function setup(items: Reminder[] = []) {
   await fixture.whenStable();
 
   const element = fixture.nativeElement as HTMLElement;
-  const reminderChanges = TestBed.inject(ReminderChanges);
 
   return {
     element,
@@ -157,7 +155,6 @@ async function setup(items: Reminder[] = []) {
     announcer,
     haptics,
     day,
-    reminderChanges,
     settle: () => fixture.whenStable(),
     /** The drop output is called directly: jsdom gives every element zero size, so a real CDK
      *  pointer drag cannot be simulated - and the gesture itself is the CDK's own tested surface. */
@@ -333,15 +330,6 @@ describe('ReminderListBlock', () => {
     expect(block.element.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(
       false,
     );
-  });
-
-  it('notifies ReminderChanges after completing an entry, so the Today closing message can react', async () => {
-    const block = await setup([open]);
-    const before = block.reminderChanges.version();
-
-    await block.click('input[type="checkbox"]', 0);
-
-    expect(block.reminderChanges.version()).not.toBe(before);
   });
 
   it('applies an edit, and changes nothing when the edit is cancelled', async () => {

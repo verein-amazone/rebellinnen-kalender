@@ -58,6 +58,7 @@ export class NotificationPreferencesStore {
         candidate.allDayDefaults,
         DEFAULT_NOTIFICATION_PREFERENCES.allDayDefaults,
       ),
+      calendarReminders: pickSwitches(candidate.calendarReminders),
     };
   }
 
@@ -69,6 +70,18 @@ export class NotificationPreferencesStore {
       return null;
     }
   }
+}
+
+/** Keeps the well-formed entries; anything else falls back to the calendar's default. */
+function pickSwitches(value: unknown): Readonly<Record<string, boolean>> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return DEFAULT_NOTIFICATION_PREFERENCES.calendarReminders;
+  }
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, boolean] => typeof entry[1] === 'boolean',
+    ),
+  );
 }
 
 function pickList(value: unknown, fallback: readonly number[]): readonly number[] {

@@ -8,7 +8,7 @@
  */
 import type { MarkdownHeading } from 'astro';
 
-import { APP_NAME } from '../lib/site';
+import { APP_NAME, NEW_TAB_HINT } from '../lib/site';
 import BaseLayout from './BaseLayout.astro';
 
 interface Props {
@@ -19,6 +19,13 @@ interface Props {
 }
 
 const { title, path, headings = [] } = Astro.props;
+
+// The text's links to other sites open in a new tab, like every other link that leaves the page
+// (NewTabLink). The Markdown renders them as plain `<a href="https://…">`.
+const text = (await Astro.slots.render('default')).replace(
+  /<a href="(https?:\/\/[^"]*)">(.*?)<\/a>/g,
+  `<a href="$1" target="_blank" rel="noopener">$2<span class="sr-only">${NEW_TAB_HINT}</span></a>`,
+);
 
 const sections = headings.filter((heading) => heading.depth === 2);
 const showSections = sections.length >= 6;
@@ -70,9 +77,10 @@ const linkClass =
           </nav>
         </details>
       )}
-      <article class="legal-text max-w-184 rounded-lg bg-card p-[clamp(1.25rem,5vw,3rem)]">
-        <slot />
-      </article>
+      <article
+        class="legal-text max-w-184 rounded-lg bg-card p-[clamp(1.25rem,5vw,3rem)]"
+        set:html={text}
+      />
       {showSections && (
         <nav
           aria-label={`Inhalt: ${title}`}

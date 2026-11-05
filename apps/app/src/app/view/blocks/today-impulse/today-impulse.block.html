@@ -51,12 +51,19 @@
         <div class="absolute top-3 left-3">
           <ng-container [ngTemplateOutlet]="impulseLabel" />
         </div>
+        @if (content.video) {
+          <!-- Icon and word together, never the icon alone; the same solid fill as the label. -->
+          <span class="rk-pill-solid absolute bottom-3 left-3">
+            <svg lucideClapperboard class="rk-icon-sm" aria-hidden="true"></svg>
+            Video
+          </span>
+        }
       </div>
 
       <div class="px-4 pt-3 pb-4">
         <p class="font-bold">{{ content.title }}</p>
         <span class="text-primary mt-2 inline-flex items-center gap-0.5 text-sm font-semibold">
-          Mehr lesen
+          {{ content.video ? 'Video ansehen' : 'Mehr lesen' }}
           <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
         </span>
       </div>
@@ -81,10 +88,12 @@
         class="block"
       >
         <p class="font-bold">{{ content.title }}</p>
-        <p class="text-muted-foreground mb-2 line-clamp-2">{{ content.teaser }}</p>
+        @if (content.teaser) {
+          <p class="text-muted-foreground line-clamp-2">{{ content.teaser }}</p>
+        }
 
-        <span class="text-primary inline-flex items-center gap-0.5 text-sm font-semibold">
-          Mehr lesen
+        <span class="text-primary mt-2 inline-flex items-center gap-0.5 text-sm font-semibold">
+          {{ content.video ? 'Video ansehen' : 'Mehr lesen' }}
           <svg lucideChevronRight class="rk-icon-sm" aria-hidden="true"></svg>
         </span>
       </a>

@@ -300,6 +300,33 @@ describe('materializeAppItem', () => {
     expect(truncated).toBe(true);
     expect(occurrences).toHaveLength(5);
   });
+
+  describe('description', () => {
+    const ics = { keyPrefix: 'ics', sourceType: 'ics' } as const;
+
+    it('leaves it out for app items, whose note stays on the canonical record', () => {
+      const { occurrences } = materializeAppItem(item({ note: 'Notiz' }), [], context());
+
+      expect(occurrences.every((occurrence) => occurrence.description === null)).toBe(true);
+    });
+
+    it('carries an ICS event description, with an override replacing or clearing it', () => {
+      const { occurrences } = materializeAppItem(
+        item({ note: '<b>Ablauf</b>' }),
+        [
+          exception({ note: 'Diesmal anders' }),
+          exception({ originalStart: '2026-10-26T18:00:00', note: '' }),
+        ],
+        context(),
+        ics,
+      );
+      const byStart = new Map(occurrences.map((row) => [row.originalStart, row.description]));
+
+      expect(byStart.get('2026-10-12T18:00:00')).toBe('<b>Ablauf</b>');
+      expect(byStart.get('2026-10-19T18:00:00')).toBe('Diesmal anders');
+      expect(byStart.get('2026-10-26T18:00:00')).toBeNull();
+    });
+  });
 });
 
 describe('countGeneratedBefore', () => {

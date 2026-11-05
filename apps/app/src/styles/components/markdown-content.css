@@ -45,6 +45,18 @@
     margin: 0;
   }
 
+  /*
+   * A callout (`> [!NOTE]`, see `MarkdownRenderer`): what a reader must not miss, set apart as a
+   * filled box and in weight - not a quotation, so neither the border nor the italic of one.
+   */
+  .rk-markdown-content > div {
+    @apply bg-primary/10 rounded-md px-4 py-3 font-semibold;
+  }
+
+  .rk-markdown-content > div > :not(:last-child) {
+    margin-bottom: 0.5em;
+  }
+
   .rk-markdown-content a {
     @apply text-primary underline underline-offset-2;
   }

@@ -19,7 +19,7 @@ import { FocusedScreenScaffold } from '@app/view/scaffolds/focused-screen/focuse
 import { InfoToggletip } from '@app/view/components/info-toggletip/info-toggletip';
 
 /**
- * „Amazone & Partnerkalender“: the curated calendars shipped with the app (#2) - Amazone events,
+ * „Rebell*innen & mehr“: the curated calendars shipped with the app (#2) - Amazone events,
  * partner organisations, Austrian public holidays. Mirrors `IcsCalendarsPage`, since a curated
  * source is a read-only ICS subscription underneath, minus the parts that don't apply to a fixed
  * list: no "add by link" and no delete, since the catalog - not the user - decides which sources

@@ -27,32 +27,10 @@
               </button>
             </div>
           } @else {
-            <p class="text-muted-foreground text-sm">
-              Verbinde die Kalender deines Geräts, um deren Termine zusätzlich zu deinem
-              App-Kalender zu sehen. Deine Termine bleiben dabei auf dem Gerät - sie werden nicht
-              hochgeladen oder geteilt.
-            </p>
-            <button
-              type="button"
-              class="rk-button rk-button-primary w-full"
-              (click)="connectDeviceCalendars()"
-            >
-              <svg lucideLink class="rk-icon" aria-hidden="true"></svg>
-              <span>Gerätekalender verbinden</span>
-            </button>
+            <ng-container [ngTemplateOutlet]="notConnected" />
           }
         } @else if (!snapshot.source.enabled) {
-          <p class="text-muted-foreground text-sm">
-            Der Gerätekalender ist getrennt. Deine App-Termine sind davon nicht betroffen.
-          </p>
-          <button
-            type="button"
-            class="rk-button rk-button-primary w-full"
-            (click)="connectDeviceCalendars()"
-          >
-            <svg lucideLink class="rk-icon" aria-hidden="true"></svg>
-            <span>Verbinden</span>
-          </button>
+          <ng-container [ngTemplateOutlet]="notConnected" />
         } @else {
           @if (snapshot.source.state === 'permission-lost') {
             <p class="text-muted-foreground text-sm">
@@ -77,7 +55,7 @@
           @if (snapshot.groups.length > 0) {
             @for (group of snapshot.groups; track group.nativeSourceId ?? '') {
               <div class="space-y-2">
-                <h2 class="text-muted-foreground text-sm">
+                <h2>
                   {{ group.nativeSourceName ?? 'Weitere Kalender' }}
                 </h2>
 
@@ -165,4 +143,22 @@
       </p>
     }
   </div>
+
+  <!-- Never connected and disconnected read alike: Verein Amazone wanted the explanation to stand
+       there either way, and the button to be the „Verbinden“ the text names. -->
+  <ng-template #notConnected>
+    <p class="text-muted-foreground text-sm">
+      Die App ist derzeit nicht mit dem Kalender auf deinem Gerät verbunden. Es werden nur Termine
+      angezeigt, die du in der App eingetragen hast. Klick auf „Verbinden“, wenn du Termine aus
+      deinem Gerätekalender in der App sehen oder eintragen möchtest.
+    </p>
+    <button
+      type="button"
+      class="rk-button rk-button-primary w-full"
+      (click)="connectDeviceCalendars()"
+    >
+      <svg lucideLink class="rk-icon" aria-hidden="true"></svg>
+      <span>Verbinden</span>
+    </button>
+  </ng-template>
 </app-focused-screen>
