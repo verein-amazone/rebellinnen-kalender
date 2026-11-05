@@ -472,6 +472,8 @@ Only create cross-cutting code when it is actually shared.
   is actually needed; they do not exist while they would be empty.
 - `markdown/` - the internal Markdown renderer that wraps the `marked` library. See
   [Markdown rendering](#markdown-rendering).
+- `rich-text/` - the sanitizer for imported event descriptions, which may be HTML. See
+  [Imported event descriptions](#imported-event-descriptions).
 
 ## Build targets
 
@@ -661,6 +663,32 @@ headings.
 Feature code (pages, blocks, interactors, etc.) must render Markdown through
 `MarkdownContentComponent`, or through `MarkdownRenderer` when it only needs the string. **Never
 import `marked` outside `cross-cutting/markdown/`.**
+
+## Imported event descriptions
+
+A device or ICS event's description is shown as its calendar wrote it, and that is not always plain
+text: RFC 5545 defines `DESCRIPTION` as text, but Google Calendar writes HTML into it (bold, italic,
+underline, lists, links), and device calendars synced with Google return the same HTML. The stored
+description is never changed; the presentation is derived each time it is shown.
+
+- **`cross-cutting/rich-text/event-description-renderer.ts`** (`EventDescriptionRenderer`) decides
+  the format from the content, not from a vendor flag such as `X-MOZ-GOOGLE-HTML-DESCRIPTION`. A
+  description is HTML only if the browser's parser finds one of the allow-listed formatting
+  elements in it; anything else becomes a text node, so `Treffpunkt <Eingang Nord>` stays text. HTML
+  goes through DOMPurify with its own allow-list (`p`, `div`, `br`, `b`, `strong`, `i`, `em`, `u`,
+  `ul`, `ol`, `li`, `a` with `href`). Links keep `https:`, `http:`, `mailto:` and `tel:` only;
+  unlike curated Markdown, a scheme-less link is dropped, because an imported relative path would
+  resolve against the app. For both formats, newlines become `<br>` (Google appends plain-text
+  blocks such as the Meet details to an HTML description), and web addresses with a scheme or
+  `www.` and e-mail addresses in the text become links. [`linkifyjs`](https://linkify.js.org/) finds
+  them - only its `find()`, used nowhere else - and the links are built as DOM nodes. The finished
+  HTML passes DOMPurify once more.
+- **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) binds
+  that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
+  runs as a further layer.
+
+A video call in the event is found before the description is shown, and the provider's generated
+block is taken out of it; see [Online meetings in imported events](./online-meetings.md).
 
 ## Allowed / forbidden examples
 

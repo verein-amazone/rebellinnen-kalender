@@ -85,12 +85,42 @@
           </p>
         }
 
-        @if (currentOccurrence.location; as location) {
+        @if (meetingDetails().location; as location) {
           <p class="text-muted-foreground">{{ location }}</p>
         }
 
-        @if (currentOccurrence.description; as description) {
-          <p class="text-muted-foreground whitespace-pre-line">{{ description }}</p>
+        @if (meetingDetails().meeting; as meeting) {
+          <!-- The join link is a plain https link: the WebView hands it to the OS, which opens the
+               provider's app if it is installed (Universal Links / App Links), else the browser. -->
+          <div class="flex flex-col gap-2">
+            <a
+              [href]="meeting.joinUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rk-button rk-button-primary w-full"
+            >
+              <svg lucideVideo class="rk-icon" aria-hidden="true"></svg>
+              <span>{{ providerNames[meeting.provider] }} beitreten</span>
+            </a>
+            @if (meeting.dialIn; as dialIn) {
+              <a [href]="dialIn.telUrl" class="rk-button rk-button-outline-primary w-full">
+                <svg lucidePhone class="rk-icon" aria-hidden="true"></svg>
+                <span class="flex flex-col items-center leading-tight">
+                  <span>Einwählen</span>
+                  <span class="text-sm tabular-nums">
+                    {{ dialIn.number }}
+                    @if (dialIn.pin; as pin) {
+                      · PIN {{ pin }}
+                    }
+                  </span>
+                </span>
+              </a>
+            }
+          </div>
+        }
+
+        @if (meetingDetails().description; as description) {
+          <app-event-description class="text-muted-foreground" [description]="description" />
         }
 
         @if (note(); as currentNote) {

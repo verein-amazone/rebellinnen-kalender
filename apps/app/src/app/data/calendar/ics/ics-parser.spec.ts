@@ -297,4 +297,25 @@ describe('parseIcsCalendar', () => {
     expect(parsed.items).toHaveLength(0);
     expect(parsed.exceptions).toHaveLength(0);
   });
+
+  it('keeps a Google Calendar HTML description as it is, with the ICS escapes undone', () => {
+    // Shaped like the public Amazone calendar: Google writes the editor's HTML straight into
+    // DESCRIPTION, with no X-MOZ-GOOGLE-HTML-DESCRIPTION flag.
+    const text = calendar([
+      'BEGIN:VEVENT',
+      'UID:2reog9m7qn9faubqdmcosvhg5u@google.com',
+      'SUMMARY:Anmeldeschluss Rebell*innen Kalender 2027/28',
+      'DTSTART;VALUE=DATE:20270214',
+      'DTEND;VALUE=DATE:20270215',
+      'DESCRIPTION:<b>Heute noch schnell anmelden!</b><br><br>Wie\\, wann\\, wo...?<br><p></p><ul><li>Dr',
+      ' ei Online-Workshops</li></ul><p></p>',
+      'END:VEVENT',
+    ]);
+
+    const parsed = parseIcsCalendar(text, 'sub-1', 'rev-1');
+
+    expect(parsed.items[0].note).toBe(
+      '<b>Heute noch schnell anmelden!</b><br><br>Wie, wann, wo...?<br><p></p><ul><li>Drei Online-Workshops</li></ul><p></p>',
+    );
+  });
 });
