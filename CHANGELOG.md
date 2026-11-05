@@ -1,3 +1,9 @@
+## [1.1.0-rc.22](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.21...v1.1.0-rc.22) (2026-11-05)
+
+### Features
+
+* **app:** keep an event's URL and its feed's join link ([1210696](https://github.com/verein-amazone/rebellinnen-kalender/commit/12106964c576f07e0fb866be248b8afbc660fe62))
+
 ## [1.1.0-rc.21](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0-rc.20...v1.1.0-rc.21) (2026-11-05)
 
 ### Features
