@@ -698,8 +698,9 @@ description is never changed; the presentation is derived each time it is shown.
   them - only its `find()`, used nowhere else - and the links are built as DOM nodes. The finished
   HTML passes DOMPurify once more.
 - **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) binds
-  that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
-  runs as a further layer.
+  that HTML with `[innerHTML]` (styled by `.rk-event-description`, whose links wrap without
+  hyphens - see [Scaling-safe rules](./design-system.md#scaling-safe-rules)), so Angular's
+  sanitizer again runs as a further layer.
 
 A video call in the event is found before the description is shown, and the provider's generated
 block is taken out of it; see [Online meetings in imported events](./online-meetings.md).
