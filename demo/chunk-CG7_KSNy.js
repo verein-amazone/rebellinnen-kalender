@@ -1,0 +1,1 @@
+import{n as E}from"./chunk-DtCWnPVA.js";var e=class extends E{async startWatching(){throw this.unimplemented(`Not implemented on web.`)}async stopWatching(){throw this.unimplemented(`Not implemented on web.`)}};export{e as ShakeWeb};

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8"/>
+    <!--
+      Defence in depth for a WebView that renders text from remote calendar feeds: nothing but the
+      app's own files may run. Same origin is `capacitor://localhost` on iOS and
+      `https://localhost` on Android; ICS feeds are fetched natively, outside this policy.
+      - `wasm-unsafe-eval`: the browser build's SQLite is WebAssembly. It allows compiling Wasm only,
+        not `eval`.
+      - `style-src 'unsafe-inline'`: the CDK and the emoji picker insert `<style>` elements.
+      - `connect-src blob:`: the web emoji picker loads its bundled data from a blob URL (no CDN
+        since `@independo/capacitor-emoji-picker` 1.3.4). The native pickers load nothing.
+      - `frame-src`: in the browser build only, a content item's video, framed from YouTube's
+        cookie-less domain after the user taps play (`VideoPlayer`). On the phones the player is
+        a native view outside this page (`NativeVideoPlayer`). No other page may be framed.
+      Keep the page free of inline scripts: the production build inlines no critical CSS for that
+      reason (`inlineCritical: false` in angular.json), whose loader would be one.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' blob:; worker-src 'self'; manifest-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'none'"/>
+    <title>Rebell*innen</title>
+    <base href="/demo/"/>
+    <!--
+      `viewport-fit=cover` lets the app use the full screen on devices with a notch or a home
+      indicator. It is also what makes the `env(safe-area-inset-*)` values non-zero on iOS; without
+      it the `.safe-*` utilities in src/styles/base.css silently do nothing.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <!--
+      The web demo (`pnpm build:demo`, published at /demo/ of the website) is for looking at the
+      app, not something to be found through a search engine. This tag is the only way to say so:
+      GitHub Pages cannot send an `X-Robots-Tag` header, and the website's robots.txt is meant to
+      allow the site itself. The phone apps ignore it.
+    -->
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="styles-MCLRMM3P.css"></head>
+  <body>
+    <app-root></app-root>
+    <noscript>Bitte aktiviere JavaScript, um die Rebell*innen App zu verwenden.</noscript>
+  <link rel="modulepreload" href="chunk-jvReQuOx.js"><link rel="modulepreload" href="chunk-aU9_mBZa.js"><link rel="modulepreload" href="chunk-DtCWnPVA.js"><link rel="modulepreload" href="chunk-Da4-SChG.js"><link rel="modulepreload" href="chunk-DtHS3VM5.js"><script src="main-OZXGPLPP.js" type="module"></script></body>
+</html>

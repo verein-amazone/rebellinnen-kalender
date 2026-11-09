@@ -1,0 +1,1 @@
+function s(n){return n==null?null:n.startsWith(`/`)&&!n.startsWith(`//`)&&!/[\\\s]/.test(n)&&n.length<=512?n:null}export{s as t};

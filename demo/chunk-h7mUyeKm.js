@@ -1,0 +1,1 @@
+import{n as E}from"./chunk-DtCWnPVA.js";var t=class extends E{async getCurrentIcon(){throw this.unimplemented(`Not implemented on web.`)}async isAvailable(){throw this.unimplemented(`Not implemented on web.`)}async resetIcon(){throw this.unimplemented(`Not implemented on web.`)}async setIcon(o){throw this.unimplemented(`Not implemented on web.`)}};export{t as AppIconWeb};
