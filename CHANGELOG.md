@@ -1,3 +1,9 @@
+## [1.2.0-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.0-rc.1...v1.2.0-rc.2) (2026-11-09)
+
+### Bug Fixes
+
+* **app:** wrap long links in event descriptions without hyphens ([3a1217d](https://github.com/verein-amazone/rebellinnen-kalender/commit/3a1217d8639e11c27a2d4f94e9b14d619694c2f5))
+
 ## [1.2.0-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.2-rc.1...v1.2.0-rc.1) (2026-11-09)
 
 ### Features
