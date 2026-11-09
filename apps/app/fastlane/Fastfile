@@ -387,12 +387,28 @@ platform :ios do
 
   desc 'Write the App Store listing to the version being prepared, without a build. Does not submit it for review.'
   lane :listing do
+    api_key = app_store_connect_key
+
     # No `app_version`: deliver edits the version App Store Connect has in "Prepare for Submission"
-    # (or "Rejected", "Developer Rejected", ...) and fails when there is none - a version that is live
-    # or in review cannot be edited, and creating the next one is the release lane's job. No release
-    # notes either: they belong to a build, and the first version has none.
+    # (or "Rejected", "Developer Rejected", ...). A version that is live or in review cannot be
+    # edited, and creating the next one is the release lane's job. No release notes either: they
+    # belong to a build, and the first version has none.
+    #
+    # With no editable version the lane stops here instead of letting deliver fail with "could not
+    # find an editable version": there is nothing to write to, and the release that creates the next
+    # version writes this same listing with it. That is the usual case, not a mistake - a merge into
+    # `main` that touches fastlane/metadata/ and cuts a release starts this workflow next to the
+    # release, and while the new version is still being built only the live one exists (1.1.1).
+    app = Spaceship::ConnectAPI::App.find(APP_IDENTIFIER)
+    UI.user_error!("App Store Connect has no app #{APP_IDENTIFIER}.") if app.nil?
+    if app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS).nil?
+      UI.important('App Store Connect has no version in preparation, so there is nothing to write ' \
+                   'the listing to. The next release from `main` writes it with its version.')
+      next
+    end
+
     upload_to_app_store(
-      api_key: app_store_connect_key,
+      api_key: api_key,
       skip_binary_upload: true,
       skip_app_version_update: true,
       overwrite_screenshots: true,
