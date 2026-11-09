@@ -505,7 +505,9 @@ intensity and sharpness fall away across the same 1.2s. It greets on every openi
 cold start or a return from the background, not a tab switch), and not at all - neither wave nor
 buzz - while „Animationen“ is on „Wenig“, or on „Systemeinstellung“ with the device reducing motion.
 Verein Amazone folded the former Tagesimpuls setting into „Animationen“ for that. _Whether_ the
-phone vibrates along is the app-wide „Vibration“ setting.
+phone vibrates along is the app-wide „Vibration“ setting. Android plays the pattern only from
+Android 12 on (`@capawesome/capacitor-haptics` 0.2.0 plays it as a composition); older Android
+devices show the wave without the buzz, since `DeviceHaptics` swallows the failure.
 Neither channel ever carries information on its own: the card is fully readable with both off.
 
 ### Haptics

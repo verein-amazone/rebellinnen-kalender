@@ -64,6 +64,22 @@ describe('DeviceHaptics', () => {
     expect(plugin.patterns[0]).toEqual({ events: [{ time: 0, intensity: 0.5, sharpness: 0.4 }] });
   });
 
+  it('hands the plugin times and durations in milliseconds', async () => {
+    const { gateway, plugin } = setup();
+
+    await gateway.playPattern([
+      { time: 0.12, intensity: 1 },
+      { time: 0.3, intensity: 0.6, duration: 0.25 },
+    ]);
+
+    expect(plugin.patterns[0]).toEqual({
+      events: [
+        { time: 120, intensity: 1 },
+        { time: 300, intensity: 0.6, duration: 250 },
+      ],
+    });
+  });
+
   it('reports what the device says about availability', async () => {
     const { gateway, plugin } = setup();
     plugin.available = false;

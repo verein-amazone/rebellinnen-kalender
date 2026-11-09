@@ -19,7 +19,7 @@
     "@amazone/design-system": "workspace:*",
     "@amazone/legal": "workspace:*",
     "@tailwindcss/vite": "catalog:",
-    "astro": "^7.4.4",
+    "astro": "^7.4.7",
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "eslint": "catalog:",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y-x": "^0.2.0",
-    "globals": "^17.13.0",
+    "globals": "^17.14.0",
     "serve": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
