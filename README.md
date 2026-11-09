@@ -67,8 +67,10 @@ pnpm test:site   # Build it, plus a copy with test store links, and run its Play
 pnpm --filter @amazone/site dev  # Serve it locally with live reload
 ```
 
-The browser build of the app itself is not published. It exists for local development and the e2e
-suite.
+The browser build of the app exists for local development and the e2e suite. Its demo flavour
+(`pnpm build:demo`) is published with the website at
+[/demo/](https://rebellinnen.amazone.or.at/demo/): unlisted, for looking at the app rather than
+using it.
 
 ## Repository layout
 

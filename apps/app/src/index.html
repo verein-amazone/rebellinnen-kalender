@@ -29,6 +29,13 @@
       it the `.safe-*` utilities in src/styles/base.css silently do nothing.
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      The web demo (`pnpm build:demo`, published at /demo/ of the website) is for looking at the
+      app, not something to be found through a search engine. This tag is the only way to say so:
+      GitHub Pages cannot send an `X-Robots-Tag` header, and the website's robots.txt is meant to
+      allow the site itself. The phone apps ignore it.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
   </head>
   <body>

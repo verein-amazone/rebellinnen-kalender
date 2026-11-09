@@ -3,6 +3,27 @@
   stays put however tall the content becomes. At large text sizes it is several viewports tall.
 -->
 <div class="rk-shell">
+  @if (demo) {
+    <!--
+      The web demo only (BuildFlavor): says that this is a preview and where the real app is. Part
+      of the shell's flex column, so it takes its height from <main> instead of covering it, and it
+      stays on every screen. No top inset: a browser draws its own toolbar above the page, so the
+      inset there is 0, and the screens below keep theirs for the native build. The side inset sits
+      on the outer element and the padding on the inner one, so the two add up instead of
+      competing for `padding-left`.
+    -->
+    <div class="bg-muted text-foreground border-border safe-x shrink-0 border-b">
+      <p class="px-4 py-1 text-sm">
+        Das ist eine Vorschau im Browser. Kalender-Abos, Gerätekalender und Erinnerungen gibt es nur
+        in der App.
+        <a
+          href="https://rebellinnen.amazone.or.at/"
+          class="min-h-touch inline-flex items-center font-semibold underline underline-offset-2"
+          >App herunterladen</a
+        >
+      </p>
+    </div>
+  }
   <!-- Every screen renders exactly one <h1> in here; PageFocus targets it on navigation. -->
   <!--
     Primary destinations without a header of their own have the shell keep their content clear of

@@ -181,7 +181,10 @@ has them); keep the redirect for as long as an old address can still be out ther
   them.
 - **Published** by `.github/workflows/pages.yml` on every push to `main` that touches its sources,
   and **tested** by `pnpm test:site` (axe, no foreign requests, no Content-Security-Policy
-  violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job.
+  violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job. The
+  same publish puts the app's web demo at `/demo/` (`pnpm build:demo`, see
+  [Build targets](./architecture/frontend-architecture.md#build-targets)); nothing on the website
+  links it.
 
 ## Availability
 
