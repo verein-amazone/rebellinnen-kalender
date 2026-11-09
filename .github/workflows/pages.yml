@@ -2,8 +2,16 @@
 # the store links, /download (the QR-code target), and the privacy policy, terms of use and imprint
 # (`apps/site`, an Astro site, see docs/store-listing.md).
 #
+# Next to it, /demo/ is the app itself as a browser build (`pnpm build:demo`): a preview for looking
+# at the app, not for using it. Nothing on the website links it and its page asks not to be indexed.
+# What a browser cannot do - calendar subscriptions, the device calendar, reminders - is hidden
+# there as in every web build, and a notice says so. Pages has no rewrite rule and would answer a
+# reload of a deeper path with the website's 404 page, so the demo routes in the hash
+# (`/demo/#/settings`).
+#
 # The site follows `main`, the release branch, so the legal texts describe the app in the stores,
-# not the next one in `dev` (#148). A change to the site therefore goes live with the next release
+# not the next one in `dev` (#148), and the demo is the released app. A change to the site or the
+# demo therefore goes live with the next release
 # from `main`. A website-only fix that cannot wait runs this workflow by hand on `main` (Actions ->
 # Pages -> Run workflow) once it is merged there.
 #
@@ -26,6 +34,13 @@ on:
     paths:
       - apps/site/**
       - packages/**
+      # The demo. The root package.json carries the version the demo shows.
+      - apps/app/src/**
+      - apps/app/public/**
+      - apps/app/scripts/**
+      - apps/app/angular.json
+      - apps/app/package.json
+      - package.json
       # The share image is the Play feature graphic.
       - apps/app/fastlane/metadata/android/de-DE/images/featureGraphic.png
       - pnpm-lock.yaml
@@ -45,7 +60,7 @@ jobs:
   publish:
     name: Build and publish the website
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -69,12 +84,16 @@ jobs:
       - name: Build the website
         run: pnpm build:site
 
+      - name: Build the app demo
+        run: pnpm build:demo
+
       - name: Publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           test -s apps/site/dist/CNAME
+          test -s apps/app/dist/demo/browser/index.html
 
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -83,6 +102,8 @@ jobs:
           git init -q
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           cp -R ../apps/site/dist/. .
+          mkdir demo
+          cp -R ../apps/app/dist/demo/browser/. demo/
 
           # Without it, Pages runs the output through Jekyll, which drops files starting with `_` -
           # among them Astro's `_astro/` folder with the stylesheet, the fonts and the share image.

@@ -44,7 +44,8 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["src/styles.css"],
+            "define": { "demoBuild": "false" }
           },
           "configurations": {
             "production": {
@@ -67,6 +68,11 @@
                 "styles": { "minify": true, "inlineCritical": false },
                 "fonts": true
               }
+            },
+            "demo": {
+              "baseHref": "/demo/",
+              "outputPath": "dist/demo",
+              "define": { "demoBuild": "true" }
             },
             "development": {
               "optimization": false,
