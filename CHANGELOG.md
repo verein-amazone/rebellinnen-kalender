@@ -1,3 +1,9 @@
+## [1.1.1-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.2...v1.1.1-rc.3) (2026-11-09)
+
+### Bug Fixes
+
+* **site:** drop the launch date now that the app is in both stores ([71aec8a](https://github.com/verein-amazone/rebellinnen-kalender/commit/71aec8a3eb5f31b3d5049331a4160497c6cad5ee))
+
 ## [1.1.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.1...v1.1.1-rc.2) (2026-11-09)
 
 ### Delivery
