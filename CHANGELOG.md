@@ -1,3 +1,26 @@
+## [1.2.0](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1...v1.2.0) (2026-11-09)
+
+### Features
+
+* **pages:** publish the app as an unlisted web demo at /demo/ ([28ba9eb](https://github.com/verein-amazone/rebellinnen-kalender/commit/28ba9ebb8e9909c919ec740b134be2170ea28c95))
+
+### Bug Fixes
+
+* **app:** wrap long links in event descriptions without hyphens ([3a1217d](https://github.com/verein-amazone/rebellinnen-kalender/commit/3a1217d8639e11c27a2d4f94e9b14d619694c2f5))
+* **store:** skip the App Store listing when no version is in preparation ([87355bb](https://github.com/verein-amazone/rebellinnen-kalender/commit/87355bbd8c61633ac358064d3408d8826af29a05))
+
+### Chores
+
+* **release:** 1.1.2-rc.1 [skip ci] ([0b1f287](https://github.com/verein-amazone/rebellinnen-kalender/commit/0b1f287e9bbaf544bc248fe2fddad5b6f190027d))
+* **release:** 1.2.0-rc.1 [skip ci] ([3d7f11b](https://github.com/verein-amazone/rebellinnen-kalender/commit/3d7f11b617069f4116ddaf259d212ac8647ca342))
+* **release:** 1.2.0-rc.2 [skip ci] ([7e64533](https://github.com/verein-amazone/rebellinnen-kalender/commit/7e64533072d8307e6d95e10df0af9910e96c3607))
+
+
+## Neu in Version 1.2.0
+
+- Lange Links in Terminbeschreibungen und Texten passen jetzt auf den Bildschirm
+- Kleine Verbesserungen im Hintergrund
+
 ## [1.2.0-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.0-rc.1...v1.2.0-rc.2) (2026-11-09)
 
 ### Bug Fixes
