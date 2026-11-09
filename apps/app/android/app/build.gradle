@@ -35,7 +35,7 @@ android {
         applicationId "at.or.amazone.rebellinnenkalender"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10101003
+        versionCode 10101004
         versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

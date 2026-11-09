@@ -1,3 +1,9 @@
+## [1.1.1-rc.4](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.3...v1.1.1-rc.4) (2026-11-09)
+
+### Chores
+
+* **deps:** upgrade the dependencies to their latest versions ([ad43982](https://github.com/verein-amazone/rebellinnen-kalender/commit/ad4398289562ea86e6ba5f5dcfb044438d733454)), closes [#226](https://github.com/verein-amazone/rebellinnen-kalender/issues/226)
+
 ## [1.1.1-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.2...v1.1.1-rc.3) (2026-11-09)
 
 ### Bug Fixes
