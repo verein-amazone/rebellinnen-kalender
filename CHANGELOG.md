@@ -1,3 +1,10 @@
+## [1.1.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.1...v1.1.1-rc.2) (2026-11-09)
+
+### Delivery
+
+* **deps:** bump fastlane in /apps/app in the fastlane group ([77359c4](https://github.com/verein-amazone/rebellinnen-kalender/commit/77359c498fd01903e643a65ef367763290fa013d))
+* **deps:** bump the github-actions group with 2 updates ([abb8289](https://github.com/verein-amazone/rebellinnen-kalender/commit/abb8289699ed83721aaa4589103fbc33bd65d9f1))
+
 ## [1.1.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0...v1.1.1-rc.1) (2026-11-05)
 
 ### Chores
