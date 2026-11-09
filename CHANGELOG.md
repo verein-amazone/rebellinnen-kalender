@@ -1,3 +1,9 @@
+## [1.1.2-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1...v1.1.2-rc.1) (2026-11-09)
+
+### Bug Fixes
+
+* **store:** skip the App Store listing when no version is in preparation ([87355bb](https://github.com/verein-amazone/rebellinnen-kalender/commit/87355bbd8c61633ac358064d3408d8826af29a05))
+
 ## [1.1.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0...v1.1.1) (2026-11-09)
 
 ### Bug Fixes
