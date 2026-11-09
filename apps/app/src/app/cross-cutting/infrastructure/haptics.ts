@@ -44,7 +44,14 @@ export class DeviceHaptics {
 
   async playPattern(pulses: readonly HapticPulse[]): Promise<void> {
     try {
-      await this.plugin.playPattern({ events: pulses.map((pulse) => ({ ...pulse })) });
+      // The plugin counts in milliseconds since 0.2.0; the app's patterns read better in seconds.
+      await this.plugin.playPattern({
+        events: pulses.map(({ time, duration, ...rest }) => ({
+          ...rest,
+          time: toMilliseconds(time),
+          ...(duration === undefined ? {} : { duration: toMilliseconds(duration) }),
+        })),
+      });
     } catch {
       // See the class comment: a pattern that cannot play is not an error worth surfacing.
     }
@@ -76,4 +83,8 @@ export class DeviceHaptics {
       // See the class comment.
     }
   }
+}
+
+function toMilliseconds(seconds: number): number {
+  return Math.round(seconds * 1000);
 }

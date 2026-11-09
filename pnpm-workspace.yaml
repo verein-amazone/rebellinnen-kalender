@@ -8,16 +8,16 @@ packages:
 catalog:
   '@axe-core/playwright': ^4.14.0
   '@eslint/js': ^10.0.1
-  '@playwright/test': ^1.64.1
-  '@tailwindcss/postcss': ^4.3.3
-  '@tailwindcss/vite': ^4.3.3
+  '@playwright/test': ^1.65.0
+  '@tailwindcss/postcss': ^4.3.5
+  '@tailwindcss/vite': ^4.3.5
   '@types/node': ^26.6.6
   eslint: ^10.14.0
   prettier: ^3.9.10
-  serve: ^14.2.6
-  tailwindcss: ^4.3.3
+  serve: ^14.2.7
+  tailwindcss: ^4.3.5
   typescript: ~6.0.3
-  typescript-eslint: 8.71.1
+  typescript-eslint: 8.72.1
 # Build scripts are opt-in since pnpm 10; these are the trusted native
 # dependencies pulled in by the Angular build toolchain.
 allowBuilds:
@@ -53,3 +53,12 @@ overrides:
   # writer 8, so preset 10 fails the release with `Missing helper`. Pin the whole tree to preset 9 and
   # drop the override once release-notes-generator ships writer 9.
   conventional-changelog-conventionalcommits: ^9.3.1
+# @astrojs/astro2tsx (under `astro check`) depends on @emnapi/core 1.11.3 but leaves @emnapi/runtime to
+# the peer of @napi-rs/wasm-runtime. Since rolldown 1.3.0 (via astro) brings @emnapi/runtime
+# 2.0.0-beta.2 into the tree, pnpm satisfies that peer with the beta, the mismatched pair crashes
+# with `this.bridge.deleteEnv is not a function`, and `astro check` asks to install itself. Pair the
+# runtime with the core it ships; drop this once astro2tsx depends on @emnapi/runtime itself.
+packageExtensions:
+  '@astrojs/astro2tsx@0.1.3':
+    dependencies:
+      '@emnapi/runtime': 1.11.3
