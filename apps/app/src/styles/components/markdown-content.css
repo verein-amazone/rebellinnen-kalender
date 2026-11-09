@@ -57,7 +57,9 @@
     margin-bottom: 0.5em;
   }
 
+  /* The links in the content and legal texts are bare addresses, so they wrap without hyphens -
+     see the same rule in `event-description.css` for why. */
   .rk-markdown-content a {
-    @apply text-primary underline underline-offset-2;
+    @apply text-primary hyphens-manual underline underline-offset-2;
   }
 }

@@ -22,7 +22,16 @@
     margin-top: 0.25em;
   }
 
+  /*
+   * A link's text is mostly the address itself, which `EventDescriptionRenderer` links. The body's
+   * `hyphens: auto` would split it at a syllable ("develo-pers"), so it no longer reads as the
+   * address it is. Worse, WebKit - the iOS WebView - then leaves a segment of a long URL unbroken
+   * despite `overflow-wrap: anywhere`, so it runs past the card and the screen pans sideways. With
+   * `hyphens: manual` a link breaks only where the body's `overflow-wrap: anywhere` lets it, and
+   * without a hyphen; `break-words` would weaken that to `break-word`, which keeps the min-content
+   * width of the whole URL.
+   */
   .rk-event-description a {
-    @apply text-primary break-words underline underline-offset-2;
+    @apply text-primary hyphens-manual underline underline-offset-2;
   }
 }
