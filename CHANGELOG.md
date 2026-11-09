@@ -1,3 +1,28 @@
+## [1.1.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.0...v1.1.1) (2026-11-09)
+
+### Bug Fixes
+
+* **site:** drop the launch date now that the app is in both stores ([71aec8a](https://github.com/verein-amazone/rebellinnen-kalender/commit/71aec8a3eb5f31b3d5049331a4160497c6cad5ee))
+
+### Chores
+
+* **deps:** upgrade the dependencies to their latest versions ([ad43982](https://github.com/verein-amazone/rebellinnen-kalender/commit/ad4398289562ea86e6ba5f5dcfb044438d733454)), closes [#226](https://github.com/verein-amazone/rebellinnen-kalender/issues/226)
+* **release:** 1.1.1-rc.1 [skip ci] ([034acc3](https://github.com/verein-amazone/rebellinnen-kalender/commit/034acc3a73cc42b7125b42912139d14cc8896120))
+* **release:** 1.1.1-rc.2 [skip ci] ([52eb6c5](https://github.com/verein-amazone/rebellinnen-kalender/commit/52eb6c5b65c045cbd3010733f30e6225fb99f78d))
+* **release:** 1.1.1-rc.3 [skip ci] ([21870df](https://github.com/verein-amazone/rebellinnen-kalender/commit/21870dfbc480ee171b2690a653b5921cfc3f7a71))
+* **release:** 1.1.1-rc.4 [skip ci] ([bf9da6b](https://github.com/verein-amazone/rebellinnen-kalender/commit/bf9da6b2e081f4189d677f62837cadcef2613a08))
+* **store:** answer "Medical or treatment information" with None ([90cb722](https://github.com/verein-amazone/rebellinnen-kalender/commit/90cb72292cee6362d30f5c83d04e78db8113bb94))
+
+### Delivery
+
+* **deps:** bump fastlane in /apps/app in the fastlane group ([77359c4](https://github.com/verein-amazone/rebellinnen-kalender/commit/77359c498fd01903e643a65ef367763290fa013d))
+* **deps:** bump the github-actions group with 2 updates ([abb8289](https://github.com/verein-amazone/rebellinnen-kalender/commit/abb8289699ed83721aaa4589103fbc33bd65d9f1))
+
+
+## Neu in Version 1.1.1
+
+- Kleine Verbesserungen im Hintergrund
+
 ## [1.1.1-rc.4](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1-rc.3...v1.1.1-rc.4) (2026-11-09)
 
 ### Chores
