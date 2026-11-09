@@ -11,12 +11,14 @@ import {
 import {
   provideRouter,
   withComponentInputBinding,
+  withHashLocation,
   withViewTransitions,
   type RouterFeatures,
   withPreloading,
   PreloadAllModules,
 } from '@angular/router';
 
+import { isDemoBuild } from '@app/cross-cutting/infrastructure/build-flavor';
 import { supportsViewTransitions } from '@app/cross-cutting/infrastructure/device-platform';
 import { SystemTextScale } from '@app/cross-cutting/infrastructure/system-text-scale';
 import { routes } from './app.routes';
@@ -35,6 +37,13 @@ if (supportsViewTransitions()) {
   // Page transitions. The animation itself is defined in src/styles/base.css, which also disables
   // it under the reduced-motion setting.
   routerFeatures.push(withViewTransitions({ skipInitialTransition: true }));
+}
+
+if (isDemoBuild()) {
+  // The web demo is served by GitHub Pages under the website's domain, which has no rewrite rule:
+  // reloading `/demo/settings/theme` would get the website's 404 page. With the route in the hash
+  // (`/demo/#/settings/theme`) every address of the demo is its `index.html`.
+  routerFeatures.push(withHashLocation());
 }
 
 export const appConfig: ApplicationConfig = {

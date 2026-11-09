@@ -181,7 +181,10 @@ has them); keep the redirect for as long as an old address can still be out ther
   them.
 - **Published** by `.github/workflows/pages.yml` on every push to `main` that touches its sources,
   and **tested** by `pnpm test:site` (axe, no foreign requests, no Content-Security-Policy
-  violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job.
+  violation, no sideways scroll at 320 px, the `/download` redirect) in the `Website` CI job. The
+  same publish puts the app's web demo at `/demo/` (`pnpm build:demo`, see
+  [Build targets](./architecture/frontend-architecture.md#build-targets)); nothing on the website
+  links it.
 
 ## Availability
 
@@ -216,8 +219,11 @@ exactly that on purpose - only do it while the app is not live yet, or with Mana
 What it writes, and where:
 
 - **App Store** - the text, categories, review notes, screenshots and age rating go to the version
-  App Store Connect has in "Prepare for Submission". There must be one: a version that is live or in
-  review cannot be edited, and creating the next version is the release's job. Nothing is submitted.
+  App Store Connect has in "Prepare for Submission". A version that is live or in review cannot be
+  edited, and creating the next version is the release's job. Without an editable version the job
+  skips the App Store and stays green: the next release writes the listing with its version. That
+  is also what happens when a merge into `main` changes the listing _and_ cuts a release - this
+  workflow starts next to the release, before the new version exists. Nothing is submitted.
 - **Play** - the text, icon, feature graphic and phone screenshots (only the images that changed),
   then the Data safety answers from `data_safety.csv`. supply needs a build on the internal track to
   attach the edit to; every prerelease from `dev` puts one there. The listing goes to review and, with

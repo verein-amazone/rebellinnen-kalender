@@ -158,6 +158,12 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      # The web demo the Pages workflow publishes at /demo/ of the website, from `main`. Built here
+      # too, so a change that breaks it fails its pull request rather than the publish. Cheap after
+      # the build above: the Angular cache already holds everything but the `define`.
+      - name: Build the web demo
+        run: pnpm build:demo
+
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest

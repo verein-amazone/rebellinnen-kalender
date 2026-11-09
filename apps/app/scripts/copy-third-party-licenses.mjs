@@ -5,7 +5,8 @@
 // root at runtime. `LegalContentGateway.fetchThirdPartyLicenses()` fetches it from there, so a
 // build without this copy step ships an app whose "Open-Source-Lizenzen" screen 404s. Run as the
 // `build` script's `postbuild` hook; a no-op (not an error) in development builds, which don't
-// extract licenses at all.
+// extract licenses at all. The `build:demo` script passes the demo's output directory (`dist/demo`,
+// angular.json `demo` configuration) as the only argument.
 //
 // Angular sees only the JavaScript it bundles. The copy therefore appends
 // licenses/additional-third-party-licenses.txt - the Android and iOS libraries, copied assets and
@@ -18,7 +19,7 @@ import { join } from 'node:path';
 import satisfies from 'spdx-satisfies';
 
 const ROOT = join(import.meta.dirname, '..');
-const outputRoot = join(ROOT, 'dist', 'rebellinnen-kalender');
+const outputRoot = join(ROOT, process.argv[2] ?? join('dist', 'rebellinnen-kalender'));
 const source = join(outputRoot, '3rdpartylicenses.txt');
 const destination = join(outputRoot, 'browser', '3rdpartylicenses.txt');
 const additional = join(ROOT, 'licenses', 'additional-third-party-licenses.txt');

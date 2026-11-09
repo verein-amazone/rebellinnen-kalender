@@ -1,6 +1,6 @@
 {
   "name": "rebellinnen-kalender",
-  "version": "1.1.1",
+  "version": "1.2.0-rc.2",
   "description": "Workspace root: the app (apps/app), the website (apps/site) and the packages they share. Holds the release version and the repository-wide tooling.",
   "repository": {
     "type": "git",
@@ -10,6 +10,7 @@
   "scripts": {
     "start": "pnpm --filter @amazone/app start",
     "build": "pnpm --filter @amazone/app build",
+    "build:demo": "pnpm --filter @amazone/app build:demo",
     "watch": "pnpm --filter @amazone/app watch",
     "test": "pnpm --filter @amazone/app test",
     "test:ci": "pnpm -r --if-present test:ci",

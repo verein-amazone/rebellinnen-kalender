@@ -132,6 +132,8 @@ export interface SeedOccurrenceOptions {
    */
   readonly calendarName?: string;
   readonly color?: string;
+  /** `device`/`ics` only: the description the calendar delivered, shown as the event's notes. */
+  readonly description?: string;
 }
 
 export interface SeededOccurrence {
@@ -163,6 +165,7 @@ export async function seedOccurrence(
   const existing = options.existingCalendar ?? null;
   const calendarName = options.calendarName ?? null;
   const color = options.color ?? '#2f6f8f';
+  const description = options.description ?? null;
 
   return page.evaluate(
     async ({
@@ -174,6 +177,7 @@ export async function seedOccurrence(
       existingCalendar,
       calendarName: customName,
       color: calendarColor,
+      description: occurrenceDescription,
     }) => {
       const database = (window as unknown as { rkWebSqlite: WebSqliteLike }).rkWebSqlite;
       const now = new Date().toISOString();
@@ -270,8 +274,9 @@ export async function seedOccurrence(
         `INSERT INTO occurrences (
            id, source_id, source_type, calendar_id, series_id, original_start, provenance,
            item_kind, item_id, title, location, is_all_day, start_kind, start_value, start_tz,
-           end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           end_kind, end_value, end_tz, start_utc, end_utc, start_local_day, end_local_day, external_id,
+           description
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           occurrenceId,
           sourceId,
@@ -296,6 +301,7 @@ export async function seedOccurrence(
           localDay,
           localDay,
           sourceType === 'device' ? `device-event-${occurrenceId}` : null,
+          occurrenceDescription,
         ],
       );
 
@@ -310,6 +316,7 @@ export async function seedOccurrence(
       existingCalendar: existing,
       calendarName,
       color,
+      description,
     },
   );
 }

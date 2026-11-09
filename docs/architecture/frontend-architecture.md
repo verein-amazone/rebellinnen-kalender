@@ -480,8 +480,22 @@ Only create cross-cutting code when it is actually shared.
 `pnpm build` is the build everything else consumes: `cap sync` copies it into the native projects,
 and the e2e suite runs against it. There is no service worker: a WebView already serves the bundle
 from the app package, and a worker caching it on top would keep serving the previous release's
-assets after an app update. The browser build is not published; the GitHub Pages workflow publishes
-the website instead (`apps/site`).
+assets after an app update.
+
+`pnpm build:demo` (the `demo` configuration on top of `production`) is the web demo, which the
+GitHub Pages workflow publishes from `main` at `/demo/` of the website, next to `apps/site`. It is
+for looking at the app, not for using it, and differs from `pnpm build` in three places only:
+
+- `baseHref` is `/demo/` and the output goes to `dist/demo`, so it never replaces the build
+  `cap sync` copies.
+- The router uses hash location (`/demo/#/settings`): Pages has no rewrite rule and would answer a
+  reload of a deeper path with the website's 404 page.
+- `isDemoBuild()` / `BuildFlavor` (`cross-cutting/infrastructure/build-flavor.ts`, a `define` in
+  angular.json) is `true`, and the shell shows a notice that this is a preview.
+
+Everything a browser cannot do is already off in any web build - see the `isNativePlatform` and
+`isSupported()` checks - so the demo needs no feature switches of its own. `index.html` asks not to
+be indexed in every build; the phone apps ignore that.
 
 ### Supported browsers and WebViews
 
@@ -684,8 +698,9 @@ description is never changed; the presentation is derived each time it is shown.
   them - only its `find()`, used nowhere else - and the links are built as DOM nodes. The finished
   HTML passes DOMPurify once more.
 - **`view/components/event-description/event-description.ts`** (`EventDescriptionComponent`) binds
-  that HTML with `[innerHTML]` (styled by `.rk-event-description`), so Angular's sanitizer again
-  runs as a further layer.
+  that HTML with `[innerHTML]` (styled by `.rk-event-description`, whose links wrap without
+  hyphens - see [Scaling-safe rules](./design-system.md#scaling-safe-rules)), so Angular's
+  sanitizer again runs as a further layer.
 
 A video call in the event is found before the description is shown, and the provider's generated
 block is taken out of it; see [Online meetings in imported events](./online-meetings.md).

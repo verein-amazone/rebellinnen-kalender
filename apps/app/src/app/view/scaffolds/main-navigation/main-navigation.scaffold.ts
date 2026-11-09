@@ -11,6 +11,7 @@ import {
 import { DOCUMENT } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { LucideBookOpen, LucideCalendarDays, LucideSun } from '@lucide/angular';
+import { BuildFlavor } from '@app/cross-cutting/infrastructure/build-flavor';
 import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { PageFocus } from '@app/cross-cutting/infrastructure/page-focus';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
@@ -74,6 +75,9 @@ export class MainNavigationScaffold {
   private readonly scrollMemory = new ScrollMemory(inject(UrlSerializer));
 
   protected readonly destinations = DESTINATIONS;
+
+  /** Shows the preview notice above every screen of the web demo. */
+  protected readonly demo = inject(BuildFlavor).demo;
 
   protected readonly activeTab = toSignal(
     this.router.events.pipe(

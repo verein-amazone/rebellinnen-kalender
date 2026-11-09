@@ -3,6 +3,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Router, provideRouter, type NavigationBehaviorOptions } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 
+import { BuildFlavor } from '@app/cross-cutting/infrastructure/build-flavor';
 import { KeyboardVisibility } from '@app/cross-cutting/infrastructure/keyboard-visibility';
 import { AppearanceInteractor } from '@app/interactors/settings/appearance.interactor';
 
@@ -53,6 +54,27 @@ describe('MainNavigationScaffold', () => {
 
     return { element: fixture.nativeElement as HTMLElement, navigateTo };
   }
+
+  it('shows no preview notice outside the web demo', async () => {
+    const { element } = await setUp('/today');
+
+    expect(element.textContent).not.toContain('Vorschau im Browser');
+  });
+
+  it('tells a visitor of the web demo that it is a preview, on focused screens too', async () => {
+    const { element, navigateTo } = await setUp('/today', [
+      { provide: BuildFlavor, useValue: { demo: true } },
+    ]);
+
+    expect(element.textContent).toContain('Das ist eine Vorschau im Browser.');
+    const link = [...element.querySelectorAll('a')].find(
+      (anchor) => anchor.textContent?.trim() === 'App herunterladen',
+    );
+    expect(link?.getAttribute('href')).toBe('https://rebellinnen.amazone.or.at/');
+
+    await navigateTo('/calendar/event/new');
+    expect(element.textContent).toContain('Das ist eine Vorschau im Browser.');
+  });
 
   it('brings the focused field clear of the keyboard once it is announced', async () => {
     const keyboard = { visible: signal(false), inset: signal(0) };

@@ -219,6 +219,9 @@ These rules are what keep the layout usable there:
    "Systemeinstellung" overflowed a 320px screen by 226px at 300% - and one unbreakable word makes
    the whole screen scroll sideways. `anywhere` rather than `break-word`: only `anywhere` shrinks the
    min-content width, which is what lets a flex or grid child give up the space.
+   Links in rendered rich text (`.rk-event-description`, `.rk-markdown-content`) set
+   `hyphens: manual`: their text is mostly a bare URL, which a hyphen would misquote, and in WebKit
+   `hyphens: auto` left a long URL's segment unbroken despite `anywhere`.
 8. **One scroll region, chrome outside it.** The shell is a fixed `.rk-shell` frame and `.rk-scroll-region`
    is the only element that scrolls. Vertical scrolling at 2x and beyond is expected - the content
    genuinely is several viewports tall, and reflow asks for exactly that - but the tab bar must not
