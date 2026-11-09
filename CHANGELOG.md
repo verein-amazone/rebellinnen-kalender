@@ -1,3 +1,9 @@
+## [1.2.0-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.2-rc.1...v1.2.0-rc.1) (2026-11-09)
+
+### Features
+
+* **pages:** publish the app as an unlisted web demo at /demo/ ([28ba9eb](https://github.com/verein-amazone/rebellinnen-kalender/commit/28ba9ebb8e9909c919ec740b134be2170ea28c95))
+
 ## [1.1.2-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1...v1.1.2-rc.1) (2026-11-09)
 
 ### Bug Fixes
