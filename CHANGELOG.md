@@ -1,3 +1,9 @@
+## [1.2.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.0...v1.2.1-rc.1) (2026-11-16)
+
+### Delivery
+
+* **deps:** bump the github-actions group with 4 updates ([bfb565a](https://github.com/verein-amazone/rebellinnen-kalender/commit/bfb565aa6a14ddd772964622bb6823303f1a1092))
+
 ## [1.2.0](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.1.1...v1.2.0) (2026-11-09)
 
 ### Features
