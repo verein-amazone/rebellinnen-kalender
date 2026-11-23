@@ -1,3 +1,28 @@
+## [1.2.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.0...v1.2.1) (2026-11-23)
+
+### Chores
+
+* **deps:** bump com.google.gms:google-services ([1ca9747](https://github.com/verein-amazone/rebellinnen-kalender/commit/1ca9747d16e09fa11c88a84759428d9e9e490bf0))
+* **deps:** bump rrule-temporal to 2.3.0 and typescript-eslint to 8.73.0 ([6cf0df2](https://github.com/verein-amazone/rebellinnen-kalender/commit/6cf0df267d24e9269f552f75a5f9c98c0d811353))
+* **deps:** weekly app dependency update ([5e4be6c](https://github.com/verein-amazone/rebellinnen-kalender/commit/5e4be6cb035f3433b431a4b3c39d6c473c5f36e3))
+* **deps:** weekly app dependency update ([76ab52d](https://github.com/verein-amazone/rebellinnen-kalender/commit/76ab52da0dbcb7a373115652ec6b02117f818fb9))
+* **release:** 1.2.1-rc.1 [skip ci] ([d3c3fa6](https://github.com/verein-amazone/rebellinnen-kalender/commit/d3c3fa65369518b0da03342540e83c4e1f3a1f44))
+* **release:** 1.2.1-rc.2 [skip ci] ([4c814af](https://github.com/verein-amazone/rebellinnen-kalender/commit/4c814af2322930740abdd1dfab15194cf6c28bca))
+* **release:** 1.2.1-rc.3 [skip ci] ([d544609](https://github.com/verein-amazone/rebellinnen-kalender/commit/d54460997805091be47a689ba9151b1e5dedf77d))
+* **release:** 1.2.1-rc.4 [skip ci] ([be6c9d5](https://github.com/verein-amazone/rebellinnen-kalender/commit/be6c9d5bc05cb1ee8ab2bd7509480e264d93be8e))
+* **release:** 1.2.1-rc.5 [skip ci] ([a479171](https://github.com/verein-amazone/rebellinnen-kalender/commit/a4791715e2163832ccb3ea42a69555a883e372c7))
+
+### Delivery
+
+* build iOS with Xcode 27 (iOS 27 SDK) ([a161fe0](https://github.com/verein-amazone/rebellinnen-kalender/commit/a161fe0726d4d9e3bc7bd41ca16c9fc728613f76))
+* **deps:** bump the github-actions group with 2 updates ([1c180cd](https://github.com/verein-amazone/rebellinnen-kalender/commit/1c180cdc33ccac31c7f83fe73229d7365ffae035))
+* **deps:** bump the github-actions group with 4 updates ([bfb565a](https://github.com/verein-amazone/rebellinnen-kalender/commit/bfb565aa6a14ddd772964622bb6823303f1a1092))
+
+
+## Neu in Version 1.2.1
+
+- Kleine Verbesserungen im Hintergrund
+
 ## [1.2.1-rc.5](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.4...v1.2.1-rc.5) (2026-11-23)
 
 ### Delivery
