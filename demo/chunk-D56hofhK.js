@@ -1,0 +1,1 @@
+import{Vi as E}from"./main-STAZVMJK.js";var t=class extends E{async getCurrentIcon(){throw this.unimplemented(`Not implemented on web.`)}async isAvailable(){throw this.unimplemented(`Not implemented on web.`)}async resetIcon(n){throw this.unimplemented(`Not implemented on web.`)}async setIcon(n){throw this.unimplemented(`Not implemented on web.`)}};export{t as AppIconWeb};
