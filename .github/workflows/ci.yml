@@ -240,7 +240,9 @@ jobs:
 
   ios:
     name: iOS build (unsigned)
-    runs-on: macos-latest
+    # xcode-27, not macos-latest: App Store Connect needs the iOS 27 SDK from April 2027 (ITMS-90725),
+    # and macos-latest still ships Xcode 26. Back to macos-latest once its image carries Xcode 27.
+    runs-on: xcode-27
     needs: build
     timeout-minutes: 40
     permissions:

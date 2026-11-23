@@ -86,7 +86,9 @@ jobs:
   testflight:
     name: ${{ inputs.channel == 'release' && 'App Store' || 'TestFlight' }}
     if: vars.TESTFLIGHT_UPLOADS_ENABLED == 'true'
-    runs-on: macos-latest
+    # xcode-27, not macos-latest: App Store Connect needs the iOS 27 SDK from April 2027 (ITMS-90725),
+    # and macos-latest still ships Xcode 26. Back to macos-latest once its image carries Xcode 27.
+    runs-on: xcode-27
     # One environment for both channels: the App Store Connect key, the match passphrase and the
     # deploy key are the same credentials whichever track the build is staged into, and a second
     # environment would only be a second copy of them to keep in sync.
