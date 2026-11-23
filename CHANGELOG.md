@@ -1,3 +1,9 @@
+## [1.2.1-rc.5](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.4...v1.2.1-rc.5) (2026-11-23)
+
+### Delivery
+
+* build iOS with Xcode 27 (iOS 27 SDK) ([a161fe0](https://github.com/verein-amazone/rebellinnen-kalender/commit/a161fe0726d4d9e3bc7bd41ca16c9fc728613f76))
+
 ## [1.2.1-rc.4](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.3...v1.2.1-rc.4) (2026-11-23)
 
 ### Chores
