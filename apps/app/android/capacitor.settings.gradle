@@ -30,13 +30,13 @@ include ':capawesome-capacitor-shake'
 project(':capawesome-capacitor-shake').projectDir = new File('../../../node_modules/.pnpm/@capawesome+capacitor-shake@0.1.2_@capacitor+core@8.6.2/node_modules/@capawesome/capacitor-shake/android')
 
 include ':capawesome-capacitor-youtube-player'
-project(':capawesome-capacitor-youtube-player').projectDir = new File('../../../node_modules/.pnpm/@capawesome+capacitor-youtube-player@0.1.5_@capacitor+core@8.6.2/node_modules/@capawesome/capacitor-youtube-player/android')
+project(':capawesome-capacitor-youtube-player').projectDir = new File('../../../node_modules/.pnpm/@capawesome+capacitor-youtube-player@0.1.6_@capacitor+core@8.6.2/node_modules/@capawesome/capacitor-youtube-player/android')
 
 include ':ebarooni-capacitor-calendar'
-project(':ebarooni-capacitor-calendar').projectDir = new File('../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.10.0_@capacitor+core@8.6.2/node_modules/@ebarooni/capacitor-calendar/android')
+project(':ebarooni-capacitor-calendar').projectDir = new File('../../../node_modules/.pnpm/@ebarooni+capacitor-calendar@8.11.0_@capacitor+core@8.6.2/node_modules/@ebarooni/capacitor-calendar/android')
 
 include ':independo-capacitor-emoji-picker'
-project(':independo-capacitor-emoji-picker').projectDir = new File('../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.6_@capacitor+core@8.6.2/node_modules/@independo/capacitor-emoji-picker/android')
+project(':independo-capacitor-emoji-picker').projectDir = new File('../../../node_modules/.pnpm/@independo+capacitor-emoji-picker@1.3.8_@capacitor+core@8.6.2/node_modules/@independo/capacitor-emoji-picker/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../../../node_modules/.pnpm/capacitor-native-settings@8.2.0_@capacitor+core@8.6.2/node_modules/capacitor-native-settings/android')
