@@ -31,7 +31,8 @@ jobs:
   update:
     name: Run update script and create PR
     # macOS so `cap sync` and xcodebuild can refresh the Swift package graph (Package.resolved).
-    runs-on: macos-latest
+    # The same Xcode 27 image the release build uses, so the resolved graph matches it.
+    runs-on: xcode-27
     timeout-minutes: 45
     permissions:
       contents: write
