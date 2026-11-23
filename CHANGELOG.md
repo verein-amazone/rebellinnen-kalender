@@ -1,3 +1,14 @@
+## [1.2.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.1...v1.2.1-rc.2) (2026-11-23)
+
+### Chores
+
+* **deps:** bump com.google.gms:google-services ([1ca9747](https://github.com/verein-amazone/rebellinnen-kalender/commit/1ca9747d16e09fa11c88a84759428d9e9e490bf0))
+* **deps:** weekly app dependency update ([76ab52d](https://github.com/verein-amazone/rebellinnen-kalender/commit/76ab52da0dbcb7a373115652ec6b02117f818fb9))
+
+### Delivery
+
+* **deps:** bump the github-actions group with 2 updates ([1c180cd](https://github.com/verein-amazone/rebellinnen-kalender/commit/1c180cdc33ccac31c7f83fe73229d7365ffae035))
+
 ## [1.2.1-rc.1](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.0...v1.2.1-rc.1) (2026-11-16)
 
 ### Delivery
