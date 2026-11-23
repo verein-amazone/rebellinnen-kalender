@@ -1,3 +1,9 @@
+## [1.2.1-rc.3](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.2...v1.2.1-rc.3) (2026-11-23)
+
+### Chores
+
+* **deps:** bump rrule-temporal to 2.3.0 and typescript-eslint to 8.73.0 ([6cf0df2](https://github.com/verein-amazone/rebellinnen-kalender/commit/6cf0df267d24e9269f552f75a5f9c98c0d811353))
+
 ## [1.2.1-rc.2](https://github.com/verein-amazone/rebellinnen-kalender/compare/v1.2.1-rc.1...v1.2.1-rc.2) (2026-11-23)
 
 ### Chores
