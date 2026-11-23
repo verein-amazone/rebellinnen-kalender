@@ -60,7 +60,7 @@
     "ical.js": "^2.2.1",
     "linkifyjs": "^4.4.0",
     "marked": "^18.2.0",
-    "rrule-temporal": "2.2.8",
+    "rrule-temporal": "^2.3.0",
     "rxjs": "~7.8.2",
     "temporal-polyfill": "^1.0.8",
     "tslib": "^2.9.1"
